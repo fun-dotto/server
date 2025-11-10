@@ -5,9 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AnnouncementHandler struct{}
+type Handler struct{}
 
-func (h *AnnouncementHandler) AnnouncementsList(c *gin.Context) {
+func NewHandler() *Handler {
+	return &Handler{}
+}
+
+func (h *Handler) AnnouncementsList(c *gin.Context) {
 	// TODO: 実装
 	announcements := []api.Announcement{}
 	c.JSON(200, announcements)

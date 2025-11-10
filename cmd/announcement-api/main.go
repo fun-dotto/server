@@ -11,9 +11,9 @@ import (
 func main() {
 	router := gin.Default()
 
-	announcementHandler := &handler.AnnouncementHandler{}
+	h := handler.NewHandler()
 
-	api.RegisterHandlers(router, announcementHandler)
+	api.RegisterHandlers(router, h)
 
 	log.Println("Server starting on :8080")
 	if err := router.Run(":8080"); err != nil {
