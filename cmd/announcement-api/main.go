@@ -1,9 +1,22 @@
 package main
 
 import (
-	"fmt"
+	"log"
+
+	api "github.com/fun-dotto/announcement-api/generated"
+	"github.com/fun-dotto/announcement-api/internal/handler"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	fmt.Println("Hello World!")
+	router := gin.Default()
+
+	announcementHandler := &handler.AnnouncementHandler{}
+
+	api.RegisterHandlers(router, announcementHandler)
+
+	log.Println("Server starting on :8080")
+	if err := router.Run(":8080"); err != nil {
+		log.Fatal("Failed to start server:", err)
+	}
 }
