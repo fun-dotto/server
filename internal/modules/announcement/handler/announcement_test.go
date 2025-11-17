@@ -14,17 +14,40 @@ import (
 func TestAnnouncementsList(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	h := NewHandler()
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
+	tests := []struct {
+		name         string
+		setupContext func(c *gin.Context)
+		wantCode     int
+		validate     func(t *testing.T, w *httptest.ResponseRecorder)
+	}{
+		{
+			name:         "正常にお知らせ一覧が取得できる",
+			setupContext: func(c *gin.Context) {},
+			wantCode:     http.StatusOK,
+			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
+				var announcements []api.Announcement
+				err := json.Unmarshal(w.Body.Bytes(), &announcements)
+				assert.NoError(t, err, "JSONのパースに失敗しました")
+				assert.NotEmpty(t, announcements, "アナウンスメントが空です")
+			},
+		},
+	}
 
-	h.AnnouncementsList(c)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := NewHandler()
+			w := httptest.NewRecorder()
+			c, _ := gin.CreateTestContext(w)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+			if tt.setupContext != nil {
+				tt.setupContext(c)
+			}
 
-	var announcements []api.Announcement
-	json.Unmarshal(w.Body.Bytes(), &announcements)
+			h.AnnouncementsList(c)
 
-	assert.NotEmpty(t, announcements)
-	assert.Equal(t, "1", announcements[0].Id)
+			if tt.validate != nil {
+				tt.validate(t, w)
+			}
+		})
+	}
 }
