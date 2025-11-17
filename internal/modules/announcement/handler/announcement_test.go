@@ -31,6 +31,26 @@ func TestAnnouncementsList(t *testing.T) {
 				assert.NotEmpty(t, announcements, "アナウンスメントが空です")
 			},
 		},
+		{
+			name:         "Content-Typeがapplication/jsonである",
+			setupContext: func(c *gin.Context) {},
+			wantCode:     http.StatusOK,
+			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
+				assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+			},
+		},
+		{
+			name:         "レスポンスが配列形式である",
+			setupContext: func(c *gin.Context) {},
+			wantCode:     http.StatusOK,
+			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
+				var result interface{}
+				err := json.Unmarshal(w.Body.Bytes(), &result)
+				assert.NoError(t, err)
+				_, isArray := result.([]interface{})
+				assert.True(t, isArray, "レスポンスが配列形式ではありません")
+			},
+		},
 	}
 
 	for _, tt := range tests {
