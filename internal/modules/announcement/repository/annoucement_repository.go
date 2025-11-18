@@ -13,7 +13,7 @@ func NewAnnouncementRepository(db *gorm.DB) *announcementRepository {
 	return &announcementRepository{db: db}
 }
 
-func (r *announcementRepository) FindAll() ([]domain.Announcement, error) {
+func (r *announcementRepository) GetAnnouncements() ([]domain.Announcement, error) {
 	var announcements []domain.Announcement
 	if err := r.db.Find(&announcements).Error; err != nil {
 		return nil, err
