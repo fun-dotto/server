@@ -1,28 +1,23 @@
 package handler
 
 import (
-	"time"
-
-	api "github.com/fun-dotto/announcement-api/generated"
+	"github.com/fun-dotto/announcement-api/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct{}
+type Handler struct {
+	announcementService *service.AnnouncementService
+}
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(announcementService *service.AnnouncementService) *Handler {
+	return &Handler{announcementService: announcementService}
 }
 
 func (h *Handler) AnnouncementsList(c *gin.Context) {
-	// TODO: 実装
-	announcements := []api.Announcement{
-		{
-			Date:     time.Now(),
-			Id:       "1",
-			IsActive: true,
-			Title:    "Announcement 1",
-			Url:      "https://example.com",
-		},
+	announcements, err := h.announcementService.GetAnnouncements()
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(200, announcements)
