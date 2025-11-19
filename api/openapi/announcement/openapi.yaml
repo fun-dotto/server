@@ -9,7 +9,13 @@ paths:
     get:
       operationId: Announcements_list
       description: List announcements
-      parameters: []
+      parameters:
+        - name: isActive
+          in: query
+          required: false
+          schema:
+            type: boolean
+          explode: false
       responses:
         '200':
           description: The request has succeeded.

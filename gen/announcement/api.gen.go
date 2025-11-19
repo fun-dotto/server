@@ -4,9 +4,12 @@
 package api
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/oapi-codegen/runtime"
 )
 
 // Announcement defines model for Announcement.
@@ -18,11 +21,16 @@ type Announcement struct {
 	Url      string    `json:"url"`
 }
 
+// AnnouncementsListParams defines parameters for AnnouncementsList.
+type AnnouncementsListParams struct {
+	IsActive *bool `form:"isActive,omitempty" json:"isActive,omitempty"`
+}
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
 	// (GET /announcements)
-	AnnouncementsList(c *gin.Context)
+	AnnouncementsList(c *gin.Context, params AnnouncementsListParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -37,6 +45,19 @@ type MiddlewareFunc func(c *gin.Context)
 // AnnouncementsList operation middleware
 func (siw *ServerInterfaceWrapper) AnnouncementsList(c *gin.Context) {
 
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params AnnouncementsListParams
+
+	// ------------- Optional query parameter "isActive" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "isActive", c.Request.URL.Query(), &params.IsActive)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter isActive: %w", err), http.StatusBadRequest)
+		return
+	}
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -44,7 +65,7 @@ func (siw *ServerInterfaceWrapper) AnnouncementsList(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.AnnouncementsList(c)
+	siw.Handler.AnnouncementsList(c, params)
 }
 
 // GinServerOptions provides options for the Gin server.
