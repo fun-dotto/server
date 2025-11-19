@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	api "github.com/fun-dotto/announcement-api/generated"
+	"github.com/fun-dotto/announcement-api/internal/repository"
+	"github.com/fun-dotto/announcement-api/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -55,7 +57,7 @@ func TestAnnouncementsList(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := NewHandler()
+			h := NewHandler(service.NewAnnouncementService(repository.NewMockAnnouncementRepository()))
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
 

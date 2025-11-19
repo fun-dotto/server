@@ -5,13 +5,19 @@ import (
 
 	api "github.com/fun-dotto/announcement-api/generated"
 	"github.com/fun-dotto/announcement-api/internal/handler"
+	"github.com/fun-dotto/announcement-api/internal/repository"
+	"github.com/fun-dotto/announcement-api/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	router := gin.Default()
 
-	h := handler.NewHandler()
+	mockRepository := repository.NewMockAnnouncementRepository()
+
+	announcementService := service.NewAnnouncementService(mockRepository)
+
+	h := handler.NewHandler(announcementService)
 
 	api.RegisterHandlers(router, h)
 
