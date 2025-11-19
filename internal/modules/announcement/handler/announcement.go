@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"net/http"
+
+	api "github.com/fun-dotto/announcement-api/generated"
 	"github.com/fun-dotto/announcement-api/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -13,12 +16,12 @@ func NewHandler(announcementService *service.AnnouncementService) *Handler {
 	return &Handler{announcementService: announcementService}
 }
 
-func (h *Handler) AnnouncementsList(c *gin.Context) {
-	announcements, err := h.announcementService.GetAnnouncements()
+func (h *Handler) AnnouncementsList(c *gin.Context, params api.AnnouncementsListParams) {
+	announcements, err := h.announcementService.GetAnnouncements(params.IsActive)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(200, announcements)
+	c.JSON(http.StatusOK, announcements)
 }
