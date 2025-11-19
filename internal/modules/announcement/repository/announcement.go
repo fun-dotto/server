@@ -15,15 +15,15 @@ func NewAnnouncementRepository(db *gorm.DB) *announcementRepository {
 }
 
 func (r *announcementRepository) GetAnnouncements() ([]domain.Announcement, error) {
-	var announcements []database.AnnouncementModel
-	if err := r.db.Find(&announcements).Error; err != nil {
+	var dbAnnouncements []database.Announcement
+	if err := r.db.Find(&dbAnnouncements).Error; err != nil {
 		return nil, err
 	}
 
-	announcementDomains := make([]domain.Announcement, len(announcements))
-	for i, announcement := range announcements {
-		announcementDomains[i] = announcement.ToDomain()
+	domainAnnouncements := make([]domain.Announcement, len(dbAnnouncements))
+	for i, dbAnnouncement := range dbAnnouncements {
+		domainAnnouncements[i] = dbAnnouncement.ToDomain()
 	}
 
-	return announcementDomains, nil
+	return domainAnnouncements, nil
 }
