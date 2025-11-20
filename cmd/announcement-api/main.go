@@ -4,6 +4,7 @@ import (
 	"log"
 
 	api "github.com/fun-dotto/announcement-api/generated"
+	"github.com/fun-dotto/announcement-api/internal/config"
 	"github.com/fun-dotto/announcement-api/internal/database"
 	"github.com/fun-dotto/announcement-api/internal/handler"
 	"github.com/fun-dotto/announcement-api/internal/repository"
@@ -17,7 +18,9 @@ func main() {
 		log.Printf("Warning: .env file not found: %v", err)
 	}
 
-	db, err := database.Connect()
+	cfg := config.Load()
+
+	db, err := database.Connect(cfg.Database)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -41,8 +44,9 @@ func main() {
 
 	api.RegisterHandlers(router, h)
 
-	log.Println("Server starting on :8080")
-	if err := router.Run(":8080"); err != nil {
+	addr := ":" + cfg.Server.Port
+	log.Printf("Server starting on %s", addr)
+	if err := router.Run(addr); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
 }
