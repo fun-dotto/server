@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	api "github.com/fun-dotto/announcement-api/generated"
+	"github.com/fun-dotto/announcement-api/internal/domain"
 	"github.com/fun-dotto/announcement-api/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -23,5 +24,20 @@ func (h *Handler) AnnouncementsList(c *gin.Context, params api.AnnouncementsList
 		return
 	}
 
-	c.JSON(http.StatusOK, announcements)
+	apiAnnouncements := make([]api.Announcement, len(announcements))
+	for i, announcement := range announcements {
+		apiAnnouncements[i] = toApiAnnouncement(announcement)
+	}
+
+	c.JSON(http.StatusOK, apiAnnouncements)
+}
+
+func toApiAnnouncement(announcement domain.Announcement) api.Announcement {
+	return api.Announcement{
+		Id:       announcement.ID,
+		Title:    announcement.Title,
+		Date:     announcement.Date,
+		Url:      announcement.URL,
+		IsActive: announcement.IsActive,
+	}
 }
