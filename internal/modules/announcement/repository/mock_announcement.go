@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"sort"
 	"time"
 
 	"github.com/fun-dotto/announcement-api/internal/domain"
@@ -15,15 +16,22 @@ func NewMockAnnouncementRepository() *MockAnnouncementRepository {
 		announcements: []domain.Announcement{
 			{
 				ID:       "1",
-				Title:    "Active Announcement",
-				Date:     time.Now(),
-				URL:      "https://example.com/active",
+				Title:    "Old Announcement",
+				Date:     time.Now().Add(-24 * time.Hour),
+				URL:      "https://example.com/old",
 				IsActive: true,
 			},
 			{
 				ID:       "2",
-				Title:    "Inactive Announcement",
+				Title:    "New Announcement",
 				Date:     time.Now(),
+				URL:      "https://example.com/new",
+				IsActive: true,
+			},
+			{
+				ID:       "3",
+				Title:    "Inactive Announcement",
+				Date:     time.Now().Add(-12 * time.Hour),
 				URL:      "https://example.com/inactive",
 				IsActive: false,
 			},
@@ -32,15 +40,24 @@ func NewMockAnnouncementRepository() *MockAnnouncementRepository {
 }
 
 func (m *MockAnnouncementRepository) GetAnnouncements(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
-	if query.IsActive == nil {
-		return m.announcements, nil
+	result := make([]domain.Announcement, len(m.announcements))
+	copy(result, m.announcements)
+
+	if query.FilterIsActive {
+		var filtered []domain.Announcement
+		for _, announcement := range result {
+			if announcement.IsActive {
+				filtered = append(filtered, announcement)
+			}
+		}
+		result = filtered
 	}
 
-	var filtered []domain.Announcement
-	for _, announcement := range m.announcements {
-		if announcement.IsActive == *query.IsActive {
-			filtered = append(filtered, announcement)
+	sort.Slice(result, func(i, j int) bool {
+		if query.SortByDate == domain.SortDirectionDesc {
+			return result[i].Date.After(result[j].Date)
 		}
-	}
-	return filtered, nil
+		return result[i].Date.Before(result[j].Date)
+	})
+	return result, nil
 }

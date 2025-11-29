@@ -12,6 +12,12 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// Defines values for SortDirection.
+const (
+	Asc  SortDirection = "asc"
+	Desc SortDirection = "desc"
+)
+
 // Announcement defines model for Announcement.
 type Announcement struct {
 	Date     time.Time `json:"date"`
@@ -21,9 +27,20 @@ type Announcement struct {
 	Url      string    `json:"url"`
 }
 
+// SortDirection defines model for SortDirection.
+type SortDirection string
+
 // AnnouncementsListParams defines parameters for AnnouncementsList.
 type AnnouncementsListParams struct {
-	IsActive *bool `form:"isActive,omitempty" json:"isActive,omitempty"`
+	// SortByDate 日時ソート
+	//
+	// 昇順ソートの場合は`asc`を指定、降順ソートの場合は`desc`を指定
+	SortByDate *SortDirection `form:"sortByDate,omitempty" json:"sortByDate,omitempty"`
+
+	// FilterIsActive 公開状態で絞り込むか
+	//
+	// 公開状態のみを抽出する場合は`true`を指定
+	FilterIsActive *bool `form:"filterIsActive,omitempty" json:"filterIsActive,omitempty"`
 }
 
 // ServerInterface represents all server handlers.
@@ -50,11 +67,19 @@ func (siw *ServerInterfaceWrapper) AnnouncementsList(c *gin.Context) {
 	// Parameter object where we will unmarshal all parameters from the context
 	var params AnnouncementsListParams
 
-	// ------------- Optional query parameter "isActive" -------------
+	// ------------- Optional query parameter "sortByDate" -------------
 
-	err = runtime.BindQueryParameter("form", false, false, "isActive", c.Request.URL.Query(), &params.IsActive)
+	err = runtime.BindQueryParameter("form", false, false, "sortByDate", c.Request.URL.Query(), &params.SortByDate)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter isActive: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter sortByDate: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "filterIsActive" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "filterIsActive", c.Request.URL.Query(), &params.FilterIsActive)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter filterIsActive: %w", err), http.StatusBadRequest)
 		return
 	}
 

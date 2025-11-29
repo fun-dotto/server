@@ -1,24 +1,39 @@
 openapi: 3.1.0
 info:
   title: Announcement Service
-  version: 0.0.0
+  version: 1.0.0
 tags:
   - name: Announcements
 paths:
   /announcements:
     get:
       operationId: Announcements_list
-      description: List announcements
       parameters:
-        - name: isActive
+        - name: sortByDate
           in: query
           required: false
+          description: |-
+            日時ソート
+
+            昇順ソートの場合は`asc`を指定、降順ソートの場合は`desc`を指定
+          schema:
+            $ref: '#/components/schemas/SortDirection'
+            default: asc
+          explode: false
+        - name: filterIsActive
+          in: query
+          required: false
+          description: |-
+            公開状態で絞り込むか
+
+            公開状態のみを抽出する場合は`true`を指定
           schema:
             type: boolean
+            default: false
           explode: false
       responses:
         '200':
-          description: The request has succeeded.
+          description: おしらせのリスト
           content:
             application/json:
               schema:
@@ -50,3 +65,24 @@ components:
           format: uri
         isActive:
           type: boolean
+    SortDirection:
+      type: string
+      enum:
+        - asc
+        - desc
+servers:
+  - url: http://localhost:8080
+    description: Local
+    variables: {}
+  - url: https://announcement-api-dev-107577467292.asia-northeast1.run.app
+    description: Development
+    variables: {}
+  - url: https://announcement-api-stg-107577467292.asia-northeast1.run.app
+    description: Staging
+    variables: {}
+  - url: https://announcement-api-qa-107577467292.asia-northeast1.run.app
+    description: QA
+    variables: {}
+  - url: https://announcement-api-107577467292.asia-northeast1.run.app
+    description: Production
+    variables: {}
