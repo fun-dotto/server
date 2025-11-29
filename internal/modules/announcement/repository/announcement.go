@@ -14,15 +14,15 @@ func NewAnnouncementRepository(db *gorm.DB) *announcementRepository {
 	return &announcementRepository{db: db}
 }
 
-func (r *announcementRepository) GetAnnouncements(isActive *bool) ([]domain.Announcement, error) {
+func (r *announcementRepository) GetAnnouncements(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
 	var dbAnnouncements []database.Announcement
-	query := r.db
+	dbQuery := r.db
 
-	if isActive != nil {
-		query = query.Where("is_active = ?", *isActive)
+	if query.IsActive != nil {
+		dbQuery = dbQuery.Where("is_active = ?", *query.IsActive)
 	}
 
-	if err := query.Find(&dbAnnouncements).Error; err != nil {
+	if err := dbQuery.Find(&dbAnnouncements).Error; err != nil {
 		return nil, err
 	}
 
