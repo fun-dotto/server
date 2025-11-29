@@ -12,6 +12,12 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// Defines values for SortDirection.
+const (
+	Asc  SortDirection = "asc"
+	Desc SortDirection = "desc"
+)
+
 // Announcement defines model for Announcement.
 type Announcement struct {
 	Date     time.Time `json:"date"`
@@ -21,12 +27,15 @@ type Announcement struct {
 	Url      string    `json:"url"`
 }
 
+// SortDirection defines model for SortDirection.
+type SortDirection string
+
 // AnnouncementsListParams defines parameters for AnnouncementsList.
 type AnnouncementsListParams struct {
 	// SortByDate 日時ソート
 	//
 	// 昇順ソートの場合は`asc`を指定、降順ソートの場合は`desc`を指定
-	SortByDate *string `form:"sortByDate,omitempty" json:"sortByDate,omitempty"`
+	SortByDate *SortDirection `form:"sortByDate,omitempty" json:"sortByDate,omitempty"`
 
 	// FilterIsActive 公開状態で絞り込むか
 	//

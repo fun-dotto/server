@@ -17,7 +17,7 @@ paths:
 
             昇順ソートの場合は`asc`を指定、降順ソートの場合は`desc`を指定
           schema:
-            type: string
+            $ref: '#/components/schemas/SortDirection'
             default: asc
           explode: false
         - name: filterIsActive
@@ -65,6 +65,11 @@ components:
           format: uri
         isActive:
           type: boolean
+    SortDirection:
+      type: string
+      enum:
+        - asc
+        - desc
 servers:
   - url: http://localhost:8080
     description: Local
