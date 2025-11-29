@@ -16,7 +16,18 @@ func toApiAnnouncement(announcement domain.Announcement) api.Announcement {
 }
 
 func toDomainAnnouncementQuery(params api.AnnouncementsListParams) domain.AnnouncementQuery {
+	sortByDate := domain.SortDirectionAsc
+	if params.SortByDate != nil {
+		sortByDate = domain.SortDirection(*params.SortByDate)
+	}
+
+	filterIsActive := false
+	if params.FilterIsActive != nil {
+		filterIsActive = *params.FilterIsActive
+	}
+
 	return domain.AnnouncementQuery{
-		IsActive: params.IsActive,
+		FilterIsActive: filterIsActive,
+		SortByDate:     sortByDate,
 	}
 }

@@ -18,9 +18,22 @@ func (r *announcementRepository) GetAnnouncements(query domain.AnnouncementQuery
 	var dbAnnouncements []database.Announcement
 	dbQuery := r.db
 
-	if query.IsActive != nil {
-		dbQuery = dbQuery.Where("is_active = ?", *query.IsActive)
+	if query.FilterIsActive {
+		dbQuery = dbQuery.Where("is_active = ?", true)
 	}
+
+	sortDateDirection := func() string {
+		switch query.SortByDate {
+		case domain.SortDirectionAsc:
+			return "ASC"
+		case domain.SortDirectionDesc:
+			return "DESC"
+		default:
+			return "ASC"
+		}
+	}()
+
+	dbQuery = dbQuery.Order("date " + sortDateDirection)
 
 	if err := dbQuery.Find(&dbAnnouncements).Error; err != nil {
 		return nil, err

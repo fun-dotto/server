@@ -1,5 +1,6 @@
 package domain
 
 type AnnouncementQuery struct {
-	IsActive *bool
+	SortByDate     SortDirection
+	FilterIsActive bool
 }

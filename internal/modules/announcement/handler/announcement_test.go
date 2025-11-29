@@ -49,31 +49,6 @@ func TestAnnouncementsList(t *testing.T) {
 			},
 		},
 		{
-			name:         "isActive=falseで無効なお知らせのみ取得できる",
-			isActive:     boolPtr(false),
-			setupContext: func(c *gin.Context) {},
-			wantCode:     http.StatusOK,
-			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var announcements []api.Announcement
-				err := json.Unmarshal(w.Body.Bytes(), &announcements)
-				assert.NoError(t, err)
-				assert.Len(t, announcements, 1, "無効なお知らせは1件のはずです")
-				assert.False(t, announcements[0].IsActive, "IsActiveがfalseではありません")
-			},
-		},
-		{
-			name:         "isActive=nilで全件取得できる",
-			isActive:     nil,
-			setupContext: func(c *gin.Context) {},
-			wantCode:     http.StatusOK,
-			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var announcements []api.Announcement
-				err := json.Unmarshal(w.Body.Bytes(), &announcements)
-				assert.NoError(t, err)
-				assert.Len(t, announcements, 2, "全件（2件）取得できるはずです")
-			},
-		},
-		{
 			name:         "Content-Typeがapplication/jsonである",
 			isActive:     boolPtr(true),
 			setupContext: func(c *gin.Context) {},
@@ -109,7 +84,7 @@ func TestAnnouncementsList(t *testing.T) {
 			}
 
 			h.AnnouncementsList(c, api.AnnouncementsListParams{
-				IsActive: tt.isActive,
+				FilterIsActive: tt.isActive,
 			})
 
 			if tt.validate != nil {
