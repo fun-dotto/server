@@ -31,14 +31,14 @@ func NewMockAnnouncementRepository() *MockAnnouncementRepository {
 	}
 }
 
-func (m *MockAnnouncementRepository) GetAnnouncements(isActive *bool) ([]domain.Announcement, error) {
-	if isActive == nil {
+func (m *MockAnnouncementRepository) GetAnnouncements(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
+	if query.IsActive == nil {
 		return m.announcements, nil
 	}
-	
+
 	var filtered []domain.Announcement
 	for _, announcement := range m.announcements {
-		if announcement.IsActive == *isActive {
+		if announcement.IsActive == *query.IsActive {
 			filtered = append(filtered, announcement)
 		}
 	}
