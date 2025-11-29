@@ -23,7 +23,19 @@ type Announcement struct {
 
 // AnnouncementsListParams defines parameters for AnnouncementsList.
 type AnnouncementsListParams struct {
-	IsActive *bool `form:"isActive,omitempty" json:"isActive,omitempty"`
+	// SortByDateAsc 日時昇順ソートするか
+	//
+	// 降順ソートの場合はfalseを指定
+	//
+	// デフォルト値はtrue (昇順ソート)
+	SortByDateAsc *bool `form:"sortByDateAsc,omitempty" json:"sortByDateAsc,omitempty"`
+
+	// FilterIsActive 公開状態で絞り込むか
+	//
+	// 公開状態ではないもののみを抽出する場合はfalseを指定
+	//
+	// デフォルト値はnull (すべての公開状態を含む)
+	FilterIsActive *bool `form:"filterIsActive,omitempty" json:"filterIsActive,omitempty"`
 }
 
 // ServerInterface represents all server handlers.
@@ -50,11 +62,19 @@ func (siw *ServerInterfaceWrapper) AnnouncementsList(c *gin.Context) {
 	// Parameter object where we will unmarshal all parameters from the context
 	var params AnnouncementsListParams
 
-	// ------------- Optional query parameter "isActive" -------------
+	// ------------- Optional query parameter "sortByDateAsc" -------------
 
-	err = runtime.BindQueryParameter("form", false, false, "isActive", c.Request.URL.Query(), &params.IsActive)
+	err = runtime.BindQueryParameter("form", false, false, "sortByDateAsc", c.Request.URL.Query(), &params.SortByDateAsc)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter isActive: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter sortByDateAsc: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "filterIsActive" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "filterIsActive", c.Request.URL.Query(), &params.FilterIsActive)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter filterIsActive: %w", err), http.StatusBadRequest)
 		return
 	}
 
