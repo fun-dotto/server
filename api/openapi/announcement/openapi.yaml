@@ -9,17 +9,16 @@ paths:
     get:
       operationId: Announcements_list
       parameters:
-        - name: sortByDateAsc
+        - name: sortByDate
           in: query
           required: false
           description: |-
-            日時昇順ソートするか
+            日時ソート
 
-            降順ソートの場合はfalseを指定
-
-            デフォルト値はtrue (昇順ソート)
+            昇順ソートの場合は`asc`を指定、降順ソートの場合は`desc`を指定
           schema:
-            type: boolean
+            type: string
+            default: asc
           explode: false
         - name: filterIsActive
           in: query
@@ -27,11 +26,10 @@ paths:
           description: |-
             公開状態で絞り込むか
 
-            公開状態ではないもののみを抽出する場合はfalseを指定
-
-            デフォルト値はnull (すべての公開状態を含む)
+            公開状態のみを抽出する場合は`true`を指定
           schema:
             type: boolean
+            default: false
           explode: false
       responses:
         '200':
