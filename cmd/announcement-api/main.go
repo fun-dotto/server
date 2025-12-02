@@ -9,8 +9,11 @@ import (
 	"github.com/fun-dotto/announcement-api/internal/handler"
 	"github.com/fun-dotto/announcement-api/internal/repository"
 	"github.com/fun-dotto/announcement-api/internal/service"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+
+	middleware "github.com/oapi-codegen/gin-middleware"
 )
 
 func main() {
@@ -34,7 +37,14 @@ func main() {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 
+	spec, err := openapi3.NewLoader().LoadFromFile("openapi/openapi.yaml")
+	if err != nil {
+		log.Fatalf("Failed to load OpenAPI spec: %v", err)
+	}
+
 	router := gin.Default()
+
+	router.Use(middleware.OapiRequestValidator(spec))
 
 	announcementRepository := repository.NewAnnouncementRepository(db)
 
