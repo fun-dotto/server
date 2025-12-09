@@ -12,7 +12,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-
 	middleware "github.com/oapi-codegen/gin-middleware"
 )
 
@@ -23,7 +22,7 @@ func main() {
 
 	cfg := config.Load()
 
-	db, err := database.Connect(cfg.Database)
+	db, err := database.ConnectWithConnectorIAMAuthN()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -41,6 +40,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load OpenAPI spec: %v", err)
 	}
+
+	spec.Servers = nil
 
 	router := gin.Default()
 
