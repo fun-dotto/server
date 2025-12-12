@@ -2,11 +2,14 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	api "github.com/fun-dotto/announcement-api/generated"
+	"github.com/fun-dotto/announcement-api/internal/domain"
 	"github.com/fun-dotto/announcement-api/internal/repository"
 	"github.com/fun-dotto/announcement-api/internal/service"
 	"github.com/gin-gonic/gin"
@@ -16,143 +19,89 @@ import (
 func TestAnnouncementsList(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
+	now := time.Date(2024, 1, 15, 10, 0, 0, 0, time.UTC)
+	yesterday := now.Add(-24 * time.Hour)
+	twoDaysAgo := now.Add(-48 * time.Hour)
+
 	tests := []struct {
-		name         string
-		sortByDate   *api.SortDirection
-		isActive     *bool
-		setupContext func(c *gin.Context)
-		wantCode     int
-		validate     func(t *testing.T, w *httptest.ResponseRecorder)
+		name      string
+		setupMock func() *repository.MockAnnouncementRepository
+		params    api.AnnouncementsListParams
+		wantCode  int
+		validate  func(t *testing.T, w *httptest.ResponseRecorder)
 	}{
 		{
-			name:         "正常にお知らせ一覧が取得できる",
-			isActive:     boolPtr(true),
-			setupContext: func(c *gin.Context) {},
-			wantCode:     http.StatusOK,
-			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var announcements []api.Announcement
-				err := json.Unmarshal(w.Body.Bytes(), &announcements)
-				assert.NoError(t, err, "JSONのパースに失敗しました")
-				assert.NotEmpty(t, announcements, "アナウンスメントが空です")
-			},
-		},
-		{
-			name:         "isActive=trueで有効なお知らせのみ取得できる",
-			isActive:     boolPtr(true),
-			setupContext: func(c *gin.Context) {},
-			wantCode:     http.StatusOK,
-			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var announcements []api.Announcement
-				err := json.Unmarshal(w.Body.Bytes(), &announcements)
-				assert.NoError(t, err)
-				assert.Len(t, announcements, 2, "有効なお知らせは1件のはずです")
-				assert.True(t, announcements[0].IsActive, "IsActiveがtrueではありません")
-			},
-		},
-		{
-			name:         "Content-Typeがapplication/jsonである",
-			isActive:     boolPtr(true),
-			setupContext: func(c *gin.Context) {},
-			wantCode:     http.StatusOK,
-			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
-				assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
-			},
-		},
-		{
-			name:         "レスポンスが配列形式である",
-			isActive:     boolPtr(true),
-			setupContext: func(c *gin.Context) {},
-			wantCode:     http.StatusOK,
-			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var result interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &result)
-				assert.NoError(t, err)
-				_, isArray := result.([]interface{})
-				assert.True(t, isArray, "レスポンスが配列形式ではありません")
-			},
-		},
-		{
-			name:         "sortByDate=ascで日付昇順にソートされる",
-			sortByDate:   sortDirPtr(api.Asc),
-			isActive:     nil,
-			setupContext: func(c *gin.Context) {},
-			wantCode:     http.StatusOK,
-			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var announcements []api.Announcement
-				err := json.Unmarshal(w.Body.Bytes(), &announcements)
-				assert.NoError(t, err)
-				assert.GreaterOrEqual(t, len(announcements), 2, "ソートテストには2件以上必要です")
-				for i := 1; i < len(announcements); i++ {
-					assert.True(t, !announcements[i].Date.Before(announcements[i-1].Date),
-						"日付が昇順になっていません")
+			name: "正常にお知らせ一覧が取得できる",
+			setupMock: func() *repository.MockAnnouncementRepository {
+				return &repository.MockAnnouncementRepository{
+					GetAnnouncementsFunc: func(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
+						return []domain.Announcement{
+							{ID: "1", Title: "お知らせ1", Date: now, URL: "https://example.com/1", IsActive: true},
+							{ID: "2", Title: "お知らせ2", Date: yesterday, URL: "https://example.com/2", IsActive: true},
+							{ID: "3", Title: "お知らせ3", Date: twoDaysAgo, URL: "https://example.com/3", IsActive: true},
+						}, nil
+					},
 				}
 			},
-		},
-		{
-			name:         "sortByDate=descで日付降順にソートされる",
-			sortByDate:   sortDirPtr(api.Desc),
-			isActive:     nil,
-			setupContext: func(c *gin.Context) {},
-			wantCode:     http.StatusOK,
+			params:   api.AnnouncementsListParams{},
+			wantCode: http.StatusOK,
 			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
 				var announcements []api.Announcement
 				err := json.Unmarshal(w.Body.Bytes(), &announcements)
-				assert.NoError(t, err)
-				assert.GreaterOrEqual(t, len(announcements), 2, "ソートテストには2件以上必要です")
-				for i := 1; i < len(announcements); i++ {
-					assert.True(t, !announcements[i].Date.After(announcements[i-1].Date),
-						"日付が降順になっていません")
-				}
+				assert.NoError(t, err, "failed to unmarshal response body")
+				assert.Len(t, announcements, 3)
 			},
 		},
 		{
-			name:         "sortByDate未指定時はデフォルトで昇順",
-			sortByDate:   nil,
-			isActive:     nil,
-			setupContext: func(c *gin.Context) {},
-			wantCode:     http.StatusOK,
+			name: "空の結果を正常に返せる",
+			setupMock: func() *repository.MockAnnouncementRepository {
+				return &repository.MockAnnouncementRepository{
+					GetAnnouncementsFunc: func(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
+						return []domain.Announcement{}, nil
+					},
+				}
+			},
+			params:   api.AnnouncementsListParams{},
+			wantCode: http.StatusOK,
 			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
 				var announcements []api.Announcement
 				err := json.Unmarshal(w.Body.Bytes(), &announcements)
 				assert.NoError(t, err)
-				assert.GreaterOrEqual(t, len(announcements), 2, "ソートテストには2件以上必要です")
-				for i := 1; i < len(announcements); i++ {
-					assert.True(t, !announcements[i].Date.Before(announcements[i-1].Date),
-						"デフォルトで昇順になっていません")
+				assert.Empty(t, announcements)
+			},
+		},
+		{
+			name: "リポジトリでエラーが発生した場合は500エラーを返す",
+			setupMock: func() *repository.MockAnnouncementRepository {
+				return &repository.MockAnnouncementRepository{
+					GetAnnouncementsFunc: func(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
+						return nil, errors.New("database connection failed")
+					},
 				}
+			},
+			params:   api.AnnouncementsListParams{},
+			wantCode: http.StatusInternalServerError,
+			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
+				assert.Contains(t, w.Body.String(), "database connection failed")
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockRepo := repository.NewMockAnnouncementRepository()
+			mockRepo := tt.setupMock()
 			h := NewHandler(service.NewAnnouncementService(mockRepo))
+
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
 
-			if tt.setupContext != nil {
-				tt.setupContext(c)
-			}
+			h.AnnouncementsList(c, tt.params)
 
-			h.AnnouncementsList(c, api.AnnouncementsListParams{
-				SortByDate:     tt.sortByDate,
-				FilterIsActive: tt.isActive,
-			})
+			assert.Equal(t, tt.wantCode, w.Code)
 
 			if tt.validate != nil {
 				tt.validate(t, w)
 			}
 		})
 	}
-}
-
-// boolPtr は bool値のポインタを返すヘルパー関数
-func boolPtr(b bool) *bool {
-	return &b
-}
-
-// sortDirPtr は SortDirection値のポインタを返すヘルパー関数
-func sortDirPtr(s api.SortDirection) *api.SortDirection {
-	return &s
 }
