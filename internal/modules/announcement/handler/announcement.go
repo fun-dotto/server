@@ -17,8 +17,10 @@ func NewHandler(announcementService *service.AnnouncementService) *Handler {
 }
 
 func (h *Handler) AnnouncementsList(c *gin.Context, params api.AnnouncementsListParams) {
+	ctx := c.Request.Context()
 	announcementQuery := toDomainAnnouncementQuery(params)
-	announcements, err := h.announcementService.GetAnnouncements(announcementQuery)
+
+	announcements, err := h.announcementService.GetAnnouncements(ctx, announcementQuery)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

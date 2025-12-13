@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/fun-dotto/announcement-api/internal/database"
 	"github.com/fun-dotto/announcement-api/internal/domain"
 	"gorm.io/gorm"
@@ -14,9 +16,9 @@ func NewAnnouncementRepository(db *gorm.DB) *announcementRepository {
 	return &announcementRepository{db: db}
 }
 
-func (r *announcementRepository) GetAnnouncements(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
+func (r *announcementRepository) GetAnnouncements(ctx context.Context, query domain.AnnouncementQuery) ([]domain.Announcement, error) {
 	var dbAnnouncements []database.Announcement
-	dbQuery := r.db
+	dbQuery := r.db.WithContext(ctx)
 
 	if query.FilterIsActive {
 		dbQuery = dbQuery.Where("is_active = ?", true)

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -34,7 +35,7 @@ func TestAnnouncementsList(t *testing.T) {
 			name: "正常にお知らせ一覧が取得できる",
 			setupMock: func() *repository.MockAnnouncementRepository {
 				return &repository.MockAnnouncementRepository{
-					GetAnnouncementsFunc: func(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
+					GetAnnouncementsFunc: func(ctx context.Context, query domain.AnnouncementQuery) ([]domain.Announcement, error) {
 						return []domain.Announcement{
 							{ID: "1", Title: "お知らせ1", Date: now, URL: "https://example.com/1", IsActive: true},
 							{ID: "2", Title: "お知らせ2", Date: yesterday, URL: "https://example.com/2", IsActive: true},
@@ -56,7 +57,7 @@ func TestAnnouncementsList(t *testing.T) {
 			name: "空の結果を正常に返せる",
 			setupMock: func() *repository.MockAnnouncementRepository {
 				return &repository.MockAnnouncementRepository{
-					GetAnnouncementsFunc: func(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
+					GetAnnouncementsFunc: func(ctx context.Context, query domain.AnnouncementQuery) ([]domain.Announcement, error) {
 						return []domain.Announcement{}, nil
 					},
 				}
@@ -74,7 +75,7 @@ func TestAnnouncementsList(t *testing.T) {
 			name: "リポジトリでエラーが発生した場合は500エラーを返す",
 			setupMock: func() *repository.MockAnnouncementRepository {
 				return &repository.MockAnnouncementRepository{
-					GetAnnouncementsFunc: func(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
+					GetAnnouncementsFunc: func(ctx context.Context, query domain.AnnouncementQuery) ([]domain.Announcement, error) {
 						return nil, errors.New("database connection failed")
 					},
 				}
@@ -94,6 +95,9 @@ func TestAnnouncementsList(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
+
+			req := httptest.NewRequest(http.MethodGet, "/announcements", nil)
+			c.Request = req
 
 			h.AnnouncementsList(c, tt.params)
 

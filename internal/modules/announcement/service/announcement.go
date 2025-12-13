@@ -1,9 +1,13 @@
 package service
 
-import "github.com/fun-dotto/announcement-api/internal/domain"
+import (
+	"context"
+
+	"github.com/fun-dotto/announcement-api/internal/domain"
+)
 
 type AnnouncementRepository interface {
-	GetAnnouncements(query domain.AnnouncementQuery) ([]domain.Announcement, error)
+	GetAnnouncements(ctx context.Context, query domain.AnnouncementQuery) ([]domain.Announcement, error)
 }
 
 type AnnouncementService struct {
@@ -14,6 +18,6 @@ func NewAnnouncementService(announcementRepository AnnouncementRepository) *Anno
 	return &AnnouncementService{announcementRepository: announcementRepository}
 }
 
-func (s *AnnouncementService) GetAnnouncements(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
-	return s.announcementRepository.GetAnnouncements(query)
+func (s *AnnouncementService) GetAnnouncements(ctx context.Context, query domain.AnnouncementQuery) ([]domain.Announcement, error) {
+	return s.announcementRepository.GetAnnouncements(ctx, query)
 }
