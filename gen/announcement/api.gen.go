@@ -4,12 +4,15 @@
 package api
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/oapi-codegen/runtime"
+	strictgin "github.com/oapi-codegen/runtime/strictmiddleware/gin"
 )
 
 // Defines values for SortDirection.
@@ -121,4 +124,67 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.GET(options.BaseURL+"/announcements", wrapper.AnnouncementsList)
+}
+
+type AnnouncementsListRequestObject struct {
+	Params AnnouncementsListParams
+}
+
+type AnnouncementsListResponseObject interface {
+	VisitAnnouncementsListResponse(w http.ResponseWriter) error
+}
+
+type AnnouncementsList200JSONResponse []Announcement
+
+func (response AnnouncementsList200JSONResponse) VisitAnnouncementsListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+// StrictServerInterface represents all server handlers.
+type StrictServerInterface interface {
+
+	// (GET /announcements)
+	AnnouncementsList(ctx context.Context, request AnnouncementsListRequestObject) (AnnouncementsListResponseObject, error)
+}
+
+type StrictHandlerFunc = strictgin.StrictGinHandlerFunc
+type StrictMiddlewareFunc = strictgin.StrictGinMiddlewareFunc
+
+func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc) ServerInterface {
+	return &strictHandler{ssi: ssi, middlewares: middlewares}
+}
+
+type strictHandler struct {
+	ssi         StrictServerInterface
+	middlewares []StrictMiddlewareFunc
+}
+
+// AnnouncementsList operation middleware
+func (sh *strictHandler) AnnouncementsList(ctx *gin.Context, params AnnouncementsListParams) {
+	var request AnnouncementsListRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AnnouncementsList(ctx, request.(AnnouncementsListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AnnouncementsList")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(AnnouncementsListResponseObject); ok {
+		if err := validResponse.VisitAnnouncementsListResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
 }

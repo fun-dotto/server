@@ -1,11 +1,10 @@
 package handler
 
 import (
-	"net/http"
+	"context"
 
 	api "github.com/fun-dotto/announcement-api/generated"
 	"github.com/fun-dotto/announcement-api/internal/service"
-	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -16,14 +15,12 @@ func NewHandler(announcementService *service.AnnouncementService) *Handler {
 	return &Handler{announcementService: announcementService}
 }
 
-func (h *Handler) AnnouncementsList(c *gin.Context, params api.AnnouncementsListParams) {
-	ctx := c.Request.Context()
-	announcementQuery := toDomainAnnouncementQuery(params)
+func (h *Handler) AnnouncementsList(ctx context.Context, request api.AnnouncementsListRequestObject) (api.AnnouncementsListResponseObject, error) {
+	announcementQuery := toDomainAnnouncementQuery(request.Params)
 
 	announcements, err := h.announcementService.GetAnnouncements(ctx, announcementQuery)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return nil, err
 	}
 
 	apiAnnouncements := make([]api.Announcement, len(announcements))
@@ -31,5 +28,5 @@ func (h *Handler) AnnouncementsList(c *gin.Context, params api.AnnouncementsList
 		apiAnnouncements[i] = toApiAnnouncement(announcement)
 	}
 
-	c.JSON(http.StatusOK, apiAnnouncements)
+	return api.AnnouncementsList200JSONResponse(apiAnnouncements), nil
 }

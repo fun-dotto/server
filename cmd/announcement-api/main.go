@@ -53,7 +53,8 @@ func main() {
 
 	h := handler.NewHandler(announcementService)
 
-	api.RegisterHandlers(router, h)
+	strictHandler := api.NewStrictHandler(h, nil)
+	api.RegisterHandlers(router, strictHandler)
 
 	addr := ":" + cfg.Server.Port
 	log.Printf("Server starting on %s", addr)

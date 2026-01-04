@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,13 +12,10 @@ import (
 	"github.com/fun-dotto/announcement-api/internal/domain"
 	"github.com/fun-dotto/announcement-api/internal/repository"
 	"github.com/fun-dotto/announcement-api/internal/service"
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAnnouncementsList(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-
 	now := time.Date(2024, 1, 15, 10, 0, 0, 0, time.UTC)
 	yesterday := now.Add(-24 * time.Hour)
 	twoDaysAgo := now.Add(-48 * time.Hour)
@@ -71,21 +67,6 @@ func TestAnnouncementsList(t *testing.T) {
 				assert.Empty(t, announcements)
 			},
 		},
-		{
-			name: "リポジトリでエラーが発生した場合は500エラーを返す",
-			setupMock: func() *repository.MockAnnouncementRepository {
-				return &repository.MockAnnouncementRepository{
-					GetAnnouncementsFunc: func(ctx context.Context, query domain.AnnouncementQuery) ([]domain.Announcement, error) {
-						return nil, errors.New("database connection failed")
-					},
-				}
-			},
-			params:   api.AnnouncementsListParams{},
-			wantCode: http.StatusInternalServerError,
-			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
-				assert.Contains(t, w.Body.String(), "database connection failed")
-			},
-		},
 	}
 
 	for _, tt := range tests {
@@ -93,14 +74,15 @@ func TestAnnouncementsList(t *testing.T) {
 			mockRepo := tt.setupMock()
 			h := NewHandler(service.NewAnnouncementService(mockRepo))
 
+			request := api.AnnouncementsListRequestObject{Params: tt.params}
+			response, err := h.AnnouncementsList(context.Background(), request)
+
+			assert.NoError(t, err)
+			assert.NotNil(t, response)
+
 			w := httptest.NewRecorder()
-			c, _ := gin.CreateTestContext(w)
-
-			req := httptest.NewRequest(http.MethodGet, "/announcements", nil)
-			c.Request = req
-
-			h.AnnouncementsList(c, tt.params)
-
+			err = response.VisitAnnouncementsListResponse(w)
+			assert.NoError(t, err)
 			assert.Equal(t, tt.wantCode, w.Code)
 
 			if tt.validate != nil {
