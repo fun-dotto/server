@@ -7,15 +7,16 @@ import (
 
 func toApiAnnouncement(announcement domain.Announcement) api.Announcement {
 	return api.Announcement{
-		Id:       announcement.ID,
-		Title:    announcement.Title,
-		Date:     announcement.Date,
-		Url:      announcement.URL,
-		IsActive: announcement.IsActive,
+		Id:            announcement.ID,
+		Title:         announcement.Title,
+		AvailableFrom: announcement.Date,
+		Date:          announcement.Date,
+		Url:           announcement.URL,
+		IsActive:      announcement.IsActive,
 	}
 }
 
-func toDomainAnnouncementQuery(params api.AnnouncementsListParams) domain.AnnouncementQuery {
+func toDomainAnnouncementQuery(params api.AnnouncementsV0ListParams) domain.AnnouncementQuery {
 	sortByDate := domain.SortDirectionAsc
 	if params.SortByDate != nil {
 		sortByDate = domain.SortDirection(*params.SortByDate)

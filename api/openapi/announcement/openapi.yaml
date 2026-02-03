@@ -7,7 +7,7 @@ tags:
 paths:
   /announcements:
     get:
-      operationId: Announcements_list
+      operationId: AnnouncementsV0_list
       parameters:
         - name: sortByDate
           in: query
@@ -17,7 +17,7 @@ paths:
 
             昇順ソートの場合は`asc`を指定、降順ソートの場合は`desc`を指定
           schema:
-            $ref: '#/components/schemas/SortDirection'
+            $ref: '#/components/schemas/FoundationV1.SortDirection'
             default: asc
           explode: false
         - name: filterIsActive
@@ -42,6 +42,120 @@ paths:
                   $ref: '#/components/schemas/Announcement'
       tags:
         - Announcements
+  /v1/announcements:
+    get:
+      operationId: AnnouncementsV1_list
+      parameters:
+        - name: sortByDate
+          in: query
+          required: false
+          description: |-
+            日時ソート
+
+            昇順ソートの場合は`asc`を指定、降順ソートの場合は`desc`を指定
+          schema:
+            $ref: '#/components/schemas/FoundationV1.SortDirection'
+            default: asc
+          explode: false
+        - name: filterIsActive
+          in: query
+          required: false
+          description: |-
+            公開状態で絞り込むか
+
+            公開状態のみを抽出する場合は`true`を指定
+          schema:
+            type: boolean
+            default: false
+          explode: false
+      responses:
+        '200':
+          description: おしらせのリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcements:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Announcement'
+                required:
+                  - announcements
+      tags:
+        - Announcements
+    post:
+      operationId: AnnouncementsV1_create
+      description: おしらせを作成する
+      parameters: []
+      responses:
+        '200':
+          description: 作成されたおしらせ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcement:
+                    $ref: '#/components/schemas/Announcement'
+                required:
+                  - announcement
+      tags:
+        - Announcements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnouncementRequest'
+        description: 作成するおしらせの情報
+  /v1/announcements/{id}:
+    put:
+      operationId: AnnouncementsV1_update
+      description: おしらせを更新する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: おしらせID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 更新されたおしらせ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcement:
+                    $ref: '#/components/schemas/Announcement'
+                required:
+                  - announcement
+      tags:
+        - Announcements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnouncementRequest'
+        description: 更新するおしらせの情報
+    delete:
+      operationId: AnnouncementsV1_delete
+      description: おしらせを削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: おしらせID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+      tags:
+        - Announcements
 components:
   schemas:
     Announcement:
@@ -49,23 +163,50 @@ components:
       required:
         - id
         - title
-        - date
+        - availableFrom
         - url
+        - date
         - isActive
       properties:
         id:
           type: string
         title:
           type: string
-        date:
+        availableFrom:
+          type: string
+          format: date-time
+        availableUntil:
           type: string
           format: date-time
         url:
           type: string
           format: uri
+        date:
+          type: string
+          format: date-time
+          description: '非推奨: 代わりに`availableFrom`を使用してください'
         isActive:
           type: boolean
-    SortDirection:
+          description: '非推奨: 代わりに`availableUntil`を使用してください'
+    AnnouncementRequest:
+      type: object
+      required:
+        - title
+        - availableFrom
+        - url
+      properties:
+        title:
+          type: string
+        availableFrom:
+          type: string
+          format: date-time
+        availableUntil:
+          type: string
+          format: date-time
+        url:
+          type: string
+          format: uri
+    FoundationV1.SortDirection:
       type: string
       enum:
         - asc

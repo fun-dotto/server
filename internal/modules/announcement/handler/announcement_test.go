@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAnnouncementsList(t *testing.T) {
+func TestAnnouncementsV0List(t *testing.T) {
 	now := time.Date(2024, 1, 15, 10, 0, 0, 0, time.UTC)
 	yesterday := now.Add(-24 * time.Hour)
 	twoDaysAgo := now.Add(-48 * time.Hour)
@@ -23,7 +23,7 @@ func TestAnnouncementsList(t *testing.T) {
 	tests := []struct {
 		name      string
 		setupMock func() *repository.MockAnnouncementRepository
-		params    api.AnnouncementsListParams
+		params    api.AnnouncementsV0ListParams
 		wantCode  int
 		validate  func(t *testing.T, w *httptest.ResponseRecorder)
 	}{
@@ -40,7 +40,7 @@ func TestAnnouncementsList(t *testing.T) {
 					},
 				}
 			},
-			params:   api.AnnouncementsListParams{},
+			params:   api.AnnouncementsV0ListParams{},
 			wantCode: http.StatusOK,
 			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
 				var announcements []api.Announcement
@@ -58,7 +58,7 @@ func TestAnnouncementsList(t *testing.T) {
 					},
 				}
 			},
-			params:   api.AnnouncementsListParams{},
+			params:   api.AnnouncementsV0ListParams{},
 			wantCode: http.StatusOK,
 			validate: func(t *testing.T, w *httptest.ResponseRecorder) {
 				var announcements []api.Announcement
@@ -74,14 +74,14 @@ func TestAnnouncementsList(t *testing.T) {
 			mockRepo := tt.setupMock()
 			h := NewHandler(service.NewAnnouncementService(mockRepo))
 
-			request := api.AnnouncementsListRequestObject{Params: tt.params}
-			response, err := h.AnnouncementsList(context.Background(), request)
+			request := api.AnnouncementsV0ListRequestObject{Params: tt.params}
+			response, err := h.AnnouncementsV0List(context.Background(), request)
 
 			assert.NoError(t, err)
 			assert.NotNil(t, response)
 
 			w := httptest.NewRecorder()
-			err = response.VisitAnnouncementsListResponse(w)
+			err = response.VisitAnnouncementsV0ListResponse(w)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.wantCode, w.Code)
 

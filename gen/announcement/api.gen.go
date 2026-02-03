@@ -15,30 +15,44 @@ import (
 	strictgin "github.com/oapi-codegen/runtime/strictmiddleware/gin"
 )
 
-// Defines values for SortDirection.
+// Defines values for FoundationV1SortDirection.
 const (
-	Asc  SortDirection = "asc"
-	Desc SortDirection = "desc"
+	Asc  FoundationV1SortDirection = "asc"
+	Desc FoundationV1SortDirection = "desc"
 )
 
 // Announcement defines model for Announcement.
 type Announcement struct {
-	Date     time.Time `json:"date"`
-	Id       string    `json:"id"`
-	IsActive bool      `json:"isActive"`
-	Title    string    `json:"title"`
-	Url      string    `json:"url"`
+	AvailableFrom  time.Time  `json:"availableFrom"`
+	AvailableUntil *time.Time `json:"availableUntil,omitempty"`
+
+	// Date 非推奨: 代わりに`availableFrom`を使用してください
+	Date time.Time `json:"date"`
+	Id   string    `json:"id"`
+
+	// IsActive 非推奨: 代わりに`availableUntil`を使用してください
+	IsActive bool   `json:"isActive"`
+	Title    string `json:"title"`
+	Url      string `json:"url"`
 }
 
-// SortDirection defines model for SortDirection.
-type SortDirection string
+// AnnouncementRequest defines model for AnnouncementRequest.
+type AnnouncementRequest struct {
+	AvailableFrom  time.Time  `json:"availableFrom"`
+	AvailableUntil *time.Time `json:"availableUntil,omitempty"`
+	Title          string     `json:"title"`
+	Url            string     `json:"url"`
+}
 
-// AnnouncementsListParams defines parameters for AnnouncementsList.
-type AnnouncementsListParams struct {
+// FoundationV1SortDirection defines model for FoundationV1.SortDirection.
+type FoundationV1SortDirection string
+
+// AnnouncementsV0ListParams defines parameters for AnnouncementsV0List.
+type AnnouncementsV0ListParams struct {
 	// SortByDate 日時ソート
 	//
 	// 昇順ソートの場合は`asc`を指定、降順ソートの場合は`desc`を指定
-	SortByDate *SortDirection `form:"sortByDate,omitempty" json:"sortByDate,omitempty"`
+	SortByDate *FoundationV1SortDirection `form:"sortByDate,omitempty" json:"sortByDate,omitempty"`
 
 	// FilterIsActive 公開状態で絞り込むか
 	//
@@ -46,11 +60,42 @@ type AnnouncementsListParams struct {
 	FilterIsActive *bool `form:"filterIsActive,omitempty" json:"filterIsActive,omitempty"`
 }
 
+// AnnouncementsV1ListParams defines parameters for AnnouncementsV1List.
+type AnnouncementsV1ListParams struct {
+	// SortByDate 日時ソート
+	//
+	// 昇順ソートの場合は`asc`を指定、降順ソートの場合は`desc`を指定
+	SortByDate *FoundationV1SortDirection `form:"sortByDate,omitempty" json:"sortByDate,omitempty"`
+
+	// FilterIsActive 公開状態で絞り込むか
+	//
+	// 公開状態のみを抽出する場合は`true`を指定
+	FilterIsActive *bool `form:"filterIsActive,omitempty" json:"filterIsActive,omitempty"`
+}
+
+// AnnouncementsV1CreateJSONRequestBody defines body for AnnouncementsV1Create for application/json ContentType.
+type AnnouncementsV1CreateJSONRequestBody = AnnouncementRequest
+
+// AnnouncementsV1UpdateJSONRequestBody defines body for AnnouncementsV1Update for application/json ContentType.
+type AnnouncementsV1UpdateJSONRequestBody = AnnouncementRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
 	// (GET /announcements)
-	AnnouncementsList(c *gin.Context, params AnnouncementsListParams)
+	AnnouncementsV0List(c *gin.Context, params AnnouncementsV0ListParams)
+
+	// (GET /v1/announcements)
+	AnnouncementsV1List(c *gin.Context, params AnnouncementsV1ListParams)
+
+	// (POST /v1/announcements)
+	AnnouncementsV1Create(c *gin.Context)
+
+	// (DELETE /v1/announcements/{id})
+	AnnouncementsV1Delete(c *gin.Context, id string)
+
+	// (PUT /v1/announcements/{id})
+	AnnouncementsV1Update(c *gin.Context, id string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -62,13 +107,13 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(c *gin.Context)
 
-// AnnouncementsList operation middleware
-func (siw *ServerInterfaceWrapper) AnnouncementsList(c *gin.Context) {
+// AnnouncementsV0List operation middleware
+func (siw *ServerInterfaceWrapper) AnnouncementsV0List(c *gin.Context) {
 
 	var err error
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params AnnouncementsListParams
+	var params AnnouncementsV0ListParams
 
 	// ------------- Optional query parameter "sortByDate" -------------
 
@@ -93,7 +138,102 @@ func (siw *ServerInterfaceWrapper) AnnouncementsList(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.AnnouncementsList(c, params)
+	siw.Handler.AnnouncementsV0List(c, params)
+}
+
+// AnnouncementsV1List operation middleware
+func (siw *ServerInterfaceWrapper) AnnouncementsV1List(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params AnnouncementsV1ListParams
+
+	// ------------- Optional query parameter "sortByDate" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "sortByDate", c.Request.URL.Query(), &params.SortByDate)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter sortByDate: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "filterIsActive" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "filterIsActive", c.Request.URL.Query(), &params.FilterIsActive)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter filterIsActive: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.AnnouncementsV1List(c, params)
+}
+
+// AnnouncementsV1Create operation middleware
+func (siw *ServerInterfaceWrapper) AnnouncementsV1Create(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.AnnouncementsV1Create(c)
+}
+
+// AnnouncementsV1Delete operation middleware
+func (siw *ServerInterfaceWrapper) AnnouncementsV1Delete(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.AnnouncementsV1Delete(c, id)
+}
+
+// AnnouncementsV1Update operation middleware
+func (siw *ServerInterfaceWrapper) AnnouncementsV1Update(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.AnnouncementsV1Update(c, id)
 }
 
 // GinServerOptions provides options for the Gin server.
@@ -123,20 +263,98 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 		ErrorHandler:       errorHandler,
 	}
 
-	router.GET(options.BaseURL+"/announcements", wrapper.AnnouncementsList)
+	router.GET(options.BaseURL+"/announcements", wrapper.AnnouncementsV0List)
+	router.GET(options.BaseURL+"/v1/announcements", wrapper.AnnouncementsV1List)
+	router.POST(options.BaseURL+"/v1/announcements", wrapper.AnnouncementsV1Create)
+	router.DELETE(options.BaseURL+"/v1/announcements/:id", wrapper.AnnouncementsV1Delete)
+	router.PUT(options.BaseURL+"/v1/announcements/:id", wrapper.AnnouncementsV1Update)
 }
 
-type AnnouncementsListRequestObject struct {
-	Params AnnouncementsListParams
+type AnnouncementsV0ListRequestObject struct {
+	Params AnnouncementsV0ListParams
 }
 
-type AnnouncementsListResponseObject interface {
-	VisitAnnouncementsListResponse(w http.ResponseWriter) error
+type AnnouncementsV0ListResponseObject interface {
+	VisitAnnouncementsV0ListResponse(w http.ResponseWriter) error
 }
 
-type AnnouncementsList200JSONResponse []Announcement
+type AnnouncementsV0List200JSONResponse []Announcement
 
-func (response AnnouncementsList200JSONResponse) VisitAnnouncementsListResponse(w http.ResponseWriter) error {
+func (response AnnouncementsV0List200JSONResponse) VisitAnnouncementsV0ListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AnnouncementsV1ListRequestObject struct {
+	Params AnnouncementsV1ListParams
+}
+
+type AnnouncementsV1ListResponseObject interface {
+	VisitAnnouncementsV1ListResponse(w http.ResponseWriter) error
+}
+
+type AnnouncementsV1List200JSONResponse struct {
+	Announcements []Announcement `json:"announcements"`
+}
+
+func (response AnnouncementsV1List200JSONResponse) VisitAnnouncementsV1ListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AnnouncementsV1CreateRequestObject struct {
+	Body *AnnouncementsV1CreateJSONRequestBody
+}
+
+type AnnouncementsV1CreateResponseObject interface {
+	VisitAnnouncementsV1CreateResponse(w http.ResponseWriter) error
+}
+
+type AnnouncementsV1Create200JSONResponse struct {
+	Announcement Announcement `json:"announcement"`
+}
+
+func (response AnnouncementsV1Create200JSONResponse) VisitAnnouncementsV1CreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AnnouncementsV1DeleteRequestObject struct {
+	Id string `json:"id"`
+}
+
+type AnnouncementsV1DeleteResponseObject interface {
+	VisitAnnouncementsV1DeleteResponse(w http.ResponseWriter) error
+}
+
+type AnnouncementsV1Delete204Response struct {
+}
+
+func (response AnnouncementsV1Delete204Response) VisitAnnouncementsV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type AnnouncementsV1UpdateRequestObject struct {
+	Id   string `json:"id"`
+	Body *AnnouncementsV1UpdateJSONRequestBody
+}
+
+type AnnouncementsV1UpdateResponseObject interface {
+	VisitAnnouncementsV1UpdateResponse(w http.ResponseWriter) error
+}
+
+type AnnouncementsV1Update200JSONResponse struct {
+	Announcement Announcement `json:"announcement"`
+}
+
+func (response AnnouncementsV1Update200JSONResponse) VisitAnnouncementsV1UpdateResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
@@ -147,7 +365,19 @@ func (response AnnouncementsList200JSONResponse) VisitAnnouncementsListResponse(
 type StrictServerInterface interface {
 
 	// (GET /announcements)
-	AnnouncementsList(ctx context.Context, request AnnouncementsListRequestObject) (AnnouncementsListResponseObject, error)
+	AnnouncementsV0List(ctx context.Context, request AnnouncementsV0ListRequestObject) (AnnouncementsV0ListResponseObject, error)
+
+	// (GET /v1/announcements)
+	AnnouncementsV1List(ctx context.Context, request AnnouncementsV1ListRequestObject) (AnnouncementsV1ListResponseObject, error)
+
+	// (POST /v1/announcements)
+	AnnouncementsV1Create(ctx context.Context, request AnnouncementsV1CreateRequestObject) (AnnouncementsV1CreateResponseObject, error)
+
+	// (DELETE /v1/announcements/{id})
+	AnnouncementsV1Delete(ctx context.Context, request AnnouncementsV1DeleteRequestObject) (AnnouncementsV1DeleteResponseObject, error)
+
+	// (PUT /v1/announcements/{id})
+	AnnouncementsV1Update(ctx context.Context, request AnnouncementsV1UpdateRequestObject) (AnnouncementsV1UpdateResponseObject, error)
 }
 
 type StrictHandlerFunc = strictgin.StrictGinHandlerFunc
@@ -162,17 +392,17 @@ type strictHandler struct {
 	middlewares []StrictMiddlewareFunc
 }
 
-// AnnouncementsList operation middleware
-func (sh *strictHandler) AnnouncementsList(ctx *gin.Context, params AnnouncementsListParams) {
-	var request AnnouncementsListRequestObject
+// AnnouncementsV0List operation middleware
+func (sh *strictHandler) AnnouncementsV0List(ctx *gin.Context, params AnnouncementsV0ListParams) {
+	var request AnnouncementsV0ListRequestObject
 
 	request.Params = params
 
 	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AnnouncementsList(ctx, request.(AnnouncementsListRequestObject))
+		return sh.ssi.AnnouncementsV0List(ctx, request.(AnnouncementsV0ListRequestObject))
 	}
 	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AnnouncementsList")
+		handler = middleware(handler, "AnnouncementsV0List")
 	}
 
 	response, err := handler(ctx, request)
@@ -180,8 +410,130 @@ func (sh *strictHandler) AnnouncementsList(ctx *gin.Context, params Announcement
 	if err != nil {
 		ctx.Error(err)
 		ctx.Status(http.StatusInternalServerError)
-	} else if validResponse, ok := response.(AnnouncementsListResponseObject); ok {
-		if err := validResponse.VisitAnnouncementsListResponse(ctx.Writer); err != nil {
+	} else if validResponse, ok := response.(AnnouncementsV0ListResponseObject); ok {
+		if err := validResponse.VisitAnnouncementsV0ListResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// AnnouncementsV1List operation middleware
+func (sh *strictHandler) AnnouncementsV1List(ctx *gin.Context, params AnnouncementsV1ListParams) {
+	var request AnnouncementsV1ListRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AnnouncementsV1List(ctx, request.(AnnouncementsV1ListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AnnouncementsV1List")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(AnnouncementsV1ListResponseObject); ok {
+		if err := validResponse.VisitAnnouncementsV1ListResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// AnnouncementsV1Create operation middleware
+func (sh *strictHandler) AnnouncementsV1Create(ctx *gin.Context) {
+	var request AnnouncementsV1CreateRequestObject
+
+	var body AnnouncementsV1CreateJSONRequestBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AnnouncementsV1Create(ctx, request.(AnnouncementsV1CreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AnnouncementsV1Create")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(AnnouncementsV1CreateResponseObject); ok {
+		if err := validResponse.VisitAnnouncementsV1CreateResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// AnnouncementsV1Delete operation middleware
+func (sh *strictHandler) AnnouncementsV1Delete(ctx *gin.Context, id string) {
+	var request AnnouncementsV1DeleteRequestObject
+
+	request.Id = id
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AnnouncementsV1Delete(ctx, request.(AnnouncementsV1DeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AnnouncementsV1Delete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(AnnouncementsV1DeleteResponseObject); ok {
+		if err := validResponse.VisitAnnouncementsV1DeleteResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// AnnouncementsV1Update operation middleware
+func (sh *strictHandler) AnnouncementsV1Update(ctx *gin.Context, id string) {
+	var request AnnouncementsV1UpdateRequestObject
+
+	request.Id = id
+
+	var body AnnouncementsV1UpdateJSONRequestBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AnnouncementsV1Update(ctx, request.(AnnouncementsV1UpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AnnouncementsV1Update")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(AnnouncementsV1UpdateResponseObject); ok {
+		if err := validResponse.VisitAnnouncementsV1UpdateResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {
