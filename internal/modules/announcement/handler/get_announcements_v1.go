@@ -2,11 +2,24 @@ package handler
 
 import (
 	"context"
-	"fmt"
 
 	api "github.com/fun-dotto/announcement-api/generated"
 )
 
 func (h *Handler) AnnouncementsV1List(ctx context.Context, request api.AnnouncementsV1ListRequestObject) (api.AnnouncementsV1ListResponseObject, error) {
-	return nil, fmt.Errorf("not implemented")
+	announcementQuery := toDomainAnnouncementQueryV1(request.Params)
+
+	announcements, err := h.announcementService.GetAnnouncements(ctx, announcementQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	apiAnnouncements := make([]api.Announcement, len(announcements))
+	for i, announcement := range announcements {
+		apiAnnouncements[i] = toApiAnnouncement(announcement)
+	}
+
+	return api.AnnouncementsV1List200JSONResponse{
+		Announcements: apiAnnouncements,
+	}, nil
 }
