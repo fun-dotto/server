@@ -7,7 +7,7 @@ import (
 )
 
 func (h *Handler) AnnouncementsV1List(ctx context.Context, request api.AnnouncementsV1ListRequestObject) (api.AnnouncementsV1ListResponseObject, error) {
-	announcementQuery := toDomainAnnouncementQueryV1(request.Params)
+	announcementQuery := toDomainAnnouncementQuery(request.Params)
 
 	announcements, err := h.announcementService.GetAnnouncements(ctx, announcementQuery)
 	if err != nil {

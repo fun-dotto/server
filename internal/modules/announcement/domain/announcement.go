@@ -8,8 +8,4 @@ type Announcement struct {
 	URL            string
 	AvailableFrom  time.Time
 	AvailableUntil *time.Time
-
-	// v0廃止まで残す
-	Date     time.Time
-	IsActive bool
 }
