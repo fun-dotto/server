@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/fun-dotto/api-template/internal/database"
+	"github.com/fun-dotto/subject-api/internal/database"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
