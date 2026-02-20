@@ -7,7 +7,7 @@ import (
 )
 
 type DayOfWeekTimetableSlot struct {
-	ID            string    `gorm:"type:text;primaryKey"`
+	ID            string    `gorm:"type:uuid;primaryKey"`
 	DayOfWeek     string    `gorm:"type:text;not null"`
 	TimetableSlot string    `gorm:"type:text;not null"`
 	CreatedAt     time.Time

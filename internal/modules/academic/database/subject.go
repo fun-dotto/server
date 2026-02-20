@@ -7,9 +7,9 @@ import (
 )
 
 type Subject struct {
-	ID                      string                     `gorm:"type:text;primaryKey"`
+	ID                      string                     `gorm:"type:uuid;primaryKey"`
 	Name                    string                     `gorm:"type:text;not null"`
-	FacultyID               string                     `gorm:"type:text;not null"`
+	FacultyID               string                     `gorm:"type:uuid;not null"`
 	Faculty                 Faculty                    `gorm:"foreignKey:FacultyID"`
 	Semester                string                     `gorm:"type:text;not null"`
 	SyllabusID              string                     `gorm:"type:text;not null"`
@@ -22,16 +22,16 @@ type Subject struct {
 }
 
 type SubjectEligibleAttribute struct {
-	ID        string  `gorm:"type:text;primaryKey"`
-	SubjectID string  `gorm:"type:text;not null;index"`
+	ID        string  `gorm:"type:uuid;primaryKey"`
+	SubjectID string  `gorm:"type:uuid;not null;index"`
 	Grade     string  `gorm:"type:text;not null"`
 	Class     *string `gorm:"type:text"`
 }
 
 type SubjectRequirement struct {
-	ID              string `gorm:"type:text;primaryKey"`
-	SubjectID       string `gorm:"type:text;not null;index"`
-	CourseID        string `gorm:"type:text;not null"`
+	ID              string `gorm:"type:uuid;primaryKey"`
+	SubjectID       string `gorm:"type:uuid;not null;index"`
+	CourseID        string `gorm:"type:uuid;not null"`
 	Course          Course `gorm:"foreignKey:CourseID"`
 	RequirementType string `gorm:"type:text;not null"`
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type Faculty struct {
-	ID        string    `gorm:"type:text;primaryKey"`
+	ID        string    `gorm:"type:uuid;primaryKey"`
 	Name      string    `gorm:"type:text;not null"`
 	Email     string    `gorm:"type:text;not null"`
 	CreatedAt time.Time
