@@ -3,485 +3,87 @@ info:
   title: Subject Service
   version: 1.0.0
 tags:
-  - name: Courses
-  - name: Faculties
-  - name: DayOfWeekTimetableSlots
-  - name: SubjectCategories
   - name: Subjects
+  - name: Syllabus
 paths:
-  /v1/courses:
-    get:
-      operationId: CoursesV1_list
-      description: コース一覧を取得する
-      parameters: []
-      responses:
-        '200':
-          description: コースのリスト
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  courses:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Course'
-                required:
-                  - courses
-      tags:
-        - Courses
-    post:
-      operationId: CoursesV1_create
-      description: コースを作成する
-      parameters: []
-      responses:
-        '201':
-          description: 作成されたコース
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  course:
-                    $ref: '#/components/schemas/Course'
-                required:
-                  - course
-      tags:
-        - Courses
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseRequest'
-        description: 作成するコースの情報
-  /v1/courses/{id}:
-    get:
-      operationId: CoursesV1_detail
-      description: コースを詳細取得する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: コースID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: コースの詳細
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  course:
-                    $ref: '#/components/schemas/Course'
-                required:
-                  - course
-      tags:
-        - Courses
-    put:
-      operationId: CoursesV1_update
-      description: コースを更新する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: コースID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 更新されたコース
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  course:
-                    $ref: '#/components/schemas/Course'
-                required:
-                  - course
-      tags:
-        - Courses
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseRequest'
-        description: 更新するコースの情報
-    delete:
-      operationId: CoursesV1_delete
-      description: コースを削除する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: コースID
-          schema:
-            type: string
-      responses:
-        '204':
-          description: There is no content to send for this request, but the headers may be useful.
-      tags:
-        - Courses
-  /v1/day-of-week-timetable-slots:
-    get:
-      operationId: DayOfWeekTimetableSlotsV1_list
-      description: 曜日・時限一覧を取得する
-      parameters: []
-      responses:
-        '200':
-          description: 曜日・時限のリスト
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  dayOfWeekTimetableSlots:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/DayOfWeekTimetableSlot'
-                required:
-                  - dayOfWeekTimetableSlots
-      tags:
-        - DayOfWeekTimetableSlots
-    post:
-      operationId: DayOfWeekTimetableSlotsV1_create
-      description: 曜日・時限を作成する
-      parameters: []
-      responses:
-        '201':
-          description: 作成された曜日・時限
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  dayOfWeekTimetableSlot:
-                    $ref: '#/components/schemas/DayOfWeekTimetableSlot'
-                required:
-                  - dayOfWeekTimetableSlot
-      tags:
-        - DayOfWeekTimetableSlots
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DayOfWeekTimetableSlotRequest'
-        description: 作成する曜日・時限の情報
-  /v1/day-of-week-timetable-slots/{id}:
-    get:
-      operationId: DayOfWeekTimetableSlotsV1_detail
-      description: 曜日・時限を詳細取得する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: 曜日・時限ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 曜日・時限の詳細
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  dayOfWeekTimetableSlot:
-                    $ref: '#/components/schemas/DayOfWeekTimetableSlot'
-                required:
-                  - dayOfWeekTimetableSlot
-      tags:
-        - DayOfWeekTimetableSlots
-    put:
-      operationId: DayOfWeekTimetableSlotsV1_update
-      description: 曜日・時限を更新する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: 曜日・時限ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 更新された曜日・時限
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  dayOfWeekTimetableSlot:
-                    $ref: '#/components/schemas/DayOfWeekTimetableSlot'
-                required:
-                  - dayOfWeekTimetableSlot
-      tags:
-        - DayOfWeekTimetableSlots
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DayOfWeekTimetableSlotRequest'
-        description: 更新する曜日・時限の情報
-    delete:
-      operationId: DayOfWeekTimetableSlotsV1_delete
-      description: 曜日・時限を削除する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: 曜日・時限ID
-          schema:
-            type: string
-      responses:
-        '204':
-          description: There is no content to send for this request, but the headers may be useful.
-      tags:
-        - DayOfWeekTimetableSlots
-  /v1/faculties:
-    get:
-      operationId: FacultiesV1_list
-      description: 教員一覧を取得する
-      parameters: []
-      responses:
-        '200':
-          description: 教員のリスト
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  faculties:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Faculty'
-                required:
-                  - faculties
-      tags:
-        - Faculties
-    post:
-      operationId: FacultiesV1_create
-      description: 教員を作成する
-      parameters: []
-      responses:
-        '201':
-          description: 作成された教員
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  faculty:
-                    $ref: '#/components/schemas/Faculty'
-                required:
-                  - faculty
-      tags:
-        - Faculties
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FacultyRequest'
-        description: 作成する教員の情報
-  /v1/faculties/{id}:
-    get:
-      operationId: FacultiesV1_detail
-      description: 教員を詳細取得する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: 教員ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 教員の詳細
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  faculty:
-                    $ref: '#/components/schemas/Faculty'
-                required:
-                  - faculty
-      tags:
-        - Faculties
-    put:
-      operationId: FacultiesV1_update
-      description: 教員を更新する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: 教員ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 更新された教員
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  faculty:
-                    $ref: '#/components/schemas/Faculty'
-                required:
-                  - faculty
-      tags:
-        - Faculties
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FacultyRequest'
-        description: 更新する教員の情報
-    delete:
-      operationId: FacultiesV1_delete
-      description: 教員を削除する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: 教員ID
-          schema:
-            type: string
-      responses:
-        '204':
-          description: There is no content to send for this request, but the headers may be useful.
-      tags:
-        - Faculties
-  /v1/subject-categories:
-    get:
-      operationId: SubjectCategoriesV1_list
-      description: 科目群・科目区分一覧を取得する
-      parameters: []
-      responses:
-        '200':
-          description: 科目群・科目区分のリスト
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  subjectCategories:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/SubjectCategory'
-                required:
-                  - subjectCategories
-      tags:
-        - SubjectCategories
-    post:
-      operationId: SubjectCategoriesV1_create
-      description: 科目群・科目区分を作成する
-      parameters: []
-      responses:
-        '201':
-          description: 作成された科目群・科目区分
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  subjectCategory:
-                    $ref: '#/components/schemas/SubjectCategory'
-                required:
-                  - subjectCategory
-      tags:
-        - SubjectCategories
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SubjectCategoryRequest'
-        description: 作成する科目群・科目区分の情報
-  /v1/subject-categories/{id}:
-    get:
-      operationId: SubjectCategoriesV1_detail
-      description: 科目群・科目区分を詳細取得する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: 科目群・科目区分ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 科目群・科目区分の詳細
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  subjectCategory:
-                    $ref: '#/components/schemas/SubjectCategory'
-                required:
-                  - subjectCategory
-      tags:
-        - SubjectCategories
-    put:
-      operationId: SubjectCategoriesV1_update
-      description: 科目群・科目区分を更新する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: 科目群・科目区分ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 更新された科目群・科目区分
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  subjectCategory:
-                    $ref: '#/components/schemas/SubjectCategory'
-                required:
-                  - subjectCategory
-      tags:
-        - SubjectCategories
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SubjectCategoryRequest'
-        description: 更新する科目群・科目区分の情報
-    delete:
-      operationId: SubjectCategoriesV1_delete
-      description: 科目群・科目区分を削除する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: 科目群・科目区分ID
-          schema:
-            type: string
-      responses:
-        '204':
-          description: There is no content to send for this request, but the headers may be useful.
-      tags:
-        - SubjectCategories
   /v1/subjects:
     get:
       operationId: SubjectsV1_list
-      description: 科目一覧を取得する
-      parameters: []
+      description: |-
+        科目一覧を取得する
+
+        同一項目同士はOR、異なる項目同士はANDでフィルタリングされます。
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: 検索ワード
+          schema:
+            type: string
+          explode: false
+        - name: grade
+          in: query
+          required: true
+          description: 学年
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DottoFoundationV1.Grade'
+          explode: false
+        - name: courses
+          in: query
+          required: true
+          description: コース; 大学院の場合は大学院コースに読み替え
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DottoFoundationV1.Course'
+          explode: false
+        - name: class
+          in: query
+          required: true
+          description: クラス; 大学院の学年を選択した場合は選択できない
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DottoFoundationV1.Class'
+          explode: false
+        - name: classification
+          in: query
+          required: true
+          description: '学部: 専門・教養; 大学院: 専門・研究指導'
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DottoFoundationV1.SubjectClassification'
+          explode: false
+        - name: semester
+          in: query
+          required: true
+          description: 開講時期
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
+          explode: false
+        - name: requirementType
+          in: query
+          required: true
+          description: 必修・選択・選択必修
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DottoFoundationV1.SubjectRequirementType'
+          explode: false
+        - name: culturalSubjectCategory
+          in: query
+          required: true
+          description: 教養科目カテゴリ
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DottoFoundationV1.CulturalSubjectCategory'
+          explode: false
       responses:
         '200':
           description: 科目のリスト
@@ -493,17 +95,17 @@ paths:
                   subjects:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Subject'
+                      $ref: '#/components/schemas/SubjectSummary'
                 required:
                   - subjects
       tags:
         - Subjects
-    post:
-      operationId: SubjectsV1_create
-      description: 科目を作成する
+    put:
+      operationId: SubjectsV1_upsert
+      description: 科目を作成または更新する
       parameters: []
       responses:
-        '201':
+        '200':
           description: 作成された科目
           content:
             application/json:
@@ -548,37 +150,6 @@ paths:
                   - subject
       tags:
         - Subjects
-    put:
-      operationId: SubjectsV1_update
-      description: 科目を更新する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: 科目ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 更新された科目
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  subject:
-                    $ref: '#/components/schemas/Subject'
-                required:
-                  - subject
-      tags:
-        - Subjects
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SubjectRequest'
-        description: 更新する科目の情報
     delete:
       operationId: SubjectsV1_delete
       description: 科目を削除する
@@ -594,50 +165,33 @@ paths:
           description: There is no content to send for this request, but the headers may be useful.
       tags:
         - Subjects
+  /v1/subjects/{id}/syllabus:
+    get:
+      operationId: SyllabusV1_detail
+      description: シラバスを取得する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 科目ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: シラバス
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  syllabus:
+                    $ref: '#/components/schemas/Syllabus'
+                required:
+                  - syllabus
+      tags:
+        - Syllabus
 components:
   schemas:
-    Course:
-      type: object
-      required:
-        - id
-        - name
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-      description: コース
-    CourseRequest:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-    DayOfWeekTimetableSlot:
-      type: object
-      required:
-        - id
-        - dayOfWeek
-        - timetableSlot
-      properties:
-        id:
-          type: string
-        dayOfWeek:
-          $ref: '#/components/schemas/DottoFoundationV1.DayOfWeek'
-        timetableSlot:
-          $ref: '#/components/schemas/DottoFoundationV1.TimetableSlot'
-      description: 曜日・時限
-    DayOfWeekTimetableSlotRequest:
-      type: object
-      required:
-        - dayOfWeek
-        - timetableSlot
-      properties:
-        dayOfWeek:
-          $ref: '#/components/schemas/DottoFoundationV1.DayOfWeek'
-        timetableSlot:
-          $ref: '#/components/schemas/DottoFoundationV1.TimetableSlot'
     DottoFoundationV1.Class:
       type: string
       enum:
@@ -654,6 +208,15 @@ components:
         - K
         - L
       description: クラス
+    DottoFoundationV1.Course:
+      type: string
+      enum:
+        - InformationSystem
+        - InformationDesign
+        - AdvancedICT
+        - ComplexSystem
+        - IntelligentSystem
+      description: コース
     DottoFoundationV1.CourseSemester:
       type: string
       enum:
@@ -667,16 +230,15 @@ components:
         - SummerIntensive
         - WinterIntensive
       description: 開講時期
-    DottoFoundationV1.DayOfWeek:
+    DottoFoundationV1.CulturalSubjectCategory:
       type: string
       enum:
-        - Sunday
-        - Monday
-        - Tuesday
-        - Wednesday
-        - Thursday
-        - Friday
-        - Saturday
+        - Society
+        - Human
+        - Science
+        - Health
+        - Communication
+      description: 教養科目カテゴリ
     DottoFoundationV1.Grade:
       type: string
       enum:
@@ -690,6 +252,13 @@ components:
         - D2
         - D3
       description: 学年
+    DottoFoundationV1.SubjectClassification:
+      type: string
+      enum:
+        - Specialized
+        - Cultural
+        - ResearchInstruction
+      description: 科目カテゴリ
     DottoFoundationV1.SubjectRequirementType:
       type: string
       enum:
@@ -697,65 +266,30 @@ components:
         - Optional
         - OptionalRequired
       description: 必修・選択
-    DottoFoundationV1.TimetableSlot:
-      type: string
-      enum:
-        - Slot1
-        - Slot2
-        - Slot3
-        - Slot4
-        - Slot5
-        - Slot6
-      description: 授業時間
-    Faculty:
-      type: object
-      required:
-        - id
-        - name
-        - email
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        email:
-          type: string
-      description: 教員
-    FacultyRequest:
-      type: object
-      required:
-        - name
-        - email
-      properties:
-        name:
-          type: string
-        email:
-          type: string
     Subject:
       type: object
       required:
         - id
         - name
-        - faculty
+        - faculties
         - semester
-        - dayOfWeekTimetableSlots
+        - credit
         - eligibleAttributes
         - requirements
-        - categories
-        - syllabusId
       properties:
         id:
           type: string
         name:
           type: string
-        faculty:
-          $ref: '#/components/schemas/Faculty'
-        semester:
-          $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
-        dayOfWeekTimetableSlots:
+        faculties:
           type: array
           items:
-            $ref: '#/components/schemas/DayOfWeekTimetableSlot'
+            $ref: '#/components/schemas/SubjectFaculty'
+        semester:
+          $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
+        credit:
+          type: integer
+          description: 単位数
         eligibleAttributes:
           type: array
           items:
@@ -766,66 +300,31 @@ components:
           items:
             $ref: '#/components/schemas/SubjectRequirement'
           description: 科目群・科目区分をもとに決定
-        categories:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubjectCategory'
-          description: 科目群・科目区分のリスト
-        syllabusId:
-          type: string
-          description: 教務システムのシラバスID
-    SubjectCategory:
+    SubjectFaculty:
       type: object
       required:
-        - id
-        - name
+        - facultyId
+        - isPrimary
       properties:
-        id:
+        facultyId:
           type: string
-        name:
-          type: string
-      description: 科目群・科目区分
-    SubjectCategoryRequest:
+        isPrimary:
+          type: boolean
+    SubjectFacultyRequest:
       type: object
       required:
-        - name
+        - facultyId
+        - isPrimary
       properties:
-        name:
+        facultyId:
           type: string
+        isPrimary:
+          type: boolean
     SubjectRequest:
       type: object
       required:
-        - name
-        - facultyId
-        - semester
-        - dayOfWeekTimetableSlotIds
-        - eligibleAttributes
-        - requirements
-        - categoryIds
         - syllabusId
       properties:
-        name:
-          type: string
-        facultyId:
-          type: string
-        semester:
-          $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
-        dayOfWeekTimetableSlotIds:
-          type: array
-          items:
-            type: string
-        eligibleAttributes:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubjectTargetClass'
-        requirements:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubjectRequirementRequest'
-        categoryIds:
-          type: array
-          items:
-            type: string
         syllabusId:
           type: string
     SubjectRequirement:
@@ -835,19 +334,34 @@ components:
         - requirementType
       properties:
         course:
-          $ref: '#/components/schemas/Course'
+          $ref: '#/components/schemas/DottoFoundationV1.Course'
         requirementType:
           $ref: '#/components/schemas/DottoFoundationV1.SubjectRequirementType'
     SubjectRequirementRequest:
       type: object
       required:
-        - courseId
+        - course
         - requirementType
       properties:
-        courseId:
-          type: string
+        course:
+          $ref: '#/components/schemas/DottoFoundationV1.Course'
         requirementType:
           $ref: '#/components/schemas/DottoFoundationV1.SubjectRequirementType'
+    SubjectSummary:
+      type: object
+      required:
+        - id
+        - name
+        - faculties
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        faculties:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubjectFaculty'
     SubjectTargetClass:
       type: object
       required:
@@ -860,6 +374,118 @@ components:
             - $ref: '#/components/schemas/DottoFoundationV1.Class'
           description: 修士課程・博士課程対象の場合はnull
       description: 対象学年・クラス
+    Syllabus:
+      type: object
+      required:
+        - id
+        - name
+        - enName
+        - grades
+        - credit
+        - facultyNames
+        - practicalHomeFacultyCategory
+        - multiplePersonTeachingForm
+        - teachingForm
+        - summary
+        - learningOutcomes
+        - assignments
+        - evaluationMethod
+        - textbooks
+        - referenceBooks
+        - prerequisites
+        - preLearning
+        - postLearning
+        - notes
+        - keywords
+        - targetCourses
+        - targetAreas
+        - classifications
+        - teachingLanguage
+        - contentsAndSchedule
+        - teachingAndExamForm
+        - dspoSubject
+      properties:
+        id:
+          type: string
+          description: 教務システムのシラバスID
+        name:
+          type: string
+          description: 授業名
+        enName:
+          type: string
+          description: 授業名 (en)
+        grades:
+          type: string
+          description: 配当年次
+        credit:
+          type: integer
+          description: 単位数
+        facultyNames:
+          type: string
+          description: 担当教員名
+        practicalHomeFacultyCategory:
+          type: string
+          description: 実務家教員区分
+        multiplePersonTeachingForm:
+          type: string
+          description: 複数人担当形式
+        teachingForm:
+          type: string
+          description: 授業形態
+        summary:
+          type: string
+          description: 授業の概要
+        learningOutcomes:
+          type: string
+          description: 授業の到達目標
+        assignments:
+          type: string
+          description: 提出課題等
+        evaluationMethod:
+          type: string
+          description: 成績の評価方法・基準
+        textbooks:
+          type: string
+          description: テキスト
+        referenceBooks:
+          type: string
+          description: 参考書
+        prerequisites:
+          type: string
+          description: 履修条件
+        preLearning:
+          type: string
+          description: 事前学習
+        postLearning:
+          type: string
+          description: 事後学習
+        notes:
+          type: string
+          description: 履修上の留意点
+        keywords:
+          type: string
+          description: キーワード
+        targetCourses:
+          type: string
+          description: 対象コース・領域
+        targetAreas:
+          type: string
+          description: 対象領域
+        classifications:
+          type: string
+          description: 科目群・科目区分
+        teachingLanguage:
+          type: string
+          description: 教授言語
+        contentsAndSchedule:
+          type: string
+          description: 授業内容とスケジュール
+        teachingAndExamForm:
+          type: string
+          description: 授業・試験の形式
+        dspoSubject:
+          type: string
+          description: DSOP対象科目
 servers:
   - url: http://localhost:8080
     description: Local

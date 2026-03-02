@@ -45,21 +45,13 @@ func main() {
 	router.Use(middleware.OapiRequestValidator(spec))
 
 	// Repositories
-	courseRepo := repository.NewCourseRepository(db)
-	facultyRepo := repository.NewFacultyRepository(db)
-	slotRepo := repository.NewDayOfWeekTimetableSlotRepository(db)
-	categoryRepo := repository.NewSubjectCategoryRepository(db)
 	subjectRepo := repository.NewSubjectRepository(db)
 
 	// Services
-	courseSvc := service.NewCourseService(courseRepo)
-	facultySvc := service.NewFacultyService(facultyRepo)
-	slotSvc := service.NewDayOfWeekTimetableSlotService(slotRepo)
-	categorySvc := service.NewSubjectCategoryService(categoryRepo)
 	subjectSvc := service.NewSubjectService(subjectRepo)
 
 	// Handler + Router
-	h := handler.NewHandler(courseSvc, facultySvc, slotSvc, categorySvc, subjectSvc)
+	h := handler.NewHandler(subjectSvc)
 	strictHandler := api.NewStrictHandler(h, nil)
 	api.RegisterHandlers(router, strictHandler)
 
