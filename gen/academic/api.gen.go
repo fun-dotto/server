@@ -125,6 +125,9 @@ type Subject struct {
 
 	// Semester 開講時期
 	Semester DottoFoundationV1CourseSemester `json:"semester"`
+
+	// Year 開講年度
+	Year int `json:"year"`
 }
 
 // SubjectFaculty defines model for SubjectFaculty.
@@ -249,29 +252,35 @@ type Syllabus struct {
 
 // SubjectsV1ListParams defines parameters for SubjectsV1List.
 type SubjectsV1ListParams struct {
+	// Ids 科目IDのリスト; 指定した場合は指定した科目IDのみを取得する
+	Ids *[]string `form:"ids,omitempty" json:"ids,omitempty"`
+
 	// Q 検索ワード
-	Q string `form:"q" json:"q"`
+	Q *string `form:"q,omitempty" json:"q,omitempty"`
 
 	// Grade 学年
-	Grade []DottoFoundationV1Grade `form:"grade" json:"grade"`
+	Grade *[]DottoFoundationV1Grade `form:"grade,omitempty" json:"grade,omitempty"`
 
 	// Courses コース; 大学院の場合は大学院コースに読み替え
-	Courses []DottoFoundationV1Course `form:"courses" json:"courses"`
+	Courses *[]DottoFoundationV1Course `form:"courses,omitempty" json:"courses,omitempty"`
 
 	// Class クラス; 大学院の学年を選択した場合は選択できない
-	Class []DottoFoundationV1Class `form:"class" json:"class"`
+	Class *[]DottoFoundationV1Class `form:"class,omitempty" json:"class,omitempty"`
 
 	// Classification 学部: 専門・教養; 大学院: 専門・研究指導
-	Classification []DottoFoundationV1SubjectClassification `form:"classification" json:"classification"`
+	Classification *[]DottoFoundationV1SubjectClassification `form:"classification,omitempty" json:"classification,omitempty"`
+
+	// Year 開講年度; 指定しない場合は今年度が選択される
+	Year *int `form:"year,omitempty" json:"year,omitempty"`
 
 	// Semester 開講時期
-	Semester []DottoFoundationV1CourseSemester `form:"semester" json:"semester"`
+	Semester *[]DottoFoundationV1CourseSemester `form:"semester,omitempty" json:"semester,omitempty"`
 
 	// RequirementType 必修・選択・選択必修
-	RequirementType []DottoFoundationV1SubjectRequirementType `form:"requirementType" json:"requirementType"`
+	RequirementType *[]DottoFoundationV1SubjectRequirementType `form:"requirementType,omitempty" json:"requirementType,omitempty"`
 
 	// CulturalSubjectCategory 教養科目カテゴリ
-	CulturalSubjectCategory []DottoFoundationV1CulturalSubjectCategory `form:"culturalSubjectCategory" json:"culturalSubjectCategory"`
+	CulturalSubjectCategory *[]DottoFoundationV1CulturalSubjectCategory `form:"culturalSubjectCategory,omitempty" json:"culturalSubjectCategory,omitempty"`
 }
 
 // SubjectsV1UpsertJSONRequestBody defines body for SubjectsV1Upsert for application/json ContentType.
@@ -283,7 +292,7 @@ type ServerInterface interface {
 	// (GET /v1/subjects)
 	SubjectsV1List(c *gin.Context, params SubjectsV1ListParams)
 
-	// (PUT /v1/subjects)
+	// (POST /v1/subjects)
 	SubjectsV1Upsert(c *gin.Context)
 
 	// (DELETE /v1/subjects/{id})
@@ -313,121 +322,81 @@ func (siw *ServerInterfaceWrapper) SubjectsV1List(c *gin.Context) {
 	// Parameter object where we will unmarshal all parameters from the context
 	var params SubjectsV1ListParams
 
-	// ------------- Required query parameter "q" -------------
+	// ------------- Optional query parameter "ids" -------------
 
-	if paramValue := c.Query("q"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument q is required, but not found"), http.StatusBadRequest)
+	err = runtime.BindQueryParameter("form", false, false, "ids", c.Request.URL.Query(), &params.Ids)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter ids: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	err = runtime.BindQueryParameter("form", false, true, "q", c.Request.URL.Query(), &params.Q)
+	// ------------- Optional query parameter "q" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "q", c.Request.URL.Query(), &params.Q)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter q: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	// ------------- Required query parameter "grade" -------------
+	// ------------- Optional query parameter "grade" -------------
 
-	if paramValue := c.Query("grade"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument grade is required, but not found"), http.StatusBadRequest)
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", false, true, "grade", c.Request.URL.Query(), &params.Grade)
+	err = runtime.BindQueryParameter("form", false, false, "grade", c.Request.URL.Query(), &params.Grade)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter grade: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	// ------------- Required query parameter "courses" -------------
+	// ------------- Optional query parameter "courses" -------------
 
-	if paramValue := c.Query("courses"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument courses is required, but not found"), http.StatusBadRequest)
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", false, true, "courses", c.Request.URL.Query(), &params.Courses)
+	err = runtime.BindQueryParameter("form", false, false, "courses", c.Request.URL.Query(), &params.Courses)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter courses: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	// ------------- Required query parameter "class" -------------
+	// ------------- Optional query parameter "class" -------------
 
-	if paramValue := c.Query("class"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument class is required, but not found"), http.StatusBadRequest)
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", false, true, "class", c.Request.URL.Query(), &params.Class)
+	err = runtime.BindQueryParameter("form", false, false, "class", c.Request.URL.Query(), &params.Class)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter class: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	// ------------- Required query parameter "classification" -------------
+	// ------------- Optional query parameter "classification" -------------
 
-	if paramValue := c.Query("classification"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument classification is required, but not found"), http.StatusBadRequest)
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", false, true, "classification", c.Request.URL.Query(), &params.Classification)
+	err = runtime.BindQueryParameter("form", false, false, "classification", c.Request.URL.Query(), &params.Classification)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter classification: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	// ------------- Required query parameter "semester" -------------
+	// ------------- Optional query parameter "year" -------------
 
-	if paramValue := c.Query("semester"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument semester is required, but not found"), http.StatusBadRequest)
+	err = runtime.BindQueryParameter("form", false, false, "year", c.Request.URL.Query(), &params.Year)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter year: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	err = runtime.BindQueryParameter("form", false, true, "semester", c.Request.URL.Query(), &params.Semester)
+	// ------------- Optional query parameter "semester" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "semester", c.Request.URL.Query(), &params.Semester)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter semester: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	// ------------- Required query parameter "requirementType" -------------
+	// ------------- Optional query parameter "requirementType" -------------
 
-	if paramValue := c.Query("requirementType"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument requirementType is required, but not found"), http.StatusBadRequest)
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", false, true, "requirementType", c.Request.URL.Query(), &params.RequirementType)
+	err = runtime.BindQueryParameter("form", false, false, "requirementType", c.Request.URL.Query(), &params.RequirementType)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter requirementType: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	// ------------- Required query parameter "culturalSubjectCategory" -------------
+	// ------------- Optional query parameter "culturalSubjectCategory" -------------
 
-	if paramValue := c.Query("culturalSubjectCategory"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument culturalSubjectCategory is required, but not found"), http.StatusBadRequest)
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", false, true, "culturalSubjectCategory", c.Request.URL.Query(), &params.CulturalSubjectCategory)
+	err = runtime.BindQueryParameter("form", false, false, "culturalSubjectCategory", c.Request.URL.Query(), &params.CulturalSubjectCategory)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter culturalSubjectCategory: %w", err), http.StatusBadRequest)
 		return
@@ -556,7 +525,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.GET(options.BaseURL+"/v1/subjects", wrapper.SubjectsV1List)
-	router.PUT(options.BaseURL+"/v1/subjects", wrapper.SubjectsV1Upsert)
+	router.POST(options.BaseURL+"/v1/subjects", wrapper.SubjectsV1Upsert)
 	router.DELETE(options.BaseURL+"/v1/subjects/:id", wrapper.SubjectsV1Delete)
 	router.GET(options.BaseURL+"/v1/subjects/:id", wrapper.SubjectsV1Detail)
 	router.GET(options.BaseURL+"/v1/subjects/:id/syllabus", wrapper.SyllabusV1Detail)
@@ -660,7 +629,7 @@ type StrictServerInterface interface {
 	// (GET /v1/subjects)
 	SubjectsV1List(ctx context.Context, request SubjectsV1ListRequestObject) (SubjectsV1ListResponseObject, error)
 
-	// (PUT /v1/subjects)
+	// (POST /v1/subjects)
 	SubjectsV1Upsert(ctx context.Context, request SubjectsV1UpsertRequestObject) (SubjectsV1UpsertResponseObject, error)
 
 	// (DELETE /v1/subjects/{id})
