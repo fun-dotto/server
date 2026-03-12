@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	api "github.com/fun-dotto/subject-api/generated"
+	api "github.com/fun-dotto/academic-api/generated"
 )
 
 // TODO: クエリパラメータ (q, grade, courses, class, classification, semester, requirementType, culturalSubjectCategory) を使ったフィルタリングを実装する

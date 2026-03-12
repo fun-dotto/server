@@ -3,11 +3,11 @@ package main
 import (
 	"log"
 
-	api "github.com/fun-dotto/subject-api/generated"
-	"github.com/fun-dotto/subject-api/internal/database"
-	"github.com/fun-dotto/subject-api/internal/handler"
-	"github.com/fun-dotto/subject-api/internal/repository"
-	"github.com/fun-dotto/subject-api/internal/service"
+	api "github.com/fun-dotto/academic-api/generated"
+	"github.com/fun-dotto/academic-api/internal/database"
+	"github.com/fun-dotto/academic-api/internal/handler"
+	"github.com/fun-dotto/academic-api/internal/repository"
+	"github.com/fun-dotto/academic-api/internal/service"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"

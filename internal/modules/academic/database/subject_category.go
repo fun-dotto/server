@@ -3,12 +3,12 @@ package database
 import (
 	"time"
 
-	"github.com/fun-dotto/subject-api/internal/domain"
+	"github.com/fun-dotto/academic-api/internal/domain"
 )
 
 type SubjectCategory struct {
-	ID        string    `gorm:"type:uuid;primaryKey"`
-	Name      string    `gorm:"type:text;not null"`
+	ID        string `gorm:"type:uuid;primaryKey"`
+	Name      string `gorm:"type:text;not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

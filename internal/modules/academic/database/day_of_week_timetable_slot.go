@@ -3,13 +3,13 @@ package database
 import (
 	"time"
 
-	"github.com/fun-dotto/subject-api/internal/domain"
+	"github.com/fun-dotto/academic-api/internal/domain"
 )
 
 type DayOfWeekTimetableSlot struct {
-	ID            string    `gorm:"type:uuid;primaryKey"`
-	DayOfWeek     string    `gorm:"type:text;not null"`
-	TimetableSlot string    `gorm:"type:text;not null"`
+	ID            string `gorm:"type:uuid;primaryKey"`
+	DayOfWeek     string `gorm:"type:text;not null"`
+	TimetableSlot string `gorm:"type:text;not null"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }

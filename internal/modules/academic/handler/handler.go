@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 
-	api "github.com/fun-dotto/subject-api/generated"
-	"github.com/fun-dotto/subject-api/internal/domain"
+	api "github.com/fun-dotto/academic-api/generated"
+	"github.com/fun-dotto/academic-api/internal/domain"
 )
 
 var _ api.StrictServerInterface = (*Handler)(nil)

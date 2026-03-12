@@ -3,7 +3,7 @@ package database
 import (
 	"time"
 
-	"github.com/fun-dotto/subject-api/internal/domain"
+	"github.com/fun-dotto/academic-api/internal/domain"
 )
 
 type Subject struct {
