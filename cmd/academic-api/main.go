@@ -46,9 +46,10 @@ func main() {
 
 	// Repositories
 	subjectRepo := repository.NewSubjectRepository(db)
+	syllabusRepo := repository.NewSyllabusRepository(db)
 
 	// Services
-	subjectSvc := service.NewSubjectService(subjectRepo)
+	subjectSvc := service.NewSubjectService(subjectRepo, syllabusRepo)
 
 	// Handler + Router
 	h := handler.NewHandler(subjectSvc)

@@ -7,39 +7,48 @@ import (
 )
 
 type Subject struct {
-	ID                      string                     `gorm:"type:uuid;primaryKey"`
-	Name                    string                     `gorm:"type:text;not null"`
-	FacultyID               string                     `gorm:"type:uuid;not null"`
-	Faculty                 Faculty                    `gorm:"foreignKey:FacultyID"`
-	Semester                string                     `gorm:"type:text;not null"`
-	SyllabusID              string                     `gorm:"type:text;not null"`
-	DayOfWeekTimetableSlots []DayOfWeekTimetableSlot   `gorm:"many2many:subject_day_of_week_timetable_slots;"`
-	Categories              []SubjectCategory          `gorm:"many2many:subject_categories_subjects;"`
-	EligibleAttributes      []SubjectEligibleAttribute `gorm:"foreignKey:SubjectID"`
-	Requirements            []SubjectRequirement       `gorm:"foreignKey:SubjectID"`
-	CreatedAt               time.Time
-	UpdatedAt               time.Time
+	ID                 string                     `gorm:"type:uuid;primaryKey"`
+	Name               string                     `gorm:"not null"`
+	Year               int                        `gorm:"not null"`
+	Semester           string                     `gorm:"not null"`
+	Credit             int                        `gorm:"not null"`
+	SyllabusID         string                     `gorm:"not null;uniqueIndex"`
+	Syllabus           *Syllabus                  `gorm:"foreignKey:SyllabusID"`
+	Faculties          []SubjectFaculty           `gorm:"foreignKey:SubjectID"`
+	EligibleAttributes []SubjectEligibleAttribute `gorm:"foreignKey:SubjectID"`
+	Requirements       []SubjectRequirement       `gorm:"foreignKey:SubjectID"`
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+}
+
+type SubjectFaculty struct {
+	ID        string `gorm:"type:uuid;primaryKey"`
+	SubjectID string `gorm:"type:uuid;not null;index"`
+	FacultyID string `gorm:"type:uuid;not null"`
+	IsPrimary bool   `gorm:"not null"`
 }
 
 type SubjectEligibleAttribute struct {
-	ID        string  `gorm:"type:uuid;primaryKey"`
-	SubjectID string  `gorm:"type:uuid;not null;index"`
-	Grade     string  `gorm:"type:text;not null"`
-	Class     *string `gorm:"type:text"`
+	ID        string `gorm:"type:uuid;primaryKey"`
+	SubjectID string `gorm:"type:uuid;not null;index"`
+	Grade     string `gorm:"not null"`
+	Class     *string
 }
 
 type SubjectRequirement struct {
 	ID              string `gorm:"type:uuid;primaryKey"`
 	SubjectID       string `gorm:"type:uuid;not null;index"`
-	CourseID        string `gorm:"type:uuid;not null"`
-	Course          Course `gorm:"foreignKey:CourseID"`
-	RequirementType string `gorm:"type:text;not null"`
+	Course          string `gorm:"not null"`
+	RequirementType string `gorm:"not null"`
 }
 
 func SubjectToDomain(m Subject) domain.Subject {
-	slots := make([]domain.DayOfWeekTimetableSlot, len(m.DayOfWeekTimetableSlots))
-	for i, s := range m.DayOfWeekTimetableSlots {
-		slots[i] = DayOfWeekTimetableSlotToDomain(s)
+	faculties := make([]domain.SubjectFaculty, len(m.Faculties))
+	for i, f := range m.Faculties {
+		faculties[i] = domain.SubjectFaculty{
+			FacultyID: f.FacultyID,
+			IsPrimary: f.IsPrimary,
+		}
 	}
 
 	eligible := make([]domain.SubjectTargetClass, len(m.EligibleAttributes))
@@ -57,33 +66,31 @@ func SubjectToDomain(m Subject) domain.Subject {
 	requirements := make([]domain.SubjectRequirement, len(m.Requirements))
 	for i, r := range m.Requirements {
 		requirements[i] = domain.SubjectRequirement{
-			Course:          CourseToDomain(r.Course),
+			Course:          domain.CourseType(r.Course),
 			RequirementType: domain.SubjectRequirementType(r.RequirementType),
 		}
 	}
 
-	categories := make([]domain.SubjectCategory, len(m.Categories))
-	for i, c := range m.Categories {
-		categories[i] = SubjectCategoryToDomain(c)
-	}
-
 	return domain.Subject{
-		ID:                      m.ID,
-		Name:                    m.Name,
-		Faculty:                 FacultyToDomain(m.Faculty),
-		Semester:                domain.CourseSemester(m.Semester),
-		DayOfWeekTimetableSlots: slots,
-		EligibleAttributes:      eligible,
-		Requirements:            requirements,
-		Categories:              categories,
-		SyllabusID:              m.SyllabusID,
+		ID:                 m.ID,
+		Name:               m.Name,
+		Faculties:          faculties,
+		Year:               m.Year,
+		Semester:           domain.CourseSemester(m.Semester),
+		Credit:             m.Credit,
+		EligibleAttributes: eligible,
+		Requirements:       requirements,
+		SyllabusID:         m.SyllabusID,
 	}
 }
 
 func SubjectFromDomain(d domain.Subject) Subject {
-	slots := make([]DayOfWeekTimetableSlot, len(d.DayOfWeekTimetableSlots))
-	for i, s := range d.DayOfWeekTimetableSlots {
-		slots[i] = DayOfWeekTimetableSlotFromDomain(s)
+	faculties := make([]SubjectFaculty, len(d.Faculties))
+	for i, f := range d.Faculties {
+		faculties[i] = SubjectFaculty{
+			FacultyID: f.FacultyID,
+			IsPrimary: f.IsPrimary,
+		}
 	}
 
 	eligible := make([]SubjectEligibleAttribute, len(d.EligibleAttributes))
@@ -101,27 +108,20 @@ func SubjectFromDomain(d domain.Subject) Subject {
 	requirements := make([]SubjectRequirement, len(d.Requirements))
 	for i, r := range d.Requirements {
 		requirements[i] = SubjectRequirement{
-			CourseID:        r.Course.ID,
-			Course:          CourseFromDomain(r.Course),
+			Course:          string(r.Course),
 			RequirementType: string(r.RequirementType),
 		}
 	}
 
-	categories := make([]SubjectCategory, len(d.Categories))
-	for i, c := range d.Categories {
-		categories[i] = SubjectCategoryFromDomain(c)
-	}
-
 	return Subject{
-		ID:                      d.ID,
-		Name:                    d.Name,
-		FacultyID:               d.Faculty.ID,
-		Faculty:                 FacultyFromDomain(d.Faculty),
-		Semester:                string(d.Semester),
-		SyllabusID:              d.SyllabusID,
-		DayOfWeekTimetableSlots: slots,
-		Categories:              categories,
-		EligibleAttributes:      eligible,
-		Requirements:            requirements,
+		ID:                 d.ID,
+		Name:               d.Name,
+		Year:               d.Year,
+		Semester:           string(d.Semester),
+		Credit:             d.Credit,
+		SyllabusID:         d.SyllabusID,
+		Faculties:          faculties,
+		EligibleAttributes: eligible,
+		Requirements:       requirements,
 	}
 }

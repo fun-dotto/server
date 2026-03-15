@@ -7,6 +7,7 @@ import (
 	"github.com/fun-dotto/academic-api/internal/domain"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type SubjectRepository struct {
@@ -19,17 +20,53 @@ func NewSubjectRepository(db *gorm.DB) *SubjectRepository {
 
 func (r *SubjectRepository) subjectPreload(db *gorm.DB) *gorm.DB {
 	return db.
-		Preload("Faculty").
-		Preload("DayOfWeekTimetableSlots").
-		Preload("Categories").
+		Preload("Faculties").
 		Preload("EligibleAttributes").
-		Preload("Requirements").
-		Preload("Requirements.Course")
+		Preload("Requirements")
 }
 
-func (r *SubjectRepository) List(ctx context.Context) ([]domain.Subject, error) {
+func (r *SubjectRepository) List(ctx context.Context, filter domain.SubjectListFilter) ([]domain.Subject, error) {
+	ctxDB := r.db.WithContext(ctx)
+	query := r.subjectPreload(ctxDB)
+
+	if len(filter.IDs) > 0 {
+		query = query.Where("id IN ?", filter.IDs)
+	}
+	if filter.Q != nil {
+		// TODO: filter.Q に含まれる LIKE ワイルドカード文字（%, _）をエスケープする。現状ユーザー入力がそのまま LIKE パターンに埋め込まれる。
+		query = query.Where("name ILIKE ?", "%"+*filter.Q+"%")
+	}
+	if filter.Year != nil {
+		query = query.Where("year = ?", *filter.Year)
+	}
+	if len(filter.Semester) > 0 {
+		query = query.Where("semester IN ?", filter.Semester)
+	}
+	if len(filter.Grade) > 0 {
+		query = query.Where("id IN (?)",
+			ctxDB.Model(&database.SubjectEligibleAttribute{}).Select("subject_id").Where("grade IN ?", filter.Grade),
+		)
+	}
+	if len(filter.Class) > 0 {
+		query = query.Where("id IN (?)",
+			ctxDB.Model(&database.SubjectEligibleAttribute{}).Select("subject_id").Where("class IN ?", filter.Class),
+		)
+	}
+	if len(filter.Courses) > 0 {
+		query = query.Where("id IN (?)",
+			ctxDB.Model(&database.SubjectRequirement{}).Select("subject_id").Where("course IN ?", filter.Courses),
+		)
+	}
+	if len(filter.RequirementType) > 0 {
+		query = query.Where("id IN (?)",
+			ctxDB.Model(&database.SubjectRequirement{}).Select("subject_id").Where("requirement_type IN ?", filter.RequirementType),
+		)
+	}
+	// TODO: Classification フィルタの実装（syllabi テーブルの classifications カラムを JOIN して絞り込む）
+	// TODO: CulturalSubjectCategory フィルタの実装
+
 	var records []database.Subject
-	if err := r.subjectPreload(r.db.WithContext(ctx)).Find(&records).Error; err != nil {
+	if err := query.Find(&records).Error; err != nil {
 		return nil, err
 	}
 	results := make([]domain.Subject, len(records))
@@ -47,44 +84,22 @@ func (r *SubjectRepository) GetByID(ctx context.Context, id string) (domain.Subj
 	return database.SubjectToDomain(record), nil
 }
 
-func (r *SubjectRepository) Create(ctx context.Context, subject domain.Subject) (domain.Subject, error) {
-	record := database.SubjectFromDomain(subject)
-
-	for i := range record.EligibleAttributes {
-		record.EligibleAttributes[i].ID = uuid.New().String()
-		record.EligibleAttributes[i].SubjectID = record.ID
-	}
-	for i := range record.Requirements {
-		record.Requirements[i].ID = uuid.New().String()
-		record.Requirements[i].SubjectID = record.ID
-	}
-
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Omit("DayOfWeekTimetableSlots", "Categories").Create(&record).Error; err != nil {
-			return err
-		}
-		if len(record.DayOfWeekTimetableSlots) > 0 {
-			if err := tx.Model(&record).Association("DayOfWeekTimetableSlots").Replace(record.DayOfWeekTimetableSlots); err != nil {
-				return err
-			}
-		}
-		if len(record.Categories) > 0 {
-			if err := tx.Model(&record).Association("Categories").Replace(record.Categories); err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-	if err != nil {
+func (r *SubjectRepository) GetBySyllabusID(ctx context.Context, syllabusID string) (domain.Subject, error) {
+	var record database.Subject
+	if err := r.subjectPreload(r.db.WithContext(ctx)).First(&record, "syllabus_id = ?", syllabusID).Error; err != nil {
 		return domain.Subject{}, err
 	}
-
-	return r.GetByID(ctx, record.ID)
+	return database.SubjectToDomain(record), nil
 }
 
-func (r *SubjectRepository) Update(ctx context.Context, subject domain.Subject) (domain.Subject, error) {
+func (r *SubjectRepository) Upsert(ctx context.Context, subject domain.Subject) (domain.Subject, error) {
 	record := database.SubjectFromDomain(subject)
+	record.ID = uuid.New().String()
 
+	for i := range record.Faculties {
+		record.Faculties[i].ID = uuid.New().String()
+		record.Faculties[i].SubjectID = record.ID
+	}
 	for i := range record.EligibleAttributes {
 		record.EligibleAttributes[i].ID = uuid.New().String()
 		record.EligibleAttributes[i].SubjectID = record.ID
@@ -94,20 +109,48 @@ func (r *SubjectRepository) Update(ctx context.Context, subject domain.Subject) 
 		record.Requirements[i].SubjectID = record.ID
 	}
 
+	// TODO: Upsert のたびに子テーブル（Faculties, EligibleAttributes, Requirements）を全件 DELETE → INSERT している。
+	// データ量が増えた場合のパフォーマンスに注意。差分更新の検討が必要。
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&record).Omit("DayOfWeekTimetableSlots", "Categories", "EligibleAttributes", "Requirements").Save(&record).Error; err != nil {
+		// INSERT ... ON CONFLICT (syllabus_id) DO UPDATE で原子的に upsert
+		if err := tx.Clauses(clause.OnConflict{
+			Columns: []clause.Column{{Name: "syllabus_id"}},
+			DoUpdates: clause.AssignmentColumns([]string{
+				"name", "year", "semester", "credit", "updated_at",
+			}),
+		}).Omit("Faculties", "EligibleAttributes", "Requirements").Create(&record).Error; err != nil {
 			return err
 		}
 
-		// Replace M:N associations
-		if err := tx.Model(&record).Association("DayOfWeekTimetableSlots").Replace(record.DayOfWeekTimetableSlots); err != nil {
+		// ON CONFLICT で UPDATE された場合、record.ID は新規生成した値のままなので
+		// 実際の ID を取得し直す
+		var actual database.Subject
+		if err := tx.Select("id").Where("syllabus_id = ?", record.SyllabusID).First(&actual).Error; err != nil {
 			return err
 		}
-		if err := tx.Model(&record).Association("Categories").Replace(record.Categories); err != nil {
-			return err
+		record.ID = actual.ID
+
+		// 子テーブルの SubjectID を実際の ID に合わせる
+		for i := range record.Faculties {
+			record.Faculties[i].SubjectID = record.ID
+		}
+		for i := range record.EligibleAttributes {
+			record.EligibleAttributes[i].SubjectID = record.ID
+		}
+		for i := range record.Requirements {
+			record.Requirements[i].SubjectID = record.ID
 		}
 
-		// Replace 1:N owned records: delete old, create new
+		// 1:N 子テーブルを差し替え
+		if err := tx.Where("subject_id = ?", record.ID).Delete(&database.SubjectFaculty{}).Error; err != nil {
+			return err
+		}
+		if len(record.Faculties) > 0 {
+			if err := tx.Create(&record.Faculties).Error; err != nil {
+				return err
+			}
+		}
+
 		if err := tx.Where("subject_id = ?", record.ID).Delete(&database.SubjectEligibleAttribute{}).Error; err != nil {
 			return err
 		}
@@ -142,15 +185,9 @@ func (r *SubjectRepository) Delete(ctx context.Context, id string) error {
 			return err
 		}
 
-		// Clear M:N associations
-		if err := tx.Model(&record).Association("DayOfWeekTimetableSlots").Clear(); err != nil {
+		if err := tx.Where("subject_id = ?", id).Delete(&database.SubjectFaculty{}).Error; err != nil {
 			return err
 		}
-		if err := tx.Model(&record).Association("Categories").Clear(); err != nil {
-			return err
-		}
-
-		// Delete 1:N owned records
 		if err := tx.Where("subject_id = ?", id).Delete(&database.SubjectEligibleAttribute{}).Error; err != nil {
 			return err
 		}

@@ -53,26 +53,30 @@ const (
 	SubjectRequirementTypeOptionalRequired SubjectRequirementType = "OptionalRequired"
 )
 
-
-type DayOfWeek string
+type CourseType string
 
 const (
-	DayOfWeekSunday    DayOfWeek = "Sunday"
-	DayOfWeekMonday    DayOfWeek = "Monday"
-	DayOfWeekTuesday   DayOfWeek = "Tuesday"
-	DayOfWeekWednesday DayOfWeek = "Wednesday"
-	DayOfWeekThursday  DayOfWeek = "Thursday"
-	DayOfWeekFriday    DayOfWeek = "Friday"
-	DayOfWeekSaturday  DayOfWeek = "Saturday"
+	CourseTypeInformationSystem CourseType = "InformationSystem"
+	CourseTypeInformationDesign CourseType = "InformationDesign"
+	CourseTypeAdvancedICT       CourseType = "AdvancedICT"
+	CourseTypeComplexSystem     CourseType = "ComplexSystem"
+	CourseTypeIntelligentSystem CourseType = "IntelligentSystem"
 )
 
-type TimetableSlot string
+type SubjectClassification string
 
 const (
-	TimetableSlotSlot1 TimetableSlot = "Slot1"
-	TimetableSlotSlot2 TimetableSlot = "Slot2"
-	TimetableSlotSlot3 TimetableSlot = "Slot3"
-	TimetableSlotSlot4 TimetableSlot = "Slot4"
-	TimetableSlotSlot5 TimetableSlot = "Slot5"
-	TimetableSlotSlot6 TimetableSlot = "Slot6"
+	SubjectClassificationSpecialized        SubjectClassification = "Specialized"
+	SubjectClassificationCultural           SubjectClassification = "Cultural"
+	SubjectClassificationResearchInstruction SubjectClassification = "ResearchInstruction"
+)
+
+type CulturalSubjectCategory string
+
+const (
+	CulturalSubjectCategorySociety       CulturalSubjectCategory = "Society"
+	CulturalSubjectCategoryHuman         CulturalSubjectCategory = "Human"
+	CulturalSubjectCategoryScience       CulturalSubjectCategory = "Science"
+	CulturalSubjectCategoryHealth        CulturalSubjectCategory = "Health"
+	CulturalSubjectCategoryCommunication CulturalSubjectCategory = "Communication"
 )
