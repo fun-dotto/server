@@ -1,0 +1,153 @@
+openapi: 3.1.0
+info:
+  title: User Service
+  version: 1.0.0
+tags:
+  - name: Users
+paths:
+  /v1/users/{id}:
+    get:
+      operationId: UsersV1_detail
+      description: ユーザーを取得する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ユーザーID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ユーザーの情報
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                required:
+                  - user
+        '404':
+          description: The server cannot find the requested resource.
+      tags:
+        - Users
+    post:
+      operationId: UsersV1_upsert
+      description: ユーザーを作成または更新する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 作成または更新されたユーザー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                required:
+                  - user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        description: 作成または更新するユーザーの情報
+components:
+  schemas:
+    DottoFoundationV1.Class:
+      type: string
+      enum:
+        - A
+        - B
+        - C
+        - D
+        - E
+        - F
+        - G
+        - H
+        - I
+        - J
+        - K
+        - L
+      description: クラス
+    DottoFoundationV1.Course:
+      type: string
+      enum:
+        - InformationSystem
+        - InformationDesign
+        - AdvancedICT
+        - ComplexSystem
+        - IntelligentSystem
+      description: コース
+    DottoFoundationV1.Grade:
+      type: string
+      enum:
+        - B1
+        - B2
+        - B3
+        - B4
+        - M1
+        - M2
+        - D1
+        - D2
+        - D3
+      description: 学年
+    User:
+      type: object
+      required:
+        - id
+        - email
+      properties:
+        id:
+          type: string
+          description: |-
+            ユーザーID
+
+            Firebase Authentication の UID
+        email:
+          type: string
+        grade:
+          $ref: '#/components/schemas/DottoFoundationV1.Grade'
+        course:
+          $ref: '#/components/schemas/DottoFoundationV1.Course'
+        class:
+          $ref: '#/components/schemas/DottoFoundationV1.Class'
+    UserRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+        grade:
+          $ref: '#/components/schemas/DottoFoundationV1.Grade'
+        course:
+          $ref: '#/components/schemas/DottoFoundationV1.Course'
+        class:
+          $ref: '#/components/schemas/DottoFoundationV1.Class'
+servers:
+  - url: http://localhost:8080
+    description: Local
+    variables: {}
+  - url: https://user-api-dev-107577467292.asia-northeast1.run.app
+    description: Development
+    variables: {}
+  - url: https://user-api-stg-107577467292.asia-northeast1.run.app
+    description: Staging
+    variables: {}
+  - url: https://user-api-qa-107577467292.asia-northeast1.run.app
+    description: QA
+    variables: {}
+  - url: https://user-api-107577467292.asia-northeast1.run.app
+    description: Production
+    variables: {}
