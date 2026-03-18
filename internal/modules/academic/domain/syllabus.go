@@ -27,5 +27,5 @@ type Syllabus struct {
 	TeachingLanguage             string
 	ContentsAndSchedule          string
 	TeachingAndExamForm          string
-	DspoSubject                  string
+	DsopSubject                  string
 }

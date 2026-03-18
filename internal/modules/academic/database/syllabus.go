@@ -33,7 +33,7 @@ type Syllabus struct {
 	TeachingLanguage             string `gorm:"not null"`
 	ContentsAndSchedule          string `gorm:"not null"`
 	TeachingAndExamForm          string `gorm:"not null"`
-	DspoSubject                  string `gorm:"not null"`
+	DsopSubject                  string `gorm:"not null"`
 	CreatedAt                    time.Time
 	UpdatedAt                    time.Time
 }
@@ -66,7 +66,7 @@ func SyllabusToDomain(m Syllabus) domain.Syllabus {
 		TeachingLanguage:             m.TeachingLanguage,
 		ContentsAndSchedule:          m.ContentsAndSchedule,
 		TeachingAndExamForm:          m.TeachingAndExamForm,
-		DspoSubject:                  m.DspoSubject,
+		DsopSubject:                  m.DsopSubject,
 	}
 }
 
@@ -98,6 +98,6 @@ func SyllabusFromDomain(d domain.Syllabus) Syllabus {
 		TeachingLanguage:             d.TeachingLanguage,
 		ContentsAndSchedule:          d.ContentsAndSchedule,
 		TeachingAndExamForm:          d.TeachingAndExamForm,
-		DspoSubject:                  d.DspoSubject,
+		DsopSubject:                  d.DsopSubject,
 	}
 }
