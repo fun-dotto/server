@@ -47,12 +47,13 @@ func main() {
 	// Repositories
 	subjectRepo := repository.NewSubjectRepository(db)
 	syllabusRepo := repository.NewSyllabusRepository(db)
-
+	facultyRepo := repository.NewFacultyRepository(db)
 	// Services
 	subjectSvc := service.NewSubjectService(subjectRepo, syllabusRepo)
+	facultySvc := service.NewFacultyService(facultyRepo)
 
 	// Handler + Router
-	h := handler.NewHandler(subjectSvc)
+	h := handler.NewHandler(subjectSvc, facultySvc)
 	strictHandler := api.NewStrictHandler(h, nil)
 	api.RegisterHandlers(router, strictHandler)
 
