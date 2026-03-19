@@ -1240,6 +1240,14 @@ func (response CourseRegistrationsV1List200JSONResponse) VisitCourseRegistration
 	return json.NewEncoder(w).Encode(response)
 }
 
+type CourseRegistrationsV1List404Response struct {
+}
+
+func (response CourseRegistrationsV1List404Response) VisitCourseRegistrationsV1ListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type CourseRegistrationsV1CreateRequestObject struct {
 	Body *CourseRegistrationsV1CreateJSONRequestBody
 }
@@ -1259,6 +1267,14 @@ func (response CourseRegistrationsV1Create201JSONResponse) VisitCourseRegistrati
 	return json.NewEncoder(w).Encode(response)
 }
 
+type CourseRegistrationsV1Create400Response struct {
+}
+
+func (response CourseRegistrationsV1Create400Response) VisitCourseRegistrationsV1CreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
 type CourseRegistrationsV1DeleteRequestObject struct {
 	Id string `json:"id"`
 }
@@ -1272,6 +1288,14 @@ type CourseRegistrationsV1Delete204Response struct {
 
 func (response CourseRegistrationsV1Delete204Response) VisitCourseRegistrationsV1DeleteResponse(w http.ResponseWriter) error {
 	w.WriteHeader(204)
+	return nil
+}
+
+type CourseRegistrationsV1Delete404Response struct {
+}
+
+func (response CourseRegistrationsV1Delete404Response) VisitCourseRegistrationsV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
 	return nil
 }
 
@@ -1330,6 +1354,14 @@ func (response FacultiesV1Delete204Response) VisitFacultiesV1DeleteResponse(w ht
 	return nil
 }
 
+type FacultiesV1Delete404Response struct {
+}
+
+func (response FacultiesV1Delete404Response) VisitFacultiesV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type FacultiesV1DetailRequestObject struct {
 	Id string `json:"id"`
 }
@@ -1348,6 +1380,14 @@ func (response FacultiesV1Detail200JSONResponse) VisitFacultiesV1DetailResponse(
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type FacultiesV1Detail404Response struct {
+}
+
+func (response FacultiesV1Detail404Response) VisitFacultiesV1DetailResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type FacultiesV1UpdateRequestObject struct {
@@ -1369,6 +1409,14 @@ func (response FacultiesV1Update200JSONResponse) VisitFacultiesV1UpdateResponse(
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type FacultiesV1Update404Response struct {
+}
+
+func (response FacultiesV1Update404Response) VisitFacultiesV1UpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type RoomsV1ListRequestObject struct {
@@ -1425,6 +1473,14 @@ func (response RoomsV1Delete204Response) VisitRoomsV1DeleteResponse(w http.Respo
 	return nil
 }
 
+type RoomsV1Delete404Response struct {
+}
+
+func (response RoomsV1Delete404Response) VisitRoomsV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type RoomsV1DetailRequestObject struct {
 	Id string `json:"id"`
 }
@@ -1442,6 +1498,14 @@ func (response RoomsV1Detail200JSONResponse) VisitRoomsV1DetailResponse(w http.R
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type RoomsV1Detail404Response struct {
+}
+
+func (response RoomsV1Detail404Response) VisitRoomsV1DetailResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type RoomsV1UpdateRequestObject struct {
@@ -1462,6 +1526,14 @@ func (response RoomsV1Update200JSONResponse) VisitRoomsV1UpdateResponse(w http.R
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type RoomsV1Update404Response struct {
+}
+
+func (response RoomsV1Update404Response) VisitRoomsV1UpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type ReservationsV1ListRequestObject struct {
@@ -1522,6 +1594,14 @@ func (response SubjectsV1Upsert200JSONResponse) VisitSubjectsV1UpsertResponse(w 
 	return json.NewEncoder(w).Encode(response)
 }
 
+type SubjectsV1Upsert400Response struct {
+}
+
+func (response SubjectsV1Upsert400Response) VisitSubjectsV1UpsertResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
 type SubjectsV1DeleteRequestObject struct {
 	Id string `json:"id"`
 }
@@ -1535,6 +1615,14 @@ type SubjectsV1Delete204Response struct {
 
 func (response SubjectsV1Delete204Response) VisitSubjectsV1DeleteResponse(w http.ResponseWriter) error {
 	w.WriteHeader(204)
+	return nil
+}
+
+type SubjectsV1Delete404Response struct {
+}
+
+func (response SubjectsV1Delete404Response) VisitSubjectsV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
 	return nil
 }
 
@@ -1557,6 +1645,14 @@ func (response SubjectsV1Detail200JSONResponse) VisitSubjectsV1DetailResponse(w 
 	return json.NewEncoder(w).Encode(response)
 }
 
+type SubjectsV1Detail404Response struct {
+}
+
+func (response SubjectsV1Detail404Response) VisitSubjectsV1DetailResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type SyllabusV1DetailRequestObject struct {
 	Id string `json:"id"`
 }
@@ -1574,6 +1670,14 @@ func (response SyllabusV1Detail200JSONResponse) VisitSyllabusV1DetailResponse(w 
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type SyllabusV1Detail404Response struct {
+}
+
+func (response SyllabusV1Detail404Response) VisitSyllabusV1DetailResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type TimetableItemsV1ListRequestObject struct {
@@ -1627,6 +1731,14 @@ type TimetableItemsV1Delete204Response struct {
 
 func (response TimetableItemsV1Delete204Response) VisitTimetableItemsV1DeleteResponse(w http.ResponseWriter) error {
 	w.WriteHeader(204)
+	return nil
+}
+
+type TimetableItemsV1Delete404Response struct {
+}
+
+func (response TimetableItemsV1Delete404Response) VisitTimetableItemsV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
 	return nil
 }
 
