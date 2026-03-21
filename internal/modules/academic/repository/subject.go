@@ -62,8 +62,12 @@ func (r *SubjectRepository) List(ctx context.Context, filter domain.SubjectListF
 			ctxDB.Model(&database.SubjectRequirement{}).Select("subject_id").Where("requirement_type IN ?", filter.RequirementType),
 		)
 	}
-	// TODO: Classification フィルタの実装（syllabi テーブルの classifications カラムを JOIN して絞り込む）
-	// TODO: CulturalSubjectCategory フィルタの実装
+	if len(filter.Classification) > 0 {
+		query = query.Where("classification IN ?", filter.Classification)
+	}
+	if len(filter.CulturalSubjectCategory) > 0 {
+		query = query.Where("cultural_subject_category IN ?", filter.CulturalSubjectCategory)
+	}
 
 	var records []database.Subject
 	if err := query.Find(&records).Error; err != nil {
@@ -116,7 +120,7 @@ func (r *SubjectRepository) Upsert(ctx context.Context, subject domain.Subject) 
 		if err := tx.Clauses(clause.OnConflict{
 			Columns: []clause.Column{{Name: "syllabus_id"}},
 			DoUpdates: clause.AssignmentColumns([]string{
-				"name", "year", "semester", "credit", "updated_at",
+				"name", "year", "semester", "credit", "classification", "cultural_subject_category", "updated_at",
 			}),
 		}).Omit("Faculties", "EligibleAttributes", "Requirements").Create(&record).Error; err != nil {
 			return err

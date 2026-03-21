@@ -16,15 +16,17 @@ type SubjectRequirement struct {
 }
 
 type Subject struct {
-	ID                 string
-	Name               string
-	Faculties          []SubjectFaculty
-	Year               int
-	Semester           CourseSemester
-	Credit             int
-	EligibleAttributes []SubjectTargetClass
-	Requirements       []SubjectRequirement
-	SyllabusID         string
+	ID                      string
+	Name                    string
+	Faculties               []SubjectFaculty
+	Year                    int
+	Semester                CourseSemester
+	Credit                  int
+	Classification          SubjectClassification
+	CulturalSubjectCategory CulturalSubjectCategory
+	EligibleAttributes      []SubjectTargetClass
+	Requirements            []SubjectRequirement
+	SyllabusID              string
 }
 
 type SubjectListFilter struct {

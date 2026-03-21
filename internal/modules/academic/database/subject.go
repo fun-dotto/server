@@ -7,18 +7,20 @@ import (
 )
 
 type Subject struct {
-	ID                 string                     `gorm:"type:uuid;primaryKey"`
-	Name               string                     `gorm:"not null"`
-	Year               int                        `gorm:"not null"`
-	Semester           string                     `gorm:"not null"`
-	Credit             int                        `gorm:"not null"`
-	SyllabusID         string                     `gorm:"not null;uniqueIndex"`
-	Syllabus           *Syllabus                  `gorm:"foreignKey:SyllabusID"`
-	Faculties          []SubjectFaculty           `gorm:"foreignKey:SubjectID"`
-	EligibleAttributes []SubjectEligibleAttribute `gorm:"foreignKey:SubjectID"`
-	Requirements       []SubjectRequirement       `gorm:"foreignKey:SubjectID"`
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
+	ID                      string                     `gorm:"type:uuid;primaryKey"`
+	Name                    string                     `gorm:"not null"`
+	Year                    int                        `gorm:"not null"`
+	Semester                string                     `gorm:"not null"`
+	Credit                  int                        `gorm:"not null"`
+	Classification          string                     `gorm:"not null"`
+	CulturalSubjectCategory string                     `gorm:"not null"`
+	SyllabusID              string                     `gorm:"not null;uniqueIndex"`
+	Syllabus                *Syllabus                  `gorm:"foreignKey:SyllabusID"`
+	Faculties               []SubjectFaculty           `gorm:"foreignKey:SubjectID"`
+	EligibleAttributes      []SubjectEligibleAttribute `gorm:"foreignKey:SubjectID"`
+	Requirements            []SubjectRequirement       `gorm:"foreignKey:SubjectID"`
+	CreatedAt               time.Time
+	UpdatedAt               time.Time
 }
 
 type SubjectFaculty struct {
@@ -72,15 +74,17 @@ func SubjectToDomain(m Subject) domain.Subject {
 	}
 
 	return domain.Subject{
-		ID:                 m.ID,
-		Name:               m.Name,
-		Faculties:          faculties,
-		Year:               m.Year,
-		Semester:           domain.CourseSemester(m.Semester),
-		Credit:             m.Credit,
-		EligibleAttributes: eligible,
-		Requirements:       requirements,
-		SyllabusID:         m.SyllabusID,
+		ID:                      m.ID,
+		Name:                    m.Name,
+		Faculties:               faculties,
+		Year:                    m.Year,
+		Semester:                domain.CourseSemester(m.Semester),
+		Credit:                  m.Credit,
+		Classification:          domain.SubjectClassification(m.Classification),
+		CulturalSubjectCategory: domain.CulturalSubjectCategory(m.CulturalSubjectCategory),
+		EligibleAttributes:      eligible,
+		Requirements:            requirements,
+		SyllabusID:              m.SyllabusID,
 	}
 }
 
@@ -114,14 +118,16 @@ func SubjectFromDomain(d domain.Subject) Subject {
 	}
 
 	return Subject{
-		ID:                 d.ID,
-		Name:               d.Name,
-		Year:               d.Year,
-		Semester:           string(d.Semester),
-		Credit:             d.Credit,
-		SyllabusID:         d.SyllabusID,
-		Faculties:          faculties,
-		EligibleAttributes: eligible,
-		Requirements:       requirements,
+		ID:                      d.ID,
+		Name:                    d.Name,
+		Year:                    d.Year,
+		Semester:                string(d.Semester),
+		Credit:                  d.Credit,
+		Classification:          string(d.Classification),
+		CulturalSubjectCategory: string(d.CulturalSubjectCategory),
+		SyllabusID:              d.SyllabusID,
+		Faculties:               faculties,
+		EligibleAttributes:      eligible,
+		Requirements:            requirements,
 	}
 }
