@@ -12,7 +12,7 @@ func (h *Handler) AnnouncementsV1Delete(ctx context.Context, request api.Announc
 	err := h.announcementService.DeleteAnnouncement(ctx, request.Id)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
-			return nil, err // TODO: 404レスポンスを返すべき
+			return api.AnnouncementsV1Delete404Response{}, nil
 		}
 		return nil, err
 	}

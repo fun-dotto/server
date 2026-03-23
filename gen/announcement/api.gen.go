@@ -295,6 +295,14 @@ func (response AnnouncementsV1Delete204Response) VisitAnnouncementsV1DeleteRespo
 	return nil
 }
 
+type AnnouncementsV1Delete404Response struct {
+}
+
+func (response AnnouncementsV1Delete404Response) VisitAnnouncementsV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type AnnouncementsV1DetailRequestObject struct {
 	Id string `json:"id"`
 }
@@ -312,6 +320,14 @@ func (response AnnouncementsV1Detail200JSONResponse) VisitAnnouncementsV1DetailR
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type AnnouncementsV1Detail404Response struct {
+}
+
+func (response AnnouncementsV1Detail404Response) VisitAnnouncementsV1DetailResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type AnnouncementsV1UpdateRequestObject struct {
@@ -332,6 +348,14 @@ func (response AnnouncementsV1Update200JSONResponse) VisitAnnouncementsV1UpdateR
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type AnnouncementsV1Update404Response struct {
+}
+
+func (response AnnouncementsV1Update404Response) VisitAnnouncementsV1UpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 // StrictServerInterface represents all server handlers.

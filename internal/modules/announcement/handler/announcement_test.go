@@ -15,6 +15,71 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAnnouncementsV1Detail_NotFound(t *testing.T) {
+	mockRepo := &repository.MockAnnouncementRepository{
+		GetAnnouncementByIDFunc: func(ctx context.Context, id string) (domain.Announcement, error) {
+			return domain.Announcement{}, domain.ErrNotFound
+		},
+	}
+	h := NewHandler(service.NewAnnouncementService(mockRepo))
+
+	request := api.AnnouncementsV1DetailRequestObject{Id: "nonexistent"}
+	response, err := h.AnnouncementsV1Detail(context.Background(), request)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, response)
+
+	w := httptest.NewRecorder()
+	err = response.VisitAnnouncementsV1DetailResponse(w)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusNotFound, w.Code)
+}
+
+func TestAnnouncementsV1Update_NotFound(t *testing.T) {
+	mockRepo := &repository.MockAnnouncementRepository{
+		UpdateAnnouncementFunc: func(ctx context.Context, announcement domain.Announcement) (domain.Announcement, error) {
+			return domain.Announcement{}, domain.ErrNotFound
+		},
+	}
+	h := NewHandler(service.NewAnnouncementService(mockRepo))
+
+	body := api.AnnouncementsV1UpdateJSONRequestBody{
+		Title:         "test",
+		AvailableFrom: time.Now(),
+		Url:           "https://example.com",
+	}
+	request := api.AnnouncementsV1UpdateRequestObject{Id: "nonexistent", Body: &body}
+	response, err := h.AnnouncementsV1Update(context.Background(), request)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, response)
+
+	w := httptest.NewRecorder()
+	err = response.VisitAnnouncementsV1UpdateResponse(w)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusNotFound, w.Code)
+}
+
+func TestAnnouncementsV1Delete_NotFound(t *testing.T) {
+	mockRepo := &repository.MockAnnouncementRepository{
+		DeleteAnnouncementFunc: func(ctx context.Context, id string) error {
+			return domain.ErrNotFound
+		},
+	}
+	h := NewHandler(service.NewAnnouncementService(mockRepo))
+
+	request := api.AnnouncementsV1DeleteRequestObject{Id: "nonexistent"}
+	response, err := h.AnnouncementsV1Delete(context.Background(), request)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, response)
+
+	w := httptest.NewRecorder()
+	err = response.VisitAnnouncementsV1DeleteResponse(w)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusNotFound, w.Code)
+}
+
 func TestAnnouncementsV1List(t *testing.T) {
 	now := time.Date(2024, 1, 15, 10, 0, 0, 0, time.UTC)
 	yesterday := now.Add(-24 * time.Hour)

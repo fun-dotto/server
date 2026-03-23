@@ -12,7 +12,7 @@ func (h *Handler) AnnouncementsV1Detail(ctx context.Context, request api.Announc
 	announcement, err := h.announcementService.GetAnnouncementByID(ctx, request.Id)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
-			return nil, err // TODO: 404レスポンスを返すべき
+			return api.AnnouncementsV1Detail404Response{}, nil
 		}
 		return nil, err
 	}
