@@ -2,11 +2,18 @@ package handler
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	api "github.com/fun-dotto/academic-api/generated"
+	"gorm.io/gorm"
 )
 
 func (h *Handler) RoomsV1Delete(ctx context.Context, request api.RoomsV1DeleteRequestObject) (api.RoomsV1DeleteResponseObject, error) {
-	return nil, fmt.Errorf("not implemented")
+	if err := h.roomSvc.Delete(ctx, request.Id); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return api.RoomsV1Delete404Response{}, nil
+		}
+		return nil, err
+	}
+	return api.RoomsV1Delete204Response{}, nil
 }

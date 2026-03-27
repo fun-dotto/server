@@ -25,17 +25,28 @@ type facultyService interface {
 	Delete(ctx context.Context, id string) error
 }
 
+type roomService interface {
+	List(ctx context.Context, filter domain.RoomListFilter) ([]domain.Room, error)
+	GetByID(ctx context.Context, id string) (domain.Room, error)
+	Create(ctx context.Context, room domain.Room) (domain.Room, error)
+	Update(ctx context.Context, room domain.Room) (domain.Room, error)
+	Delete(ctx context.Context, id string) error
+}
+
 type Handler struct {
 	subjectSvc subjectService
 	facultySvc facultyService
+	roomSvc    roomService
 }
 
 func NewHandler(
 	subjectSvc subjectService,
 	facultySvc facultyService,
+	roomSvc roomService,
 ) *Handler {
 	return &Handler{
 		subjectSvc: subjectSvc,
 		facultySvc: facultySvc,
+		roomSvc:    roomSvc,
 	}
 }
