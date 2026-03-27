@@ -20,7 +20,7 @@ func NewSubjectRepository(db *gorm.DB) *SubjectRepository {
 
 func (r *SubjectRepository) subjectPreload(db *gorm.DB) *gorm.DB {
 	return db.
-		Preload("Faculties").
+		Preload("Faculties.Faculty").
 		Preload("EligibleAttributes").
 		Preload("Requirements")
 }

@@ -32,9 +32,8 @@ func subjectToAPI(d domain.Subject) api.Subject {
 
 	faculties := make([]api.SubjectFaculty, len(d.Faculties))
 	for i, f := range d.Faculties {
-		// TODO: Faculty には Name, Email も必要。現状 domain.SubjectFaculty に情報がないため Id のみセットしている。
 		faculties[i] = api.SubjectFaculty{
-			Faculty:   api.Faculty{Id: f.FacultyID},
+			Faculty:   facultyToAPI(f.Faculty),
 			IsPrimary: f.IsPrimary,
 		}
 	}
@@ -54,9 +53,8 @@ func subjectToAPI(d domain.Subject) api.Subject {
 func subjectToSummaryAPI(d domain.Subject) api.SubjectSummary {
 	faculties := make([]api.SubjectFaculty, len(d.Faculties))
 	for i, f := range d.Faculties {
-		// TODO: Faculty には Name, Email も必要。現状 domain.SubjectFaculty に情報がないため Id のみセットしている。
 		faculties[i] = api.SubjectFaculty{
-			Faculty:   api.Faculty{Id: f.FacultyID},
+			Faculty:   facultyToAPI(f.Faculty),
 			IsPrimary: f.IsPrimary,
 		}
 	}

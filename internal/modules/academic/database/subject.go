@@ -24,10 +24,11 @@ type Subject struct {
 }
 
 type SubjectFaculty struct {
-	ID        string `gorm:"type:uuid;primaryKey"`
-	SubjectID string `gorm:"type:uuid;not null;index"`
-	FacultyID string `gorm:"type:uuid;not null"`
-	IsPrimary bool   `gorm:"not null"`
+	ID        string   `gorm:"type:uuid;primaryKey"`
+	SubjectID string   `gorm:"type:uuid;not null;index"`
+	FacultyID string   `gorm:"type:uuid;not null"`
+	Faculty   *Faculty `gorm:"foreignKey:FacultyID"`
+	IsPrimary bool     `gorm:"not null"`
 }
 
 type SubjectEligibleAttribute struct {
@@ -48,7 +49,7 @@ func SubjectToDomain(m Subject) domain.Subject {
 	faculties := make([]domain.SubjectFaculty, len(m.Faculties))
 	for i, f := range m.Faculties {
 		faculties[i] = domain.SubjectFaculty{
-			FacultyID: f.FacultyID,
+			Faculty:   FacultyToDomain(*f.Faculty),
 			IsPrimary: f.IsPrimary,
 		}
 	}
@@ -92,7 +93,7 @@ func SubjectFromDomain(d domain.Subject) Subject {
 	faculties := make([]SubjectFaculty, len(d.Faculties))
 	for i, f := range d.Faculties {
 		faculties[i] = SubjectFaculty{
-			FacultyID: f.FacultyID,
+			FacultyID: f.Faculty.ID,
 			IsPrimary: f.IsPrimary,
 		}
 	}

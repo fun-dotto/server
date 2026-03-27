@@ -19,7 +19,7 @@ func NewTimetableItemRepository(db *gorm.DB) *TimetableItemRepository {
 
 func (r *TimetableItemRepository) timetableItemPreload(db *gorm.DB) *gorm.DB {
 	return db.
-		Preload("Subject.Faculties").
+		Preload("Subject.Faculties.Faculty").
 		Preload("Subject.EligibleAttributes").
 		Preload("Subject.Requirements").
 		Preload("Rooms.Room")

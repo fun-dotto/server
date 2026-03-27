@@ -1,7 +1,7 @@
 package domain
 
 type SubjectFaculty struct {
-	FacultyID string
+	Faculty   Faculty
 	IsPrimary bool
 }
 
