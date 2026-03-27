@@ -49,13 +49,15 @@ func main() {
 	syllabusRepo := repository.NewSyllabusRepository(db)
 	facultyRepo := repository.NewFacultyRepository(db)
 	roomRepo := repository.NewRoomRepository(db)
+	timetableItemRepo := repository.NewTimetableItemRepository(db)
 	// Services
 	subjectSvc := service.NewSubjectService(subjectRepo, syllabusRepo)
 	facultySvc := service.NewFacultyService(facultyRepo)
 	roomSvc := service.NewRoomService(roomRepo)
+	timetableItemSvc := service.NewTimetableItemService(timetableItemRepo)
 
 	// Handler + Router
-	h := handler.NewHandler(subjectSvc, facultySvc, roomSvc)
+	h := handler.NewHandler(subjectSvc, facultySvc, roomSvc, timetableItemSvc)
 	strictHandler := api.NewStrictHandler(h, nil)
 	api.RegisterHandlers(router, strictHandler)
 

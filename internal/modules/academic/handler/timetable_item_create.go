@@ -2,11 +2,15 @@ package handler
 
 import (
 	"context"
-	"fmt"
 
 	api "github.com/fun-dotto/academic-api/generated"
 )
 
 func (h *Handler) TimetableItemsV1Create(ctx context.Context, request api.TimetableItemsV1CreateRequestObject) (api.TimetableItemsV1CreateResponseObject, error) {
-	return nil, fmt.Errorf("not implemented")
+	domainItem := toDomainTimetableItemFromRequest(*request.Body)
+	created, err := h.timetableItemSvc.Create(ctx, domainItem)
+	if err != nil {
+		return nil, err
+	}
+	return api.TimetableItemsV1Create201JSONResponse{TimetableItem: timetableItemToAPI(created)}, nil
 }

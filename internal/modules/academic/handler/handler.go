@@ -33,20 +33,29 @@ type roomService interface {
 	Delete(ctx context.Context, id string) error
 }
 
+type timetableItemService interface {
+	List(ctx context.Context, filter domain.TimetableItemListFilter) ([]domain.TimetableItem, error)
+	Create(ctx context.Context, item domain.TimetableItem) (domain.TimetableItem, error)
+	Delete(ctx context.Context, id string) error
+}
+
 type Handler struct {
-	subjectSvc subjectService
-	facultySvc facultyService
-	roomSvc    roomService
+	subjectSvc       subjectService
+	facultySvc       facultyService
+	roomSvc          roomService
+	timetableItemSvc timetableItemService
 }
 
 func NewHandler(
 	subjectSvc subjectService,
 	facultySvc facultyService,
 	roomSvc roomService,
+	timetableItemSvc timetableItemService,
 ) *Handler {
 	return &Handler{
-		subjectSvc: subjectSvc,
-		facultySvc: facultySvc,
-		roomSvc:    roomSvc,
+		subjectSvc:       subjectSvc,
+		facultySvc:       facultySvc,
+		roomSvc:          roomSvc,
+		timetableItemSvc: timetableItemSvc,
 	}
 }
