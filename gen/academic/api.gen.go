@@ -164,7 +164,13 @@ type DottoFoundationV1SubjectClassification string
 // DottoFoundationV1SubjectRequirementType 必修・選択
 type DottoFoundationV1SubjectRequirementType string
 
-// Faculty 教員
+// DottoFoundationV1TimetableSlot defines model for DottoFoundationV1.TimetableSlot.
+type DottoFoundationV1TimetableSlot struct {
+	DayOfWeek DottoFoundationV1DayOfWeek `json:"dayOfWeek"`
+	Period    DottoFoundationV1Period    `json:"period"`
+}
+
+// Faculty defines model for Faculty.
 type Faculty struct {
 	Email string `json:"email"`
 	Id    string `json:"id"`
@@ -175,6 +181,13 @@ type Faculty struct {
 type FacultyRequest struct {
 	Email string `json:"email"`
 	Name  string `json:"name"`
+}
+
+// PersonalCalendarItem defines model for PersonalCalendarItem.
+type PersonalCalendarItem struct {
+	Date          time.Time                      `json:"date"`
+	Slot          DottoFoundationV1TimetableSlot `json:"slot"`
+	TimetableItem TimetableItem                  `json:"timetableItem"`
 }
 
 // Reservation defines model for Reservation.
@@ -220,7 +233,6 @@ type Subject struct {
 
 // SubjectFaculty defines model for SubjectFaculty.
 type SubjectFaculty struct {
-	// Faculty 教員
 	Faculty   Faculty `json:"faculty"`
 	IsPrimary bool    `json:"isPrimary"`
 }
@@ -341,17 +353,18 @@ type Syllabus struct {
 
 // TimetableItem defines model for TimetableItem.
 type TimetableItem struct {
-	DayOfWeek DottoFoundationV1DayOfWeek `json:"dayOfWeek"`
-	Id        string                     `json:"id"`
-	Period    DottoFoundationV1Period    `json:"period"`
-	Subject   SubjectSummary             `json:"subject"`
+	Id    string `json:"id"`
+	Rooms []Room `json:"rooms"`
+
+	// Slot 集中講義など、時間割に含まれていない場合はnull
+	Slot    *DottoFoundationV1TimetableSlot `json:"slot,omitempty"`
+	Subject SubjectSummary                  `json:"subject"`
 }
 
 // TimetableItemRequest defines model for TimetableItemRequest.
 type TimetableItemRequest struct {
-	DayOfWeek DottoFoundationV1DayOfWeek `json:"dayOfWeek"`
-	Period    DottoFoundationV1Period    `json:"period"`
-	SubjectId string                     `json:"subjectId"`
+	Slot      *DottoFoundationV1TimetableSlot `json:"slot,omitempty"`
+	SubjectId string                          `json:"subjectId"`
 }
 
 // CourseRegistrationsV1ListParams defines parameters for CourseRegistrationsV1List.
@@ -362,14 +375,23 @@ type CourseRegistrationsV1ListParams struct {
 	// Year 開講年度; 指定しない場合は今年度が選択される
 	Year *int `form:"year,omitempty" json:"year,omitempty"`
 
-	// Semester 開講時期
-	Semester DottoFoundationV1CourseSemester `form:"semester" json:"semester"`
+	// Semesters 開講時期; 指定された時期に開講される全ての科目が取得される
+	Semesters []DottoFoundationV1CourseSemester `form:"semesters" json:"semesters"`
 }
 
 // FacultiesV1ListParams defines parameters for FacultiesV1List.
 type FacultiesV1ListParams struct {
 	// Ids 教員IDのリスト; 指定した場合は指定した教員IDのみを取得する
 	Ids *[]string `form:"ids,omitempty" json:"ids,omitempty"`
+}
+
+// PersonalCalendarItemsV1ListParams defines parameters for PersonalCalendarItemsV1List.
+type PersonalCalendarItemsV1ListParams struct {
+	// UserId ユーザーID
+	UserId string `form:"userId" json:"userId"`
+
+	// Dates 日付のリスト; 指定した日付の個人カレンダーアイテムのみを取得する
+	Dates []time.Time `form:"dates" json:"dates"`
 }
 
 // RoomsV1ListParams defines parameters for RoomsV1List.
@@ -398,29 +420,29 @@ type SubjectsV1ListParams struct {
 	// Q 検索ワード
 	Q *string `form:"q,omitempty" json:"q,omitempty"`
 
-	// Grade 学年
-	Grade *[]DottoFoundationV1Grade `form:"grade,omitempty" json:"grade,omitempty"`
+	// Grades 学年
+	Grades *[]DottoFoundationV1Grade `form:"grades,omitempty" json:"grades,omitempty"`
 
 	// Courses コース; 大学院の場合は大学院コースに読み替え
 	Courses *[]DottoFoundationV1Course `form:"courses,omitempty" json:"courses,omitempty"`
 
-	// Class クラス; 大学院の学年を選択した場合は選択できない
-	Class *[]DottoFoundationV1Class `form:"class,omitempty" json:"class,omitempty"`
+	// Classes クラス; 大学院の学年を選択した場合は選択できない
+	Classes *[]DottoFoundationV1Class `form:"classes,omitempty" json:"classes,omitempty"`
 
-	// Classification 学部: 専門・教養; 大学院: 専門・研究指導
-	Classification *[]DottoFoundationV1SubjectClassification `form:"classification,omitempty" json:"classification,omitempty"`
+	// Classifications 学部: 専門・教養; 大学院: 専門・研究指導
+	Classifications *[]DottoFoundationV1SubjectClassification `form:"classifications,omitempty" json:"classifications,omitempty"`
 
 	// Year 開講年度; 指定しない場合は今年度が選択される
 	Year *int `form:"year,omitempty" json:"year,omitempty"`
 
-	// Semester 開講時期
-	Semester *[]DottoFoundationV1CourseSemester `form:"semester,omitempty" json:"semester,omitempty"`
+	// Semesters 開講時期
+	Semesters *[]DottoFoundationV1CourseSemester `form:"semesters,omitempty" json:"semesters,omitempty"`
 
-	// RequirementType 必修・選択・選択必修
-	RequirementType *[]DottoFoundationV1SubjectRequirementType `form:"requirementType,omitempty" json:"requirementType,omitempty"`
+	// RequirementTypes 必修・選択・選択必修
+	RequirementTypes *[]DottoFoundationV1SubjectRequirementType `form:"requirementTypes,omitempty" json:"requirementTypes,omitempty"`
 
-	// CulturalSubjectCategory 教養科目カテゴリ
-	CulturalSubjectCategory *[]DottoFoundationV1CulturalSubjectCategory `form:"culturalSubjectCategory,omitempty" json:"culturalSubjectCategory,omitempty"`
+	// CulturalSubjectCategories 教養科目カテゴリ
+	CulturalSubjectCategories *[]DottoFoundationV1CulturalSubjectCategory `form:"culturalSubjectCategories,omitempty" json:"culturalSubjectCategories,omitempty"`
 }
 
 // TimetableItemsV1ListParams defines parameters for TimetableItemsV1List.
@@ -428,11 +450,8 @@ type TimetableItemsV1ListParams struct {
 	// Year 開講年度; 指定しない場合は今年度が選択される
 	Year *int `form:"year,omitempty" json:"year,omitempty"`
 
-	// Semester 開講時期
-	Semester DottoFoundationV1CourseSemester `form:"semester" json:"semester"`
-
-	// DayOfWeek 曜日; 複数指定時はORでフィルタリングされる; 指定しない場合は全ての曜日が選択される
-	DayOfWeek *[]DottoFoundationV1DayOfWeek `form:"dayOfWeek,omitempty" json:"dayOfWeek,omitempty"`
+	// Semesters 開講時期; 指定された時期に開講される全ての科目が取得される
+	Semesters []DottoFoundationV1CourseSemester `form:"semesters" json:"semesters"`
 }
 
 // CourseRegistrationsV1CreateJSONRequestBody defines body for CourseRegistrationsV1Create for application/json ContentType.
@@ -482,6 +501,9 @@ type ServerInterface interface {
 
 	// (PUT /v1/faculties/{id})
 	FacultiesV1Update(c *gin.Context, id string)
+
+	// (GET /v1/personalCalendarItems)
+	PersonalCalendarItemsV1List(c *gin.Context, params PersonalCalendarItemsV1ListParams)
 
 	// (GET /v1/rooms)
 	RoomsV1List(c *gin.Context, params RoomsV1ListParams)
@@ -566,18 +588,18 @@ func (siw *ServerInterfaceWrapper) CourseRegistrationsV1List(c *gin.Context) {
 		return
 	}
 
-	// ------------- Required query parameter "semester" -------------
+	// ------------- Required query parameter "semesters" -------------
 
-	if paramValue := c.Query("semester"); paramValue != "" {
+	if paramValue := c.Query("semesters"); paramValue != "" {
 
 	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument semester is required, but not found"), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Query argument semesters is required, but not found"), http.StatusBadRequest)
 		return
 	}
 
-	err = runtime.BindQueryParameter("form", false, true, "semester", c.Request.URL.Query(), &params.Semester)
+	err = runtime.BindQueryParameter("form", false, true, "semesters", c.Request.URL.Query(), &params.Semesters)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter semester: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter semesters: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -737,6 +759,54 @@ func (siw *ServerInterfaceWrapper) FacultiesV1Update(c *gin.Context) {
 	}
 
 	siw.Handler.FacultiesV1Update(c, id)
+}
+
+// PersonalCalendarItemsV1List operation middleware
+func (siw *ServerInterfaceWrapper) PersonalCalendarItemsV1List(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PersonalCalendarItemsV1ListParams
+
+	// ------------- Required query parameter "userId" -------------
+
+	if paramValue := c.Query("userId"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandler(c, fmt.Errorf("Query argument userId is required, but not found"), http.StatusBadRequest)
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", false, true, "userId", c.Request.URL.Query(), &params.UserId)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userId: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Required query parameter "dates" -------------
+
+	if paramValue := c.Query("dates"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandler(c, fmt.Errorf("Query argument dates is required, but not found"), http.StatusBadRequest)
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", false, true, "dates", c.Request.URL.Query(), &params.Dates)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter dates: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PersonalCalendarItemsV1List(c, params)
 }
 
 // RoomsV1List operation middleware
@@ -925,11 +995,11 @@ func (siw *ServerInterfaceWrapper) SubjectsV1List(c *gin.Context) {
 		return
 	}
 
-	// ------------- Optional query parameter "grade" -------------
+	// ------------- Optional query parameter "grades" -------------
 
-	err = runtime.BindQueryParameter("form", false, false, "grade", c.Request.URL.Query(), &params.Grade)
+	err = runtime.BindQueryParameter("form", false, false, "grades", c.Request.URL.Query(), &params.Grades)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter grade: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter grades: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -941,19 +1011,19 @@ func (siw *ServerInterfaceWrapper) SubjectsV1List(c *gin.Context) {
 		return
 	}
 
-	// ------------- Optional query parameter "class" -------------
+	// ------------- Optional query parameter "classes" -------------
 
-	err = runtime.BindQueryParameter("form", false, false, "class", c.Request.URL.Query(), &params.Class)
+	err = runtime.BindQueryParameter("form", false, false, "classes", c.Request.URL.Query(), &params.Classes)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter class: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter classes: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	// ------------- Optional query parameter "classification" -------------
+	// ------------- Optional query parameter "classifications" -------------
 
-	err = runtime.BindQueryParameter("form", false, false, "classification", c.Request.URL.Query(), &params.Classification)
+	err = runtime.BindQueryParameter("form", false, false, "classifications", c.Request.URL.Query(), &params.Classifications)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter classification: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter classifications: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -965,27 +1035,27 @@ func (siw *ServerInterfaceWrapper) SubjectsV1List(c *gin.Context) {
 		return
 	}
 
-	// ------------- Optional query parameter "semester" -------------
+	// ------------- Optional query parameter "semesters" -------------
 
-	err = runtime.BindQueryParameter("form", false, false, "semester", c.Request.URL.Query(), &params.Semester)
+	err = runtime.BindQueryParameter("form", false, false, "semesters", c.Request.URL.Query(), &params.Semesters)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter semester: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter semesters: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	// ------------- Optional query parameter "requirementType" -------------
+	// ------------- Optional query parameter "requirementTypes" -------------
 
-	err = runtime.BindQueryParameter("form", false, false, "requirementType", c.Request.URL.Query(), &params.RequirementType)
+	err = runtime.BindQueryParameter("form", false, false, "requirementTypes", c.Request.URL.Query(), &params.RequirementTypes)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter requirementType: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter requirementTypes: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	// ------------- Optional query parameter "culturalSubjectCategory" -------------
+	// ------------- Optional query parameter "culturalSubjectCategories" -------------
 
-	err = runtime.BindQueryParameter("form", false, false, "culturalSubjectCategory", c.Request.URL.Query(), &params.CulturalSubjectCategory)
+	err = runtime.BindQueryParameter("form", false, false, "culturalSubjectCategories", c.Request.URL.Query(), &params.CulturalSubjectCategories)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter culturalSubjectCategory: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter culturalSubjectCategories: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -1100,26 +1170,18 @@ func (siw *ServerInterfaceWrapper) TimetableItemsV1List(c *gin.Context) {
 		return
 	}
 
-	// ------------- Required query parameter "semester" -------------
+	// ------------- Required query parameter "semesters" -------------
 
-	if paramValue := c.Query("semester"); paramValue != "" {
+	if paramValue := c.Query("semesters"); paramValue != "" {
 
 	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument semester is required, but not found"), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Query argument semesters is required, but not found"), http.StatusBadRequest)
 		return
 	}
 
-	err = runtime.BindQueryParameter("form", false, true, "semester", c.Request.URL.Query(), &params.Semester)
+	err = runtime.BindQueryParameter("form", false, true, "semesters", c.Request.URL.Query(), &params.Semesters)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter semester: %w", err), http.StatusBadRequest)
-		return
-	}
-
-	// ------------- Optional query parameter "dayOfWeek" -------------
-
-	err = runtime.BindQueryParameter("form", false, false, "dayOfWeek", c.Request.URL.Query(), &params.DayOfWeek)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter dayOfWeek: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter semesters: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -1205,6 +1267,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.DELETE(options.BaseURL+"/v1/faculties/:id", wrapper.FacultiesV1Delete)
 	router.GET(options.BaseURL+"/v1/faculties/:id", wrapper.FacultiesV1Detail)
 	router.PUT(options.BaseURL+"/v1/faculties/:id", wrapper.FacultiesV1Update)
+	router.GET(options.BaseURL+"/v1/personalCalendarItems", wrapper.PersonalCalendarItemsV1List)
 	router.GET(options.BaseURL+"/v1/rooms", wrapper.RoomsV1List)
 	router.POST(options.BaseURL+"/v1/rooms", wrapper.RoomsV1Create)
 	router.DELETE(options.BaseURL+"/v1/rooms/:id", wrapper.RoomsV1Delete)
@@ -1327,7 +1390,6 @@ type FacultiesV1CreateResponseObject interface {
 }
 
 type FacultiesV1Create201JSONResponse struct {
-	// Faculty 教員
 	Faculty Faculty `json:"faculty"`
 }
 
@@ -1371,7 +1433,6 @@ type FacultiesV1DetailResponseObject interface {
 }
 
 type FacultiesV1Detail200JSONResponse struct {
-	// Faculty 教員
 	Faculty Faculty `json:"faculty"`
 }
 
@@ -1400,7 +1461,6 @@ type FacultiesV1UpdateResponseObject interface {
 }
 
 type FacultiesV1Update200JSONResponse struct {
-	// Faculty 教員
 	Faculty Faculty `json:"faculty"`
 }
 
@@ -1417,6 +1477,25 @@ type FacultiesV1Update404Response struct {
 func (response FacultiesV1Update404Response) VisitFacultiesV1UpdateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
+}
+
+type PersonalCalendarItemsV1ListRequestObject struct {
+	Params PersonalCalendarItemsV1ListParams
+}
+
+type PersonalCalendarItemsV1ListResponseObject interface {
+	VisitPersonalCalendarItemsV1ListResponse(w http.ResponseWriter) error
+}
+
+type PersonalCalendarItemsV1List200JSONResponse struct {
+	PersonalCalendarItems []PersonalCalendarItem `json:"personalCalendarItems"`
+}
+
+func (response PersonalCalendarItemsV1List200JSONResponse) VisitPersonalCalendarItemsV1ListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
 }
 
 type RoomsV1ListRequestObject struct {
@@ -1769,6 +1848,9 @@ type StrictServerInterface interface {
 	// (PUT /v1/faculties/{id})
 	FacultiesV1Update(ctx context.Context, request FacultiesV1UpdateRequestObject) (FacultiesV1UpdateResponseObject, error)
 
+	// (GET /v1/personalCalendarItems)
+	PersonalCalendarItemsV1List(ctx context.Context, request PersonalCalendarItemsV1ListRequestObject) (PersonalCalendarItemsV1ListResponseObject, error)
+
 	// (GET /v1/rooms)
 	RoomsV1List(ctx context.Context, request RoomsV1ListRequestObject) (RoomsV1ListResponseObject, error)
 
@@ -2053,6 +2135,33 @@ func (sh *strictHandler) FacultiesV1Update(ctx *gin.Context, id string) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(FacultiesV1UpdateResponseObject); ok {
 		if err := validResponse.VisitFacultiesV1UpdateResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// PersonalCalendarItemsV1List operation middleware
+func (sh *strictHandler) PersonalCalendarItemsV1List(ctx *gin.Context, params PersonalCalendarItemsV1ListParams) {
+	var request PersonalCalendarItemsV1ListRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.PersonalCalendarItemsV1List(ctx, request.(PersonalCalendarItemsV1ListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "PersonalCalendarItemsV1List")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(PersonalCalendarItemsV1ListResponseObject); ok {
+		if err := validResponse.VisitPersonalCalendarItemsV1ListResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {

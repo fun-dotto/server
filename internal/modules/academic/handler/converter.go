@@ -85,9 +85,9 @@ func buildSubjectListFilter(params api.SubjectsV1ListParams) domain.SubjectListF
 	if params.Q != nil {
 		filter.Q = params.Q
 	}
-	if params.Grade != nil {
-		grades := make([]domain.Grade, len(*params.Grade))
-		for i, g := range *params.Grade {
+	if params.Grades != nil {
+		grades := make([]domain.Grade, len(*params.Grades))
+		for i, g := range *params.Grades {
 			grades[i] = domain.Grade(g)
 		}
 		filter.Grade = grades
@@ -99,16 +99,16 @@ func buildSubjectListFilter(params api.SubjectsV1ListParams) domain.SubjectListF
 		}
 		filter.Courses = courses
 	}
-	if params.Class != nil {
-		classes := make([]domain.Class, len(*params.Class))
-		for i, c := range *params.Class {
+	if params.Classes != nil {
+		classes := make([]domain.Class, len(*params.Classes))
+		for i, c := range *params.Classes {
 			classes[i] = domain.Class(c)
 		}
 		filter.Class = classes
 	}
-	if params.Classification != nil {
-		classifications := make([]domain.SubjectClassification, len(*params.Classification))
-		for i, c := range *params.Classification {
+	if params.Classifications != nil {
+		classifications := make([]domain.SubjectClassification, len(*params.Classifications))
+		for i, c := range *params.Classifications {
 			classifications[i] = domain.SubjectClassification(c)
 		}
 		filter.Classification = classifications
@@ -122,23 +122,23 @@ func buildSubjectListFilter(params api.SubjectsV1ListParams) domain.SubjectListF
 		currentYear := time.Now().Year()
 		filter.Year = &currentYear
 	}
-	if params.Semester != nil {
-		semesters := make([]domain.CourseSemester, len(*params.Semester))
-		for i, s := range *params.Semester {
+	if params.Semesters != nil {
+		semesters := make([]domain.CourseSemester, len(*params.Semesters))
+		for i, s := range *params.Semesters {
 			semesters[i] = domain.CourseSemester(s)
 		}
 		filter.Semester = semesters
 	}
-	if params.RequirementType != nil {
-		reqTypes := make([]domain.SubjectRequirementType, len(*params.RequirementType))
-		for i, r := range *params.RequirementType {
+	if params.RequirementTypes != nil {
+		reqTypes := make([]domain.SubjectRequirementType, len(*params.RequirementTypes))
+		for i, r := range *params.RequirementTypes {
 			reqTypes[i] = domain.SubjectRequirementType(r)
 		}
 		filter.RequirementType = reqTypes
 	}
-	if params.CulturalSubjectCategory != nil {
-		cats := make([]domain.CulturalSubjectCategory, len(*params.CulturalSubjectCategory))
-		for i, c := range *params.CulturalSubjectCategory {
+	if params.CulturalSubjectCategories != nil {
+		cats := make([]domain.CulturalSubjectCategory, len(*params.CulturalSubjectCategories))
+		for i, c := range *params.CulturalSubjectCategories {
 			cats[i] = domain.CulturalSubjectCategory(c)
 		}
 		filter.CulturalSubjectCategory = cats
