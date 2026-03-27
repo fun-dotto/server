@@ -1221,11 +1221,16 @@ components:
       type: object
       required:
         - subjectId
+        - roomIds
       properties:
         subjectId:
           type: string
         slot:
           $ref: '#/components/schemas/DottoFoundationV1.TimetableSlot'
+        roomIds:
+          type: array
+          items:
+            type: string
 servers:
   - url: http://localhost:8080
     description: Local
