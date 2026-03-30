@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"strings"
 	"time"
 
 	api "github.com/fun-dotto/academic-api/generated"
@@ -273,7 +274,9 @@ func timetableSlotToAPI(slot domain.TimetableSlot) api.DottoFoundationV1Timetabl
 
 func timetableItemToAPI(d domain.TimetableItem) api.TimetableItem {
 	var slot *api.DottoFoundationV1TimetableSlot
-	if d.Slot != nil {
+	if d.Slot != nil &&
+		strings.TrimSpace(string(d.Slot.DayOfWeek)) != "" &&
+		strings.TrimSpace(string(d.Slot.Period)) != "" {
 		s := timetableSlotToAPI(*d.Slot)
 		slot = &s
 	}
@@ -304,9 +307,13 @@ func toDomainTimetableItemFromRequest(req api.TimetableItemRequest) domain.Timet
 		Subject: domain.Subject{ID: req.SubjectId},
 	}
 	if req.Slot != nil {
-		item.Slot = &domain.TimetableSlot{
-			DayOfWeek: domain.DayOfWeek(req.Slot.DayOfWeek),
-			Period:    domain.Period(req.Slot.Period),
+		dow := strings.TrimSpace(string(req.Slot.DayOfWeek))
+		per := strings.TrimSpace(string(req.Slot.Period))
+		if dow != "" && per != "" {
+			item.Slot = &domain.TimetableSlot{
+				DayOfWeek: domain.DayOfWeek(dow),
+				Period:    domain.Period(per),
+			}
 		}
 	}
 	rooms := make([]domain.Room, len(req.RoomIds))
