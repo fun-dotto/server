@@ -42,25 +42,31 @@ func (r *SubjectRepository) List(ctx context.Context, filter domain.SubjectListF
 	if len(filter.Semester) > 0 {
 		query = query.Where("semester IN ?", filter.Semester)
 	}
+	attrSubQuery := ctxDB.Model(&database.SubjectEligibleAttribute{}).Select("subject_id")
+	hasAttrFilter := false
 	if len(filter.Grade) > 0 {
-		query = query.Where("id IN (?)",
-			ctxDB.Model(&database.SubjectEligibleAttribute{}).Select("subject_id").Where("grade IN ?", filter.Grade),
-		)
+		attrSubQuery = attrSubQuery.Where("grade IN ?", filter.Grade)
+		hasAttrFilter = true
 	}
 	if len(filter.Class) > 0 {
-		query = query.Where("id IN (?)",
-			ctxDB.Model(&database.SubjectEligibleAttribute{}).Select("subject_id").Where("class IN ?", filter.Class),
-		)
+		attrSubQuery = attrSubQuery.Where("class IN ?", filter.Class)
+		hasAttrFilter = true
 	}
+	if hasAttrFilter {
+		query = query.Where("id IN (?)", attrSubQuery)
+	}
+	reqSubQuery := ctxDB.Model(&database.SubjectRequirement{}).Select("subject_id")
+	hasReqFilter := false
 	if len(filter.Courses) > 0 {
-		query = query.Where("id IN (?)",
-			ctxDB.Model(&database.SubjectRequirement{}).Select("subject_id").Where("course IN ?", filter.Courses),
-		)
+		reqSubQuery = reqSubQuery.Where("course IN ?", filter.Courses)
+		hasReqFilter = true
 	}
 	if len(filter.RequirementType) > 0 {
-		query = query.Where("id IN (?)",
-			ctxDB.Model(&database.SubjectRequirement{}).Select("subject_id").Where("requirement_type IN ?", filter.RequirementType),
-		)
+		reqSubQuery = reqSubQuery.Where("requirement_type IN ?", filter.RequirementType)
+		hasReqFilter = true
+	}
+	if hasReqFilter {
+		query = query.Where("id IN (?)", reqSubQuery)
 	}
 	if len(filter.Classification) > 0 {
 		query = query.Where("classification IN ?", filter.Classification)
