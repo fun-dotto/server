@@ -22,7 +22,7 @@ func (r *announcementRepository) GetAnnouncements(ctx context.Context, query dom
 	dbQuery := r.db.WithContext(ctx)
 
 	if query.FilterIsActive {
-		dbQuery = dbQuery.Where("available_until IS NULL OR available_until > NOW()")
+		dbQuery = dbQuery.Where("available_from <= NOW()").Where("available_until IS NULL OR available_until > NOW()")
 	}
 
 	sortDateDirection := func() string {
