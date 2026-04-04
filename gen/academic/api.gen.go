@@ -281,21 +281,21 @@ type Room struct {
 
 // RoomChange 教室変更
 type RoomChange struct {
-	Date          time.Time               `json:"date"`
-	Id            string                  `json:"id"`
-	NewRooms      []Room                  `json:"newRooms"`
-	OriginalRooms []Room                  `json:"originalRooms"`
-	Period        DottoFoundationV1Period `json:"period"`
-	Subject       Subject                 `json:"subject"`
+	Date         time.Time               `json:"date"`
+	Id           string                  `json:"id"`
+	NewRoom      Room                    `json:"newRoom"`
+	OriginalRoom Room                    `json:"originalRoom"`
+	Period       DottoFoundationV1Period `json:"period"`
+	Subject      Subject                 `json:"subject"`
 }
 
 // RoomChangeRequest defines model for RoomChangeRequest.
 type RoomChangeRequest struct {
-	Date            time.Time               `json:"date"`
-	NewRoomIds      []string                `json:"newRoomIds"`
-	OriginalRoomIds []string                `json:"originalRoomIds"`
-	Period          DottoFoundationV1Period `json:"period"`
-	SubjectId       string                  `json:"subjectId"`
+	Date           time.Time               `json:"date"`
+	NewRoomId      string                  `json:"newRoomId"`
+	OriginalRoomId string                  `json:"originalRoomId"`
+	Period         DottoFoundationV1Period `json:"period"`
+	SubjectId      string                  `json:"subjectId"`
 }
 
 // RoomRequest defines model for RoomRequest.
@@ -457,7 +457,7 @@ type TimetableItemRequest struct {
 
 // CancelledClassesV1ListParams defines parameters for CancelledClassesV1List.
 type CancelledClassesV1ListParams struct {
-	// SubjectIds 科目IDのリスト; 指定した科目の休講のみを取得する
+	// SubjectIds 科目IDのリスト; 指定した科目の休講のみを取得する; 指定しない場合は全科目を検索対象とする
 	SubjectIds *[]string `form:"subjectIds,omitempty" json:"subjectIds,omitempty"`
 
 	// From 検索対象開始日時
@@ -487,7 +487,7 @@ type FacultiesV1ListParams struct {
 
 // MakeupClassesV1ListParams defines parameters for MakeupClassesV1List.
 type MakeupClassesV1ListParams struct {
-	// SubjectIds 科目IDのリスト; 指定した科目の補講のみを取得する
+	// SubjectIds 科目IDのリスト; 指定した科目の補講のみを取得する; 指定しない場合は全科目を検索対象とする
 	SubjectIds *[]string `form:"subjectIds,omitempty" json:"subjectIds,omitempty"`
 
 	// From 検索対象開始日時
@@ -529,7 +529,7 @@ type ReservationsV1ListParams struct {
 
 // RoomChangesV1ListParams defines parameters for RoomChangesV1List.
 type RoomChangesV1ListParams struct {
-	// SubjectIds 科目IDのリスト; 指定した科目の教室変更のみを取得する
+	// SubjectIds 科目IDのリスト; 指定した科目の教室変更のみを取得する; 指定しない場合は全科目を検索対象とする
 	SubjectIds *[]string `form:"subjectIds,omitempty" json:"subjectIds,omitempty"`
 
 	// From 検索対象開始日時
