@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/oapi-codegen/runtime"
@@ -137,6 +138,27 @@ type DottoFoundationV1Course string
 // DottoFoundationV1Grade 学年
 type DottoFoundationV1Grade string
 
+// FCMToken defines model for FCMToken.
+type FCMToken struct {
+	// CreatedAt 作成日時
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Token FCMトークン
+	Token string `json:"token"`
+
+	// UpdatedAt 更新日時
+	UpdatedAt time.Time `json:"updatedAt"`
+
+	// UserId ユーザーID
+	UserId string `json:"userId"`
+}
+
+// FCMTokenRequest defines model for FCMTokenRequest.
+type FCMTokenRequest struct {
+	Token  string `json:"token"`
+	UserId string `json:"userId"`
+}
+
 // User defines model for User.
 type User struct {
 	// Class クラス
@@ -144,7 +166,11 @@ type User struct {
 
 	// Course コース
 	Course *DottoFoundationV1Course `json:"course,omitempty"`
-	Email  string                   `json:"email"`
+
+	// Email メールアドレス
+	//
+	// Firebase Authentication のメールアドレス
+	Email string `json:"email"`
 
 	// Grade 学年
 	Grade *DottoFoundationV1Grade `json:"grade,omitempty"`
@@ -168,11 +194,38 @@ type UserRequest struct {
 	Grade *DottoFoundationV1Grade `json:"grade,omitempty"`
 }
 
+// FCMTokenV1ListParams defines parameters for FCMTokenV1List.
+type FCMTokenV1ListParams struct {
+	// UserIds ユーザーIDの一覧
+	UserIds *[]string `form:"userIds,omitempty" json:"userIds,omitempty"`
+
+	// Tokens FCMトークンの一覧
+	Tokens *[]string `form:"tokens,omitempty" json:"tokens,omitempty"`
+
+	// UpdatedAtFrom 更新日時の開始日時 (updatedAt >= updatedAtFrom)
+	UpdatedAtFrom *time.Time `form:"updatedAtFrom,omitempty" json:"updatedAtFrom,omitempty"`
+
+	// UpdatedAtTo 更新日時の終了日時 (updatedAt <= updatedAtTo)
+	UpdatedAtTo *time.Time `form:"updatedAtTo,omitempty" json:"updatedAtTo,omitempty"`
+}
+
+// FCMTokenV1UpsertJSONRequestBody defines body for FCMTokenV1Upsert for application/json ContentType.
+type FCMTokenV1UpsertJSONRequestBody = FCMTokenRequest
+
 // UsersV1UpsertJSONRequestBody defines body for UsersV1Upsert for application/json ContentType.
 type UsersV1UpsertJSONRequestBody = UserRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+
+	// (GET /v1/fcmTokens)
+	FCMTokenV1List(c *gin.Context, params FCMTokenV1ListParams)
+
+	// (POST /v1/fcmTokens)
+	FCMTokenV1Upsert(c *gin.Context)
+
+	// (GET /v1/users)
+	UsersV1List(c *gin.Context)
 
 	// (GET /v1/users/{id})
 	UsersV1Detail(c *gin.Context, id string)
@@ -189,6 +242,82 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(c *gin.Context)
+
+// FCMTokenV1List operation middleware
+func (siw *ServerInterfaceWrapper) FCMTokenV1List(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params FCMTokenV1ListParams
+
+	// ------------- Optional query parameter "userIds" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", false, false, "userIds", c.Request.URL.Query(), &params.UserIds, runtime.BindQueryParameterOptions{Type: "array", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userIds: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "tokens" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", false, false, "tokens", c.Request.URL.Query(), &params.Tokens, runtime.BindQueryParameterOptions{Type: "array", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter tokens: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "updatedAtFrom" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", false, false, "updatedAtFrom", c.Request.URL.Query(), &params.UpdatedAtFrom, runtime.BindQueryParameterOptions{Type: "string", Format: "date-time"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter updatedAtFrom: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "updatedAtTo" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", false, false, "updatedAtTo", c.Request.URL.Query(), &params.UpdatedAtTo, runtime.BindQueryParameterOptions{Type: "string", Format: "date-time"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter updatedAtTo: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.FCMTokenV1List(c, params)
+}
+
+// FCMTokenV1Upsert operation middleware
+func (siw *ServerInterfaceWrapper) FCMTokenV1Upsert(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.FCMTokenV1Upsert(c)
+}
+
+// UsersV1List operation middleware
+func (siw *ServerInterfaceWrapper) UsersV1List(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.UsersV1List(c)
+}
 
 // UsersV1Detail operation middleware
 func (siw *ServerInterfaceWrapper) UsersV1Detail(c *gin.Context) {
@@ -265,8 +394,67 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 		ErrorHandler:       errorHandler,
 	}
 
+	router.GET(options.BaseURL+"/v1/fcmTokens", wrapper.FCMTokenV1List)
+	router.POST(options.BaseURL+"/v1/fcmTokens", wrapper.FCMTokenV1Upsert)
+	router.GET(options.BaseURL+"/v1/users", wrapper.UsersV1List)
 	router.GET(options.BaseURL+"/v1/users/:id", wrapper.UsersV1Detail)
 	router.POST(options.BaseURL+"/v1/users/:id", wrapper.UsersV1Upsert)
+}
+
+type FCMTokenV1ListRequestObject struct {
+	Params FCMTokenV1ListParams
+}
+
+type FCMTokenV1ListResponseObject interface {
+	VisitFCMTokenV1ListResponse(w http.ResponseWriter) error
+}
+
+type FCMTokenV1List200JSONResponse struct {
+	FcmTokens []FCMToken `json:"fcmTokens"`
+}
+
+func (response FCMTokenV1List200JSONResponse) VisitFCMTokenV1ListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type FCMTokenV1UpsertRequestObject struct {
+	Body *FCMTokenV1UpsertJSONRequestBody
+}
+
+type FCMTokenV1UpsertResponseObject interface {
+	VisitFCMTokenV1UpsertResponse(w http.ResponseWriter) error
+}
+
+type FCMTokenV1Upsert200JSONResponse struct {
+	FcmToken FCMToken `json:"fcmToken"`
+}
+
+func (response FCMTokenV1Upsert200JSONResponse) VisitFCMTokenV1UpsertResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type UsersV1ListRequestObject struct {
+}
+
+type UsersV1ListResponseObject interface {
+	VisitUsersV1ListResponse(w http.ResponseWriter) error
+}
+
+type UsersV1List200JSONResponse struct {
+	Users []User `json:"users"`
+}
+
+func (response UsersV1List200JSONResponse) VisitUsersV1ListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
 }
 
 type UsersV1DetailRequestObject struct {
@@ -319,6 +507,15 @@ func (response UsersV1Upsert200JSONResponse) VisitUsersV1UpsertResponse(w http.R
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 
+	// (GET /v1/fcmTokens)
+	FCMTokenV1List(ctx context.Context, request FCMTokenV1ListRequestObject) (FCMTokenV1ListResponseObject, error)
+
+	// (POST /v1/fcmTokens)
+	FCMTokenV1Upsert(ctx context.Context, request FCMTokenV1UpsertRequestObject) (FCMTokenV1UpsertResponseObject, error)
+
+	// (GET /v1/users)
+	UsersV1List(ctx context.Context, request UsersV1ListRequestObject) (UsersV1ListResponseObject, error)
+
 	// (GET /v1/users/{id})
 	UsersV1Detail(ctx context.Context, request UsersV1DetailRequestObject) (UsersV1DetailResponseObject, error)
 
@@ -336,6 +533,91 @@ func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareF
 type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
+}
+
+// FCMTokenV1List operation middleware
+func (sh *strictHandler) FCMTokenV1List(ctx *gin.Context, params FCMTokenV1ListParams) {
+	var request FCMTokenV1ListRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.FCMTokenV1List(ctx, request.(FCMTokenV1ListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FCMTokenV1List")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(FCMTokenV1ListResponseObject); ok {
+		if err := validResponse.VisitFCMTokenV1ListResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// FCMTokenV1Upsert operation middleware
+func (sh *strictHandler) FCMTokenV1Upsert(ctx *gin.Context) {
+	var request FCMTokenV1UpsertRequestObject
+
+	var body FCMTokenV1UpsertJSONRequestBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.FCMTokenV1Upsert(ctx, request.(FCMTokenV1UpsertRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "FCMTokenV1Upsert")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(FCMTokenV1UpsertResponseObject); ok {
+		if err := validResponse.VisitFCMTokenV1UpsertResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// UsersV1List operation middleware
+func (sh *strictHandler) UsersV1List(ctx *gin.Context) {
+	var request UsersV1ListRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.UsersV1List(ctx, request.(UsersV1ListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UsersV1List")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(UsersV1ListResponseObject); ok {
+		if err := validResponse.VisitUsersV1ListResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
 }
 
 // UsersV1Detail operation middleware

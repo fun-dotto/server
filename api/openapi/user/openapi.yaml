@@ -4,7 +4,111 @@ info:
   version: 1.0.0
 tags:
   - name: Users
+  - name: FCM Tokens
 paths:
+  /v1/fcmTokens:
+    get:
+      operationId: FCMTokenV1_list
+      description: FCMトークンの一覧を取得する
+      parameters:
+        - name: userIds
+          in: query
+          required: false
+          description: ユーザーIDの一覧
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+        - name: tokens
+          in: query
+          required: false
+          description: FCMトークンの一覧
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+        - name: updatedAtFrom
+          in: query
+          required: false
+          description: 更新日時の開始日時 (updatedAt >= updatedAtFrom)
+          schema:
+            type: string
+            format: date-time
+          explode: false
+        - name: updatedAtTo
+          in: query
+          required: false
+          description: 更新日時の終了日時 (updatedAt <= updatedAtTo)
+          schema:
+            type: string
+            format: date-time
+          explode: false
+      responses:
+        '200':
+          description: FCMトークンの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fcmTokens:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FCMToken'
+                required:
+                  - fcmTokens
+      tags:
+        - FCM Tokens
+    post:
+      operationId: FCMTokenV1_upsert
+      description: |-
+        FCMトークンを作成または更新する
+        存在しない場合は作成し、存在する場合は更新日時を更新する
+      parameters: []
+      responses:
+        '200':
+          description: 作成または更新されたFCMトークン
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fcmToken:
+                    $ref: '#/components/schemas/FCMToken'
+                required:
+                  - fcmToken
+      tags:
+        - FCM Tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FCMTokenRequest'
+        description: 作成または更新するFCMトークンの情報
+  /v1/users:
+    get:
+      operationId: UsersV1_list
+      description: ユーザーの一覧を取得する
+      parameters: []
+      responses:
+        '200':
+          description: ユーザーの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                required:
+                  - users
+      tags:
+        - Users
   /v1/users/{id}:
     get:
       operationId: UsersV1_detail
@@ -102,6 +206,38 @@ components:
         - D2
         - D3
       description: 学年
+    FCMToken:
+      type: object
+      required:
+        - token
+        - userId
+        - createdAt
+        - updatedAt
+      properties:
+        token:
+          type: string
+          description: FCMトークン
+        userId:
+          type: string
+          description: ユーザーID
+        createdAt:
+          type: string
+          format: date-time
+          description: 作成日時
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新日時
+    FCMTokenRequest:
+      type: object
+      required:
+        - userId
+        - token
+      properties:
+        userId:
+          type: string
+        token:
+          type: string
     User:
       type: object
       required:
@@ -116,12 +252,22 @@ components:
             Firebase Authentication の UID
         email:
           type: string
+          description: |-
+            メールアドレス
+
+            Firebase Authentication のメールアドレス
         grade:
-          $ref: '#/components/schemas/DottoFoundationV1.Grade'
+          allOf:
+            - $ref: '#/components/schemas/DottoFoundationV1.Grade'
+          description: 学年
         course:
-          $ref: '#/components/schemas/DottoFoundationV1.Course'
+          allOf:
+            - $ref: '#/components/schemas/DottoFoundationV1.Course'
+          description: コース
         class:
-          $ref: '#/components/schemas/DottoFoundationV1.Class'
+          allOf:
+            - $ref: '#/components/schemas/DottoFoundationV1.Class'
+          description: クラス
     UserRequest:
       type: object
       required:
