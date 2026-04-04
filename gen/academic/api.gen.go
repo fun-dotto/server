@@ -75,13 +75,14 @@ const (
 
 // Defines values for DottoFoundationV1Floor.
 const (
-	Floor1 DottoFoundationV1Floor = "Floor1"
-	Floor2 DottoFoundationV1Floor = "Floor2"
-	Floor3 DottoFoundationV1Floor = "Floor3"
-	Floor4 DottoFoundationV1Floor = "Floor4"
-	Floor5 DottoFoundationV1Floor = "Floor5"
-	Floor6 DottoFoundationV1Floor = "Floor6"
-	Floor7 DottoFoundationV1Floor = "Floor7"
+	Floor1  DottoFoundationV1Floor = "Floor1"
+	Floor2  DottoFoundationV1Floor = "Floor2"
+	Floor3  DottoFoundationV1Floor = "Floor3"
+	Floor4  DottoFoundationV1Floor = "Floor4"
+	Floor5  DottoFoundationV1Floor = "Floor5"
+	Floor6  DottoFoundationV1Floor = "Floor6"
+	Floor7  DottoFoundationV1Floor = "Floor7"
+	Virtual DottoFoundationV1Floor = "Virtual"
 )
 
 // Defines values for DottoFoundationV1Grade.
@@ -107,6 +108,14 @@ const (
 	Period6 DottoFoundationV1Period = "Period6"
 )
 
+// Defines values for DottoFoundationV1PersonalCalendarItemStatus.
+const (
+	Cancelled   DottoFoundationV1PersonalCalendarItemStatus = "Cancelled"
+	Makeup      DottoFoundationV1PersonalCalendarItemStatus = "Makeup"
+	Normal      DottoFoundationV1PersonalCalendarItemStatus = "Normal"
+	RoomChanged DottoFoundationV1PersonalCalendarItemStatus = "RoomChanged"
+)
+
 // Defines values for DottoFoundationV1SubjectClassification.
 const (
 	Cultural            DottoFoundationV1SubjectClassification = "Cultural"
@@ -121,11 +130,28 @@ const (
 	Required         DottoFoundationV1SubjectRequirementType = "Required"
 )
 
+// CancelledClass 休講
+type CancelledClass struct {
+	Comment string                  `json:"comment"`
+	Date    time.Time               `json:"date"`
+	Id      string                  `json:"id"`
+	Period  DottoFoundationV1Period `json:"period"`
+	Subject Subject                 `json:"subject"`
+}
+
+// CancelledClassRequest defines model for CancelledClassRequest.
+type CancelledClassRequest struct {
+	Comment   string                  `json:"comment"`
+	Date      time.Time               `json:"date"`
+	Period    DottoFoundationV1Period `json:"period"`
+	SubjectId string                  `json:"subjectId"`
+}
+
 // CourseRegistration defines model for CourseRegistration.
 type CourseRegistration struct {
-	Id      string         `json:"id"`
-	Subject SubjectSummary `json:"subject"`
-	UserId  string         `json:"userId"`
+	Id      string  `json:"id"`
+	Subject Subject `json:"subject"`
+	UserId  string  `json:"userId"`
 }
 
 // CourseRegistrationRequest defines model for CourseRegistrationRequest.
@@ -158,6 +184,9 @@ type DottoFoundationV1Grade string
 // DottoFoundationV1Period defines model for DottoFoundationV1.Period.
 type DottoFoundationV1Period string
 
+// DottoFoundationV1PersonalCalendarItemStatus 教室変更よりも休講・補講が優先される
+type DottoFoundationV1PersonalCalendarItemStatus string
+
 // DottoFoundationV1SubjectClassification 科目カテゴリ
 type DottoFoundationV1SubjectClassification string
 
@@ -183,31 +212,97 @@ type FacultyRequest struct {
 	Name  string `json:"name"`
 }
 
+// MakeupClass 補講
+type MakeupClass struct {
+	Comment string                  `json:"comment"`
+	Date    time.Time               `json:"date"`
+	Id      string                  `json:"id"`
+	Period  DottoFoundationV1Period `json:"period"`
+	Subject Subject                 `json:"subject"`
+}
+
+// MakeupClassRequest defines model for MakeupClassRequest.
+type MakeupClassRequest struct {
+	Comment   string                  `json:"comment"`
+	Date      time.Time               `json:"date"`
+	Period    DottoFoundationV1Period `json:"period"`
+	SubjectId string                  `json:"subjectId"`
+}
+
 // PersonalCalendarItem defines model for PersonalCalendarItem.
 type PersonalCalendarItem struct {
-	Date          time.Time                      `json:"date"`
-	Slot          DottoFoundationV1TimetableSlot `json:"slot"`
-	TimetableItem TimetableItem                  `json:"timetableItem"`
+	Date   time.Time               `json:"date"`
+	Period DottoFoundationV1Period `json:"period"`
+	Rooms  []Room                  `json:"rooms"`
+
+	// Status 教室変更よりも休講・補講が優先される
+	Status  DottoFoundationV1PersonalCalendarItemStatus `json:"status"`
+	Subject Subject                                     `json:"subject"`
 }
 
 // Reservation defines model for Reservation.
 type Reservation struct {
 	EndAt   time.Time `json:"endAt"`
+	Id      string    `json:"id"`
+	RoomId  string    `json:"roomId"`
+	StartAt time.Time `json:"startAt"`
+	Title   string    `json:"title"`
+}
+
+// ReservationRequest defines model for ReservationRequest.
+type ReservationRequest struct {
+	EndAt   time.Time `json:"endAt"`
+	RoomId  string    `json:"roomId"`
 	StartAt time.Time `json:"startAt"`
 	Title   string    `json:"title"`
 }
 
 // Room defines model for Room.
 type Room struct {
+	// Faculty 教員
+	//
+	// 教員室でない場合は省略
+	Faculty *Faculty `json:"faculty,omitempty"`
+
+	// Floor フロア
+	//
+	// オンラインなどの仮想教室の場合はVirtualを使用
 	Floor DottoFoundationV1Floor `json:"floor"`
 	Id    string                 `json:"id"`
-	Name  string                 `json:"name"`
+
+	// Name 部屋名
+	Name string `json:"name"`
+
+	// Number 部屋番号
+	//
+	// 部屋番号が存在しない場合は空文字
+	Number string `json:"number"`
+}
+
+// RoomChange 教室変更
+type RoomChange struct {
+	Date          time.Time               `json:"date"`
+	Id            string                  `json:"id"`
+	NewRooms      []Room                  `json:"newRooms"`
+	OriginalRooms []Room                  `json:"originalRooms"`
+	Period        DottoFoundationV1Period `json:"period"`
+	Subject       Subject                 `json:"subject"`
+}
+
+// RoomChangeRequest defines model for RoomChangeRequest.
+type RoomChangeRequest struct {
+	Date            time.Time               `json:"date"`
+	NewRoomIds      []string                `json:"newRoomIds"`
+	OriginalRoomIds []string                `json:"originalRoomIds"`
+	Period          DottoFoundationV1Period `json:"period"`
+	SubjectId       string                  `json:"subjectId"`
 }
 
 // RoomRequest defines model for RoomRequest.
 type RoomRequest struct {
-	Floor DottoFoundationV1Floor `json:"floor"`
-	Name  string                 `json:"name"`
+	FacultyId *string                `json:"facultyId,omitempty"`
+	Floor     DottoFoundationV1Floor `json:"floor"`
+	Name      string                 `json:"name"`
 }
 
 // Subject defines model for Subject.
@@ -216,13 +311,17 @@ type Subject struct {
 	Credit int `json:"credit"`
 
 	// EligibleAttributes 授業名末尾の`学年-クラス`をもとに決定
-	EligibleAttributes []SubjectTargetClass `json:"eligibleAttributes"`
-	Faculties          []SubjectFaculty     `json:"faculties"`
-	Id                 string               `json:"id"`
-	Name               string               `json:"name"`
+	//
+	// 科目詳細取得でのみ必須
+	EligibleAttributes *[]SubjectTargetClass `json:"eligibleAttributes,omitempty"`
+	Faculties          []SubjectFaculty      `json:"faculties"`
+	Id                 string                `json:"id"`
+	Name               string                `json:"name"`
 
 	// Requirements 科目群・科目区分をもとに決定
-	Requirements []SubjectRequirement `json:"requirements"`
+	//
+	// 科目詳細取得でのみ必須
+	Requirements *[]SubjectRequirement `json:"requirements,omitempty"`
 
 	// Semester 開講時期
 	Semester DottoFoundationV1CourseSemester `json:"semester"`
@@ -237,11 +336,6 @@ type SubjectFaculty struct {
 	IsPrimary bool    `json:"isPrimary"`
 }
 
-// SubjectRequest defines model for SubjectRequest.
-type SubjectRequest struct {
-	SyllabusId string `json:"syllabusId"`
-}
-
 // SubjectRequirement defines model for SubjectRequirement.
 type SubjectRequirement struct {
 	// Course コース
@@ -249,13 +343,6 @@ type SubjectRequirement struct {
 
 	// RequirementType 必修・選択
 	RequirementType DottoFoundationV1SubjectRequirementType `json:"requirementType"`
-}
-
-// SubjectSummary defines model for SubjectSummary.
-type SubjectSummary struct {
-	Faculties []SubjectFaculty `json:"faculties"`
-	Id        string           `json:"id"`
-	Name      string           `json:"name"`
 }
 
 // SubjectTargetClass 対象学年・クラス
@@ -358,7 +445,7 @@ type TimetableItem struct {
 
 	// Slot 集中講義など、時間割に含まれていない場合はnull
 	Slot    *DottoFoundationV1TimetableSlot `json:"slot,omitempty"`
-	Subject SubjectSummary                  `json:"subject"`
+	Subject Subject                         `json:"subject"`
 }
 
 // TimetableItemRequest defines model for TimetableItemRequest.
@@ -366,6 +453,18 @@ type TimetableItemRequest struct {
 	RoomIds   []string                        `json:"roomIds"`
 	Slot      *DottoFoundationV1TimetableSlot `json:"slot,omitempty"`
 	SubjectId string                          `json:"subjectId"`
+}
+
+// CancelledClassesV1ListParams defines parameters for CancelledClassesV1List.
+type CancelledClassesV1ListParams struct {
+	// SubjectIds 科目IDのリスト; 指定した科目の休講のみを取得する
+	SubjectIds *[]string `form:"subjectIds,omitempty" json:"subjectIds,omitempty"`
+
+	// From 検索対象開始日時
+	From *time.Time `form:"from,omitempty" json:"from,omitempty"`
+
+	// Until 検索対象終了日時
+	Until *time.Time `form:"until,omitempty" json:"until,omitempty"`
 }
 
 // CourseRegistrationsV1ListParams defines parameters for CourseRegistrationsV1List.
@@ -382,8 +481,29 @@ type CourseRegistrationsV1ListParams struct {
 
 // FacultiesV1ListParams defines parameters for FacultiesV1List.
 type FacultiesV1ListParams struct {
-	// Ids 教員IDのリスト; 指定した場合は指定した教員IDのみを取得する
-	Ids *[]string `form:"ids,omitempty" json:"ids,omitempty"`
+	// Q 検索ワード; 教員の名前で部分一致検索される
+	Q *string `form:"q,omitempty" json:"q,omitempty"`
+}
+
+// MakeupClassesV1ListParams defines parameters for MakeupClassesV1List.
+type MakeupClassesV1ListParams struct {
+	// SubjectIds 科目IDのリスト; 指定した科目の補講のみを取得する
+	SubjectIds *[]string `form:"subjectIds,omitempty" json:"subjectIds,omitempty"`
+
+	// From 検索対象開始日時
+	From *time.Time `form:"from,omitempty" json:"from,omitempty"`
+
+	// Until 検索対象終了日時
+	Until *time.Time `form:"until,omitempty" json:"until,omitempty"`
+}
+
+// NotifyIrregularitiesV1NotifyParams defines parameters for NotifyIrregularitiesV1Notify.
+type NotifyIrregularitiesV1NotifyParams struct {
+	// UserIds ユーザーIDのリスト; 指定しない場合は全ユーザーに通知する
+	UserIds *[]string `form:"userIds,omitempty" json:"userIds,omitempty"`
+
+	// Date 対象の日付
+	Date time.Time `form:"date" json:"date"`
 }
 
 // PersonalCalendarItemsV1ListParams defines parameters for PersonalCalendarItemsV1List.
@@ -395,22 +515,37 @@ type PersonalCalendarItemsV1ListParams struct {
 	Dates []time.Time `form:"dates" json:"dates"`
 }
 
-// RoomsV1ListParams defines parameters for RoomsV1List.
-type RoomsV1ListParams struct {
-	// Ids 教室IDのリスト; 指定した場合は指定した教室IDのみを取得する
-	Ids *[]string `form:"ids,omitempty" json:"ids,omitempty"`
-
-	// Floor 階数; 指定した場合は指定した階数の教室のみを取得する
-	Floor *[]DottoFoundationV1Floor `form:"floor,omitempty" json:"floor,omitempty"`
-}
-
 // ReservationsV1ListParams defines parameters for ReservationsV1List.
 type ReservationsV1ListParams struct {
-	// From 開始日時
+	// RoomIds 教室IDのリスト
+	RoomIds *[]string `form:"roomIds,omitempty" json:"roomIds,omitempty"`
+
+	// From 検索対象開始日時
 	From *time.Time `form:"from,omitempty" json:"from,omitempty"`
 
-	// Until 終了日時
+	// Until 検索対象終了日時
 	Until *time.Time `form:"until,omitempty" json:"until,omitempty"`
+}
+
+// RoomChangesV1ListParams defines parameters for RoomChangesV1List.
+type RoomChangesV1ListParams struct {
+	// SubjectIds 科目IDのリスト; 指定した科目の教室変更のみを取得する
+	SubjectIds *[]string `form:"subjectIds,omitempty" json:"subjectIds,omitempty"`
+
+	// From 検索対象開始日時
+	From *time.Time `form:"from,omitempty" json:"from,omitempty"`
+
+	// Until 検索対象終了日時
+	Until *time.Time `form:"until,omitempty" json:"until,omitempty"`
+}
+
+// RoomsV1ListParams defines parameters for RoomsV1List.
+type RoomsV1ListParams struct {
+	// Q 検索ワード; 部屋名・部屋番号・教員名の部分一致検索される
+	Q *string `form:"q,omitempty" json:"q,omitempty"`
+
+	// Floors 階数; 指定した場合は指定した階数の部屋のみを取得する
+	Floors *[]DottoFoundationV1Floor `form:"floors,omitempty" json:"floors,omitempty"`
 }
 
 // SubjectsV1ListParams defines parameters for SubjectsV1List.
@@ -455,6 +590,9 @@ type TimetableItemsV1ListParams struct {
 	Semesters []DottoFoundationV1CourseSemester `form:"semesters" json:"semesters"`
 }
 
+// CancelledClassesV1CreateJSONRequestBody defines body for CancelledClassesV1Create for application/json ContentType.
+type CancelledClassesV1CreateJSONRequestBody = CancelledClassRequest
+
 // CourseRegistrationsV1CreateJSONRequestBody defines body for CourseRegistrationsV1Create for application/json ContentType.
 type CourseRegistrationsV1CreateJSONRequestBody = CourseRegistrationRequest
 
@@ -464,20 +602,38 @@ type FacultiesV1CreateJSONRequestBody = FacultyRequest
 // FacultiesV1UpdateJSONRequestBody defines body for FacultiesV1Update for application/json ContentType.
 type FacultiesV1UpdateJSONRequestBody = FacultyRequest
 
+// MakeupClassesV1CreateJSONRequestBody defines body for MakeupClassesV1Create for application/json ContentType.
+type MakeupClassesV1CreateJSONRequestBody = MakeupClassRequest
+
+// ReservationsV1CreateJSONRequestBody defines body for ReservationsV1Create for application/json ContentType.
+type ReservationsV1CreateJSONRequestBody = ReservationRequest
+
+// RoomChangesV1CreateJSONRequestBody defines body for RoomChangesV1Create for application/json ContentType.
+type RoomChangesV1CreateJSONRequestBody = RoomChangeRequest
+
 // RoomsV1CreateJSONRequestBody defines body for RoomsV1Create for application/json ContentType.
 type RoomsV1CreateJSONRequestBody = RoomRequest
 
 // RoomsV1UpdateJSONRequestBody defines body for RoomsV1Update for application/json ContentType.
 type RoomsV1UpdateJSONRequestBody = RoomRequest
 
-// SubjectsV1UpsertJSONRequestBody defines body for SubjectsV1Upsert for application/json ContentType.
-type SubjectsV1UpsertJSONRequestBody = SubjectRequest
-
 // TimetableItemsV1CreateJSONRequestBody defines body for TimetableItemsV1Create for application/json ContentType.
 type TimetableItemsV1CreateJSONRequestBody = TimetableItemRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+
+	// (GET /v1/cancelledClasses)
+	CancelledClassesV1List(c *gin.Context, params CancelledClassesV1ListParams)
+
+	// (POST /v1/cancelledClasses)
+	CancelledClassesV1Create(c *gin.Context)
+
+	// (PUT /v1/cancelledClasses)
+	CancelledClassesV1Fetch(c *gin.Context)
+
+	// (DELETE /v1/cancelledClasses/{id})
+	CancelledClassesV1Delete(c *gin.Context, id string)
 
 	// (GET /v1/courseRegistrations)
 	CourseRegistrationsV1List(c *gin.Context, params CourseRegistrationsV1ListParams)
@@ -503,8 +659,47 @@ type ServerInterface interface {
 	// (PUT /v1/faculties/{id})
 	FacultiesV1Update(c *gin.Context, id string)
 
+	// (GET /v1/makeupClasses)
+	MakeupClassesV1List(c *gin.Context, params MakeupClassesV1ListParams)
+
+	// (POST /v1/makeupClasses)
+	MakeupClassesV1Create(c *gin.Context)
+
+	// (PUT /v1/makeupClasses)
+	MakeupClassesV1Fetch(c *gin.Context)
+
+	// (DELETE /v1/makeupClasses/{id})
+	MakeupClassesV1Delete(c *gin.Context, id string)
+
+	// (POST /v1/notifyIrregularities)
+	NotifyIrregularitiesV1Notify(c *gin.Context, params NotifyIrregularitiesV1NotifyParams)
+
 	// (GET /v1/personalCalendarItems)
 	PersonalCalendarItemsV1List(c *gin.Context, params PersonalCalendarItemsV1ListParams)
+
+	// (GET /v1/reservations)
+	ReservationsV1List(c *gin.Context, params ReservationsV1ListParams)
+
+	// (POST /v1/reservations)
+	ReservationsV1Create(c *gin.Context)
+
+	// (DELETE /v1/reservations/{id})
+	ReservationsV1Delete(c *gin.Context, id string)
+
+	// (GET /v1/reservations/{id})
+	ReservationsV1Detail(c *gin.Context, id string)
+
+	// (GET /v1/roomChanges)
+	RoomChangesV1List(c *gin.Context, params RoomChangesV1ListParams)
+
+	// (POST /v1/roomChanges)
+	RoomChangesV1Create(c *gin.Context)
+
+	// (PUT /v1/roomChanges)
+	RoomChangesV1Fetch(c *gin.Context)
+
+	// (DELETE /v1/roomChanges/{id})
+	RoomChangesV1Delete(c *gin.Context, id string)
 
 	// (GET /v1/rooms)
 	RoomsV1List(c *gin.Context, params RoomsV1ListParams)
@@ -521,14 +716,8 @@ type ServerInterface interface {
 	// (PUT /v1/rooms/{id})
 	RoomsV1Update(c *gin.Context, id string)
 
-	// (GET /v1/rooms/{id}/reservations)
-	ReservationsV1List(c *gin.Context, id string, params ReservationsV1ListParams)
-
 	// (GET /v1/subjects)
 	SubjectsV1List(c *gin.Context, params SubjectsV1ListParams)
-
-	// (POST /v1/subjects)
-	SubjectsV1Upsert(c *gin.Context)
 
 	// (DELETE /v1/subjects/{id})
 	SubjectsV1Delete(c *gin.Context, id string)
@@ -557,6 +746,98 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(c *gin.Context)
+
+// CancelledClassesV1List operation middleware
+func (siw *ServerInterfaceWrapper) CancelledClassesV1List(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CancelledClassesV1ListParams
+
+	// ------------- Optional query parameter "subjectIds" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "subjectIds", c.Request.URL.Query(), &params.SubjectIds)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter subjectIds: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "from" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "from", c.Request.URL.Query(), &params.From)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter from: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "until" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "until", c.Request.URL.Query(), &params.Until)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter until: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CancelledClassesV1List(c, params)
+}
+
+// CancelledClassesV1Create operation middleware
+func (siw *ServerInterfaceWrapper) CancelledClassesV1Create(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CancelledClassesV1Create(c)
+}
+
+// CancelledClassesV1Fetch operation middleware
+func (siw *ServerInterfaceWrapper) CancelledClassesV1Fetch(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CancelledClassesV1Fetch(c)
+}
+
+// CancelledClassesV1Delete operation middleware
+func (siw *ServerInterfaceWrapper) CancelledClassesV1Delete(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CancelledClassesV1Delete(c, id)
+}
 
 // CourseRegistrationsV1List operation middleware
 func (siw *ServerInterfaceWrapper) CourseRegistrationsV1List(c *gin.Context) {
@@ -659,11 +940,11 @@ func (siw *ServerInterfaceWrapper) FacultiesV1List(c *gin.Context) {
 	// Parameter object where we will unmarshal all parameters from the context
 	var params FacultiesV1ListParams
 
-	// ------------- Optional query parameter "ids" -------------
+	// ------------- Optional query parameter "q" -------------
 
-	err = runtime.BindQueryParameter("form", false, false, "ids", c.Request.URL.Query(), &params.Ids)
+	err = runtime.BindQueryParameter("form", false, false, "q", c.Request.URL.Query(), &params.Q)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter ids: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter q: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -762,6 +1043,139 @@ func (siw *ServerInterfaceWrapper) FacultiesV1Update(c *gin.Context) {
 	siw.Handler.FacultiesV1Update(c, id)
 }
 
+// MakeupClassesV1List operation middleware
+func (siw *ServerInterfaceWrapper) MakeupClassesV1List(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params MakeupClassesV1ListParams
+
+	// ------------- Optional query parameter "subjectIds" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "subjectIds", c.Request.URL.Query(), &params.SubjectIds)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter subjectIds: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "from" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "from", c.Request.URL.Query(), &params.From)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter from: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "until" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "until", c.Request.URL.Query(), &params.Until)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter until: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.MakeupClassesV1List(c, params)
+}
+
+// MakeupClassesV1Create operation middleware
+func (siw *ServerInterfaceWrapper) MakeupClassesV1Create(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.MakeupClassesV1Create(c)
+}
+
+// MakeupClassesV1Fetch operation middleware
+func (siw *ServerInterfaceWrapper) MakeupClassesV1Fetch(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.MakeupClassesV1Fetch(c)
+}
+
+// MakeupClassesV1Delete operation middleware
+func (siw *ServerInterfaceWrapper) MakeupClassesV1Delete(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.MakeupClassesV1Delete(c, id)
+}
+
+// NotifyIrregularitiesV1Notify operation middleware
+func (siw *ServerInterfaceWrapper) NotifyIrregularitiesV1Notify(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params NotifyIrregularitiesV1NotifyParams
+
+	// ------------- Optional query parameter "userIds" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "userIds", c.Request.URL.Query(), &params.UserIds)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userIds: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Required query parameter "date" -------------
+
+	if paramValue := c.Query("date"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandler(c, fmt.Errorf("Query argument date is required, but not found"), http.StatusBadRequest)
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", false, true, "date", c.Request.URL.Query(), &params.Date)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter date: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.NotifyIrregularitiesV1Notify(c, params)
+}
+
 // PersonalCalendarItemsV1List operation middleware
 func (siw *ServerInterfaceWrapper) PersonalCalendarItemsV1List(c *gin.Context) {
 
@@ -810,6 +1224,201 @@ func (siw *ServerInterfaceWrapper) PersonalCalendarItemsV1List(c *gin.Context) {
 	siw.Handler.PersonalCalendarItemsV1List(c, params)
 }
 
+// ReservationsV1List operation middleware
+func (siw *ServerInterfaceWrapper) ReservationsV1List(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ReservationsV1ListParams
+
+	// ------------- Optional query parameter "roomIds" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "roomIds", c.Request.URL.Query(), &params.RoomIds)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter roomIds: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "from" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "from", c.Request.URL.Query(), &params.From)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter from: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "until" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "until", c.Request.URL.Query(), &params.Until)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter until: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.ReservationsV1List(c, params)
+}
+
+// ReservationsV1Create operation middleware
+func (siw *ServerInterfaceWrapper) ReservationsV1Create(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.ReservationsV1Create(c)
+}
+
+// ReservationsV1Delete operation middleware
+func (siw *ServerInterfaceWrapper) ReservationsV1Delete(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.ReservationsV1Delete(c, id)
+}
+
+// ReservationsV1Detail operation middleware
+func (siw *ServerInterfaceWrapper) ReservationsV1Detail(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.ReservationsV1Detail(c, id)
+}
+
+// RoomChangesV1List operation middleware
+func (siw *ServerInterfaceWrapper) RoomChangesV1List(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params RoomChangesV1ListParams
+
+	// ------------- Optional query parameter "subjectIds" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "subjectIds", c.Request.URL.Query(), &params.SubjectIds)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter subjectIds: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "from" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "from", c.Request.URL.Query(), &params.From)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter from: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "until" -------------
+
+	err = runtime.BindQueryParameter("form", false, false, "until", c.Request.URL.Query(), &params.Until)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter until: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.RoomChangesV1List(c, params)
+}
+
+// RoomChangesV1Create operation middleware
+func (siw *ServerInterfaceWrapper) RoomChangesV1Create(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.RoomChangesV1Create(c)
+}
+
+// RoomChangesV1Fetch operation middleware
+func (siw *ServerInterfaceWrapper) RoomChangesV1Fetch(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.RoomChangesV1Fetch(c)
+}
+
+// RoomChangesV1Delete operation middleware
+func (siw *ServerInterfaceWrapper) RoomChangesV1Delete(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.RoomChangesV1Delete(c, id)
+}
+
 // RoomsV1List operation middleware
 func (siw *ServerInterfaceWrapper) RoomsV1List(c *gin.Context) {
 
@@ -818,19 +1427,19 @@ func (siw *ServerInterfaceWrapper) RoomsV1List(c *gin.Context) {
 	// Parameter object where we will unmarshal all parameters from the context
 	var params RoomsV1ListParams
 
-	// ------------- Optional query parameter "ids" -------------
+	// ------------- Optional query parameter "q" -------------
 
-	err = runtime.BindQueryParameter("form", false, false, "ids", c.Request.URL.Query(), &params.Ids)
+	err = runtime.BindQueryParameter("form", false, false, "q", c.Request.URL.Query(), &params.Q)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter ids: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter q: %w", err), http.StatusBadRequest)
 		return
 	}
 
-	// ------------- Optional query parameter "floor" -------------
+	// ------------- Optional query parameter "floors" -------------
 
-	err = runtime.BindQueryParameter("form", false, false, "floor", c.Request.URL.Query(), &params.Floor)
+	err = runtime.BindQueryParameter("form", false, false, "floors", c.Request.URL.Query(), &params.Floors)
 	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter floor: %w", err), http.StatusBadRequest)
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter floors: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -929,49 +1538,6 @@ func (siw *ServerInterfaceWrapper) RoomsV1Update(c *gin.Context) {
 	siw.Handler.RoomsV1Update(c, id)
 }
 
-// ReservationsV1List operation middleware
-func (siw *ServerInterfaceWrapper) ReservationsV1List(c *gin.Context) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
-		return
-	}
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ReservationsV1ListParams
-
-	// ------------- Optional query parameter "from" -------------
-
-	err = runtime.BindQueryParameter("form", false, false, "from", c.Request.URL.Query(), &params.From)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter from: %w", err), http.StatusBadRequest)
-		return
-	}
-
-	// ------------- Optional query parameter "until" -------------
-
-	err = runtime.BindQueryParameter("form", false, false, "until", c.Request.URL.Query(), &params.Until)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter until: %w", err), http.StatusBadRequest)
-		return
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-		if c.IsAborted() {
-			return
-		}
-	}
-
-	siw.Handler.ReservationsV1List(c, id, params)
-}
-
 // SubjectsV1List operation middleware
 func (siw *ServerInterfaceWrapper) SubjectsV1List(c *gin.Context) {
 
@@ -1068,19 +1634,6 @@ func (siw *ServerInterfaceWrapper) SubjectsV1List(c *gin.Context) {
 	}
 
 	siw.Handler.SubjectsV1List(c, params)
-}
-
-// SubjectsV1Upsert operation middleware
-func (siw *ServerInterfaceWrapper) SubjectsV1Upsert(c *gin.Context) {
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-		if c.IsAborted() {
-			return
-		}
-	}
-
-	siw.Handler.SubjectsV1Upsert(c)
 }
 
 // SubjectsV1Delete operation middleware
@@ -1260,6 +1813,10 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 		ErrorHandler:       errorHandler,
 	}
 
+	router.GET(options.BaseURL+"/v1/cancelledClasses", wrapper.CancelledClassesV1List)
+	router.POST(options.BaseURL+"/v1/cancelledClasses", wrapper.CancelledClassesV1Create)
+	router.PUT(options.BaseURL+"/v1/cancelledClasses", wrapper.CancelledClassesV1Fetch)
+	router.DELETE(options.BaseURL+"/v1/cancelledClasses/:id", wrapper.CancelledClassesV1Delete)
 	router.GET(options.BaseURL+"/v1/courseRegistrations", wrapper.CourseRegistrationsV1List)
 	router.POST(options.BaseURL+"/v1/courseRegistrations", wrapper.CourseRegistrationsV1Create)
 	router.DELETE(options.BaseURL+"/v1/courseRegistrations/:id", wrapper.CourseRegistrationsV1Delete)
@@ -1268,21 +1825,113 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.DELETE(options.BaseURL+"/v1/faculties/:id", wrapper.FacultiesV1Delete)
 	router.GET(options.BaseURL+"/v1/faculties/:id", wrapper.FacultiesV1Detail)
 	router.PUT(options.BaseURL+"/v1/faculties/:id", wrapper.FacultiesV1Update)
+	router.GET(options.BaseURL+"/v1/makeupClasses", wrapper.MakeupClassesV1List)
+	router.POST(options.BaseURL+"/v1/makeupClasses", wrapper.MakeupClassesV1Create)
+	router.PUT(options.BaseURL+"/v1/makeupClasses", wrapper.MakeupClassesV1Fetch)
+	router.DELETE(options.BaseURL+"/v1/makeupClasses/:id", wrapper.MakeupClassesV1Delete)
+	router.POST(options.BaseURL+"/v1/notifyIrregularities", wrapper.NotifyIrregularitiesV1Notify)
 	router.GET(options.BaseURL+"/v1/personalCalendarItems", wrapper.PersonalCalendarItemsV1List)
+	router.GET(options.BaseURL+"/v1/reservations", wrapper.ReservationsV1List)
+	router.POST(options.BaseURL+"/v1/reservations", wrapper.ReservationsV1Create)
+	router.DELETE(options.BaseURL+"/v1/reservations/:id", wrapper.ReservationsV1Delete)
+	router.GET(options.BaseURL+"/v1/reservations/:id", wrapper.ReservationsV1Detail)
+	router.GET(options.BaseURL+"/v1/roomChanges", wrapper.RoomChangesV1List)
+	router.POST(options.BaseURL+"/v1/roomChanges", wrapper.RoomChangesV1Create)
+	router.PUT(options.BaseURL+"/v1/roomChanges", wrapper.RoomChangesV1Fetch)
+	router.DELETE(options.BaseURL+"/v1/roomChanges/:id", wrapper.RoomChangesV1Delete)
 	router.GET(options.BaseURL+"/v1/rooms", wrapper.RoomsV1List)
 	router.POST(options.BaseURL+"/v1/rooms", wrapper.RoomsV1Create)
 	router.DELETE(options.BaseURL+"/v1/rooms/:id", wrapper.RoomsV1Delete)
 	router.GET(options.BaseURL+"/v1/rooms/:id", wrapper.RoomsV1Detail)
 	router.PUT(options.BaseURL+"/v1/rooms/:id", wrapper.RoomsV1Update)
-	router.GET(options.BaseURL+"/v1/rooms/:id/reservations", wrapper.ReservationsV1List)
 	router.GET(options.BaseURL+"/v1/subjects", wrapper.SubjectsV1List)
-	router.POST(options.BaseURL+"/v1/subjects", wrapper.SubjectsV1Upsert)
 	router.DELETE(options.BaseURL+"/v1/subjects/:id", wrapper.SubjectsV1Delete)
 	router.GET(options.BaseURL+"/v1/subjects/:id", wrapper.SubjectsV1Detail)
 	router.GET(options.BaseURL+"/v1/subjects/:id/syllabus", wrapper.SyllabusV1Detail)
 	router.GET(options.BaseURL+"/v1/timetableItems", wrapper.TimetableItemsV1List)
 	router.POST(options.BaseURL+"/v1/timetableItems", wrapper.TimetableItemsV1Create)
 	router.DELETE(options.BaseURL+"/v1/timetableItems/:id", wrapper.TimetableItemsV1Delete)
+}
+
+type CancelledClassesV1ListRequestObject struct {
+	Params CancelledClassesV1ListParams
+}
+
+type CancelledClassesV1ListResponseObject interface {
+	VisitCancelledClassesV1ListResponse(w http.ResponseWriter) error
+}
+
+type CancelledClassesV1List200JSONResponse struct {
+	CancelledClasses []CancelledClass `json:"cancelledClasses"`
+}
+
+func (response CancelledClassesV1List200JSONResponse) VisitCancelledClassesV1ListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CancelledClassesV1CreateRequestObject struct {
+	Body *CancelledClassesV1CreateJSONRequestBody
+}
+
+type CancelledClassesV1CreateResponseObject interface {
+	VisitCancelledClassesV1CreateResponse(w http.ResponseWriter) error
+}
+
+type CancelledClassesV1Create201JSONResponse struct {
+	// CancelledClass 休講
+	CancelledClass CancelledClass `json:"cancelledClass"`
+}
+
+func (response CancelledClassesV1Create201JSONResponse) VisitCancelledClassesV1CreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CancelledClassesV1FetchRequestObject struct {
+}
+
+type CancelledClassesV1FetchResponseObject interface {
+	VisitCancelledClassesV1FetchResponse(w http.ResponseWriter) error
+}
+
+type CancelledClassesV1Fetch200JSONResponse struct {
+	CancelledClasses []CancelledClass `json:"cancelledClasses"`
+}
+
+func (response CancelledClassesV1Fetch200JSONResponse) VisitCancelledClassesV1FetchResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type CancelledClassesV1DeleteRequestObject struct {
+	Id string `json:"id"`
+}
+
+type CancelledClassesV1DeleteResponseObject interface {
+	VisitCancelledClassesV1DeleteResponse(w http.ResponseWriter) error
+}
+
+type CancelledClassesV1Delete204Response struct {
+}
+
+func (response CancelledClassesV1Delete204Response) VisitCancelledClassesV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type CancelledClassesV1Delete404Response struct {
+}
+
+func (response CancelledClassesV1Delete404Response) VisitCancelledClassesV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type CourseRegistrationsV1ListRequestObject struct {
@@ -1480,6 +2129,103 @@ func (response FacultiesV1Update404Response) VisitFacultiesV1UpdateResponse(w ht
 	return nil
 }
 
+type MakeupClassesV1ListRequestObject struct {
+	Params MakeupClassesV1ListParams
+}
+
+type MakeupClassesV1ListResponseObject interface {
+	VisitMakeupClassesV1ListResponse(w http.ResponseWriter) error
+}
+
+type MakeupClassesV1List200JSONResponse struct {
+	MakeupClasses []MakeupClass `json:"makeupClasses"`
+}
+
+func (response MakeupClassesV1List200JSONResponse) VisitMakeupClassesV1ListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type MakeupClassesV1CreateRequestObject struct {
+	Body *MakeupClassesV1CreateJSONRequestBody
+}
+
+type MakeupClassesV1CreateResponseObject interface {
+	VisitMakeupClassesV1CreateResponse(w http.ResponseWriter) error
+}
+
+type MakeupClassesV1Create201JSONResponse struct {
+	// MakeupClass 補講
+	MakeupClass MakeupClass `json:"makeupClass"`
+}
+
+func (response MakeupClassesV1Create201JSONResponse) VisitMakeupClassesV1CreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type MakeupClassesV1FetchRequestObject struct {
+}
+
+type MakeupClassesV1FetchResponseObject interface {
+	VisitMakeupClassesV1FetchResponse(w http.ResponseWriter) error
+}
+
+type MakeupClassesV1Fetch200JSONResponse struct {
+	MakeupClasses []MakeupClass `json:"makeupClasses"`
+}
+
+func (response MakeupClassesV1Fetch200JSONResponse) VisitMakeupClassesV1FetchResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type MakeupClassesV1DeleteRequestObject struct {
+	Id string `json:"id"`
+}
+
+type MakeupClassesV1DeleteResponseObject interface {
+	VisitMakeupClassesV1DeleteResponse(w http.ResponseWriter) error
+}
+
+type MakeupClassesV1Delete204Response struct {
+}
+
+func (response MakeupClassesV1Delete204Response) VisitMakeupClassesV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type MakeupClassesV1Delete404Response struct {
+}
+
+func (response MakeupClassesV1Delete404Response) VisitMakeupClassesV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type NotifyIrregularitiesV1NotifyRequestObject struct {
+	Params NotifyIrregularitiesV1NotifyParams
+}
+
+type NotifyIrregularitiesV1NotifyResponseObject interface {
+	VisitNotifyIrregularitiesV1NotifyResponse(w http.ResponseWriter) error
+}
+
+type NotifyIrregularitiesV1Notify204Response struct {
+}
+
+func (response NotifyIrregularitiesV1Notify204Response) VisitNotifyIrregularitiesV1NotifyResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
 type PersonalCalendarItemsV1ListRequestObject struct {
 	Params PersonalCalendarItemsV1ListParams
 }
@@ -1497,6 +2243,176 @@ func (response PersonalCalendarItemsV1List200JSONResponse) VisitPersonalCalendar
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type ReservationsV1ListRequestObject struct {
+	Params ReservationsV1ListParams
+}
+
+type ReservationsV1ListResponseObject interface {
+	VisitReservationsV1ListResponse(w http.ResponseWriter) error
+}
+
+type ReservationsV1List200JSONResponse struct {
+	Reservations []Reservation `json:"reservations"`
+}
+
+func (response ReservationsV1List200JSONResponse) VisitReservationsV1ListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ReservationsV1CreateRequestObject struct {
+	Body *ReservationsV1CreateJSONRequestBody
+}
+
+type ReservationsV1CreateResponseObject interface {
+	VisitReservationsV1CreateResponse(w http.ResponseWriter) error
+}
+
+type ReservationsV1Create201JSONResponse struct {
+	Reservation Reservation `json:"reservation"`
+}
+
+func (response ReservationsV1Create201JSONResponse) VisitReservationsV1CreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ReservationsV1DeleteRequestObject struct {
+	Id string `json:"id"`
+}
+
+type ReservationsV1DeleteResponseObject interface {
+	VisitReservationsV1DeleteResponse(w http.ResponseWriter) error
+}
+
+type ReservationsV1Delete204Response struct {
+}
+
+func (response ReservationsV1Delete204Response) VisitReservationsV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type ReservationsV1Delete404Response struct {
+}
+
+func (response ReservationsV1Delete404Response) VisitReservationsV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ReservationsV1DetailRequestObject struct {
+	Id string `json:"id"`
+}
+
+type ReservationsV1DetailResponseObject interface {
+	VisitReservationsV1DetailResponse(w http.ResponseWriter) error
+}
+
+type ReservationsV1Detail200JSONResponse struct {
+	Reservation Reservation `json:"reservation"`
+}
+
+func (response ReservationsV1Detail200JSONResponse) VisitReservationsV1DetailResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ReservationsV1Detail404Response struct {
+}
+
+func (response ReservationsV1Detail404Response) VisitReservationsV1DetailResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type RoomChangesV1ListRequestObject struct {
+	Params RoomChangesV1ListParams
+}
+
+type RoomChangesV1ListResponseObject interface {
+	VisitRoomChangesV1ListResponse(w http.ResponseWriter) error
+}
+
+type RoomChangesV1List200JSONResponse struct {
+	RoomChanges []RoomChange `json:"roomChanges"`
+}
+
+func (response RoomChangesV1List200JSONResponse) VisitRoomChangesV1ListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type RoomChangesV1CreateRequestObject struct {
+	Body *RoomChangesV1CreateJSONRequestBody
+}
+
+type RoomChangesV1CreateResponseObject interface {
+	VisitRoomChangesV1CreateResponse(w http.ResponseWriter) error
+}
+
+type RoomChangesV1Create201JSONResponse struct {
+	// RoomChange 教室変更
+	RoomChange RoomChange `json:"roomChange"`
+}
+
+func (response RoomChangesV1Create201JSONResponse) VisitRoomChangesV1CreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type RoomChangesV1FetchRequestObject struct {
+}
+
+type RoomChangesV1FetchResponseObject interface {
+	VisitRoomChangesV1FetchResponse(w http.ResponseWriter) error
+}
+
+type RoomChangesV1Fetch200JSONResponse struct {
+	RoomChanges []RoomChange `json:"roomChanges"`
+}
+
+func (response RoomChangesV1Fetch200JSONResponse) VisitRoomChangesV1FetchResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type RoomChangesV1DeleteRequestObject struct {
+	Id string `json:"id"`
+}
+
+type RoomChangesV1DeleteResponseObject interface {
+	VisitRoomChangesV1DeleteResponse(w http.ResponseWriter) error
+}
+
+type RoomChangesV1Delete204Response struct {
+}
+
+func (response RoomChangesV1Delete204Response) VisitRoomChangesV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type RoomChangesV1Delete404Response struct {
+}
+
+func (response RoomChangesV1Delete404Response) VisitRoomChangesV1DeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
 type RoomsV1ListRequestObject struct {
@@ -1616,26 +2532,6 @@ func (response RoomsV1Update404Response) VisitRoomsV1UpdateResponse(w http.Respo
 	return nil
 }
 
-type ReservationsV1ListRequestObject struct {
-	Id     string `json:"id"`
-	Params ReservationsV1ListParams
-}
-
-type ReservationsV1ListResponseObject interface {
-	VisitReservationsV1ListResponse(w http.ResponseWriter) error
-}
-
-type ReservationsV1List200JSONResponse struct {
-	Reservations []Reservation `json:"reservations"`
-}
-
-func (response ReservationsV1List200JSONResponse) VisitReservationsV1ListResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
 type SubjectsV1ListRequestObject struct {
 	Params SubjectsV1ListParams
 }
@@ -1645,7 +2541,7 @@ type SubjectsV1ListResponseObject interface {
 }
 
 type SubjectsV1List200JSONResponse struct {
-	Subjects []SubjectSummary `json:"subjects"`
+	Subjects []Subject `json:"subjects"`
 }
 
 func (response SubjectsV1List200JSONResponse) VisitSubjectsV1ListResponse(w http.ResponseWriter) error {
@@ -1653,33 +2549,6 @@ func (response SubjectsV1List200JSONResponse) VisitSubjectsV1ListResponse(w http
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
-}
-
-type SubjectsV1UpsertRequestObject struct {
-	Body *SubjectsV1UpsertJSONRequestBody
-}
-
-type SubjectsV1UpsertResponseObject interface {
-	VisitSubjectsV1UpsertResponse(w http.ResponseWriter) error
-}
-
-type SubjectsV1Upsert200JSONResponse struct {
-	Subject Subject `json:"subject"`
-}
-
-func (response SubjectsV1Upsert200JSONResponse) VisitSubjectsV1UpsertResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type SubjectsV1Upsert400Response struct {
-}
-
-func (response SubjectsV1Upsert400Response) VisitSubjectsV1UpsertResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
 }
 
 type SubjectsV1DeleteRequestObject struct {
@@ -1825,6 +2694,18 @@ func (response TimetableItemsV1Delete404Response) VisitTimetableItemsV1DeleteRes
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 
+	// (GET /v1/cancelledClasses)
+	CancelledClassesV1List(ctx context.Context, request CancelledClassesV1ListRequestObject) (CancelledClassesV1ListResponseObject, error)
+
+	// (POST /v1/cancelledClasses)
+	CancelledClassesV1Create(ctx context.Context, request CancelledClassesV1CreateRequestObject) (CancelledClassesV1CreateResponseObject, error)
+
+	// (PUT /v1/cancelledClasses)
+	CancelledClassesV1Fetch(ctx context.Context, request CancelledClassesV1FetchRequestObject) (CancelledClassesV1FetchResponseObject, error)
+
+	// (DELETE /v1/cancelledClasses/{id})
+	CancelledClassesV1Delete(ctx context.Context, request CancelledClassesV1DeleteRequestObject) (CancelledClassesV1DeleteResponseObject, error)
+
 	// (GET /v1/courseRegistrations)
 	CourseRegistrationsV1List(ctx context.Context, request CourseRegistrationsV1ListRequestObject) (CourseRegistrationsV1ListResponseObject, error)
 
@@ -1849,8 +2730,47 @@ type StrictServerInterface interface {
 	// (PUT /v1/faculties/{id})
 	FacultiesV1Update(ctx context.Context, request FacultiesV1UpdateRequestObject) (FacultiesV1UpdateResponseObject, error)
 
+	// (GET /v1/makeupClasses)
+	MakeupClassesV1List(ctx context.Context, request MakeupClassesV1ListRequestObject) (MakeupClassesV1ListResponseObject, error)
+
+	// (POST /v1/makeupClasses)
+	MakeupClassesV1Create(ctx context.Context, request MakeupClassesV1CreateRequestObject) (MakeupClassesV1CreateResponseObject, error)
+
+	// (PUT /v1/makeupClasses)
+	MakeupClassesV1Fetch(ctx context.Context, request MakeupClassesV1FetchRequestObject) (MakeupClassesV1FetchResponseObject, error)
+
+	// (DELETE /v1/makeupClasses/{id})
+	MakeupClassesV1Delete(ctx context.Context, request MakeupClassesV1DeleteRequestObject) (MakeupClassesV1DeleteResponseObject, error)
+
+	// (POST /v1/notifyIrregularities)
+	NotifyIrregularitiesV1Notify(ctx context.Context, request NotifyIrregularitiesV1NotifyRequestObject) (NotifyIrregularitiesV1NotifyResponseObject, error)
+
 	// (GET /v1/personalCalendarItems)
 	PersonalCalendarItemsV1List(ctx context.Context, request PersonalCalendarItemsV1ListRequestObject) (PersonalCalendarItemsV1ListResponseObject, error)
+
+	// (GET /v1/reservations)
+	ReservationsV1List(ctx context.Context, request ReservationsV1ListRequestObject) (ReservationsV1ListResponseObject, error)
+
+	// (POST /v1/reservations)
+	ReservationsV1Create(ctx context.Context, request ReservationsV1CreateRequestObject) (ReservationsV1CreateResponseObject, error)
+
+	// (DELETE /v1/reservations/{id})
+	ReservationsV1Delete(ctx context.Context, request ReservationsV1DeleteRequestObject) (ReservationsV1DeleteResponseObject, error)
+
+	// (GET /v1/reservations/{id})
+	ReservationsV1Detail(ctx context.Context, request ReservationsV1DetailRequestObject) (ReservationsV1DetailResponseObject, error)
+
+	// (GET /v1/roomChanges)
+	RoomChangesV1List(ctx context.Context, request RoomChangesV1ListRequestObject) (RoomChangesV1ListResponseObject, error)
+
+	// (POST /v1/roomChanges)
+	RoomChangesV1Create(ctx context.Context, request RoomChangesV1CreateRequestObject) (RoomChangesV1CreateResponseObject, error)
+
+	// (PUT /v1/roomChanges)
+	RoomChangesV1Fetch(ctx context.Context, request RoomChangesV1FetchRequestObject) (RoomChangesV1FetchResponseObject, error)
+
+	// (DELETE /v1/roomChanges/{id})
+	RoomChangesV1Delete(ctx context.Context, request RoomChangesV1DeleteRequestObject) (RoomChangesV1DeleteResponseObject, error)
 
 	// (GET /v1/rooms)
 	RoomsV1List(ctx context.Context, request RoomsV1ListRequestObject) (RoomsV1ListResponseObject, error)
@@ -1867,14 +2787,8 @@ type StrictServerInterface interface {
 	// (PUT /v1/rooms/{id})
 	RoomsV1Update(ctx context.Context, request RoomsV1UpdateRequestObject) (RoomsV1UpdateResponseObject, error)
 
-	// (GET /v1/rooms/{id}/reservations)
-	ReservationsV1List(ctx context.Context, request ReservationsV1ListRequestObject) (ReservationsV1ListResponseObject, error)
-
 	// (GET /v1/subjects)
 	SubjectsV1List(ctx context.Context, request SubjectsV1ListRequestObject) (SubjectsV1ListResponseObject, error)
-
-	// (POST /v1/subjects)
-	SubjectsV1Upsert(ctx context.Context, request SubjectsV1UpsertRequestObject) (SubjectsV1UpsertResponseObject, error)
 
 	// (DELETE /v1/subjects/{id})
 	SubjectsV1Delete(ctx context.Context, request SubjectsV1DeleteRequestObject) (SubjectsV1DeleteResponseObject, error)
@@ -1905,6 +2819,118 @@ func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareF
 type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
+}
+
+// CancelledClassesV1List operation middleware
+func (sh *strictHandler) CancelledClassesV1List(ctx *gin.Context, params CancelledClassesV1ListParams) {
+	var request CancelledClassesV1ListRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CancelledClassesV1List(ctx, request.(CancelledClassesV1ListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CancelledClassesV1List")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(CancelledClassesV1ListResponseObject); ok {
+		if err := validResponse.VisitCancelledClassesV1ListResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CancelledClassesV1Create operation middleware
+func (sh *strictHandler) CancelledClassesV1Create(ctx *gin.Context) {
+	var request CancelledClassesV1CreateRequestObject
+
+	var body CancelledClassesV1CreateJSONRequestBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CancelledClassesV1Create(ctx, request.(CancelledClassesV1CreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CancelledClassesV1Create")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(CancelledClassesV1CreateResponseObject); ok {
+		if err := validResponse.VisitCancelledClassesV1CreateResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CancelledClassesV1Fetch operation middleware
+func (sh *strictHandler) CancelledClassesV1Fetch(ctx *gin.Context) {
+	var request CancelledClassesV1FetchRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CancelledClassesV1Fetch(ctx, request.(CancelledClassesV1FetchRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CancelledClassesV1Fetch")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(CancelledClassesV1FetchResponseObject); ok {
+		if err := validResponse.VisitCancelledClassesV1FetchResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// CancelledClassesV1Delete operation middleware
+func (sh *strictHandler) CancelledClassesV1Delete(ctx *gin.Context, id string) {
+	var request CancelledClassesV1DeleteRequestObject
+
+	request.Id = id
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.CancelledClassesV1Delete(ctx, request.(CancelledClassesV1DeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "CancelledClassesV1Delete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(CancelledClassesV1DeleteResponseObject); ok {
+		if err := validResponse.VisitCancelledClassesV1DeleteResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
 }
 
 // CourseRegistrationsV1List operation middleware
@@ -2143,6 +3169,145 @@ func (sh *strictHandler) FacultiesV1Update(ctx *gin.Context, id string) {
 	}
 }
 
+// MakeupClassesV1List operation middleware
+func (sh *strictHandler) MakeupClassesV1List(ctx *gin.Context, params MakeupClassesV1ListParams) {
+	var request MakeupClassesV1ListRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.MakeupClassesV1List(ctx, request.(MakeupClassesV1ListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "MakeupClassesV1List")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(MakeupClassesV1ListResponseObject); ok {
+		if err := validResponse.VisitMakeupClassesV1ListResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// MakeupClassesV1Create operation middleware
+func (sh *strictHandler) MakeupClassesV1Create(ctx *gin.Context) {
+	var request MakeupClassesV1CreateRequestObject
+
+	var body MakeupClassesV1CreateJSONRequestBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.MakeupClassesV1Create(ctx, request.(MakeupClassesV1CreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "MakeupClassesV1Create")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(MakeupClassesV1CreateResponseObject); ok {
+		if err := validResponse.VisitMakeupClassesV1CreateResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// MakeupClassesV1Fetch operation middleware
+func (sh *strictHandler) MakeupClassesV1Fetch(ctx *gin.Context) {
+	var request MakeupClassesV1FetchRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.MakeupClassesV1Fetch(ctx, request.(MakeupClassesV1FetchRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "MakeupClassesV1Fetch")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(MakeupClassesV1FetchResponseObject); ok {
+		if err := validResponse.VisitMakeupClassesV1FetchResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// MakeupClassesV1Delete operation middleware
+func (sh *strictHandler) MakeupClassesV1Delete(ctx *gin.Context, id string) {
+	var request MakeupClassesV1DeleteRequestObject
+
+	request.Id = id
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.MakeupClassesV1Delete(ctx, request.(MakeupClassesV1DeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "MakeupClassesV1Delete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(MakeupClassesV1DeleteResponseObject); ok {
+		if err := validResponse.VisitMakeupClassesV1DeleteResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// NotifyIrregularitiesV1Notify operation middleware
+func (sh *strictHandler) NotifyIrregularitiesV1Notify(ctx *gin.Context, params NotifyIrregularitiesV1NotifyParams) {
+	var request NotifyIrregularitiesV1NotifyRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.NotifyIrregularitiesV1Notify(ctx, request.(NotifyIrregularitiesV1NotifyRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "NotifyIrregularitiesV1Notify")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(NotifyIrregularitiesV1NotifyResponseObject); ok {
+		if err := validResponse.VisitNotifyIrregularitiesV1NotifyResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // PersonalCalendarItemsV1List operation middleware
 func (sh *strictHandler) PersonalCalendarItemsV1List(ctx *gin.Context, params PersonalCalendarItemsV1ListParams) {
 	var request PersonalCalendarItemsV1ListRequestObject
@@ -2163,6 +3328,232 @@ func (sh *strictHandler) PersonalCalendarItemsV1List(ctx *gin.Context, params Pe
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(PersonalCalendarItemsV1ListResponseObject); ok {
 		if err := validResponse.VisitPersonalCalendarItemsV1ListResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ReservationsV1List operation middleware
+func (sh *strictHandler) ReservationsV1List(ctx *gin.Context, params ReservationsV1ListParams) {
+	var request ReservationsV1ListRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ReservationsV1List(ctx, request.(ReservationsV1ListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ReservationsV1List")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(ReservationsV1ListResponseObject); ok {
+		if err := validResponse.VisitReservationsV1ListResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ReservationsV1Create operation middleware
+func (sh *strictHandler) ReservationsV1Create(ctx *gin.Context) {
+	var request ReservationsV1CreateRequestObject
+
+	var body ReservationsV1CreateJSONRequestBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ReservationsV1Create(ctx, request.(ReservationsV1CreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ReservationsV1Create")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(ReservationsV1CreateResponseObject); ok {
+		if err := validResponse.VisitReservationsV1CreateResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ReservationsV1Delete operation middleware
+func (sh *strictHandler) ReservationsV1Delete(ctx *gin.Context, id string) {
+	var request ReservationsV1DeleteRequestObject
+
+	request.Id = id
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ReservationsV1Delete(ctx, request.(ReservationsV1DeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ReservationsV1Delete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(ReservationsV1DeleteResponseObject); ok {
+		if err := validResponse.VisitReservationsV1DeleteResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ReservationsV1Detail operation middleware
+func (sh *strictHandler) ReservationsV1Detail(ctx *gin.Context, id string) {
+	var request ReservationsV1DetailRequestObject
+
+	request.Id = id
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ReservationsV1Detail(ctx, request.(ReservationsV1DetailRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ReservationsV1Detail")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(ReservationsV1DetailResponseObject); ok {
+		if err := validResponse.VisitReservationsV1DetailResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// RoomChangesV1List operation middleware
+func (sh *strictHandler) RoomChangesV1List(ctx *gin.Context, params RoomChangesV1ListParams) {
+	var request RoomChangesV1ListRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.RoomChangesV1List(ctx, request.(RoomChangesV1ListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RoomChangesV1List")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(RoomChangesV1ListResponseObject); ok {
+		if err := validResponse.VisitRoomChangesV1ListResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// RoomChangesV1Create operation middleware
+func (sh *strictHandler) RoomChangesV1Create(ctx *gin.Context) {
+	var request RoomChangesV1CreateRequestObject
+
+	var body RoomChangesV1CreateJSONRequestBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.RoomChangesV1Create(ctx, request.(RoomChangesV1CreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RoomChangesV1Create")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(RoomChangesV1CreateResponseObject); ok {
+		if err := validResponse.VisitRoomChangesV1CreateResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// RoomChangesV1Fetch operation middleware
+func (sh *strictHandler) RoomChangesV1Fetch(ctx *gin.Context) {
+	var request RoomChangesV1FetchRequestObject
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.RoomChangesV1Fetch(ctx, request.(RoomChangesV1FetchRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RoomChangesV1Fetch")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(RoomChangesV1FetchResponseObject); ok {
+		if err := validResponse.VisitRoomChangesV1FetchResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// RoomChangesV1Delete operation middleware
+func (sh *strictHandler) RoomChangesV1Delete(ctx *gin.Context, id string) {
+	var request RoomChangesV1DeleteRequestObject
+
+	request.Id = id
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.RoomChangesV1Delete(ctx, request.(RoomChangesV1DeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "RoomChangesV1Delete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(RoomChangesV1DeleteResponseObject); ok {
+		if err := validResponse.VisitRoomChangesV1DeleteResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {
@@ -2319,34 +3710,6 @@ func (sh *strictHandler) RoomsV1Update(ctx *gin.Context, id string) {
 	}
 }
 
-// ReservationsV1List operation middleware
-func (sh *strictHandler) ReservationsV1List(ctx *gin.Context, id string, params ReservationsV1ListParams) {
-	var request ReservationsV1ListRequestObject
-
-	request.Id = id
-	request.Params = params
-
-	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ReservationsV1List(ctx, request.(ReservationsV1ListRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ReservationsV1List")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		ctx.Error(err)
-		ctx.Status(http.StatusInternalServerError)
-	} else if validResponse, ok := response.(ReservationsV1ListResponseObject); ok {
-		if err := validResponse.VisitReservationsV1ListResponse(ctx.Writer); err != nil {
-			ctx.Error(err)
-		}
-	} else if response != nil {
-		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
 // SubjectsV1List operation middleware
 func (sh *strictHandler) SubjectsV1List(ctx *gin.Context, params SubjectsV1ListParams) {
 	var request SubjectsV1ListRequestObject
@@ -2367,39 +3730,6 @@ func (sh *strictHandler) SubjectsV1List(ctx *gin.Context, params SubjectsV1ListP
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(SubjectsV1ListResponseObject); ok {
 		if err := validResponse.VisitSubjectsV1ListResponse(ctx.Writer); err != nil {
-			ctx.Error(err)
-		}
-	} else if response != nil {
-		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// SubjectsV1Upsert operation middleware
-func (sh *strictHandler) SubjectsV1Upsert(ctx *gin.Context) {
-	var request SubjectsV1UpsertRequestObject
-
-	var body SubjectsV1UpsertJSONRequestBody
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.Status(http.StatusBadRequest)
-		ctx.Error(err)
-		return
-	}
-	request.Body = &body
-
-	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.SubjectsV1Upsert(ctx, request.(SubjectsV1UpsertRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "SubjectsV1Upsert")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		ctx.Error(err)
-		ctx.Status(http.StatusInternalServerError)
-	} else if validResponse, ok := response.(SubjectsV1UpsertResponseObject); ok {
-		if err := validResponse.VisitSubjectsV1UpsertResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {

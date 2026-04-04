@@ -5,9 +5,7 @@ import (
 
 	"github.com/fun-dotto/academic-api/internal/database"
 	"github.com/fun-dotto/academic-api/internal/domain"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type SubjectRepository struct {
@@ -92,100 +90,6 @@ func (r *SubjectRepository) GetByID(ctx context.Context, id string) (domain.Subj
 		return domain.Subject{}, err
 	}
 	return database.SubjectToDomain(record), nil
-}
-
-func (r *SubjectRepository) GetBySyllabusID(ctx context.Context, syllabusID string) (domain.Subject, error) {
-	var record database.Subject
-	if err := r.subjectPreload(r.db.WithContext(ctx)).First(&record, "syllabus_id = ?", syllabusID).Error; err != nil {
-		return domain.Subject{}, err
-	}
-	return database.SubjectToDomain(record), nil
-}
-
-func (r *SubjectRepository) Upsert(ctx context.Context, subject domain.Subject) (domain.Subject, error) {
-	record := database.SubjectFromDomain(subject)
-	record.ID = uuid.New().String()
-
-	for i := range record.Faculties {
-		record.Faculties[i].ID = uuid.New().String()
-		record.Faculties[i].SubjectID = record.ID
-	}
-	for i := range record.EligibleAttributes {
-		record.EligibleAttributes[i].ID = uuid.New().String()
-		record.EligibleAttributes[i].SubjectID = record.ID
-	}
-	for i := range record.Requirements {
-		record.Requirements[i].ID = uuid.New().String()
-		record.Requirements[i].SubjectID = record.ID
-	}
-
-	// TODO: Upsert のたびに子テーブル（Faculties, EligibleAttributes, Requirements）を全件 DELETE → INSERT している。
-	// データ量が増えた場合のパフォーマンスに注意。差分更新の検討が必要。
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// INSERT ... ON CONFLICT (syllabus_id) DO UPDATE で原子的に upsert
-		if err := tx.Clauses(clause.OnConflict{
-			Columns: []clause.Column{{Name: "syllabus_id"}},
-			DoUpdates: clause.AssignmentColumns([]string{
-				"name", "year", "semester", "credit", "classification", "cultural_subject_category", "updated_at",
-			}),
-		}).Omit("Faculties", "EligibleAttributes", "Requirements").Create(&record).Error; err != nil {
-			return err
-		}
-
-		// ON CONFLICT で UPDATE された場合、record.ID は新規生成した値のままなので
-		// 実際の ID を取得し直す
-		var actual database.Subject
-		if err := tx.Select("id").Where("syllabus_id = ?", record.SyllabusID).First(&actual).Error; err != nil {
-			return err
-		}
-		record.ID = actual.ID
-
-		// 子テーブルの SubjectID を実際の ID に合わせる
-		for i := range record.Faculties {
-			record.Faculties[i].SubjectID = record.ID
-		}
-		for i := range record.EligibleAttributes {
-			record.EligibleAttributes[i].SubjectID = record.ID
-		}
-		for i := range record.Requirements {
-			record.Requirements[i].SubjectID = record.ID
-		}
-
-		// 1:N 子テーブルを差し替え
-		if err := tx.Where("subject_id = ?", record.ID).Delete(&database.SubjectFaculty{}).Error; err != nil {
-			return err
-		}
-		if len(record.Faculties) > 0 {
-			if err := tx.Create(&record.Faculties).Error; err != nil {
-				return err
-			}
-		}
-
-		if err := tx.Where("subject_id = ?", record.ID).Delete(&database.SubjectEligibleAttribute{}).Error; err != nil {
-			return err
-		}
-		if len(record.EligibleAttributes) > 0 {
-			if err := tx.Create(&record.EligibleAttributes).Error; err != nil {
-				return err
-			}
-		}
-
-		if err := tx.Where("subject_id = ?", record.ID).Delete(&database.SubjectRequirement{}).Error; err != nil {
-			return err
-		}
-		if len(record.Requirements) > 0 {
-			if err := tx.Create(&record.Requirements).Error; err != nil {
-				return err
-			}
-		}
-
-		return nil
-	})
-	if err != nil {
-		return domain.Subject{}, err
-	}
-
-	return r.GetByID(ctx, record.ID)
 }
 
 func (r *SubjectRepository) Delete(ctx context.Context, id string) error {
