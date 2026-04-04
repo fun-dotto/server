@@ -48,3 +48,51 @@ func toDomainUser(id string, req api.UserRequest) domain.User {
 
 	return user
 }
+
+func toAPIUsers(users []domain.User) []api.User {
+	apiUsers := make([]api.User, 0, len(users))
+	for _, u := range users {
+		apiUsers = append(apiUsers, toAPIUser(u))
+	}
+	return apiUsers
+}
+
+func toAPIFCMToken(t domain.FCMToken) api.FCMToken {
+	return api.FCMToken{
+		Token:     t.Token,
+		UserId:    t.UserID,
+		CreatedAt: t.CreatedAt,
+		UpdatedAt: t.UpdatedAt,
+	}
+}
+
+func toAPIFCMTokens(tokens []domain.FCMToken) []api.FCMToken {
+	apiTokens := make([]api.FCMToken, 0, len(tokens))
+	for _, t := range tokens {
+		apiTokens = append(apiTokens, toAPIFCMToken(t))
+	}
+	return apiTokens
+}
+
+func toDomainFCMToken(req api.FCMTokenRequest) domain.FCMToken {
+	return domain.FCMToken{
+		Token:  req.Token,
+		UserID: req.UserId,
+	}
+}
+
+func toDomainFCMTokenListFilter(params api.FCMTokenV1ListParams) domain.FCMTokenListFilter {
+	filter := domain.FCMTokenListFilter{
+		UpdatedAtFrom: params.UpdatedAtFrom,
+		UpdatedAtTo:   params.UpdatedAtTo,
+	}
+
+	if params.UserIds != nil {
+		filter.UserIDs = append(filter.UserIDs, (*params.UserIds)...)
+	}
+	if params.Tokens != nil {
+		filter.Tokens = append(filter.Tokens, (*params.Tokens)...)
+	}
+
+	return filter
+}

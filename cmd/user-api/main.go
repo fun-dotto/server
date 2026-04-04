@@ -45,8 +45,10 @@ func main() {
 	router.Use(middleware.OapiRequestValidator(spec))
 
 	userRepo := repository.NewUserRepository(db)
+	fcmTokenRepo := repository.NewFCMTokenRepository(db)
 	userService := service.NewUserService(userRepo)
-	h := handler.NewHandler(userService)
+	fcmTokenService := service.NewFCMTokenService(fcmTokenRepo)
+	h := handler.NewHandler(userService, fcmTokenService)
 	strictHandler := api.NewStrictHandler(h, nil)
 	api.RegisterHandlers(router, strictHandler)
 

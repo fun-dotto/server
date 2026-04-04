@@ -5,6 +5,7 @@ import (
 )
 
 type UserRepository interface {
+	ListUsers() ([]domain.User, error)
 	GetUserByID(id string) (domain.User, error)
 	UpsertUser(user domain.User) (domain.User, error)
 }
