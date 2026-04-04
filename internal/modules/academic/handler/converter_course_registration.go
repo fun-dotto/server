@@ -11,7 +11,7 @@ func courseRegistrationToAPI(d domain.CourseRegistration) api.CourseRegistration
 	return api.CourseRegistration{
 		Id:      d.ID,
 		UserId:  d.UserID,
-		Subject: subjectToListAPI(d.Subject),
+		Subject: subjectToAPI(d.Subject),
 	}
 }
 

@@ -13,5 +13,5 @@ func (h *Handler) SubjectsV1List(ctx context.Context, request api.SubjectsV1List
 	if err != nil {
 		return nil, err
 	}
-	return api.SubjectsV1List200JSONResponse{Subjects: subjectsToListAPI(subjects)}, nil
+	return api.SubjectsV1List200JSONResponse{Subjects: subjectsToAPI(subjects)}, nil
 }

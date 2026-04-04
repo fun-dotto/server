@@ -7,7 +7,7 @@ import (
 	"github.com/fun-dotto/academic-api/internal/domain"
 )
 
-func subjectToAPI(d domain.Subject) api.Subject {
+func subjectToDetailAPI(d domain.Subject) api.Subject {
 	eligible := make([]api.SubjectTargetClass, len(d.EligibleAttributes))
 	for i, e := range d.EligibleAttributes {
 		tc := api.SubjectTargetClass{
@@ -48,7 +48,7 @@ func subjectToAPI(d domain.Subject) api.Subject {
 	}
 }
 
-func subjectToListAPI(d domain.Subject) api.Subject {
+func subjectToAPI(d domain.Subject) api.Subject {
 	faculties := make([]api.SubjectFaculty, len(d.Faculties))
 	for i, f := range d.Faculties {
 		faculties[i] = api.SubjectFaculty{
@@ -61,13 +61,16 @@ func subjectToListAPI(d domain.Subject) api.Subject {
 		Id:        d.ID,
 		Name:      d.Name,
 		Faculties: faculties,
+		Year:      d.Year,
+		Semester:  api.DottoFoundationV1CourseSemester(d.Semester),
+		Credit:    d.Credit,
 	}
 }
 
-func subjectsToListAPI(ds []domain.Subject) []api.Subject {
+func subjectsToAPI(ds []domain.Subject) []api.Subject {
 	result := make([]api.Subject, len(ds))
 	for i, d := range ds {
-		result[i] = subjectToListAPI(d)
+		result[i] = subjectToAPI(d)
 	}
 	return result
 }

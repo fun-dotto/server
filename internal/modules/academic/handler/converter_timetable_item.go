@@ -49,7 +49,7 @@ func timetableItemToAPI(d domain.TimetableItem) api.TimetableItem {
 
 	return api.TimetableItem{
 		Id:      d.ID,
-		Subject: subjectToListAPI(d.Subject),
+		Subject: subjectToAPI(d.Subject),
 		Slot:    slot,
 		Rooms:   rooms,
 	}

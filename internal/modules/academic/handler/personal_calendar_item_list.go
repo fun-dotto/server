@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 
 	api "github.com/fun-dotto/academic-api/generated"
 )
@@ -10,5 +9,11 @@ import (
 func (h *Handler) PersonalCalendarItemsV1List(
 	ctx context.Context,
 	request api.PersonalCalendarItemsV1ListRequestObject) (api.PersonalCalendarItemsV1ListResponseObject, error) {
-	return nil, fmt.Errorf("not implemented")
+	items, err := h.personalCalendarItemSvc.List(ctx, request.Params.UserId, request.Params.Dates)
+	if err != nil {
+		return nil, err
+	}
+	return api.PersonalCalendarItemsV1List200JSONResponse{
+		PersonalCalendarItems: personalCalendarItemsToAPI(items),
+	}, nil
 }

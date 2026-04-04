@@ -16,5 +16,5 @@ func (h *Handler) SubjectsV1Detail(ctx context.Context, request api.SubjectsV1De
 		}
 		return nil, err
 	}
-	return api.SubjectsV1Detail200JSONResponse{Subject: subjectToAPI(subject)}, nil
+	return api.SubjectsV1Detail200JSONResponse{Subject: subjectToDetailAPI(subject)}, nil
 }

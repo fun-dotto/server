@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"time"
 
 	api "github.com/fun-dotto/academic-api/generated"
 	"github.com/fun-dotto/academic-api/internal/domain"
@@ -44,12 +45,17 @@ type courseRegistrationService interface {
 	Delete(ctx context.Context, id string) error
 }
 
+type personalCalendarItemService interface {
+	List(ctx context.Context, userID string, dates []time.Time) ([]domain.PersonalCalendarItem, error)
+}
+
 type Handler struct {
-	subjectSvc            subjectService
-	facultySvc            facultyService
-	roomSvc               roomService
-	timetableItemSvc      timetableItemService
-	courseRegistrationSvc courseRegistrationService
+	subjectSvc               subjectService
+	facultySvc               facultyService
+	roomSvc                  roomService
+	timetableItemSvc         timetableItemService
+	courseRegistrationSvc    courseRegistrationService
+	personalCalendarItemSvc personalCalendarItemService
 }
 
 func NewHandler(
@@ -58,12 +64,14 @@ func NewHandler(
 	roomSvc roomService,
 	timetableItemSvc timetableItemService,
 	courseRegistrationSvc courseRegistrationService,
+	personalCalendarItemSvc personalCalendarItemService,
 ) *Handler {
 	return &Handler{
-		subjectSvc:            subjectSvc,
-		facultySvc:            facultySvc,
-		roomSvc:               roomSvc,
-		timetableItemSvc:      timetableItemSvc,
-		courseRegistrationSvc: courseRegistrationSvc,
+		subjectSvc:               subjectSvc,
+		facultySvc:               facultySvc,
+		roomSvc:                  roomSvc,
+		timetableItemSvc:         timetableItemSvc,
+		courseRegistrationSvc:    courseRegistrationSvc,
+		personalCalendarItemSvc: personalCalendarItemSvc,
 	}
 }

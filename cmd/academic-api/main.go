@@ -3,8 +3,10 @@ package main
 import (
 	"log"
 
+	"github.com/fun-dotto/academic-api/assets"
 	api "github.com/fun-dotto/academic-api/generated"
 	"github.com/fun-dotto/academic-api/internal/database"
+	"github.com/fun-dotto/academic-api/internal/event"
 	"github.com/fun-dotto/academic-api/internal/handler"
 	"github.com/fun-dotto/academic-api/internal/repository"
 	"github.com/fun-dotto/academic-api/internal/service"
@@ -51,15 +53,22 @@ func main() {
 	roomRepo := repository.NewRoomRepository(db)
 	timetableItemRepo := repository.NewTimetableItemRepository(db)
 	courseRegistrationRepo := repository.NewCourseRegistrationRepository(db)
+	// Events
+	substituteDayMap, err := event.LoadSubstituteDayMap(assets.EventsJSON)
+	if err != nil {
+		log.Fatalf("Failed to load substitute day map: %v", err)
+	}
+
 	// Services
 	subjectSvc := service.NewSubjectService(subjectRepo, syllabusRepo)
 	facultySvc := service.NewFacultyService(facultyRepo)
 	roomSvc := service.NewRoomService(roomRepo)
 	timetableItemSvc := service.NewTimetableItemService(timetableItemRepo)
 	courseRegistrationSvc := service.NewCourseRegistrationService(courseRegistrationRepo)
+	personalCalendarItemSvc := service.NewPersonalCalendarItemService(courseRegistrationRepo, timetableItemRepo, substituteDayMap)
 
 	// Handler + Router
-	h := handler.NewHandler(subjectSvc, facultySvc, roomSvc, timetableItemSvc, courseRegistrationSvc)
+	h := handler.NewHandler(subjectSvc, facultySvc, roomSvc, timetableItemSvc, courseRegistrationSvc, personalCalendarItemSvc)
 	strictHandler := api.NewStrictHandler(h, nil)
 	api.RegisterHandlers(router, strictHandler)
 
