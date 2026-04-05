@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/oapi-codegen/runtime"
 	strictgin "github.com/oapi-codegen/runtime/strictmiddleware/gin"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 // Defines values for DottoFoundationV1Class.
@@ -133,7 +134,7 @@ const (
 // CancelledClass 休講
 type CancelledClass struct {
 	Comment string                  `json:"comment"`
-	Date    time.Time               `json:"date"`
+	Date    openapi_types.Date      `json:"date"`
 	Id      string                  `json:"id"`
 	Period  DottoFoundationV1Period `json:"period"`
 	Subject Subject                 `json:"subject"`
@@ -142,7 +143,7 @@ type CancelledClass struct {
 // CancelledClassRequest defines model for CancelledClassRequest.
 type CancelledClassRequest struct {
 	Comment   string                  `json:"comment"`
-	Date      time.Time               `json:"date"`
+	Date      openapi_types.Date      `json:"date"`
 	Period    DottoFoundationV1Period `json:"period"`
 	SubjectId string                  `json:"subjectId"`
 }
@@ -215,7 +216,7 @@ type FacultyRequest struct {
 // MakeupClass 補講
 type MakeupClass struct {
 	Comment string                  `json:"comment"`
-	Date    time.Time               `json:"date"`
+	Date    openapi_types.Date      `json:"date"`
 	Id      string                  `json:"id"`
 	Period  DottoFoundationV1Period `json:"period"`
 	Subject Subject                 `json:"subject"`
@@ -224,14 +225,14 @@ type MakeupClass struct {
 // MakeupClassRequest defines model for MakeupClassRequest.
 type MakeupClassRequest struct {
 	Comment   string                  `json:"comment"`
-	Date      time.Time               `json:"date"`
+	Date      openapi_types.Date      `json:"date"`
 	Period    DottoFoundationV1Period `json:"period"`
 	SubjectId string                  `json:"subjectId"`
 }
 
 // PersonalCalendarItem defines model for PersonalCalendarItem.
 type PersonalCalendarItem struct {
-	Date   time.Time               `json:"date"`
+	Date   openapi_types.Date      `json:"date"`
 	Period DottoFoundationV1Period `json:"period"`
 	Rooms  []Room                  `json:"rooms"`
 
@@ -281,7 +282,7 @@ type Room struct {
 
 // RoomChange 教室変更
 type RoomChange struct {
-	Date         time.Time               `json:"date"`
+	Date         openapi_types.Date      `json:"date"`
 	Id           string                  `json:"id"`
 	NewRoom      Room                    `json:"newRoom"`
 	OriginalRoom Room                    `json:"originalRoom"`
@@ -291,7 +292,7 @@ type RoomChange struct {
 
 // RoomChangeRequest defines model for RoomChangeRequest.
 type RoomChangeRequest struct {
-	Date           time.Time               `json:"date"`
+	Date           openapi_types.Date      `json:"date"`
 	NewRoomId      string                  `json:"newRoomId"`
 	OriginalRoomId string                  `json:"originalRoomId"`
 	Period         DottoFoundationV1Period `json:"period"`
@@ -460,11 +461,11 @@ type CancelledClassesV1ListParams struct {
 	// SubjectIds 科目IDのリスト; 指定した科目の休講のみを取得する; 指定しない場合は全科目を検索対象とする
 	SubjectIds *[]string `form:"subjectIds,omitempty" json:"subjectIds,omitempty"`
 
-	// From 検索対象開始日時
-	From *time.Time `form:"from,omitempty" json:"from,omitempty"`
+	// From 検索対象開始日付
+	From *openapi_types.Date `form:"from,omitempty" json:"from,omitempty"`
 
-	// Until 検索対象終了日時
-	Until *time.Time `form:"until,omitempty" json:"until,omitempty"`
+	// Until 検索対象終了日付
+	Until *openapi_types.Date `form:"until,omitempty" json:"until,omitempty"`
 }
 
 // CourseRegistrationsV1ListParams defines parameters for CourseRegistrationsV1List.
@@ -490,11 +491,11 @@ type MakeupClassesV1ListParams struct {
 	// SubjectIds 科目IDのリスト; 指定した科目の補講のみを取得する; 指定しない場合は全科目を検索対象とする
 	SubjectIds *[]string `form:"subjectIds,omitempty" json:"subjectIds,omitempty"`
 
-	// From 検索対象開始日時
-	From *time.Time `form:"from,omitempty" json:"from,omitempty"`
+	// From 検索対象開始日付
+	From *openapi_types.Date `form:"from,omitempty" json:"from,omitempty"`
 
-	// Until 検索対象終了日時
-	Until *time.Time `form:"until,omitempty" json:"until,omitempty"`
+	// Until 検索対象終了日付
+	Until *openapi_types.Date `form:"until,omitempty" json:"until,omitempty"`
 }
 
 // NotifyIrregularitiesV1NotifyParams defines parameters for NotifyIrregularitiesV1Notify.
@@ -503,7 +504,7 @@ type NotifyIrregularitiesV1NotifyParams struct {
 	UserIds *[]string `form:"userIds,omitempty" json:"userIds,omitempty"`
 
 	// Date 対象の日付
-	Date time.Time `form:"date" json:"date"`
+	Date openapi_types.Date `form:"date" json:"date"`
 }
 
 // PersonalCalendarItemsV1ListParams defines parameters for PersonalCalendarItemsV1List.
@@ -512,7 +513,7 @@ type PersonalCalendarItemsV1ListParams struct {
 	UserId string `form:"userId" json:"userId"`
 
 	// Dates 日付のリスト; 指定した日付の個人カレンダーアイテムのみを取得する
-	Dates []time.Time `form:"dates" json:"dates"`
+	Dates []openapi_types.Date `form:"dates" json:"dates"`
 }
 
 // ReservationsV1ListParams defines parameters for ReservationsV1List.
@@ -532,11 +533,11 @@ type RoomChangesV1ListParams struct {
 	// SubjectIds 科目IDのリスト; 指定した科目の教室変更のみを取得する; 指定しない場合は全科目を検索対象とする
 	SubjectIds *[]string `form:"subjectIds,omitempty" json:"subjectIds,omitempty"`
 
-	// From 検索対象開始日時
-	From *time.Time `form:"from,omitempty" json:"from,omitempty"`
+	// From 検索対象開始日付
+	From *openapi_types.Date `form:"from,omitempty" json:"from,omitempty"`
 
-	// Until 検索対象終了日時
-	Until *time.Time `form:"until,omitempty" json:"until,omitempty"`
+	// Until 検索対象終了日付
+	Until *openapi_types.Date `form:"until,omitempty" json:"until,omitempty"`
 }
 
 // RoomsV1ListParams defines parameters for RoomsV1List.
