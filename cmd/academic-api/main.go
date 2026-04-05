@@ -53,6 +53,9 @@ func main() {
 	roomRepo := repository.NewRoomRepository(db)
 	timetableItemRepo := repository.NewTimetableItemRepository(db)
 	courseRegistrationRepo := repository.NewCourseRegistrationRepository(db)
+	cancelledClassRepo := repository.NewCancelledClassRepository(db)
+	makeupClassRepo := repository.NewMakeupClassRepository(db)
+	roomChangeRepo := repository.NewRoomChangeRepository(db)
 	// Events
 	substituteDayMap, err := event.LoadSubstituteDayMap(assets.EventsJSON)
 	if err != nil {
@@ -65,10 +68,13 @@ func main() {
 	roomSvc := service.NewRoomService(roomRepo)
 	timetableItemSvc := service.NewTimetableItemService(timetableItemRepo)
 	courseRegistrationSvc := service.NewCourseRegistrationService(courseRegistrationRepo)
-	personalCalendarItemSvc := service.NewPersonalCalendarItemService(courseRegistrationRepo, timetableItemRepo, substituteDayMap)
+	personalCalendarItemSvc := service.NewPersonalCalendarItemService(courseRegistrationRepo, timetableItemRepo, cancelledClassRepo, makeupClassRepo, roomChangeRepo, substituteDayMap)
+	cancelledClassSvc := service.NewCancelledClassService(cancelledClassRepo)
+	makeupClassSvc := service.NewMakeupClassService(makeupClassRepo)
+	roomChangeSvc := service.NewRoomChangeService(roomChangeRepo)
 
 	// Handler + Router
-	h := handler.NewHandler(subjectSvc, facultySvc, roomSvc, timetableItemSvc, courseRegistrationSvc, personalCalendarItemSvc)
+	h := handler.NewHandler(subjectSvc, facultySvc, roomSvc, timetableItemSvc, courseRegistrationSvc, personalCalendarItemSvc, cancelledClassSvc, makeupClassSvc, roomChangeSvc)
 	strictHandler := api.NewStrictHandler(h, nil)
 	api.RegisterHandlers(router, strictHandler)
 

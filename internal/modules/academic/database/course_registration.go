@@ -8,6 +8,7 @@ import (
 
 type CourseRegistration struct {
 	ID        string   `gorm:"type:uuid;primaryKey"`
+	// TODO: (user_id, subject_id) の複合ユニーク制約を追加する（既存データの重複確認・クリーンアップ後に uniqueIndex:idx_user_subject へ変更）
 	UserID    string   `gorm:"not null;index"`
 	SubjectID string   `gorm:"type:uuid;not null;index"`
 	Subject   *Subject `gorm:"foreignKey:SubjectID"`

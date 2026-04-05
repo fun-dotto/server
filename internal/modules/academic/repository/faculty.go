@@ -44,6 +44,7 @@ func (r *FacultyRepository) GetByID(ctx context.Context, id string) (domain.Facu
 }
 
 func (r *FacultyRepository) Create(ctx context.Context, faculty domain.Faculty) (domain.Faculty, error) {
+	// TODO: faculty.ID が空の場合に uuid.New().String() で採番する（空のまま渡すと primary key 制約違反で INSERT 失敗）
 	dbFaculty := database.FacultyFromDomain(faculty)
 	if err := r.db.WithContext(ctx).Create(&dbFaculty).Error; err != nil {
 		return domain.Faculty{}, err

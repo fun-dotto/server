@@ -2,11 +2,19 @@ package handler
 
 import (
 	"context"
-	"fmt"
 
 	api "github.com/fun-dotto/academic-api/generated"
 )
 
 func (h *Handler) CancelledClassesV1Create(ctx context.Context, request api.CancelledClassesV1CreateRequestObject) (api.CancelledClassesV1CreateResponseObject, error) {
-	return nil, fmt.Errorf("not implemented")
+	domainCC := toDomainCancelledClassFromRequest(*request.Body)
+	created, err := h.cancelledClassSvc.Create(ctx, domainCC)
+	if err != nil {
+		return nil, err
+	}
+	res, err := cancelledClassToAPI(created)
+	if err != nil {
+		return nil, err
+	}
+	return api.CancelledClassesV1Create201JSONResponse{CancelledClass: res}, nil
 }

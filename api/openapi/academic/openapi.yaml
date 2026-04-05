@@ -37,7 +37,6 @@ paths:
           schema:
             type: string
             format: date
-          explode: false
         - name: until
           in: query
           required: false
@@ -45,7 +44,6 @@ paths:
           schema:
             type: string
             format: date
-          explode: false
       responses:
         '200':
           description: 休講のリスト
@@ -367,7 +365,6 @@ paths:
           schema:
             type: string
             format: date
-          explode: false
         - name: until
           in: query
           required: false
@@ -375,7 +372,6 @@ paths:
           schema:
             type: string
             format: date
-          explode: false
       responses:
         '200':
           description: 補講のリスト
@@ -478,7 +474,6 @@ paths:
           schema:
             type: string
             format: date
-          explode: false
       responses:
         '204':
           description: There is no content to send for this request, but the headers may be useful.
@@ -545,7 +540,6 @@ paths:
           schema:
             type: string
             format: date-time
-          explode: false
         - name: until
           in: query
           required: false
@@ -553,7 +547,6 @@ paths:
           schema:
             type: string
             format: date-time
-          explode: false
       responses:
         '200':
           description: 予約のリスト
@@ -660,7 +653,6 @@ paths:
           schema:
             type: string
             format: date
-          explode: false
         - name: until
           in: query
           required: false
@@ -668,7 +660,6 @@ paths:
           schema:
             type: string
             format: date
-          explode: false
       responses:
         '200':
           description: 教室変更のリスト

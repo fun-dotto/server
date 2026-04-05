@@ -51,6 +51,7 @@ func (r *RoomRepository) GetByID(ctx context.Context, id string) (domain.Room, e
 }
 
 func (r *RoomRepository) Create(ctx context.Context, room domain.Room) (domain.Room, error) {
+	// TODO: room.ID が空の場合に uuid.New().String() で採番する（空のまま渡すと primary key 制約違反で INSERT 失敗）
 	dbRoom := database.RoomFromDomain(room)
 	if err := r.db.WithContext(ctx).Create(&dbRoom).Error; err != nil {
 		return domain.Room{}, err
