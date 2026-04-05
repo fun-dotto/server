@@ -269,7 +269,7 @@ func (siw *ServerInterfaceWrapper) FCMTokenV1List(c *gin.Context) {
 
 	// ------------- Optional query parameter "updatedAtFrom" -------------
 
-	err = runtime.BindQueryParameterWithOptions("form", false, false, "updatedAtFrom", c.Request.URL.Query(), &params.UpdatedAtFrom, runtime.BindQueryParameterOptions{Type: "string", Format: "date-time"})
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "updatedAtFrom", c.Request.URL.Query(), &params.UpdatedAtFrom, runtime.BindQueryParameterOptions{Type: "string", Format: "date-time"})
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter updatedAtFrom: %w", err), http.StatusBadRequest)
 		return
@@ -277,7 +277,7 @@ func (siw *ServerInterfaceWrapper) FCMTokenV1List(c *gin.Context) {
 
 	// ------------- Optional query parameter "updatedAtTo" -------------
 
-	err = runtime.BindQueryParameterWithOptions("form", false, false, "updatedAtTo", c.Request.URL.Query(), &params.UpdatedAtTo, runtime.BindQueryParameterOptions{Type: "string", Format: "date-time"})
+	err = runtime.BindQueryParameterWithOptions("form", true, false, "updatedAtTo", c.Request.URL.Query(), &params.UpdatedAtTo, runtime.BindQueryParameterOptions{Type: "string", Format: "date-time"})
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter updatedAtTo: %w", err), http.StatusBadRequest)
 		return

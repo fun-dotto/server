@@ -36,7 +36,6 @@ paths:
           schema:
             type: string
             format: date-time
-          explode: false
         - name: updatedAtTo
           in: query
           required: false
@@ -44,7 +43,6 @@ paths:
           schema:
             type: string
             format: date-time
-          explode: false
       responses:
         '200':
           description: FCMトークンの一覧
