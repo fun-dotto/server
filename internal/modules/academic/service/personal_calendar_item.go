@@ -30,11 +30,11 @@ type personalCalendarItemRoomChangeRepository interface {
 
 type PersonalCalendarItemService struct {
 	courseRegistrationRepo personalCalendarItemCourseRegistrationRepository
-	timetableItemRepo     personalCalendarItemTimetableItemRepository
-	cancelledClassRepo    personalCalendarItemCancelledClassRepository
-	makeupClassRepo       personalCalendarItemMakeupClassRepository
-	roomChangeRepo        personalCalendarItemRoomChangeRepository
-	substituteDayMap      map[string]domain.DayOfWeek
+	timetableItemRepo      personalCalendarItemTimetableItemRepository
+	cancelledClassRepo     personalCalendarItemCancelledClassRepository
+	makeupClassRepo        personalCalendarItemMakeupClassRepository
+	roomChangeRepo         personalCalendarItemRoomChangeRepository
+	substituteDayMap       map[string]domain.DayOfWeek
 }
 
 func NewPersonalCalendarItemService(
@@ -47,11 +47,11 @@ func NewPersonalCalendarItemService(
 ) *PersonalCalendarItemService {
 	return &PersonalCalendarItemService{
 		courseRegistrationRepo: courseRegistrationRepo,
-		timetableItemRepo:     timetableItemRepo,
-		cancelledClassRepo:    cancelledClassRepo,
-		makeupClassRepo:       makeupClassRepo,
-		roomChangeRepo:        roomChangeRepo,
-		substituteDayMap:      substituteDayMap,
+		timetableItemRepo:      timetableItemRepo,
+		cancelledClassRepo:     cancelledClassRepo,
+		makeupClassRepo:        makeupClassRepo,
+		roomChangeRepo:         roomChangeRepo,
+		substituteDayMap:       substituteDayMap,
 	}
 }
 
@@ -92,7 +92,9 @@ func (s *PersonalCalendarItemService) List(
 	}
 
 	dayToTimetableItems := make(map[domain.DayOfWeek][]domain.TimetableItem)
-	subjectPeriodToRooms := make(map[string][]domain.Room)
+	subjectToRooms := make(map[string][]domain.Room)
+	subjectToBestItem := make(map[string]domain.TimetableItem) // 補講用に最適な時間割を保持
+
 	for _, item := range timetableItems {
 		if item.Slot == nil {
 			continue
@@ -101,8 +103,45 @@ func (s *PersonalCalendarItemService) List(
 			continue
 		}
 		dayToTimetableItems[item.Slot.DayOfWeek] = append(dayToTimetableItems[item.Slot.DayOfWeek], item)
-		key := item.Subject.ID + "/" + string(item.Slot.DayOfWeek) + "/" + string(item.Slot.Period)
-		subjectPeriodToRooms[key] = item.Rooms
+
+		// 補講用に最適な時間割を選択（空でないRoomsを優先し、同点なら曜日/時限が最小のものを選ぶ）
+		bestItem, exists := subjectToBestItem[item.Subject.ID]
+		if !exists {
+			subjectToBestItem[item.Subject.ID] = item
+		} else {
+			// 空でないRoomsを優先
+			currentHasRooms := len(item.Rooms) > 0
+			bestHasRooms := len(bestItem.Rooms) > 0
+
+			shouldReplace := false
+			if currentHasRooms && !bestHasRooms {
+				shouldReplace = true
+			} else if currentHasRooms == bestHasRooms {
+				// 同条件なら曜日/時限が辞書順で小さい方を選ぶ
+				if item.Slot.DayOfWeek < bestItem.Slot.DayOfWeek {
+					shouldReplace = true
+				} else if item.Slot.DayOfWeek == bestItem.Slot.DayOfWeek && item.Slot.Period < bestItem.Slot.Period {
+					shouldReplace = true
+				}
+			}
+
+			if shouldReplace {
+				subjectToBestItem[item.Subject.ID] = item
+			}
+		}
+	}
+
+	// 選択された最適な時間割から教室情報を抽出（重複削除）
+	for subjectID, item := range subjectToBestItem {
+		seenRoomIDs := make(map[string]struct{})
+		uniqueRooms := make([]domain.Room, 0, len(item.Rooms))
+		for _, room := range item.Rooms {
+			if _, exists := seenRoomIDs[room.ID]; !exists {
+				seenRoomIDs[room.ID] = struct{}{}
+				uniqueRooms = append(uniqueRooms, room)
+			}
+		}
+		subjectToRooms[subjectID] = uniqueRooms
 	}
 
 	// datesからFrom/Untilを算出
@@ -207,7 +246,6 @@ func (s *PersonalCalendarItemService) List(
 
 		// 補講アイテムの追加
 		// Cancelled が既にある同キーは上書きしない（Cancelled > Makeup の優先度）
-		mcDow := weekdayToDayOfWeek(date.Weekday())
 		for key, mc := range makeupMap {
 			if key.date != dateStr {
 				continue
@@ -215,8 +253,11 @@ func (s *PersonalCalendarItemService) List(
 			if existing, exists := resultMap[key]; exists && existing.Status == domain.PersonalCalendarItemStatusCancelled {
 				continue
 			}
-			// TODO: 補講の教室は時間割の教室で代替しているが、実際は異なる場合がある
-			rooms, ok := subjectPeriodToRooms[mc.Subject.ID+"/"+string(mcDow)+"/"+string(mc.Period)]
+			// 補講の教室情報はDBに保存されていないため、
+			// 該当科目の通常時間割から選択された最適な教室を代替として使用する。
+			// （空でないRoomsを優先し、同点なら曜日/時限が辞書順で最小のものを選択）
+			// 実際の補講教室とは異なる可能性がある。
+			rooms, ok := subjectToRooms[mc.Subject.ID]
 			if !ok {
 				rooms = []domain.Room{}
 			}
