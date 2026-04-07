@@ -85,8 +85,11 @@ func (s *PersonalCalendarItemService) List(
 		return []domain.PersonalCalendarItem{}, nil
 	}
 
-	// TODO: datesからYearとSemestersを判定してフィルタに設定する
-	timetableItems, err := s.timetableItemRepo.List(ctx, domain.TimetableItemListFilter{})
+	year, semesters := determineSemestersFromDates(dates)
+	timetableItems, err := s.timetableItemRepo.List(ctx, domain.TimetableItemListFilter{
+		Year:      year,
+		Semesters: semesters,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -304,6 +307,48 @@ func dateRange(dates []time.Time) (*time.Time, *time.Time) {
 		}
 	}
 	return &minDate, &maxDate
+}
+
+func determineSemestersFromDates(dates []time.Time) (*int, []domain.CourseSemester) {
+	if len(dates) == 0 {
+		return nil, nil
+	}
+
+	yearMap := make(map[int]struct{})
+	semesterMap := make(map[domain.CourseSemester]struct{})
+
+	for _, date := range dates {
+		yearMap[date.Year()] = struct{}{}
+
+		month := date.Month()
+		if month >= 4 && month <= 9 {
+			semesterMap[domain.CourseSemesterH1] = struct{}{}
+			semesterMap[domain.CourseSemesterQ1] = struct{}{}
+			semesterMap[domain.CourseSemesterQ2] = struct{}{}
+			semesterMap[domain.CourseSemesterAllYear] = struct{}{}
+		} else {
+			semesterMap[domain.CourseSemesterH2] = struct{}{}
+			semesterMap[domain.CourseSemesterQ3] = struct{}{}
+			semesterMap[domain.CourseSemesterQ4] = struct{}{}
+			semesterMap[domain.CourseSemesterAllYear] = struct{}{}
+		}
+	}
+
+	var year *int
+	if len(yearMap) == 1 {
+		for y := range yearMap {
+			y2 := y
+			year = &y2
+			break
+		}
+	}
+
+	semesters := make([]domain.CourseSemester, 0, len(semesterMap))
+	for sem := range semesterMap {
+		semesters = append(semesters, sem)
+	}
+
+	return year, semesters
 }
 
 func weekdayToDayOfWeek(w time.Weekday) domain.DayOfWeek {
