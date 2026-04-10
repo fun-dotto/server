@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/fun-dotto/api-template/internal/domain"
+	"github.com/fun-dotto/user-api/internal/domain"
 )
 
 type UserRepository interface {

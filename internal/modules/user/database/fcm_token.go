@@ -3,7 +3,7 @@ package database
 import (
 	"time"
 
-	"github.com/fun-dotto/api-template/internal/domain"
+	"github.com/fun-dotto/user-api/internal/domain"
 )
 
 type FCMToken struct {

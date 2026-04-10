@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/fun-dotto/api-template/internal/database"
-	"github.com/fun-dotto/api-template/internal/domain"
+	"github.com/fun-dotto/user-api/internal/database"
+	"github.com/fun-dotto/user-api/internal/domain"
 )
 
 func (r *UserRepository) ListUsers() ([]domain.User, error) {

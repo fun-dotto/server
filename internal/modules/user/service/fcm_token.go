@@ -1,6 +1,6 @@
 package service
 
-import "github.com/fun-dotto/api-template/internal/domain"
+import "github.com/fun-dotto/user-api/internal/domain"
 
 type FCMTokenRepository interface {
 	ListFCMTokens(filter domain.FCMTokenListFilter) ([]domain.FCMToken, error)
