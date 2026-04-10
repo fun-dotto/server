@@ -168,7 +168,7 @@ type Notification struct {
 	Message    string `json:"message"`
 
 	// NotifyAt 通知予定日時
-	NotifyAt string `json:"notifyAt"`
+	NotifyAt time.Time `json:"notifyAt"`
 
 	// TargetUserIds 対象ユーザーIDのリスト
 	TargetUserIds []string `json:"targetUserIds"`
@@ -181,11 +181,11 @@ type Notification struct {
 
 // NotificationRequest defines model for NotificationRequest.
 type NotificationRequest struct {
-	Message       string   `json:"message"`
-	NotifyAt      string   `json:"notifyAt"`
-	TargetUserIds []string `json:"targetUserIds"`
-	Title         string   `json:"title"`
-	Url           *string  `json:"url,omitempty"`
+	Message       string    `json:"message"`
+	NotifyAt      time.Time `json:"notifyAt"`
+	TargetUserIds []string  `json:"targetUserIds"`
+	Title         string    `json:"title"`
+	Url           *string   `json:"url,omitempty"`
 }
 
 // User defines model for User.
