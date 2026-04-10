@@ -5,6 +5,7 @@ info:
 tags:
   - name: Users
   - name: FCM Tokens
+  - name: Notifications
 paths:
   /v1/fcmTokens:
     get:
@@ -86,6 +87,126 @@ paths:
             schema:
               $ref: '#/components/schemas/FCMTokenRequest'
         description: 作成または更新するFCMトークンの情報
+  /v1/notifications:
+    get:
+      operationId: NotificationV1_list
+      description: 通知の一覧を取得する
+      parameters:
+        - name: notifyAtFrom
+          in: query
+          required: false
+          description: 通知予定日時の開始日時 (notifyAt >= notifyAtFrom)
+          schema:
+            type: string
+            format: date-time
+        - name: notifyAtTo
+          in: query
+          required: false
+          description: 通知予定日時の終了日時 (notifyAt <= notifyAtTo)
+          schema:
+            type: string
+            format: date-time
+        - name: isNotified
+          in: query
+          required: false
+          description: '通知済みかどうか (true: 通知済みの通知のみ、false: 通知未済みの通知のみ、指定なし: 全ての通知)'
+          schema:
+            type: boolean
+          explode: false
+      responses:
+        '200':
+          description: 通知の一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                required:
+                  - notifications
+      tags:
+        - Notifications
+    post:
+      operationId: NotificationV1_create
+      description: |-
+        通知を作成する
+        存在しない場合は作成し、存在する場合は更新日時を更新する
+      parameters: []
+      responses:
+        '201':
+          description: 作成された通知
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification:
+                    $ref: '#/components/schemas/Notification'
+                required:
+                  - notification
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        description: 作成する通知の情報
+  /v1/notifications/{id}:
+    put:
+      operationId: NotificationV1_update
+      description: 通知を更新する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 通知ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 更新された通知
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification:
+                    $ref: '#/components/schemas/Notification'
+                required:
+                  - notification
+        '404':
+          description: The server cannot find the requested resource.
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        description: 更新する通知の情報
+    delete:
+      operationId: NotificationV1_delete
+      description: 通知を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 通知ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: There is no content to send for this request, but the headers may be useful.
+        '404':
+          description: The server cannot find the requested resource.
+      tags:
+        - Notifications
   /v1/users:
     get:
       operationId: UsersV1_list
@@ -236,6 +357,58 @@ components:
           type: string
         token:
           type: string
+    Notification:
+      type: object
+      required:
+        - id
+        - title
+        - message
+        - notifyAt
+        - isNotified
+        - targetUserIds
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        url:
+          type: string
+          description: |-
+            通知をタップした時に開くURL
+            アプリを開くのみの場合はnull
+        notifyAt:
+          type: string
+          description: 通知予定日時
+        isNotified:
+          type: boolean
+          description: 通知が送信されたかどうか
+        targetUserIds:
+          type: array
+          items:
+            type: string
+          description: 対象ユーザーIDのリスト
+    NotificationRequest:
+      type: object
+      required:
+        - title
+        - message
+        - notifyAt
+        - targetUserIds
+      properties:
+        title:
+          type: string
+        message:
+          type: string
+        url:
+          type: string
+        notifyAt:
+          type: string
+        targetUserIds:
+          type: array
+          items:
+            type: string
     User:
       type: object
       required:
