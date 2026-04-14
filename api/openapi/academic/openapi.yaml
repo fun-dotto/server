@@ -6,7 +6,6 @@ tags:
   - name: CourseRegistrations
   - name: Faculties
   - name: PersonalCalendarItems
-  - name: NotifyIrregularities
   - name: CancelledClasses
   - name: MakeupClasses
   - name: RoomChanges
@@ -451,34 +450,6 @@ paths:
           description: The server cannot find the requested resource.
       tags:
         - MakeupClasses
-  /v1/notifyIrregularities:
-    post:
-      operationId: NotifyIrregularitiesV1_notify
-      description: |-
-        指定した日付に発生している時間割の変更を通知する
-        休講・補講・教室変更・振替授業
-      parameters:
-        - name: userIds
-          in: query
-          required: false
-          description: ユーザーIDのリスト; 指定しない場合は全ユーザーに通知する
-          schema:
-            type: array
-            items:
-              type: string
-          explode: false
-        - name: date
-          in: query
-          required: true
-          description: 対象の日付
-          schema:
-            type: string
-            format: date
-      responses:
-        '204':
-          description: There is no content to send for this request, but the headers may be useful.
-      tags:
-        - NotifyIrregularities
   /v1/personalCalendarItems:
     get:
       operationId: PersonalCalendarItemsV1_list

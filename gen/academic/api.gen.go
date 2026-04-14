@@ -498,15 +498,6 @@ type MakeupClassesV1ListParams struct {
 	Until *openapi_types.Date `form:"until,omitempty" json:"until,omitempty"`
 }
 
-// NotifyIrregularitiesV1NotifyParams defines parameters for NotifyIrregularitiesV1Notify.
-type NotifyIrregularitiesV1NotifyParams struct {
-	// UserIds ユーザーIDのリスト; 指定しない場合は全ユーザーに通知する
-	UserIds *[]string `form:"userIds,omitempty" json:"userIds,omitempty"`
-
-	// Date 対象の日付
-	Date openapi_types.Date `form:"date" json:"date"`
-}
-
 // PersonalCalendarItemsV1ListParams defines parameters for PersonalCalendarItemsV1List.
 type PersonalCalendarItemsV1ListParams struct {
 	// UserId ユーザーID
@@ -671,9 +662,6 @@ type ServerInterface interface {
 
 	// (DELETE /v1/makeupClasses/{id})
 	MakeupClassesV1Delete(c *gin.Context, id string)
-
-	// (POST /v1/notifyIrregularities)
-	NotifyIrregularitiesV1Notify(c *gin.Context, params NotifyIrregularitiesV1NotifyParams)
 
 	// (GET /v1/personalCalendarItems)
 	PersonalCalendarItemsV1List(c *gin.Context, params PersonalCalendarItemsV1ListParams)
@@ -1134,47 +1122,6 @@ func (siw *ServerInterfaceWrapper) MakeupClassesV1Delete(c *gin.Context) {
 	}
 
 	siw.Handler.MakeupClassesV1Delete(c, id)
-}
-
-// NotifyIrregularitiesV1Notify operation middleware
-func (siw *ServerInterfaceWrapper) NotifyIrregularitiesV1Notify(c *gin.Context) {
-
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params NotifyIrregularitiesV1NotifyParams
-
-	// ------------- Optional query parameter "userIds" -------------
-
-	err = runtime.BindQueryParameter("form", false, false, "userIds", c.Request.URL.Query(), &params.UserIds)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userIds: %w", err), http.StatusBadRequest)
-		return
-	}
-
-	// ------------- Required query parameter "date" -------------
-
-	if paramValue := c.Query("date"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandler(c, fmt.Errorf("Query argument date is required, but not found"), http.StatusBadRequest)
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", true, true, "date", c.Request.URL.Query(), &params.Date)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter date: %w", err), http.StatusBadRequest)
-		return
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-		if c.IsAborted() {
-			return
-		}
-	}
-
-	siw.Handler.NotifyIrregularitiesV1Notify(c, params)
 }
 
 // PersonalCalendarItemsV1List operation middleware
@@ -1830,7 +1777,6 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.POST(options.BaseURL+"/v1/makeupClasses", wrapper.MakeupClassesV1Create)
 	router.PUT(options.BaseURL+"/v1/makeupClasses", wrapper.MakeupClassesV1Fetch)
 	router.DELETE(options.BaseURL+"/v1/makeupClasses/:id", wrapper.MakeupClassesV1Delete)
-	router.POST(options.BaseURL+"/v1/notifyIrregularities", wrapper.NotifyIrregularitiesV1Notify)
 	router.GET(options.BaseURL+"/v1/personalCalendarItems", wrapper.PersonalCalendarItemsV1List)
 	router.GET(options.BaseURL+"/v1/reservations", wrapper.ReservationsV1List)
 	router.POST(options.BaseURL+"/v1/reservations", wrapper.ReservationsV1Create)
@@ -2208,22 +2154,6 @@ type MakeupClassesV1Delete404Response struct {
 
 func (response MakeupClassesV1Delete404Response) VisitMakeupClassesV1DeleteResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
-	return nil
-}
-
-type NotifyIrregularitiesV1NotifyRequestObject struct {
-	Params NotifyIrregularitiesV1NotifyParams
-}
-
-type NotifyIrregularitiesV1NotifyResponseObject interface {
-	VisitNotifyIrregularitiesV1NotifyResponse(w http.ResponseWriter) error
-}
-
-type NotifyIrregularitiesV1Notify204Response struct {
-}
-
-func (response NotifyIrregularitiesV1Notify204Response) VisitNotifyIrregularitiesV1NotifyResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
 	return nil
 }
 
@@ -2742,9 +2672,6 @@ type StrictServerInterface interface {
 
 	// (DELETE /v1/makeupClasses/{id})
 	MakeupClassesV1Delete(ctx context.Context, request MakeupClassesV1DeleteRequestObject) (MakeupClassesV1DeleteResponseObject, error)
-
-	// (POST /v1/notifyIrregularities)
-	NotifyIrregularitiesV1Notify(ctx context.Context, request NotifyIrregularitiesV1NotifyRequestObject) (NotifyIrregularitiesV1NotifyResponseObject, error)
 
 	// (GET /v1/personalCalendarItems)
 	PersonalCalendarItemsV1List(ctx context.Context, request PersonalCalendarItemsV1ListRequestObject) (PersonalCalendarItemsV1ListResponseObject, error)
@@ -3275,33 +3202,6 @@ func (sh *strictHandler) MakeupClassesV1Delete(ctx *gin.Context, id string) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(MakeupClassesV1DeleteResponseObject); ok {
 		if err := validResponse.VisitMakeupClassesV1DeleteResponse(ctx.Writer); err != nil {
-			ctx.Error(err)
-		}
-	} else if response != nil {
-		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
-	}
-}
-
-// NotifyIrregularitiesV1Notify operation middleware
-func (sh *strictHandler) NotifyIrregularitiesV1Notify(ctx *gin.Context, params NotifyIrregularitiesV1NotifyParams) {
-	var request NotifyIrregularitiesV1NotifyRequestObject
-
-	request.Params = params
-
-	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.NotifyIrregularitiesV1Notify(ctx, request.(NotifyIrregularitiesV1NotifyRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "NotifyIrregularitiesV1Notify")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		ctx.Error(err)
-		ctx.Status(http.StatusInternalServerError)
-	} else if validResponse, ok := response.(NotifyIrregularitiesV1NotifyResponseObject); ok {
-		if err := validResponse.VisitNotifyIrregularitiesV1NotifyResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {
