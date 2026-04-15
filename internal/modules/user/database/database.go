@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"cloud.google.com/go/cloudsqlconn"
 	"github.com/jackc/pgx/v5"
@@ -54,10 +55,16 @@ func ConnectWithConnectorIAMAuthN() (*gorm.DB, error) {
 		return nil, fmt.Errorf("sql.Open: %w", err)
 	}
 
+	sqlDB.SetMaxOpenConns(20)
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetConnMaxLifetime(30 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
+
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{})
 	if err != nil {
+		sqlDB.Close()
 		return nil, fmt.Errorf("gorm.Open: %w", err)
 	}
 	return db, nil
