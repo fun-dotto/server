@@ -1,19 +1,31 @@
 package main
 
 import (
+	"errors"
 	"log"
+	"net/http"
+	"time"
 
 	"github.com/fun-dotto/academic-api/assets"
 	api "github.com/fun-dotto/academic-api/generated"
 	"github.com/fun-dotto/academic-api/internal/database"
 	"github.com/fun-dotto/academic-api/internal/event"
 	"github.com/fun-dotto/academic-api/internal/handler"
+	"github.com/fun-dotto/academic-api/internal/middleware"
 	"github.com/fun-dotto/academic-api/internal/repository"
 	"github.com/fun-dotto/academic-api/internal/service"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	middleware "github.com/oapi-codegen/gin-middleware"
+	oapimw "github.com/oapi-codegen/gin-middleware"
+)
+
+const (
+	readHeaderTimeout = 5 * time.Second
+	readTimeout       = 30 * time.Second
+	writeTimeout      = 30 * time.Second
+	idleTimeout       = 120 * time.Second
+	handlerTimeout    = 15 * time.Second
 )
 
 func main() {
@@ -44,7 +56,8 @@ func main() {
 
 	router := gin.Default()
 
-	router.Use(middleware.OapiRequestValidator(spec))
+	router.Use(middleware.Timeout(handlerTimeout))
+	router.Use(oapimw.OapiRequestValidator(spec))
 
 	// Repositories
 	subjectRepo := repository.NewSubjectRepository(db)
@@ -75,12 +88,21 @@ func main() {
 
 	// Handler + Router
 	h := handler.NewHandler(subjectSvc, facultySvc, roomSvc, timetableItemSvc, courseRegistrationSvc, personalCalendarItemSvc, cancelledClassSvc, makeupClassSvc, roomChangeSvc)
-	strictHandler := api.NewStrictHandler(h, nil)
+	strictHandler := api.NewStrictHandler(h, []api.StrictMiddlewareFunc{
+		middleware.DeadlineErrorMapper(),
+	})
 	api.RegisterHandlers(router, strictHandler)
 
-	addr := ":8080"
-	log.Printf("Server starting on %s", addr)
-	if err := router.Run(addr); err != nil {
+	srv := &http.Server{
+		Addr:              ":8080",
+		Handler:           router,
+		ReadHeaderTimeout: readHeaderTimeout,
+		ReadTimeout:       readTimeout,
+		WriteTimeout:      writeTimeout,
+		IdleTimeout:       idleTimeout,
+	}
+	log.Printf("Server starting on %s", srv.Addr)
+	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal("Failed to start server:", err)
 	}
 }
