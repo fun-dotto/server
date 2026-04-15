@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"log"
 	"net/http"
+	"os/signal"
+	"syscall"
 	"time"
 
 	api "github.com/fun-dotto/user-api/generated"
@@ -24,6 +27,7 @@ const (
 	writeTimeout      = 30 * time.Second
 	idleTimeout       = 120 * time.Second
 	handlerTimeout    = 15 * time.Second
+	shutdownTimeout   = 8 * time.Second
 )
 
 func main() {
@@ -77,8 +81,36 @@ func main() {
 		WriteTimeout:      writeTimeout,
 		IdleTimeout:       idleTimeout,
 	}
-	log.Printf("Server starting on %s", srv.Addr)
-	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatal("Failed to start server:", err)
+
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	serverErr := make(chan error, 1)
+	go func() {
+		log.Printf("Server starting on %s", srv.Addr)
+		serverErr <- srv.ListenAndServe()
+	}()
+
+	select {
+	case err := <-serverErr:
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Printf("Failed to start server: %v", err)
+		}
+		return
+	case <-ctx.Done():
+		log.Println("Shutdown signal received, draining in-flight requests...")
+	}
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Printf("Server shutdown error: %v", err)
+		if closeErr := srv.Close(); closeErr != nil && !errors.Is(closeErr, http.ErrServerClosed) {
+			log.Printf("Server force close error: %v", closeErr)
+		}
+	}
+
+	if err := <-serverErr; err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Printf("Server exited with error: %v", err)
 	}
 }
