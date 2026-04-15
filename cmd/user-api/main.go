@@ -46,9 +46,11 @@ func main() {
 
 	userRepo := repository.NewUserRepository(db)
 	fcmTokenRepo := repository.NewFCMTokenRepository(db)
+	notificationRepo := repository.NewNotificationRepository(db)
 	userService := service.NewUserService(userRepo)
 	fcmTokenService := service.NewFCMTokenService(fcmTokenRepo)
-	h := handler.NewHandler(userService, fcmTokenService)
+	notificationService := service.NewNotificationService(notificationRepo)
+	h := handler.NewHandler(userService, fcmTokenService, notificationService)
 	strictHandler := api.NewStrictHandler(h, nil)
 	api.RegisterHandlers(router, strictHandler)
 
