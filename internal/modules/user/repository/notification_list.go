@@ -1,12 +1,14 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/fun-dotto/user-api/internal/database"
 	"github.com/fun-dotto/user-api/internal/domain"
 )
 
-func (r *NotificationRepository) ListNotifications(filter domain.NotificationListFilter) ([]domain.Notification, error) {
-	query := r.db.Model(&database.Notification{})
+func (r *NotificationRepository) ListNotifications(ctx context.Context, filter domain.NotificationListFilter) ([]domain.Notification, error) {
+	query := r.db.WithContext(ctx).Model(&database.Notification{})
 
 	if filter.NotifyAtFrom != nil {
 		query = query.Where("notify_at >= ?", *filter.NotifyAtFrom)
@@ -33,7 +35,7 @@ func (r *NotificationRepository) ListNotifications(filter domain.NotificationLis
 	}
 
 	var allTargets []database.NotificationTargetUser
-	if err := r.db.Where("notification_id IN ?", notificationIDs).Find(&allTargets).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("notification_id IN ?", notificationIDs).Find(&allTargets).Error; err != nil {
 		return nil, err
 	}
 

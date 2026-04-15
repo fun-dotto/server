@@ -1,7 +1,11 @@
 package service
 
-import "github.com/fun-dotto/user-api/internal/domain"
+import (
+	"context"
 
-func (s *NotificationService) UpdateNotification(notification domain.Notification) (domain.Notification, error) {
-	return s.repo.UpdateNotification(notification)
+	"github.com/fun-dotto/user-api/internal/domain"
+)
+
+func (s *NotificationService) UpdateNotification(ctx context.Context, notification domain.Notification) (domain.Notification, error) {
+	return s.repo.UpdateNotification(ctx, notification)
 }

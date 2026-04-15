@@ -1,13 +1,15 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/fun-dotto/user-api/internal/database"
 	"github.com/fun-dotto/user-api/internal/domain"
 )
 
-func (r *UserRepository) ListUsers() ([]domain.User, error) {
+func (r *UserRepository) ListUsers(ctx context.Context) ([]domain.User, error) {
 	var dbUsers []database.User
-	if err := r.db.Find(&dbUsers).Error; err != nil {
+	if err := r.db.WithContext(ctx).Find(&dbUsers).Error; err != nil {
 		return nil, err
 	}
 

@@ -9,7 +9,7 @@ import (
 )
 
 func (h *Handler) UsersV1Detail(ctx context.Context, request api.UsersV1DetailRequestObject) (api.UsersV1DetailResponseObject, error) {
-	user, err := h.userService.GetUserByID(request.Id)
+	user, err := h.userService.GetUserByID(ctx, request.Id)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return api.UsersV1Detail404Response{}, nil

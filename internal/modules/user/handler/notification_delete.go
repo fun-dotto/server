@@ -8,8 +8,8 @@ import (
 	"github.com/fun-dotto/user-api/internal/domain"
 )
 
-func (h *Handler) NotificationV1Delete(_ context.Context, request api.NotificationV1DeleteRequestObject) (api.NotificationV1DeleteResponseObject, error) {
-	err := h.notificationService.DeleteNotification(request.Id)
+func (h *Handler) NotificationV1Delete(ctx context.Context, request api.NotificationV1DeleteRequestObject) (api.NotificationV1DeleteResponseObject, error) {
+	err := h.notificationService.DeleteNotification(ctx, request.Id)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return api.NotificationV1Delete404Response{}, nil

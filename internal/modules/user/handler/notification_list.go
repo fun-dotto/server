@@ -6,10 +6,10 @@ import (
 	api "github.com/fun-dotto/user-api/generated"
 )
 
-func (h *Handler) NotificationV1List(_ context.Context, request api.NotificationV1ListRequestObject) (api.NotificationV1ListResponseObject, error) {
+func (h *Handler) NotificationV1List(ctx context.Context, request api.NotificationV1ListRequestObject) (api.NotificationV1ListResponseObject, error) {
 	filter := toDomainNotificationListFilter(request.Params)
 
-	notifications, err := h.notificationService.ListNotifications(filter)
+	notifications, err := h.notificationService.ListNotifications(ctx, filter)
 	if err != nil {
 		return nil, err
 	}

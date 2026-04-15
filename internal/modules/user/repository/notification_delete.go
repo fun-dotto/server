@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 
 	"github.com/fun-dotto/user-api/internal/database"
@@ -8,8 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r *NotificationRepository) DeleteNotification(id string) error {
-	return r.db.Transaction(func(tx *gorm.DB) error {
+func (r *NotificationRepository) DeleteNotification(ctx context.Context, id string) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var existing database.Notification
 		if err := tx.First(&existing, "id = ?", id).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {

@@ -1,18 +1,20 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/fun-dotto/user-api/internal/database"
 	"github.com/fun-dotto/user-api/internal/domain"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-func (r *NotificationRepository) CreateNotification(notification domain.Notification) (domain.Notification, error) {
+func (r *NotificationRepository) CreateNotification(ctx context.Context, notification domain.Notification) (domain.Notification, error) {
 	notification.ID = uuid.New().String()
 
 	dbNotification := database.NotificationFromDomain(notification)
 
-	err := r.db.Transaction(func(tx *gorm.DB) error {
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&dbNotification).Error; err != nil {
 			return err
 		}

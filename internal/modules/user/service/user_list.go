@@ -1,7 +1,11 @@
 package service
 
-import "github.com/fun-dotto/user-api/internal/domain"
+import (
+	"context"
 
-func (s *UserService) ListUsers() ([]domain.User, error) {
-	return s.repo.ListUsers()
+	"github.com/fun-dotto/user-api/internal/domain"
+)
+
+func (s *UserService) ListUsers(ctx context.Context) ([]domain.User, error) {
+	return s.repo.ListUsers(ctx)
 }

@@ -6,8 +6,8 @@ import (
 	api "github.com/fun-dotto/user-api/generated"
 )
 
-func (h *Handler) UsersV1List(_ context.Context, _ api.UsersV1ListRequestObject) (api.UsersV1ListResponseObject, error) {
-	users, err := h.userService.ListUsers()
+func (h *Handler) UsersV1List(ctx context.Context, _ api.UsersV1ListRequestObject) (api.UsersV1ListResponseObject, error) {
+	users, err := h.userService.ListUsers(ctx)
 	if err != nil {
 		return nil, err
 	}

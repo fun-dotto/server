@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/fun-dotto/user-api/internal/database"
 	"github.com/fun-dotto/user-api/internal/domain"
 	"gorm.io/gorm"
@@ -15,8 +17,8 @@ func NewFCMTokenRepository(db *gorm.DB) *FCMTokenRepository {
 	return &FCMTokenRepository{db: db}
 }
 
-func (r *FCMTokenRepository) ListFCMTokens(filter domain.FCMTokenListFilter) ([]domain.FCMToken, error) {
-	query := r.db.Model(&database.FCMToken{})
+func (r *FCMTokenRepository) ListFCMTokens(ctx context.Context, filter domain.FCMTokenListFilter) ([]domain.FCMToken, error) {
+	query := r.db.WithContext(ctx).Model(&database.FCMToken{})
 
 	if len(filter.UserIDs) > 0 {
 		query = query.Where("user_id IN ?", filter.UserIDs)
@@ -44,10 +46,10 @@ func (r *FCMTokenRepository) ListFCMTokens(filter domain.FCMTokenListFilter) ([]
 	return tokens, nil
 }
 
-func (r *FCMTokenRepository) UpsertFCMToken(token domain.FCMToken) (domain.FCMToken, error) {
+func (r *FCMTokenRepository) UpsertFCMToken(ctx context.Context, token domain.FCMToken) (domain.FCMToken, error) {
 	dbToken := database.FCMTokenFromDomain(token)
 
-	if err := r.db.Clauses(clause.OnConflict{
+	if err := r.db.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "token"}},
 		DoUpdates: clause.Assignments(map[string]interface{}{
 			"user_id":    dbToken.UserID,
@@ -57,7 +59,7 @@ func (r *FCMTokenRepository) UpsertFCMToken(token domain.FCMToken) (domain.FCMTo
 		return domain.FCMToken{}, err
 	}
 
-	if err := r.db.First(&dbToken, "token = ?", dbToken.Token).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&dbToken, "token = ?", dbToken.Token).Error; err != nil {
 		return domain.FCMToken{}, err
 	}
 
