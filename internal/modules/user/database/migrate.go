@@ -3,5 +3,5 @@ package database
 import "gorm.io/gorm"
 
 func AutoMigrate(db *gorm.DB) error {
-	return db.AutoMigrate(&User{}, &FCMToken{}, &Notification{}, &NotificationTargetUser{})
+	return db.AutoMigrate(&User{}, &FCMToken{})
 }

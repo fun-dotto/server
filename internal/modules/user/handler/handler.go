@@ -5,15 +5,13 @@ import (
 )
 
 type Handler struct {
-	userService         *service.UserService
-	fcmTokenService     *service.FCMTokenService
-	notificationService *service.NotificationService
+	userService     *service.UserService
+	fcmTokenService *service.FCMTokenService
 }
 
-func NewHandler(userService *service.UserService, fcmTokenService *service.FCMTokenService, notificationService *service.NotificationService) *Handler {
+func NewHandler(userService *service.UserService, fcmTokenService *service.FCMTokenService) *Handler {
 	return &Handler{
-		userService:         userService,
-		fcmTokenService:     fcmTokenService,
-		notificationService: notificationService,
+		userService:     userService,
+		fcmTokenService: fcmTokenService,
 	}
 }

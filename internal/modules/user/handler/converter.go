@@ -81,45 +81,6 @@ func toDomainFCMToken(req api.FCMTokenRequest) domain.FCMToken {
 	}
 }
 
-func toAPINotification(n domain.Notification) api.Notification {
-	return api.Notification{
-		Id:            n.ID,
-		Title:         n.Title,
-		Message:       n.Message,
-		Url:           n.URL,
-		NotifyAt:      n.NotifyAt,
-		IsNotified:    n.IsNotified,
-		TargetUserIds: n.TargetUserIDs,
-	}
-}
-
-func toAPINotifications(notifications []domain.Notification) []api.Notification {
-	result := make([]api.Notification, 0, len(notifications))
-	for _, n := range notifications {
-		result = append(result, toAPINotification(n))
-	}
-	return result
-}
-
-func toDomainNotification(id string, req api.NotificationRequest) domain.Notification {
-	return domain.Notification{
-		ID:            id,
-		Title:         req.Title,
-		Message:       req.Message,
-		URL:           req.Url,
-		NotifyAt:      req.NotifyAt,
-		TargetUserIDs: req.TargetUserIds,
-	}
-}
-
-func toDomainNotificationListFilter(params api.NotificationV1ListParams) domain.NotificationListFilter {
-	return domain.NotificationListFilter{
-		NotifyAtFrom: params.NotifyAtFrom,
-		NotifyAtTo:   params.NotifyAtTo,
-		IsNotified:   params.IsNotified,
-	}
-}
-
 func toDomainFCMTokenListFilter(params api.FCMTokenV1ListParams) domain.FCMTokenListFilter {
 	filter := domain.FCMTokenListFilter{
 		UpdatedAtFrom: params.UpdatedAtFrom,

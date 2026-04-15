@@ -2,20 +2,11 @@ package handler
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
 	api "github.com/fun-dotto/user-api/generated"
-	"github.com/fun-dotto/user-api/internal/domain"
 )
 
-func (h *Handler) NotificationV1Delete(_ context.Context, request api.NotificationV1DeleteRequestObject) (api.NotificationV1DeleteResponseObject, error) {
-	err := h.notificationService.DeleteNotification(request.Id)
-	if err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
-			return api.NotificationV1Delete404Response{}, nil
-		}
-		return nil, err
-	}
-
-	return api.NotificationV1Delete204Response{}, nil
+func (h *Handler) NotificationV1Delete(_ context.Context, _ api.NotificationV1DeleteRequestObject) (api.NotificationV1DeleteResponseObject, error) {
+	return nil, fmt.Errorf("not implemented")
 }
