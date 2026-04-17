@@ -14,6 +14,7 @@ tags:
   - name: Subjects
   - name: Syllabus
   - name: TimetableItems
+  - name: FacultyRooms
 paths:
   /v1/cancelledClasses:
     get:
@@ -343,6 +344,77 @@ paths:
           description: The server cannot find the requested resource.
       tags:
         - Faculties
+  /v1/facultyRooms:
+    get:
+      operationId: FacultyRoomsV1_list
+      description: 教員室を取得する
+      parameters:
+        - name: year
+          in: query
+          required: false
+          description: 年度; 指定しない場合は今年度が選択される
+          schema:
+            type: integer
+          explode: false
+      responses:
+        '200':
+          description: 教員室のリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  facultyRooms:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FacultyRoom'
+                required:
+                  - facultyRooms
+      tags:
+        - FacultyRooms
+    post:
+      operationId: FacultyRoomsV1_create
+      description: 教員室を追加する
+      parameters: []
+      responses:
+        '201':
+          description: 作成された教員室
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  facultyRoom:
+                    $ref: '#/components/schemas/FacultyRoom'
+                required:
+                  - facultyRoom
+      tags:
+        - FacultyRooms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacultyRoomRequest'
+        description: 追加する教員室の情報
+  /v1/facultyRooms/{id}:
+    delete:
+      operationId: FacultyRoomsV1_delete
+      description: 教員室を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 教員室ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: There is no content to send for this request, but the headers may be useful.
+        '404':
+          description: The server cannot find the requested resource.
+      tags:
+        - FacultyRooms
   /v1/makeupClasses:
     get:
       operationId: MakeupClassesV1_list
@@ -1318,6 +1390,35 @@ components:
           type: string
         email:
           type: string
+    FacultyRoom:
+      type: object
+      required:
+        - id
+        - faculty
+        - room
+        - year
+      properties:
+        id:
+          type: string
+        faculty:
+          $ref: '#/components/schemas/Faculty'
+        room:
+          $ref: '#/components/schemas/Room'
+        year:
+          type: integer
+    FacultyRoomRequest:
+      type: object
+      required:
+        - facultyId
+        - roomId
+        - year
+      properties:
+        facultyId:
+          type: string
+        roomId:
+          type: string
+        year:
+          type: integer
     MakeupClass:
       type: object
       required:
@@ -1422,7 +1523,6 @@ components:
       required:
         - id
         - name
-        - number
         - floor
       properties:
         id:
@@ -1430,12 +1530,6 @@ components:
         name:
           type: string
           description: 部屋名
-        number:
-          type: string
-          description: |-
-            部屋番号
-
-            部屋番号が存在しない場合は空文字
         floor:
           allOf:
             - $ref: '#/components/schemas/DottoFoundationV1.Floor'
@@ -1449,7 +1543,8 @@ components:
           description: |-
             教員
 
-            教員室でない場合は省略
+            空室の教員室や教員室でない場合は省略
+            基準は現在の年度
     RoomChange:
       type: object
       required:
@@ -1504,8 +1599,6 @@ components:
           type: string
         floor:
           $ref: '#/components/schemas/DottoFoundationV1.Floor'
-        facultyId:
-          type: string
     Subject:
       type: object
       required:

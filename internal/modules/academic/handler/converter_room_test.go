@@ -26,9 +26,6 @@ func TestRoomToAPI(t *testing.T) {
 	if got.Faculty != nil {
 		t.Errorf("Faculty: got %+v, want nil", got.Faculty)
 	}
-	if got.Number != "" {
-		t.Errorf("Number: got %q, want empty", got.Number)
-	}
 }
 
 func TestRoomsToAPI(t *testing.T) {
