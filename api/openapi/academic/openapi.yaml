@@ -85,26 +85,6 @@ paths:
             schema:
               $ref: '#/components/schemas/CancelledClassRequest'
         description: 作成する休講の情報
-    put:
-      operationId: CancelledClassesV1_fetch
-      description: 教務システムから休講を取得する
-      parameters: []
-      responses:
-        '200':
-          description: 新たに取得された休講
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  cancelledClasses:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/CancelledClass'
-                required:
-                  - cancelledClasses
-      tags:
-        - CancelledClasses
   /v1/cancelledClasses/{id}:
     delete:
       operationId: CancelledClassesV1_delete
@@ -342,6 +322,8 @@ paths:
           description: There is no content to send for this request, but the headers may be useful.
         '404':
           description: The server cannot find the requested resource.
+        '409':
+          description: The request conflicts with the current state of the server.
       tags:
         - Faculties
   /v1/facultyRooms:
@@ -374,7 +356,10 @@ paths:
         - FacultyRooms
     post:
       operationId: FacultyRoomsV1_create
-      description: 教員室を追加する
+      description: |-
+        教員室を追加する
+
+        同一年度で同じ教員または同じ教室が既に登録されている場合は409を返す。
       parameters: []
       responses:
         '201':
@@ -388,6 +373,8 @@ paths:
                     $ref: '#/components/schemas/FacultyRoom'
                 required:
                   - facultyRoom
+        '409':
+          description: The request conflicts with the current state of the server.
       tags:
         - FacultyRooms
       requestBody:
@@ -484,26 +471,6 @@ paths:
             schema:
               $ref: '#/components/schemas/MakeupClassRequest'
         description: 作成する補講の情報
-    put:
-      operationId: MakeupClassesV1_fetch
-      description: 教務システムから補講を取得する
-      parameters: []
-      responses:
-        '200':
-          description: 新たに取得された補講
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  makeupClasses:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/MakeupClass'
-                required:
-                  - makeupClasses
-      tags:
-        - MakeupClasses
   /v1/makeupClasses/{id}:
     delete:
       operationId: MakeupClassesV1_delete
@@ -632,32 +599,6 @@ paths:
               $ref: '#/components/schemas/ReservationRequest'
         description: 予約する教室の情報
   /v1/reservations/{id}:
-    get:
-      operationId: ReservationsV1_detail
-      description: 予約を詳細取得する
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: 予約ID
-          schema:
-            type: string
-      responses:
-        '200':
-          description: 予約の詳細
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  reservation:
-                    $ref: '#/components/schemas/Reservation'
-                required:
-                  - reservation
-        '404':
-          description: The server cannot find the requested resource.
-      tags:
-        - Reservations
     delete:
       operationId: ReservationsV1_delete
       description: 予約を削除する
@@ -744,26 +685,6 @@ paths:
             schema:
               $ref: '#/components/schemas/RoomChangeRequest'
         description: 作成する教室変更の情報
-    put:
-      operationId: RoomChangesV1_fetch
-      description: 教務システムから教室変更を取得する
-      parameters: []
-      responses:
-        '200':
-          description: 新たに取得された教室変更
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  roomChanges:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/RoomChange'
-                required:
-                  - roomChanges
-      tags:
-        - RoomChanges
   /v1/roomChanges/{id}:
     delete:
       operationId: RoomChangesV1_delete
@@ -919,6 +840,8 @@ paths:
           description: There is no content to send for this request, but the headers may be useful.
         '404':
           description: The server cannot find the requested resource.
+        '409':
+          description: The request conflicts with the current state of the server.
       tags:
         - Rooms
   /v1/subjects:
@@ -1073,6 +996,8 @@ paths:
           description: There is no content to send for this request, but the headers may be useful.
         '404':
           description: The server cannot find the requested resource.
+        '409':
+          description: The request conflicts with the current state of the server.
       tags:
         - Subjects
   /v1/subjects/{id}/syllabus:
@@ -1483,15 +1408,15 @@ components:
       type: object
       required:
         - id
-        - roomId
+        - room
         - startAt
         - endAt
         - title
       properties:
         id:
           type: string
-        roomId:
-          type: string
+        room:
+          $ref: '#/components/schemas/Room'
         startAt:
           type: string
           format: date-time
