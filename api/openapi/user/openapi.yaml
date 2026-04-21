@@ -95,14 +95,14 @@ paths:
         - name: notifyAtFrom
           in: query
           required: false
-          description: 通知予定日時の開始日時 (notifyAt >= notifyAtFrom)
+          description: '通知予定期間の開始日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyBefore >= notifyAtFrom）'
           schema:
             type: string
             format: date-time
         - name: notifyAtTo
           in: query
           required: false
-          description: 通知予定日時の終了日時 (notifyAt <= notifyAtTo)
+          description: '通知予定期間の終了日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyAfter <= notifyAtTo）'
           schema:
             type: string
             format: date-time
@@ -156,6 +156,47 @@ paths:
             schema:
               $ref: '#/components/schemas/NotificationRequest'
         description: 作成する通知の情報
+  /v1/notifications/dispatch:
+    post:
+      operationId: NotificationV1_dispatch
+      description: |-
+        指定したIDの通知を、送信状態や送信可能期間に関わらずまとめて送信する
+
+        `notificationIds` が空配列の場合は `400 Bad Request` を返す。
+        存在しないIDが含まれる場合でもエラーにはせず、送信に成功した通知のみをレスポンスに含める。
+      parameters: []
+      responses:
+        '200':
+          description: 送信に成功した通知の一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                required:
+                  - notifications
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notificationIds:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - notificationIds
+        description: 送信対象の通知IDリスト
   /v1/notifications/{id}:
     put:
       operationId: NotificationV1_update
@@ -363,7 +404,8 @@ components:
         - id
         - title
         - message
-        - notifyAt
+        - notifyAfter
+        - notifyBefore
         - isNotified
         - targetUserIds
       properties:
@@ -378,10 +420,14 @@ components:
           description: |-
             通知をタップした時に開くURL
             アプリを開くのみの場合はnull
-        notifyAt:
+        notifyAfter:
           type: string
           format: date-time
-          description: 通知予定日時
+          description: 通知送信可能になる日時（この時刻以降に送信対象となる）
+        notifyBefore:
+          type: string
+          format: date-time
+          description: 通知送信期限日時（この時刻を過ぎた場合は送信しない）
         isNotified:
           type: boolean
           description: 通知が送信されたかどうか
@@ -395,7 +441,8 @@ components:
       required:
         - title
         - message
-        - notifyAt
+        - notifyAfter
+        - notifyBefore
         - targetUserIds
       properties:
         title:
@@ -404,7 +451,10 @@ components:
           type: string
         url:
           type: string
-        notifyAt:
+        notifyAfter:
+          type: string
+          format: date-time
+        notifyBefore:
           type: string
           format: date-time
         targetUserIds:

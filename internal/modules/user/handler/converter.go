@@ -87,7 +87,8 @@ func toAPINotification(n domain.Notification) api.Notification {
 		Title:         n.Title,
 		Message:       n.Message,
 		Url:           n.URL,
-		NotifyAt:      n.NotifyAt,
+		NotifyAfter:   n.NotifyAt,
+		NotifyBefore:  n.NotifyAt,
 		IsNotified:    n.IsNotified,
 		TargetUserIds: n.TargetUserIDs,
 	}
@@ -107,7 +108,7 @@ func toDomainNotification(id string, req api.NotificationRequest) domain.Notific
 		Title:         req.Title,
 		Message:       req.Message,
 		URL:           req.Url,
-		NotifyAt:      req.NotifyAt,
+		NotifyAt:      req.NotifyAfter,
 		TargetUserIDs: req.TargetUserIds,
 	}
 }

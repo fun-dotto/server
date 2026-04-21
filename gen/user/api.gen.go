@@ -167,8 +167,11 @@ type Notification struct {
 	IsNotified bool   `json:"isNotified"`
 	Message    string `json:"message"`
 
-	// NotifyAt 通知予定日時
-	NotifyAt time.Time `json:"notifyAt"`
+	// NotifyAfter 通知送信可能になる日時（この時刻以降に送信対象となる）
+	NotifyAfter time.Time `json:"notifyAfter"`
+
+	// NotifyBefore 通知送信期限日時（この時刻を過ぎた場合は送信しない）
+	NotifyBefore time.Time `json:"notifyBefore"`
 
 	// TargetUserIds 対象ユーザーIDのリスト
 	TargetUserIds []string `json:"targetUserIds"`
@@ -182,7 +185,8 @@ type Notification struct {
 // NotificationRequest defines model for NotificationRequest.
 type NotificationRequest struct {
 	Message       string    `json:"message"`
-	NotifyAt      time.Time `json:"notifyAt"`
+	NotifyAfter   time.Time `json:"notifyAfter"`
+	NotifyBefore  time.Time `json:"notifyBefore"`
 	TargetUserIds []string  `json:"targetUserIds"`
 	Title         string    `json:"title"`
 	Url           *string   `json:"url,omitempty"`
@@ -240,14 +244,19 @@ type FCMTokenV1ListParams struct {
 
 // NotificationV1ListParams defines parameters for NotificationV1List.
 type NotificationV1ListParams struct {
-	// NotifyAtFrom 通知予定日時の開始日時 (notifyAt >= notifyAtFrom)
+	// NotifyAtFrom 通知予定期間の開始日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyBefore >= notifyAtFrom）
 	NotifyAtFrom *time.Time `form:"notifyAtFrom,omitempty" json:"notifyAtFrom,omitempty"`
 
-	// NotifyAtTo 通知予定日時の終了日時 (notifyAt <= notifyAtTo)
+	// NotifyAtTo 通知予定期間の終了日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyAfter <= notifyAtTo）
 	NotifyAtTo *time.Time `form:"notifyAtTo,omitempty" json:"notifyAtTo,omitempty"`
 
 	// IsNotified 通知済みかどうか (true: 通知済みの通知のみ、false: 通知未済みの通知のみ、指定なし: 全ての通知)
 	IsNotified *bool `form:"isNotified,omitempty" json:"isNotified,omitempty"`
+}
+
+// NotificationV1DispatchJSONBody defines parameters for NotificationV1Dispatch.
+type NotificationV1DispatchJSONBody struct {
+	NotificationIds []string `json:"notificationIds"`
 }
 
 // FCMTokenV1UpsertJSONRequestBody defines body for FCMTokenV1Upsert for application/json ContentType.
@@ -255,6 +264,9 @@ type FCMTokenV1UpsertJSONRequestBody = FCMTokenRequest
 
 // NotificationV1CreateJSONRequestBody defines body for NotificationV1Create for application/json ContentType.
 type NotificationV1CreateJSONRequestBody = NotificationRequest
+
+// NotificationV1DispatchJSONRequestBody defines body for NotificationV1Dispatch for application/json ContentType.
+type NotificationV1DispatchJSONRequestBody NotificationV1DispatchJSONBody
 
 // NotificationV1UpdateJSONRequestBody defines body for NotificationV1Update for application/json ContentType.
 type NotificationV1UpdateJSONRequestBody = NotificationRequest
@@ -276,6 +288,9 @@ type ServerInterface interface {
 
 	// (POST /v1/notifications)
 	NotificationV1Create(c *gin.Context)
+
+	// (POST /v1/notifications/dispatch)
+	NotificationV1Dispatch(c *gin.Context)
 
 	// (DELETE /v1/notifications/{id})
 	NotificationV1Delete(c *gin.Context, id string)
@@ -420,6 +435,19 @@ func (siw *ServerInterfaceWrapper) NotificationV1Create(c *gin.Context) {
 	siw.Handler.NotificationV1Create(c)
 }
 
+// NotificationV1Dispatch operation middleware
+func (siw *ServerInterfaceWrapper) NotificationV1Dispatch(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.NotificationV1Dispatch(c)
+}
+
 // NotificationV1Delete operation middleware
 func (siw *ServerInterfaceWrapper) NotificationV1Delete(c *gin.Context) {
 
@@ -560,6 +588,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.POST(options.BaseURL+"/v1/fcmTokens", wrapper.FCMTokenV1Upsert)
 	router.GET(options.BaseURL+"/v1/notifications", wrapper.NotificationV1List)
 	router.POST(options.BaseURL+"/v1/notifications", wrapper.NotificationV1Create)
+	router.POST(options.BaseURL+"/v1/notifications/dispatch", wrapper.NotificationV1Dispatch)
 	router.DELETE(options.BaseURL+"/v1/notifications/:id", wrapper.NotificationV1Delete)
 	router.PUT(options.BaseURL+"/v1/notifications/:id", wrapper.NotificationV1Update)
 	router.GET(options.BaseURL+"/v1/users", wrapper.UsersV1List)
@@ -641,6 +670,33 @@ func (response NotificationV1Create201JSONResponse) VisitNotificationV1CreateRes
 	w.WriteHeader(201)
 
 	return json.NewEncoder(w).Encode(response)
+}
+
+type NotificationV1DispatchRequestObject struct {
+	Body *NotificationV1DispatchJSONRequestBody
+}
+
+type NotificationV1DispatchResponseObject interface {
+	VisitNotificationV1DispatchResponse(w http.ResponseWriter) error
+}
+
+type NotificationV1Dispatch200JSONResponse struct {
+	Notifications []Notification `json:"notifications"`
+}
+
+func (response NotificationV1Dispatch200JSONResponse) VisitNotificationV1DispatchResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type NotificationV1Dispatch400Response struct {
+}
+
+func (response NotificationV1Dispatch400Response) VisitNotificationV1DispatchResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
 }
 
 type NotificationV1DeleteRequestObject struct {
@@ -774,6 +830,9 @@ type StrictServerInterface interface {
 
 	// (POST /v1/notifications)
 	NotificationV1Create(ctx context.Context, request NotificationV1CreateRequestObject) (NotificationV1CreateResponseObject, error)
+
+	// (POST /v1/notifications/dispatch)
+	NotificationV1Dispatch(ctx context.Context, request NotificationV1DispatchRequestObject) (NotificationV1DispatchResponseObject, error)
 
 	// (DELETE /v1/notifications/{id})
 	NotificationV1Delete(ctx context.Context, request NotificationV1DeleteRequestObject) (NotificationV1DeleteResponseObject, error)
@@ -916,6 +975,39 @@ func (sh *strictHandler) NotificationV1Create(ctx *gin.Context) {
 		ctx.Status(http.StatusInternalServerError)
 	} else if validResponse, ok := response.(NotificationV1CreateResponseObject); ok {
 		if err := validResponse.VisitNotificationV1CreateResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// NotificationV1Dispatch operation middleware
+func (sh *strictHandler) NotificationV1Dispatch(ctx *gin.Context) {
+	var request NotificationV1DispatchRequestObject
+
+	var body NotificationV1DispatchJSONRequestBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.NotificationV1Dispatch(ctx, request.(NotificationV1DispatchRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "NotificationV1Dispatch")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(NotificationV1DispatchResponseObject); ok {
+		if err := validResponse.VisitNotificationV1DispatchResponse(ctx.Writer); err != nil {
 			ctx.Error(err)
 		}
 	} else if response != nil {
