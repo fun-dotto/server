@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	firebase "firebase.google.com/go/v4"
 	api "github.com/fun-dotto/user-api/generated"
 	"github.com/fun-dotto/user-api/internal/database"
 	"github.com/fun-dotto/user-api/internal/handler"
@@ -61,12 +62,21 @@ func main() {
 	router.Use(middleware.Timeout(handlerTimeout))
 	router.Use(oapimw.OapiRequestValidator(spec))
 
+	firebaseApp, err := firebase.NewApp(context.Background(), nil)
+	if err != nil {
+		log.Fatalf("Failed to initialize Firebase app: %v", err)
+	}
+	messagingClient, err := firebaseApp.Messaging(context.Background())
+	if err != nil {
+		log.Fatalf("Failed to initialize Firebase Messaging client: %v", err)
+	}
+
 	userRepo := repository.NewUserRepository(db)
 	fcmTokenRepo := repository.NewFCMTokenRepository(db)
 	notificationRepo := repository.NewNotificationRepository(db)
 	userService := service.NewUserService(userRepo)
 	fcmTokenService := service.NewFCMTokenService(fcmTokenRepo)
-	notificationService := service.NewNotificationService(notificationRepo)
+	notificationService := service.NewNotificationService(notificationRepo, fcmTokenRepo, messagingClient)
 	h := handler.NewHandler(userService, fcmTokenService, notificationService)
 	strictHandler := api.NewStrictHandler(h, []api.StrictMiddlewareFunc{
 		middleware.DeadlineErrorMapper(),
