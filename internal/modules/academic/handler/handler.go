@@ -70,16 +70,23 @@ type roomChangeService interface {
 	Delete(ctx context.Context, id string) error
 }
 
+type facultyRoomService interface {
+	List(ctx context.Context, filter domain.FacultyRoomListFilter) ([]domain.FacultyRoom, error)
+	Create(ctx context.Context, fr domain.FacultyRoom) (domain.FacultyRoom, error)
+	Delete(ctx context.Context, id string) error
+}
+
 type Handler struct {
-	subjectSvc               subjectService
-	facultySvc               facultyService
-	roomSvc                  roomService
-	timetableItemSvc         timetableItemService
-	courseRegistrationSvc    courseRegistrationService
+	subjectSvc              subjectService
+	facultySvc              facultyService
+	roomSvc                 roomService
+	timetableItemSvc        timetableItemService
+	courseRegistrationSvc   courseRegistrationService
 	personalCalendarItemSvc personalCalendarItemService
 	cancelledClassSvc       cancelledClassService
 	makeupClassSvc          makeupClassService
 	roomChangeSvc           roomChangeService
+	facultyRoomSvc          facultyRoomService
 }
 
 func NewHandler(
@@ -92,16 +99,18 @@ func NewHandler(
 	cancelledClassSvc cancelledClassService,
 	makeupClassSvc makeupClassService,
 	roomChangeSvc roomChangeService,
+	facultyRoomSvc facultyRoomService,
 ) *Handler {
 	return &Handler{
-		subjectSvc:               subjectSvc,
-		facultySvc:               facultySvc,
-		roomSvc:                  roomSvc,
-		timetableItemSvc:         timetableItemSvc,
-		courseRegistrationSvc:    courseRegistrationSvc,
+		subjectSvc:              subjectSvc,
+		facultySvc:              facultySvc,
+		roomSvc:                 roomSvc,
+		timetableItemSvc:        timetableItemSvc,
+		courseRegistrationSvc:   courseRegistrationSvc,
 		personalCalendarItemSvc: personalCalendarItemSvc,
 		cancelledClassSvc:       cancelledClassSvc,
 		makeupClassSvc:          makeupClassSvc,
 		roomChangeSvc:           roomChangeSvc,
+		facultyRoomSvc:          facultyRoomSvc,
 	}
 }

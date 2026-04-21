@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	api "github.com/fun-dotto/academic-api/generated"
+	"github.com/fun-dotto/academic-api/internal/repository"
 	"gorm.io/gorm"
 )
 
@@ -12,6 +13,9 @@ func (h *Handler) RoomsV1Delete(ctx context.Context, request api.RoomsV1DeleteRe
 	if err := h.roomSvc.Delete(ctx, request.Id); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return api.RoomsV1Delete404Response{}, nil
+		}
+		if errors.Is(err, repository.ErrRoomInUse) {
+			return api.RoomsV1Delete409Response{}, nil
 		}
 		return nil, err
 	}

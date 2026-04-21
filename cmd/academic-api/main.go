@@ -73,6 +73,7 @@ func main() {
 	cancelledClassRepo := repository.NewCancelledClassRepository(db)
 	makeupClassRepo := repository.NewMakeupClassRepository(db)
 	roomChangeRepo := repository.NewRoomChangeRepository(db)
+	facultyRoomRepo := repository.NewFacultyRoomRepository(db)
 	// Events
 	substituteDayMap, err := event.LoadSubstituteDayMap(assets.EventsJSON)
 	if err != nil {
@@ -89,9 +90,10 @@ func main() {
 	cancelledClassSvc := service.NewCancelledClassService(cancelledClassRepo)
 	makeupClassSvc := service.NewMakeupClassService(makeupClassRepo)
 	roomChangeSvc := service.NewRoomChangeService(roomChangeRepo)
+	facultyRoomSvc := service.NewFacultyRoomService(facultyRoomRepo)
 
 	// Handler + Router
-	h := handler.NewHandler(subjectSvc, facultySvc, roomSvc, timetableItemSvc, courseRegistrationSvc, personalCalendarItemSvc, cancelledClassSvc, makeupClassSvc, roomChangeSvc)
+	h := handler.NewHandler(subjectSvc, facultySvc, roomSvc, timetableItemSvc, courseRegistrationSvc, personalCalendarItemSvc, cancelledClassSvc, makeupClassSvc, roomChangeSvc, facultyRoomSvc)
 	strictHandler := api.NewStrictHandler(h, []api.StrictMiddlewareFunc{
 		middleware.DeadlineErrorMapper(),
 	})

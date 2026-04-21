@@ -70,6 +70,9 @@ func (r *RoomRepository) Update(ctx context.Context, room domain.Room) (domain.R
 	return r.GetByID(ctx, room.ID)
 }
 
+// ErrRoomInUse は、Room に紐づく FacultyRoom が存在し削除できないことを示す。
+var ErrRoomInUse = errors.New("room is in use by faculty room assignments")
+
 func (r *RoomRepository) Delete(ctx context.Context, id string) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var room database.Room
@@ -78,6 +81,14 @@ func (r *RoomRepository) Delete(ctx context.Context, id string) error {
 				return err
 			}
 			return err
+		}
+
+		var facultyRoomCount int64
+		if err := tx.Model(&database.FacultyRoom{}).Where("room_id = ?", id).Count(&facultyRoomCount).Error; err != nil {
+			return err
+		}
+		if facultyRoomCount > 0 {
+			return ErrRoomInUse
 		}
 
 		result := tx.Where("id = ?", id).Delete(&database.Room{})

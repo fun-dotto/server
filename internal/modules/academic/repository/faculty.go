@@ -78,6 +78,10 @@ func (r *FacultyRepository) Delete(ctx context.Context, id string) error {
 			return err
 		}
 
+		if err := tx.Where("faculty_id = ?", id).Delete(&database.FacultyRoom{}).Error; err != nil {
+			return err
+		}
+
 		result := tx.Where("id = ?", id).Delete(&database.Faculty{})
 		if result.Error != nil {
 			return result.Error
