@@ -35,6 +35,7 @@ type PersonalCalendarItemService struct {
 	makeupClassRepo        personalCalendarItemMakeupClassRepository
 	roomChangeRepo         personalCalendarItemRoomChangeRepository
 	substituteDayMap       map[string]domain.DayOfWeek
+	holidaySet             map[string]struct{}
 }
 
 func NewPersonalCalendarItemService(
@@ -44,6 +45,7 @@ func NewPersonalCalendarItemService(
 	makeupClassRepo personalCalendarItemMakeupClassRepository,
 	roomChangeRepo personalCalendarItemRoomChangeRepository,
 	substituteDayMap map[string]domain.DayOfWeek,
+	holidaySet map[string]struct{},
 ) *PersonalCalendarItemService {
 	return &PersonalCalendarItemService{
 		courseRegistrationRepo: courseRegistrationRepo,
@@ -52,6 +54,7 @@ func NewPersonalCalendarItemService(
 		makeupClassRepo:        makeupClassRepo,
 		roomChangeRepo:         roomChangeRepo,
 		substituteDayMap:       substituteDayMap,
+		holidaySet:             holidaySet,
 	}
 }
 
@@ -207,6 +210,11 @@ func (s *PersonalCalendarItemService) List(
 	// 時間割ベースのアイテム生成
 	for _, date := range dates {
 		dateStr := date.Format("2006-01-02")
+
+		// 休日の場合はスキップ
+		if _, isHoliday := s.holidaySet[dateStr]; isHoliday {
+			continue
+		}
 
 		dow, ok := s.substituteDayMap[dateStr]
 		if !ok {

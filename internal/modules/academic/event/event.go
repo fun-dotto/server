@@ -42,3 +42,17 @@ func LoadSubstituteDayMap(eventsJSON []byte) (map[string]domain.DayOfWeek, error
 	}
 	return result, nil
 }
+
+// LoadHolidaySet は休日用 JSON を解析し、休日の日付文字列（例: "2026-04-30"）のセットを返す。
+func LoadHolidaySet(holidaysJSON []byte) (map[string]struct{}, error) {
+	var raw map[string]string
+	if err := json.Unmarshal(holidaysJSON, &raw); err != nil {
+		return nil, fmt.Errorf("failed to parse holidays JSON: %w", err)
+	}
+
+	result := make(map[string]struct{}, len(raw))
+	for date := range raw {
+		result[date] = struct{}{}
+	}
+	return result, nil
+}
