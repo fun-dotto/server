@@ -39,6 +39,10 @@ func (r *MakeupClassRepository) List(ctx context.Context, filter domain.MakeupCl
 		query = query.Where("date <= ?", filter.Until.Format("2006-01-02"))
 	}
 
+	query = query.
+		Joins("JOIN subjects ON subjects.id = makeup_classes.subject_id").
+		Order("makeup_classes.date ASC, makeup_classes.period ASC, subjects.syllabus_id ASC")
+
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err
 	}

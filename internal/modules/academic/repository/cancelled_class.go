@@ -39,6 +39,10 @@ func (r *CancelledClassRepository) List(ctx context.Context, filter domain.Cance
 		query = query.Where("date <= ?", filter.Until.Format("2006-01-02"))
 	}
 
+	query = query.
+		Joins("JOIN subjects ON subjects.id = cancelled_classes.subject_id").
+		Order("cancelled_classes.date ASC, cancelled_classes.period ASC, subjects.syllabus_id ASC")
+
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err
 	}

@@ -41,6 +41,10 @@ func (r *RoomChangeRepository) List(ctx context.Context, filter domain.RoomChang
 		query = query.Where("date <= ?", filter.Until.Format("2006-01-02"))
 	}
 
+	query = query.
+		Joins("JOIN subjects ON subjects.id = room_changes.subject_id").
+		Order("room_changes.date ASC, room_changes.period ASC, subjects.syllabus_id ASC")
+
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err
 	}
