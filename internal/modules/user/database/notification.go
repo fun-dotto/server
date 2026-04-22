@@ -11,8 +11,9 @@ type Notification struct {
 	Title      string    `gorm:"type:text;not null"`
 	Message    string    `gorm:"type:text;not null"`
 	URL        *string   `gorm:"type:text"`
-	NotifyAt   time.Time `gorm:"type:timestamptz;not null;index"`
-	IsNotified bool      `gorm:"type:boolean;not null;default:false;index"`
+	NotifyAfter  time.Time `gorm:"type:timestamptz;not null;index"`
+	NotifyBefore time.Time `gorm:"type:timestamptz;not null;index"`
+	IsNotified   bool      `gorm:"type:boolean;not null;default:false;index"`
 }
 
 func (n *Notification) ToDomain(targetUserIDs []string) domain.Notification {
@@ -21,7 +22,8 @@ func (n *Notification) ToDomain(targetUserIDs []string) domain.Notification {
 		Title:         n.Title,
 		Message:       n.Message,
 		URL:           n.URL,
-		NotifyAt:      n.NotifyAt,
+		NotifyAfter:   n.NotifyAfter,
+		NotifyBefore:  n.NotifyBefore,
 		IsNotified:    n.IsNotified,
 		TargetUserIDs: targetUserIDs,
 	}
@@ -33,7 +35,8 @@ func NotificationFromDomain(n domain.Notification) Notification {
 		Title:      n.Title,
 		Message:    n.Message,
 		URL:        n.URL,
-		NotifyAt:   n.NotifyAt,
-		IsNotified: n.IsNotified,
+		NotifyAfter:  n.NotifyAfter,
+		NotifyBefore: n.NotifyBefore,
+		IsNotified:   n.IsNotified,
 	}
 }

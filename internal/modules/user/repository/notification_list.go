@@ -11,17 +11,17 @@ func (r *NotificationRepository) ListNotifications(ctx context.Context, filter d
 	query := r.db.WithContext(ctx).Model(&database.Notification{})
 
 	if filter.NotifyAtFrom != nil {
-		query = query.Where("notify_at >= ?", *filter.NotifyAtFrom)
+		query = query.Where("notify_before >= ?", *filter.NotifyAtFrom)
 	}
 	if filter.NotifyAtTo != nil {
-		query = query.Where("notify_at <= ?", *filter.NotifyAtTo)
+		query = query.Where("notify_after <= ?", *filter.NotifyAtTo)
 	}
 	if filter.IsNotified != nil {
 		query = query.Where("is_notified = ?", *filter.IsNotified)
 	}
 
 	var dbNotifications []database.Notification
-	if err := query.Order("notify_at DESC").Find(&dbNotifications).Error; err != nil {
+	if err := query.Order("notify_after DESC").Find(&dbNotifications).Error; err != nil {
 		return nil, err
 	}
 
