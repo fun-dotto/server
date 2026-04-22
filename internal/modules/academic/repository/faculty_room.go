@@ -28,9 +28,11 @@ func (r *FacultyRoomRepository) facultyRoomPreload(db *gorm.DB) *gorm.DB {
 }
 
 func (r *FacultyRoomRepository) List(ctx context.Context, filter domain.FacultyRoomListFilter) ([]domain.FacultyRoom, error) {
-	query := r.facultyRoomPreload(r.db.WithContext(ctx))
+	query := r.facultyRoomPreload(r.db.WithContext(ctx)).
+		Joins("JOIN rooms ON rooms.id = faculty_rooms.room_id").
+		Order("faculty_rooms.year ASC, rooms.floor ASC, rooms.name ASC")
 	if filter.Year != nil {
-		query = query.Where("year = ?", *filter.Year)
+		query = query.Where("faculty_rooms.year = ?", *filter.Year)
 	}
 
 	var records []database.FacultyRoom

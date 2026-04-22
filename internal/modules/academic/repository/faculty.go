@@ -23,7 +23,7 @@ func (r *FacultyRepository) List(ctx context.Context, ids []string) ([]domain.Fa
 	if len(ids) > 0 {
 		query = query.Where("id IN ?", ids)
 	}
-	if err := query.Find(&dbFaculties).Error; err != nil {
+	if err := query.Order("email ASC").Find(&dbFaculties).Error; err != nil {
 		return nil, err
 	}
 

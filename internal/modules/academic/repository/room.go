@@ -30,7 +30,7 @@ func (r *RoomRepository) List(ctx context.Context, filter domain.RoomListFilter)
 		}
 		query = query.Where("floor IN ?", floors)
 	}
-	if err := query.Find(&dbRooms).Error; err != nil {
+	if err := query.Order("floor ASC, name ASC").Find(&dbRooms).Error; err != nil {
 		return nil, err
 	}
 
