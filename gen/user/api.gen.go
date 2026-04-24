@@ -161,11 +161,55 @@ type FCMTokenRequest struct {
 
 // Notification defines model for Notification.
 type Notification struct {
+	// AnalyticsLabel Firebase Analytics に記録する分析ラベル
+	//
+	// 通知の開封率計測などに利用
+	AnalyticsLabel *string `json:"analyticsLabel,omitempty"`
+
+	// AndroidChannelId Android の通知チャンネルID
+	//
+	// Android 8.0 以降、通知はチャンネル単位で管理される
+	AndroidChannelId *string `json:"androidChannelId,omitempty"`
+
+	// AndroidPriority Android の通知優先度
+	//
+	// "normal" または "high"。"high" は即時配信される
+	AndroidPriority *string `json:"androidPriority,omitempty"`
+
+	// AndroidTtlSeconds Android の通知TTL（秒）
+	//
+	// FCM がメッセージを保持する最大時間。期限切れで破棄される
+	AndroidTtlSeconds *int `json:"androidTtlSeconds,omitempty"`
+
+	// ApnsBadge APNs のバッジ数
+	//
+	// アプリアイコンに表示される数値。0 でバッジを消去
+	ApnsBadge *int `json:"apnsBadge,omitempty"`
+
+	// ApnsContentAvailable APNs の content-available フラグ
+	//
+	// true でサイレントプッシュ（バックグラウンド更新）になる
+	ApnsContentAvailable *bool `json:"apnsContentAvailable,omitempty"`
+
+	// ApnsSound APNs の通知音
+	//
+	// - "default": OS 標準の通知音
+	// - "" または省略: 無音
+	// - 任意のファイル名（例: "alert.caf"）: アプリバンドルまたは Library/Sounds/ に同梱されたカスタムサウンド
+	// 対応フォーマットは .caf / .aiff / .wav（Linear PCM, MA4, µ-law, a-law）、最大30秒
+	ApnsSound *string `json:"apnsSound,omitempty"`
+
+	// Body 通知本文
+	Body string `json:"body"`
+
+	// Id 通知ID
 	Id string `json:"id"`
 
+	// ImageUrl 通知に表示する画像のURL
+	ImageUrl *string `json:"imageUrl,omitempty"`
+
 	// IsNotified 通知が送信されたかどうか
-	IsNotified bool   `json:"isNotified"`
-	Message    string `json:"message"`
+	IsNotified bool `json:"isNotified"`
 
 	// NotifyAfter 通知送信可能になる日時（この時刻以降に送信対象となる）
 	NotifyAfter time.Time `json:"notifyAfter"`
@@ -175,21 +219,70 @@ type Notification struct {
 
 	// TargetUserIds 対象ユーザーIDのリスト
 	TargetUserIds []string `json:"targetUserIds"`
-	Title         string   `json:"title"`
+
+	// Title 通知タイトル
+	Title string `json:"title"`
 
 	// Url 通知をタップした時に開くURL
-	// アプリを開くのみの場合はnull
+	// アプリを開くのみの場合は未指定
 	Url *string `json:"url,omitempty"`
+
+	// WebpushLink Web Push 通知をクリックした際に開くURL
+	WebpushLink *string `json:"webpushLink,omitempty"`
 }
 
 // NotificationRequest defines model for NotificationRequest.
 type NotificationRequest struct {
-	Message       string    `json:"message"`
-	NotifyAfter   time.Time `json:"notifyAfter"`
-	NotifyBefore  time.Time `json:"notifyBefore"`
-	TargetUserIds []string  `json:"targetUserIds"`
-	Title         string    `json:"title"`
-	Url           *string   `json:"url,omitempty"`
+	// AnalyticsLabel Firebase Analytics に記録する分析ラベル
+	AnalyticsLabel *string `json:"analyticsLabel,omitempty"`
+
+	// AndroidChannelId Android の通知チャンネルID
+	AndroidChannelId *string `json:"androidChannelId,omitempty"`
+
+	// AndroidPriority Android の通知優先度（"normal" または "high"）
+	AndroidPriority *string `json:"androidPriority,omitempty"`
+
+	// AndroidTtlSeconds Android の通知TTL（秒）
+	AndroidTtlSeconds *int `json:"androidTtlSeconds,omitempty"`
+
+	// ApnsBadge APNs のバッジ数
+	ApnsBadge *int `json:"apnsBadge,omitempty"`
+
+	// ApnsContentAvailable APNs の content-available フラグ（true でサイレントプッシュ）
+	ApnsContentAvailable *bool `json:"apnsContentAvailable,omitempty"`
+
+	// ApnsSound APNs の通知音
+	//
+	// - "default": OS 標準の通知音
+	// - "" または省略: 無音
+	// - 任意のファイル名（例: "alert.caf"）: アプリバンドルまたは Library/Sounds/ に同梱されたカスタムサウンド
+	// 対応フォーマットは .caf / .aiff / .wav（Linear PCM, MA4, µ-law, a-law）、最大30秒
+	ApnsSound *string `json:"apnsSound,omitempty"`
+
+	// Body 通知本文
+	Body string `json:"body"`
+
+	// ImageUrl 通知に表示する画像のURL
+	ImageUrl *string `json:"imageUrl,omitempty"`
+
+	// NotifyAfter 通知送信可能になる日時（この時刻以降に送信対象となる）
+	NotifyAfter time.Time `json:"notifyAfter"`
+
+	// NotifyBefore 通知送信期限日時（この時刻を過ぎた場合は送信しない）
+	NotifyBefore time.Time `json:"notifyBefore"`
+
+	// TargetUserIds 対象ユーザーIDのリスト
+	TargetUserIds []string `json:"targetUserIds"`
+
+	// Title 通知タイトル
+	Title string `json:"title"`
+
+	// Url 通知をタップした時に開くURL
+	// アプリを開くのみの場合は未指定
+	Url *string `json:"url,omitempty"`
+
+	// WebpushLink Web Push 通知をクリックした際に開くURL
+	WebpushLink *string `json:"webpushLink,omitempty"`
 }
 
 // User defines model for User.
