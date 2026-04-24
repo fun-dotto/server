@@ -83,14 +83,23 @@ func toDomainFCMToken(req api.FCMTokenRequest) domain.FCMToken {
 
 func toAPINotification(n domain.Notification) api.Notification {
 	return api.Notification{
-		Id:            n.ID,
-		Title:         n.Title,
-		Body:          n.Message,
-		Url:           n.URL,
-		NotifyAfter:   n.NotifyAfter,
-		NotifyBefore:  n.NotifyBefore,
-		IsNotified:    n.IsNotified,
-		TargetUserIds: n.TargetUserIDs,
+		Id:                   n.ID,
+		Title:                n.Title,
+		Body:                 n.Body,
+		ImageUrl:             n.ImageURL,
+		AnalyticsLabel:       n.AnalyticsLabel,
+		ApnsSound:            n.APNsSound,
+		ApnsBadge:            n.APNsBadge,
+		ApnsContentAvailable: n.APNsContentAvailable,
+		AndroidChannelId:     n.AndroidChannelID,
+		AndroidPriority:      n.AndroidPriority,
+		AndroidTtlSeconds:    n.AndroidTTLSeconds,
+		WebpushLink:          n.WebpushLink,
+		Url:                  n.URL,
+		NotifyAfter:          n.NotifyAfter,
+		NotifyBefore:         n.NotifyBefore,
+		IsNotified:           n.IsNotified,
+		TargetUserIds:        n.TargetUserIDs,
 	}
 }
 
@@ -104,13 +113,22 @@ func toAPINotifications(notifications []domain.Notification) []api.Notification 
 
 func toDomainNotification(id string, req api.NotificationRequest) domain.Notification {
 	return domain.Notification{
-		ID:            id,
-		Title:         req.Title,
-		Message:       req.Body,
-		URL:           req.Url,
-		NotifyAfter:   req.NotifyAfter,
-		NotifyBefore:  req.NotifyBefore,
-		TargetUserIDs: req.TargetUserIds,
+		ID:                   id,
+		Title:                req.Title,
+		Body:                 req.Body,
+		ImageURL:             req.ImageUrl,
+		AnalyticsLabel:       req.AnalyticsLabel,
+		APNsSound:            req.ApnsSound,
+		APNsBadge:            req.ApnsBadge,
+		APNsContentAvailable: req.ApnsContentAvailable,
+		AndroidChannelID:     req.AndroidChannelId,
+		AndroidPriority:      req.AndroidPriority,
+		AndroidTTLSeconds:    req.AndroidTtlSeconds,
+		WebpushLink:          req.WebpushLink,
+		URL:                  req.Url,
+		NotifyAfter:          req.NotifyAfter,
+		NotifyBefore:         req.NotifyBefore,
+		TargetUserIDs:        req.TargetUserIds,
 	}
 }
 
