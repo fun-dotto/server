@@ -406,8 +406,7 @@ components:
         - body
         - notifyAfter
         - notifyBefore
-        - isNotified
-        - targetUserIds
+        - targetUsers
       properties:
         id:
           type: string
@@ -482,14 +481,11 @@ components:
           type: string
           format: date-time
           description: 通知送信期限日時（この時刻を過ぎた場合は送信しない）
-        isNotified:
-          type: boolean
-          description: 通知が送信されたかどうか
-        targetUserIds:
+        targetUsers:
           type: array
           items:
-            type: string
-          description: 対象ユーザーIDのリスト
+            $ref: '#/components/schemas/NotificationTargetUser'
+          description: 対象ユーザーのリスト
     NotificationRequest:
       type: object
       required:
@@ -556,6 +552,21 @@ components:
           items:
             type: string
           description: 対象ユーザーIDのリスト
+    NotificationTargetUser:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+          description: ユーザーID
+        notifiedAt:
+          type: string
+          format: date-time
+          description: |-
+            通知送信日時
+
+            通知が送信された日時。送信前は null
     User:
       type: object
       required:

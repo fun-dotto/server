@@ -82,6 +82,10 @@ func toDomainFCMToken(req api.FCMTokenRequest) domain.FCMToken {
 }
 
 func toAPINotification(n domain.Notification) api.Notification {
+	targetUsers := make([]api.NotificationTargetUser, 0, len(n.TargetUserIDs))
+	for _, uid := range n.TargetUserIDs {
+		targetUsers = append(targetUsers, api.NotificationTargetUser{UserId: uid})
+	}
 	return api.Notification{
 		Id:                   n.ID,
 		Title:                n.Title,
@@ -98,8 +102,7 @@ func toAPINotification(n domain.Notification) api.Notification {
 		Url:                  n.URL,
 		NotifyAfter:          n.NotifyAfter,
 		NotifyBefore:         n.NotifyBefore,
-		IsNotified:           n.IsNotified,
-		TargetUserIds:        n.TargetUserIDs,
+		TargetUsers:          targetUsers,
 	}
 }
 
