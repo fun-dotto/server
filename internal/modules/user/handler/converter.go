@@ -82,9 +82,12 @@ func toDomainFCMToken(req api.FCMTokenRequest) domain.FCMToken {
 }
 
 func toAPINotification(n domain.Notification) api.Notification {
-	targetUsers := make([]api.NotificationTargetUser, 0, len(n.TargetUserIDs))
-	for _, uid := range n.TargetUserIDs {
-		targetUsers = append(targetUsers, api.NotificationTargetUser{UserId: uid})
+	targetUsers := make([]api.NotificationTargetUser, 0, len(n.TargetUsers))
+	for _, t := range n.TargetUsers {
+		targetUsers = append(targetUsers, api.NotificationTargetUser{
+			UserId:     t.UserID,
+			NotifiedAt: t.NotifiedAt,
+		})
 	}
 	return api.Notification{
 		Id:                   n.ID,
@@ -115,6 +118,10 @@ func toAPINotifications(notifications []domain.Notification) []api.Notification 
 }
 
 func toDomainNotification(id string, req api.NotificationRequest) domain.Notification {
+	targetUsers := make([]domain.NotificationTargetUser, 0, len(req.TargetUserIds))
+	for _, uid := range req.TargetUserIds {
+		targetUsers = append(targetUsers, domain.NotificationTargetUser{UserID: uid})
+	}
 	return domain.Notification{
 		ID:                   id,
 		Title:                req.Title,
@@ -131,7 +138,7 @@ func toDomainNotification(id string, req api.NotificationRequest) domain.Notific
 		URL:                  req.Url,
 		NotifyAfter:          req.NotifyAfter,
 		NotifyBefore:         req.NotifyBefore,
-		TargetUserIDs:        req.TargetUserIds,
+		TargetUsers:          targetUsers,
 	}
 }
 

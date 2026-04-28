@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/fun-dotto/user-api/internal/database"
 	"github.com/fun-dotto/user-api/internal/domain"
@@ -31,9 +32,12 @@ func (r *NotificationRepository) GetNotificationsByIDs(ctx context.Context, ids 
 		return nil, err
 	}
 
-	targetMap := make(map[string][]string)
+	targetMap := make(map[string][]domain.NotificationTargetUser)
 	for _, t := range allTargets {
-		targetMap[t.NotificationID] = append(targetMap[t.NotificationID], t.UserID)
+		targetMap[t.NotificationID] = append(targetMap[t.NotificationID], domain.NotificationTargetUser{
+			UserID:     t.UserID,
+			NotifiedAt: t.NotifiedAt,
+		})
 	}
 
 	notifications := make([]domain.Notification, 0, len(dbNotifications))
@@ -44,26 +48,32 @@ func (r *NotificationRepository) GetNotificationsByIDs(ctx context.Context, ids 
 	return notifications, nil
 }
 
-func (r *NotificationRepository) DispatchNotifications(ctx context.Context, ids []string) ([]domain.Notification, error) {
-	uniqueIDs := uniqueStrings(ids)
-	if len(uniqueIDs) == 0 {
+func (r *NotificationRepository) DispatchNotifications(ctx context.Context, deliveries map[string][]string) ([]domain.Notification, error) {
+	if len(deliveries) == 0 {
 		return []domain.Notification{}, nil
 	}
 
-	if err := r.db.WithContext(ctx).Model(&database.Notification{}).
-		Where("id IN ?", uniqueIDs).
-		Update("is_notified", true).Error; err != nil {
-		return nil, err
+	now := time.Now()
+	notificationIDs := make([]string, 0, len(deliveries))
+	for nid, userIDs := range deliveries {
+		uniqueUsers := uniqueStrings(userIDs)
+		if len(uniqueUsers) == 0 {
+			continue
+		}
+		db := r.db.WithContext(ctx).Model(&database.NotificationTargetUser{}).
+			Where("notification_id = ? AND user_id IN ?", nid, uniqueUsers).
+			Update("notified_at", now)
+		if db.Error != nil {
+			return nil, db.Error
+		}
+		if db.RowsAffected > 0 {
+			notificationIDs = append(notificationIDs, nid)
+		}
 	}
 
-	notifications, err := r.GetNotificationsByIDs(ctx, uniqueIDs)
-	if err != nil {
-		return nil, err
+	if len(notificationIDs) == 0 {
+		return []domain.Notification{}, nil
 	}
 
-	for i := range notifications {
-		notifications[i].IsNotified = true
-	}
-
-	return notifications, nil
+	return r.GetNotificationsByIDs(ctx, notificationIDs)
 }

@@ -21,7 +21,11 @@ type Notification struct {
 
 	NotifyAfter  time.Time
 	NotifyBefore time.Time
-	IsNotified   bool
 
-	TargetUserIDs []string
+	TargetUsers []NotificationTargetUser
+}
+
+type NotificationTargetUser struct {
+	UserID     string
+	NotifiedAt *time.Time
 }

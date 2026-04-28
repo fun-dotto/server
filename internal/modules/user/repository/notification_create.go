@@ -14,18 +14,20 @@ func (r *NotificationRepository) CreateNotification(ctx context.Context, notific
 
 	dbNotification := database.NotificationFromDomain(notification)
 
+	uniqueTargets := uniqueTargetUsers(notification.TargetUsers)
+
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&dbNotification).Error; err != nil {
 			return err
 		}
 
-		uniqueIDs := uniqueStrings(notification.TargetUserIDs)
-		if len(uniqueIDs) > 0 {
-			targets := make([]database.NotificationTargetUser, 0, len(uniqueIDs))
-			for _, userID := range uniqueIDs {
+		if len(uniqueTargets) > 0 {
+			targets := make([]database.NotificationTargetUser, 0, len(uniqueTargets))
+			for _, t := range uniqueTargets {
 				targets = append(targets, database.NotificationTargetUser{
 					NotificationID: notification.ID,
-					UserID:         userID,
+					UserID:         t.UserID,
+					NotifiedAt:     t.NotifiedAt,
 				})
 			}
 			if err := tx.Create(&targets).Error; err != nil {
@@ -39,5 +41,5 @@ func (r *NotificationRepository) CreateNotification(ctx context.Context, notific
 		return domain.Notification{}, err
 	}
 
-	return dbNotification.ToDomain(uniqueStrings(notification.TargetUserIDs)), nil
+	return dbNotification.ToDomain(uniqueTargets), nil
 }
