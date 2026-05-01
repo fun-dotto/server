@@ -6,8 +6,8 @@ type TimetableItem struct {
 	Common
 
 	SubjectID uuid.UUID `gorm:"type:uuid;not null;index"`
+	Subject   *Subject  `gorm:"foreignKey:SubjectID"`
 	DayOfWeek *string
 	Period    *string
-	Subject   *Subject `gorm:"foreignKey:SubjectID"`
-	Rooms     []Room   `gorm:"many2many:timetable_item_rooms"`
+	Rooms     []Room `gorm:"many2many:timetable_item_rooms"`
 }
