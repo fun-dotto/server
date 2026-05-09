@@ -9,14 +9,15 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/fun-dotto/academic-api/assets"
-	api "github.com/fun-dotto/academic-api/generated"
-	"github.com/fun-dotto/academic-api/internal/database"
-	"github.com/fun-dotto/academic-api/internal/event"
-	"github.com/fun-dotto/academic-api/internal/handler"
-	"github.com/fun-dotto/academic-api/internal/middleware"
-	"github.com/fun-dotto/academic-api/internal/repository"
-	"github.com/fun-dotto/academic-api/internal/service"
+	api "github.com/fun-dotto/server/gen/academic"
+	"github.com/fun-dotto/server/internal/modules/academic/assets"
+	"github.com/fun-dotto/server/internal/modules/academic/event"
+	"github.com/fun-dotto/server/internal/modules/academic/handler"
+	"github.com/fun-dotto/server/internal/modules/academic/middleware"
+	"github.com/fun-dotto/server/internal/modules/academic/openapispec"
+	"github.com/fun-dotto/server/internal/modules/academic/repository"
+	"github.com/fun-dotto/server/internal/modules/academic/service"
+	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -37,21 +38,20 @@ func main() {
 		log.Printf("Warning: .env file not found: %v", err)
 	}
 
-	db, err := database.ConnectWithConnectorIAMAuthN()
+	conn, err := db.ConnectWithConnectorIAMAuthN()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer func() {
-		if err := database.Close(db); err != nil {
+		if err := db.Close(conn); err != nil {
 			log.Printf("Failed to close database: %v", err)
 		}
 	}()
 
-	if err := database.AutoMigrate(db); err != nil {
-		log.Fatalf("Failed to migrate database: %v", err)
-	}
+	// マイグレーションは Atlas 専用 Cloud Run Job (cmd/migrate-job) で適用するため
+	// API プロセス起動時の AutoMigrate 呼び出しは廃止する (Notion 計画 §3 / §7-C)。
 
-	spec, err := openapi3.NewLoader().LoadFromFile("openapi/openapi.yaml")
+	spec, err := openapi3.NewLoader().LoadFromData(openapispec.Spec)
 	if err != nil {
 		log.Fatalf("Failed to load OpenAPI spec: %v", err)
 	}
@@ -64,16 +64,16 @@ func main() {
 	router.Use(oapimw.OapiRequestValidator(spec))
 
 	// Repositories
-	subjectRepo := repository.NewSubjectRepository(db)
-	syllabusRepo := repository.NewSyllabusRepository(db)
-	facultyRepo := repository.NewFacultyRepository(db)
-	roomRepo := repository.NewRoomRepository(db)
-	timetableItemRepo := repository.NewTimetableItemRepository(db)
-	courseRegistrationRepo := repository.NewCourseRegistrationRepository(db)
-	cancelledClassRepo := repository.NewCancelledClassRepository(db)
-	makeupClassRepo := repository.NewMakeupClassRepository(db)
-	roomChangeRepo := repository.NewRoomChangeRepository(db)
-	facultyRoomRepo := repository.NewFacultyRoomRepository(db)
+	subjectRepo := repository.NewSubjectRepository(conn)
+	syllabusRepo := repository.NewSyllabusRepository(conn)
+	facultyRepo := repository.NewFacultyRepository(conn)
+	roomRepo := repository.NewRoomRepository(conn)
+	timetableItemRepo := repository.NewTimetableItemRepository(conn)
+	courseRegistrationRepo := repository.NewCourseRegistrationRepository(conn)
+	cancelledClassRepo := repository.NewCancelledClassRepository(conn)
+	makeupClassRepo := repository.NewMakeupClassRepository(conn)
+	roomChangeRepo := repository.NewRoomChangeRepository(conn)
+	facultyRoomRepo := repository.NewFacultyRoomRepository(conn)
 	// Events
 	substituteDayMap, err := event.LoadSubstituteDayMap(assets.EventsJSON)
 	if err != nil {
