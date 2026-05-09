@@ -1,0 +1,72 @@
+name: Terraform Plan
+on:
+  pull_request:
+    paths:
+      - "infra/**"
+      - ".github/workflows/tf-plan.yml"
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  plan:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: true
+      - uses: jdx/mise-action@v3
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.SERVICE_ACCOUNT }}
+      - name: Terraform init
+        run: terraform init -input=false
+      - name: Terraform fmt check
+        run: terraform fmt -check -recursive
+      - name: Terraform validate
+        run: terraform validate
+      - name: Terraform plan
+        id: plan
+        run: |
+          set +e
+          terraform plan \
+            -input=false \
+            -no-color \
+            -var-file=envs/stg.tfvars \
+            -var=image_tag=${{ github.sha }} \
+            -out=tfplan.binary > tfplan.txt
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          {
+            echo "summary<<EOF"
+            tail -c 60000 tfplan.txt
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const summary = `${{ steps.plan.outputs.summary }}`;
+            const body = [
+              "### Terraform Plan (envs/stg.tfvars)",
+              "",
+              "```",
+              summary || "(no output)",
+              "```",
+            ].join("\n");
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+      - name: Fail on plan error
+        if: steps.plan.outputs.exit_code != '0' && steps.plan.outputs.exit_code != '2'
+        run: exit 1
