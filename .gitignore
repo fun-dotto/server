@@ -58,3 +58,21 @@ Temporary Items
 *.icloud
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,go
+
+### Project ###
+# Build artifacts
+/bin/
+
+# Generated code (再生成可能なものはコミット対象だが、ローカル中間物は除外)
+/gen/**/*.tmp.go
+
+# Local environment
+.env
+.env.*.local
+
+# Atlas / Terraform / mise local state
+/.atlas/
+/.terraform/
+*.tfplan
+.mise.local.toml
+
