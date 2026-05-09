@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/fun-dotto/schedule-scripts/internal/database"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/database"
 )
 
 func (r *CourseRegistrationRepository) ListUserIDsBySubject(ctx context.Context, subjectID string) ([]string, error) {

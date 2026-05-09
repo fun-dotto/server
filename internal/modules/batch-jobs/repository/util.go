@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/fun-dotto/schedule-scripts/internal/domain"
+import "github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
 
 func uniqueStrings(s []string) []string {
 	seen := make(map[string]struct{}, len(s))

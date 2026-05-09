@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/fun-dotto/schedule-scripts/internal/database"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/database"
 )
 
 // MarkUsersAsNotified は通知ID毎に指定ユーザーの notification_target_users.notified_at を現在時刻で更新する。

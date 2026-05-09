@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/fun-dotto/schedule-scripts/internal/database"
-	"github.com/fun-dotto/schedule-scripts/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/database"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
 )
 
 func (r *MakeupClassRepository) ListByDate(ctx context.Context, date time.Time) ([]domain.MakeupClass, error) {

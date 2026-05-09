@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/fun-dotto/schedule-scripts/internal/database"
-	"github.com/fun-dotto/schedule-scripts/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/database"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
 	"gorm.io/gorm"
 )
 

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"firebase.google.com/go/v4/messaging"
-	"github.com/fun-dotto/schedule-scripts/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
 )
 
 type DispatchNotificationRepository interface {

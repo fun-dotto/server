@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/fun-dotto/schedule-scripts/internal/database"
-	"github.com/fun-dotto/schedule-scripts/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/database"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
 )
 
 func (r *NotificationRepository) ListPendingNotifications(ctx context.Context, now time.Time) ([]domain.Notification, error) {

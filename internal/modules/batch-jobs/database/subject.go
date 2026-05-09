@@ -1,6 +1,6 @@
 package database
 
-import "github.com/fun-dotto/schedule-scripts/internal/domain"
+import "github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
 
 type Subject struct {
 	ID   string `gorm:"type:uuid;primaryKey"`

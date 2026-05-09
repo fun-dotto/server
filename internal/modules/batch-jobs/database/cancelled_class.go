@@ -3,7 +3,7 @@ package database
 import (
 	"time"
 
-	"github.com/fun-dotto/schedule-scripts/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
 )
 
 type CancelledClass struct {
