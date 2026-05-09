@@ -3,7 +3,7 @@ package database
 import (
 	"time"
 
-	"github.com/fun-dotto/academic-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/academic/domain"
 )
 
 type RoomChange struct {

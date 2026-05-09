@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	api "github.com/fun-dotto/academic-api/generated"
+	api "github.com/fun-dotto/server/gen/academic"
 	"gorm.io/gorm"
 )
 

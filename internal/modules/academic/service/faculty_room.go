@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/fun-dotto/academic-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/academic/domain"
 )
 
 type facultyRoomRepository interface {

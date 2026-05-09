@@ -1,8 +1,8 @@
 package handler
 
 import (
-	api "github.com/fun-dotto/academic-api/generated"
-	"github.com/fun-dotto/academic-api/internal/domain"
+	api "github.com/fun-dotto/server/gen/academic"
+	"github.com/fun-dotto/server/internal/modules/academic/domain"
 )
 
 func buildRoomListFilter(params api.RoomsV1ListParams) domain.RoomListFilter {

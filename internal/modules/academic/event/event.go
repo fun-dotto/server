@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fun-dotto/academic-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/academic/domain"
 )
 
 var japaneseDayToEnum = map[string]domain.DayOfWeek{

@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	api "github.com/fun-dotto/academic-api/generated"
+	api "github.com/fun-dotto/server/gen/academic"
 	"github.com/google/uuid"
 )
 

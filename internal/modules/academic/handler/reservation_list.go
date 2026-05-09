@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	api "github.com/fun-dotto/academic-api/generated"
+	api "github.com/fun-dotto/server/gen/academic"
 )
 
 func (h *Handler) ReservationsV1List(ctx context.Context, request api.ReservationsV1ListRequestObject) (api.ReservationsV1ListResponseObject, error) {

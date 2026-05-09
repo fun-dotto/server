@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	api "github.com/fun-dotto/academic-api/generated"
-	"github.com/fun-dotto/academic-api/internal/repository"
+	api "github.com/fun-dotto/server/gen/academic"
+	"github.com/fun-dotto/server/internal/modules/academic/repository"
 	"gorm.io/gorm"
 )
 

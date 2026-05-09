@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	api "github.com/fun-dotto/academic-api/generated"
-	"github.com/fun-dotto/academic-api/internal/domain"
+	api "github.com/fun-dotto/server/gen/academic"
+	"github.com/fun-dotto/server/internal/modules/academic/domain"
 )
 
 var _ api.StrictServerInterface = (*Handler)(nil)

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	api "github.com/fun-dotto/academic-api/generated"
+	api "github.com/fun-dotto/server/gen/academic"
 )
 
 func (h *Handler) ReservationsV1Delete(ctx context.Context, request api.ReservationsV1DeleteRequestObject) (api.ReservationsV1DeleteResponseObject, error) {

@@ -3,7 +3,7 @@ package handler
 import (
 	"testing"
 
-	"github.com/fun-dotto/academic-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/academic/domain"
 )
 
 func TestSyllabusToAPI(t *testing.T) {

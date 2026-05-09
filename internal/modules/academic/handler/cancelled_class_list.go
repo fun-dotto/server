@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	api "github.com/fun-dotto/academic-api/generated"
+	api "github.com/fun-dotto/server/gen/academic"
 )
 
 func (h *Handler) CancelledClassesV1List(ctx context.Context, request api.CancelledClassesV1ListRequestObject) (api.CancelledClassesV1ListResponseObject, error) {

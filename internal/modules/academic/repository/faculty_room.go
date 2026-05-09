@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/fun-dotto/academic-api/internal/database"
-	"github.com/fun-dotto/academic-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/academic/database"
+	"github.com/fun-dotto/server/internal/modules/academic/domain"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"

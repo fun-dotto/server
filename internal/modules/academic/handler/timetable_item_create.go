@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	api "github.com/fun-dotto/academic-api/generated"
+	api "github.com/fun-dotto/server/gen/academic"
 )
 
 func (h *Handler) TimetableItemsV1Create(ctx context.Context, request api.TimetableItemsV1CreateRequestObject) (api.TimetableItemsV1CreateResponseObject, error) {

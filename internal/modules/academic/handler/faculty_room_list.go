@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	api "github.com/fun-dotto/academic-api/generated"
+	api "github.com/fun-dotto/server/gen/academic"
 )
 
 func (h *Handler) FacultyRoomsV1List(ctx context.Context, request api.FacultyRoomsV1ListRequestObject) (api.FacultyRoomsV1ListResponseObject, error) {

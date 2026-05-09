@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	api "github.com/fun-dotto/academic-api/generated"
+	api "github.com/fun-dotto/server/gen/academic"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 

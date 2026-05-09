@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/fun-dotto/academic-api/internal/database"
-	"github.com/fun-dotto/academic-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/academic/database"
+	"github.com/fun-dotto/server/internal/modules/academic/domain"
 	"gorm.io/gorm"
 )
 
