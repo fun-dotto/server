@@ -6,9 +6,9 @@ import (
 	"log"
 
 	firebase "firebase.google.com/go/v4"
-	"github.com/fun-dotto/schedule-scripts/internal/database"
-	"github.com/fun-dotto/schedule-scripts/internal/repository"
-	"github.com/fun-dotto/schedule-scripts/internal/service"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/repository"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/service"
+	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/joho/godotenv"
 )
 
@@ -20,12 +20,12 @@ func main() {
 		log.Printf("Warning: .env file not found: %v", err)
 	}
 
-	db, err := database.ConnectWithConnectorIAMAuthN()
+	conn, err := db.ConnectWithConnectorIAMAuthN()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer func() {
-		if err := database.Close(db); err != nil {
+		if err := db.Close(conn); err != nil {
 			log.Printf("Failed to close database: %v", err)
 		}
 	}()
@@ -41,8 +41,8 @@ func main() {
 		log.Fatalf("Failed to initialize Firebase Messaging client: %v", err)
 	}
 
-	notificationRepo := repository.NewNotificationRepository(db)
-	fcmTokenRepo := repository.NewFCMTokenRepository(db)
+	notificationRepo := repository.NewNotificationRepository(conn)
+	fcmTokenRepo := repository.NewFCMTokenRepository(conn)
 
 	svc := service.NewNotificationDispatchService(notificationRepo, fcmTokenRepo, messagingClient)
 

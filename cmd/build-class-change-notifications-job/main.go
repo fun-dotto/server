@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/fun-dotto/schedule-scripts/internal/database"
-	"github.com/fun-dotto/schedule-scripts/internal/repository"
-	"github.com/fun-dotto/schedule-scripts/internal/service"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/repository"
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/service"
+	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/joho/godotenv"
 )
 
@@ -15,21 +15,21 @@ func main() {
 		log.Printf("Warning: .env file not found: %v", err)
 	}
 
-	db, err := database.ConnectWithConnectorIAMAuthN()
+	conn, err := db.ConnectWithConnectorIAMAuthN()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer func() {
-		if err := database.Close(db); err != nil {
+		if err := db.Close(conn); err != nil {
 			log.Printf("Failed to close database: %v", err)
 		}
 	}()
 
-	cancelledRepo := repository.NewCancelledClassRepository(db)
-	makeupRepo := repository.NewMakeupClassRepository(db)
-	roomChangeRepo := repository.NewRoomChangeRepository(db)
-	courseRegRepo := repository.NewCourseRegistrationRepository(db)
-	notificationRepo := repository.NewNotificationRepository(db)
+	cancelledRepo := repository.NewCancelledClassRepository(conn)
+	makeupRepo := repository.NewMakeupClassRepository(conn)
+	roomChangeRepo := repository.NewRoomChangeRepository(conn)
+	courseRegRepo := repository.NewCourseRegistrationRepository(conn)
+	notificationRepo := repository.NewNotificationRepository(conn)
 
 	svc := service.NewClassChangeNotificationService(
 		cancelledRepo,
