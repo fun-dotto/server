@@ -1,3 +1,6 @@
+// Package db は Cloud SQL Connector + IAM 認証で *gorm.DB を構築するための
+// モジュラーモノリス共通の DB 接続ヘルパ。shared-go から取り込んだ実装を
+// そのまま流用しており、コネクションプール設定 (MaxOpen=20 等) も踏襲する。
 package db
 
 import (
@@ -16,6 +19,9 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO(server): ctx を引数で受け取って cloudsqlconn.NewDialer に渡す形に
+// 直すか検討する (Notion 計画 §7-B)。現状 shared-go の互換性を優先して
+// context.Background() を内部生成している。
 func ConnectWithConnectorIAMAuthN() (*gorm.DB, error) {
 	mustGetenv := func(k string) string {
 		v := os.Getenv(k)
