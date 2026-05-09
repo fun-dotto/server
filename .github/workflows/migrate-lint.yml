@@ -1,0 +1,30 @@
+name: Migrate Lint
+on:
+  pull_request:
+    paths:
+      - "migrations/**"
+      - "internal/shared/model/**"
+      - "atlas.hcl"
+      - ".github/workflows/migrate-lint.yml"
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  lint:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:25-dind
+        options: --privileged
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: true
+      - uses: jdx/mise-action@v3
+      # atlas-provider-gorm を go run で呼ぶため Go 依存を整える
+      - name: Sync Go modules
+        run: go mod download
+      - name: Atlas migrate lint
+        run: atlas migrate lint --env local --latest 1
