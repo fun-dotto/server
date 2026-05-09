@@ -1,0 +1,15 @@
+.git
+.github
+.claude
+.idea
+.vscode
+.DS_Store
+bin/
+gen/**/*_test.go
+**/*.test
+**/*.out
+docs/
+infra/
+migrations/
+way/
+*.md
