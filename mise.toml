@@ -1,7 +1,44 @@
 [tools]
 go = "1.25.7"
 terraform = "1.9.8"
-"aqua:ariga/atlas" = "latest"
-"aqua:go-task/task" = "latest"
-"go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "latest"
-"ubi:newren/git-filter-repo" = { version = "latest", exe = "git-filter-repo" }
+
+[tasks.setup]
+description = "Install pinned tools and download Go module dependencies"
+run = [
+  "mise install",
+  "go mod download",
+]
+
+[tasks.install]
+description = "Sync go.mod / go.sum"
+run = [
+  "go get -tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest"
+  "go mod tidy"
+]
+
+[tasks."generate:academic"]
+description = "Generate academic API server code from OpenAPI spec"
+run = [
+  "rm -rf ./gen/academic",
+  "mkdir -p ./gen/academic",
+  "go tool oapi-codegen -config ./api/openapi/academic/config.yaml ./api/openapi/academic/openapi.yaml",
+]
+
+[tasks.build]
+description = "Build all binaries under cmd/"
+run = [
+  "rm -rf ./bin",
+  "mkdir -p ./bin",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/academic-api ./cmd/academic-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/build-class-change-notifications-job ./cmd/build-class-change-notifications-job",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/dispatch-notifications-job ./cmd/dispatch-notifications-job",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/migrate-job ./cmd/migrate-job",
+]
+
+[tasks.test]
+description = "Run all unit tests"
+run = "go test -v ./..."
+
+[tasks.clean]
+description = "Clean build artifacts"
+run = "rm -rf ./bin"
