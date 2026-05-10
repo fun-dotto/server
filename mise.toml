@@ -12,8 +12,8 @@ run = [
 [tasks.install]
 description = "Sync go.mod / go.sum"
 run = [
-  "go get -tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest"
-  "go mod tidy"
+  "go get -tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest",
+  "go mod tidy",
 ]
 
 [tasks."generate:academic"]
