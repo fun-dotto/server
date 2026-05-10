@@ -1,0 +1,7 @@
+[tools]
+go = "1.25.7"
+terraform = "1.9.8"
+"aqua:ariga/atlas" = "latest"
+"aqua:go-task/task" = "latest"
+"go:github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen" = "latest"
+"ubi:newren/git-filter-repo" = { version = "latest", exe = "git-filter-repo" }
