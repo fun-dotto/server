@@ -49,15 +49,14 @@ tasks:
 
   migrate:diff:
     desc: Generate a new versioned migration from the GORM models. Usage - task migrate:diff -- <name>
+    dotenv:
+      - .env
     cmds:
       - atlas migrate diff {{.CLI_ARGS}} --env local
 
-  migrate:lint:
-    desc: Lint pending migrations against the configured dev DB
-    cmds:
-      - atlas migrate lint --env local --latest 1
-
   migrate:apply:local:
     desc: Apply migrations against a locally-running PostgreSQL (DEV_DATABASE_URL must be set)
+    dotenv:
+      - .env
     cmds:
       - atlas migrate apply --env local --url "$DEV_DATABASE_URL"
