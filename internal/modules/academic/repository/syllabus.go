@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/fun-dotto/server/internal/modules/academic/database"
 	"github.com/fun-dotto/server/internal/modules/academic/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 )
 
@@ -17,9 +17,9 @@ func NewSyllabusRepository(db *gorm.DB) *SyllabusRepository {
 }
 
 func (r *SyllabusRepository) GetByID(ctx context.Context, id string) (domain.Syllabus, error) {
-	var record database.Syllabus
+	var record model.Syllabus
 	if err := r.db.WithContext(ctx).First(&record, "id = ?", id).Error; err != nil {
 		return domain.Syllabus{}, err
 	}
-	return database.SyllabusToDomain(record), nil
+	return syllabusToDomain(record), nil
 }
