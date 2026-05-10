@@ -1,4 +1,5 @@
 [tools]
+atlas = "1.2.0"
 go = "1.25.7"
 terraform = "1.9.8"
 
@@ -34,6 +35,17 @@ run = [
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/build-class-change-notifications-job ./cmd/build-class-change-notifications-job",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/dispatch-notifications-job ./cmd/dispatch-notifications-job",
 ]
+
+[tasks."migrate:diff"]
+description = "GORM モデルから desired state を生成し、versioned SQL の差分を migrations/ に書き出す (atlas CLI / env=local)"
+usage = '''
+arg "name" help="生成するマイグレーション名 (省略可、例: add_users_table)" default=""
+'''
+run = 'atlas migrate diff {{arg(name="name")}} --env local'
+
+[tasks."migrate:apply"]
+description = "cmd/migrate を起動し、cloudsqlconn (IAM 認証) で接続した DB に migrations/ を適用する"
+run = "go run ./cmd/migrate"
 
 [tasks.test]
 description = "Run all unit tests"
