@@ -13,8 +13,6 @@ CREATE TABLE "public"."announcements" (
 CREATE INDEX "idx_announcements_available_from" ON "public"."announcements" ("available_from");
 -- Create index "idx_announcements_available_until" to table: "announcements"
 CREATE INDEX "idx_announcements_available_until" ON "public"."announcements" ("available_until");
--- Add new schema named "atlas_schema_revisions"
-CREATE SCHEMA "atlas_schema_revisions";
 -- Create "fcm_tokens" table
 CREATE TABLE "public"."fcm_tokens" (
   "token" text NOT NULL,
