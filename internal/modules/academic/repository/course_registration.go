@@ -3,9 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/fun-dotto/server/internal/modules/academic/database"
 	"github.com/fun-dotto/server/internal/modules/academic/domain"
-	"github.com/google/uuid"
+	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 )
 
@@ -40,40 +39,49 @@ func (r *CourseRegistrationRepository) List(ctx context.Context, filter domain.C
 		query = query.Where("subjects.semester IN ?", semesters)
 	}
 
-	var records []database.CourseRegistration
+	var records []model.CourseRegistration
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err
 	}
 
-	items := make([]domain.CourseRegistration, len(records))
+	results := make([]domain.CourseRegistration, len(records))
 	for i, rec := range records {
-		items[i] = database.CourseRegistrationToDomain(rec)
+		results[i] = courseRegistrationToDomain(rec)
 	}
-	return items, nil
+	return results, nil
 }
 
 func (r *CourseRegistrationRepository) Create(ctx context.Context, cr domain.CourseRegistration) (domain.CourseRegistration, error) {
-	record := database.CourseRegistrationFromDomain(cr)
-	record.ID = uuid.New().String()
-
+	record := courseRegistrationFromDomain(cr)
 	if err := r.db.WithContext(ctx).Create(&record).Error; err != nil {
 		return domain.CourseRegistration{}, err
 	}
 
-	var created database.CourseRegistration
-	if err := r.courseRegistrationPreload(r.db.WithContext(ctx)).First(&created, "id = ?", record.ID).Error; err != nil {
+	var created model.CourseRegistration
+	if err := r.courseRegistrationPreload(r.db.WithContext(ctx)).
+		Where("user_id = ? AND subject_id = ?", record.UserID, record.SubjectID).
+		First(&created).Error; err != nil {
 		return domain.CourseRegistration{}, err
 	}
-	return database.CourseRegistrationToDomain(created), nil
+	return courseRegistrationToDomain(created), nil
 }
 
 func (r *CourseRegistrationRepository) Delete(ctx context.Context, id string) error {
-	var record database.CourseRegistration
-	if err := r.db.WithContext(ctx).First(&record, "id = ?", id).Error; err != nil {
+	userID, subjectID, err := decodeCourseRegistrationID(id)
+	if err != nil {
+		return gorm.ErrRecordNotFound
+	}
+
+	var record model.CourseRegistration
+	if err := r.db.WithContext(ctx).
+		Where("user_id = ? AND subject_id = ?", userID, subjectID).
+		First(&record).Error; err != nil {
 		return err
 	}
 
-	result := r.db.WithContext(ctx).Delete(&record)
+	result := r.db.WithContext(ctx).
+		Where("user_id = ? AND subject_id = ?", userID, subjectID).
+		Delete(&model.CourseRegistration{})
 	if result.Error != nil {
 		return result.Error
 	}

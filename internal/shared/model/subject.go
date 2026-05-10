@@ -5,7 +5,6 @@ import "github.com/google/uuid"
 type Subject struct {
 	Common
 
-	ID                      uuid.UUID                  `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	Name                    string                     `gorm:"not null"`
 	Year                    int                        `gorm:"not null"`
 	Semester                string                     `gorm:"not null"`
