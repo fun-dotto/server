@@ -1,7 +1,7 @@
 // Atlas プロジェクト設定。
 // - 望ましいスキーマ (desired state) は internal/shared/model/ の GORM モデルを正とする。
 // - migrations/ 配下に versioned SQL を保存し、サム (atlas.sum) で改ざん検知。
-// - dev DB は使い捨ての Docker コンテナ (Postgres 16) を利用する。
+// - dev DB は使い捨ての Docker コンテナ (Postgres 18) を利用する。
 // - cmd/migrate-job が ariga.io/atlas-go-sdk (atlasexec) 経由で migrations/ を適用する。
 
 variable "url" {
@@ -9,7 +9,7 @@ variable "url" {
   default = ""
 }
 
-data "external_schema" "gorm" {
+data "external_schema" "app" {
   program = [
     "go",
     "run",
@@ -22,8 +22,8 @@ data "external_schema" "gorm" {
 }
 
 env "local" {
-  src = data.external_schema.gorm.url
-  dev = "docker://postgres/16/dev?search_path=public"
+  src = data.external_schema.app.url
+  dev = "docker://postgres/18/dev?search_path=public"
 
   migration {
     dir = "file://migrations"
@@ -37,9 +37,9 @@ env "local" {
 }
 
 env "prod" {
-  src = data.external_schema.gorm.url
+  src = data.external_schema.app.url
   url = var.url
-  dev = "docker://postgres/16/dev?search_path=public"
+  dev = "docker://postgres/18/dev?search_path=public"
 
   migration {
     dir = "file://migrations"
