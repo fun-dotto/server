@@ -10,17 +10,10 @@ data "external_schema" "gorm" {
   ]
 }
 
-env "local" {
+env "gorm" {
   src = data.external_schema.gorm.url
   dev = "docker://postgres/18/dev"
-
   migration {
     dir = "file://migrations"
-  }
-
-  format {
-    migrate {
-      diff = "{{ sql . \"  \" }}"
-    }
   }
 }
