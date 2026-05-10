@@ -77,11 +77,12 @@ Phase 1 の cutover では `internal/shared/model/` の GORM モデルを **正*
 # 1. baseline 候補を生成
 task migrate:diff -- baseline   # → migrations/<ts>_baseline.sql + atlas.sum
 
-# 2. uuid-ossp 拡張と grants を補完
-#    GRANT 系は ALTER DEFAULT PRIVILEGES FOR ROLE dotto_admin GRANT ... に集約し、
-#    今後のテーブル追加でも自動的に GRANT が伝播する形にする。
+# 2. grants を補完
+#    UUID 採番は Postgres 13+ 組み込みの gen_random_uuid() を使うため
+#    uuid-ossp 拡張は不要。GRANT 系は ALTER DEFAULT PRIVILEGES FOR ROLE
+#    dotto_admin GRANT ... に集約し、今後のテーブル追加でも自動的に GRANT が
+#    伝播する形にする。
 #    例:
-#       CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 #       ALTER DEFAULT PRIVILEGES FOR ROLE dotto_admin
 #           IN SCHEMA public
 #           GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dotto_service;
