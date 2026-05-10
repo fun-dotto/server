@@ -6,6 +6,7 @@ import (
 
 	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -16,6 +17,10 @@ func (r *NotificationRepository) UpsertNotification(ctx context.Context, notific
 	}
 
 	dbNotification, err := notificationFromDomain(notification)
+	if err != nil {
+		return domain.Notification{}, err
+	}
+	notificationID, err := uuid.Parse(dbNotification.ID)
 	if err != nil {
 		return domain.Notification{}, err
 	}
@@ -47,7 +52,7 @@ func (r *NotificationRepository) UpsertNotification(ctx context.Context, notific
 		targets := make([]model.NotificationTargetUser, 0, len(uniqueTargets))
 		for _, t := range uniqueTargets {
 			targets = append(targets, model.NotificationTargetUser{
-				NotificationID: dbNotification.ID,
+				NotificationID: notificationID,
 				UserID:         t.UserID,
 				NotifiedAt:     t.NotifiedAt,
 			})
