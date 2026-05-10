@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/database"
+	"github.com/fun-dotto/server/internal/shared/model"
 )
 
 // MarkUsersAsNotified は通知ID毎に指定ユーザーの notification_target_users.notified_at を現在時刻で更新する。
@@ -21,7 +21,7 @@ func (r *NotificationRepository) MarkUsersAsNotified(ctx context.Context, delive
 			continue
 		}
 		if err := r.db.WithContext(ctx).
-			Model(&database.NotificationTargetUser{}).
+			Model(&model.NotificationTargetUser{}).
 			Where("notification_id = ? AND user_id IN ? AND notified_at IS NULL", nid, uniqueUsers).
 			Update("notified_at", now).Error; err != nil {
 			return err

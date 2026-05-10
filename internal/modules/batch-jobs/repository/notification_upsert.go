@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/database"
 	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -15,10 +15,13 @@ func (r *NotificationRepository) UpsertNotification(ctx context.Context, notific
 		return domain.Notification{}, errors.New("notification ID is required for upsert")
 	}
 
-	dbNotification := database.NotificationFromDomain(notification)
+	dbNotification, err := notificationFromDomain(notification)
+	if err != nil {
+		return domain.Notification{}, err
+	}
 	uniqueTargets := uniqueTargetUsers(notification.TargetUsers)
 
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err = r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// ID 衝突時は本文を更新しない (再通知・重複配信を防ぐため)。target_users の増減のみ下で同期する。
 		if err := tx.Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "id"}},
@@ -28,29 +31,30 @@ func (r *NotificationRepository) UpsertNotification(ctx context.Context, notific
 		}
 
 		if len(uniqueTargets) == 0 {
-			return tx.Where("notification_id = ?", notification.ID).
-				Delete(&database.NotificationTargetUser{}).Error
+			return tx.Where("notification_id = ?", dbNotification.ID).
+				Delete(&model.NotificationTargetUser{}).Error
 		}
 
 		userIDs := make([]string, 0, len(uniqueTargets))
 		for _, t := range uniqueTargets {
 			userIDs = append(userIDs, t.UserID)
 		}
-		if err := tx.Where("notification_id = ? AND user_id NOT IN ?", notification.ID, userIDs).
-			Delete(&database.NotificationTargetUser{}).Error; err != nil {
+		if err := tx.Where("notification_id = ? AND user_id NOT IN ?", dbNotification.ID, userIDs).
+			Delete(&model.NotificationTargetUser{}).Error; err != nil {
 			return err
 		}
 
-		targets := make([]database.NotificationTargetUser, 0, len(uniqueTargets))
+		targets := make([]model.NotificationTargetUser, 0, len(uniqueTargets))
 		for _, t := range uniqueTargets {
-			targets = append(targets, database.NotificationTargetUser{
-				NotificationID: notification.ID,
+			targets = append(targets, model.NotificationTargetUser{
+				NotificationID: dbNotification.ID,
 				UserID:         t.UserID,
 				NotifiedAt:     t.NotifiedAt,
 			})
 		}
 		// 既存行は notified_at を保持したいので競合時は何もしない。
-		return tx.Clauses(clause.OnConflict{
+		// Notification/User の関連は親側で作成済みなので Omit して GORM の auto-upsert を抑止する。
+		return tx.Omit("Notification", "User").Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "notification_id"}, {Name: "user_id"}},
 			DoNothing: true,
 		}).Create(&targets).Error
@@ -59,5 +63,5 @@ func (r *NotificationRepository) UpsertNotification(ctx context.Context, notific
 		return domain.Notification{}, err
 	}
 
-	return dbNotification.ToDomain(uniqueTargets), nil
+	return notificationToDomain(&dbNotification, uniqueTargets), nil
 }

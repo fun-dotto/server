@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/database"
 	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +17,7 @@ func NewFCMTokenRepository(db *gorm.DB) *FCMTokenRepository {
 }
 
 func (r *FCMTokenRepository) ListFCMTokens(ctx context.Context, filter domain.FCMTokenListFilter) ([]domain.FCMToken, error) {
-	query := r.db.WithContext(ctx).Model(&database.FCMToken{})
+	query := r.db.WithContext(ctx).Model(&model.FCMToken{})
 
 	if len(filter.UserIDs) > 0 {
 		query = query.Where("user_id IN ?", filter.UserIDs)
@@ -32,14 +32,14 @@ func (r *FCMTokenRepository) ListFCMTokens(ctx context.Context, filter domain.FC
 		query = query.Where("updated_at <= ?", *filter.UpdatedAtTo)
 	}
 
-	var dbTokens []database.FCMToken
+	var dbTokens []model.FCMToken
 	if err := query.Order("updated_at DESC").Find(&dbTokens).Error; err != nil {
 		return nil, err
 	}
 
 	tokens := make([]domain.FCMToken, 0, len(dbTokens))
-	for _, t := range dbTokens {
-		tokens = append(tokens, t.ToDomain())
+	for i := range dbTokens {
+		tokens = append(tokens, fcmTokenToDomain(&dbTokens[i]))
 	}
 
 	return tokens, nil
