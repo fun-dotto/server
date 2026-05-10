@@ -85,7 +85,7 @@ func fcmTokenToDomain(m *model.FCMToken) domain.FCMToken {
 
 func notificationToDomain(m *model.Notification, targets []domain.NotificationTargetUser) domain.Notification {
 	return domain.Notification{
-		ID:                   m.ID.String(),
+		ID:                   m.ID,
 		Title:                m.Title,
 		Body:                 m.Body,
 		ImageURL:             m.ImageURL,
@@ -105,11 +105,11 @@ func notificationToDomain(m *model.Notification, targets []domain.NotificationTa
 }
 
 func notificationFromDomain(n domain.Notification) (model.Notification, error) {
-	id, err := uuid.Parse(n.ID)
-	if err != nil {
+	if _, err := uuid.Parse(n.ID); err != nil {
 		return model.Notification{}, err
 	}
 	m := model.Notification{
+		ID:                   n.ID,
 		Title:                n.Title,
 		Body:                 n.Body,
 		ImageURL:             n.ImageURL,
@@ -125,6 +125,5 @@ func notificationFromDomain(n domain.Notification) (model.Notification, error) {
 		NotifyAfter:          n.NotifyAfter,
 		NotifyBefore:         n.NotifyBefore,
 	}
-	m.ID = id
 	return m, nil
 }

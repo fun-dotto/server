@@ -7,6 +7,8 @@ import (
 )
 
 type CourseRegistration struct {
+	// Deprecated: Id field is no longer used
+	Id        uuid.UUID `gorm:"type:uuid"`
 	UserID    string    `gorm:"primaryKey"`
 	User      *User     `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE"`
 	SubjectID uuid.UUID `gorm:"type:uuid;primaryKey"`
