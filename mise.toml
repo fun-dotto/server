@@ -30,8 +30,7 @@ run = [
   "rm -rf ./bin",
   "mkdir -p ./bin",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/academic-api ./cmd/academic-api",
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/atlas-diff ./cmd/atlas-diff",
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/atlas-migrate ./cmd/atlas-migrate",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/migrate",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/build-class-change-notifications-job ./cmd/build-class-change-notifications-job",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/dispatch-notifications-job ./cmd/dispatch-notifications-job",
 ]
