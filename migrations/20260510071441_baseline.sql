@@ -1,12 +1,12 @@
 -- Create "commons" table
-CREATE TABLE "commons" (
+CREATE TABLE "public"."commons" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY ("id")
 );
 -- Create "announcements" table
-CREATE TABLE "announcements" (
+CREATE TABLE "public"."announcements" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
@@ -17,11 +17,11 @@ CREATE TABLE "announcements" (
   PRIMARY KEY ("id")
 );
 -- Create index "idx_announcements_available_from" to table: "announcements"
-CREATE INDEX "idx_announcements_available_from" ON "announcements" ("available_from");
+CREATE INDEX "idx_announcements_available_from" ON "public"."announcements" ("available_from");
 -- Create index "idx_announcements_available_until" to table: "announcements"
-CREATE INDEX "idx_announcements_available_until" ON "announcements" ("available_until");
+CREATE INDEX "idx_announcements_available_until" ON "public"."announcements" ("available_until");
 -- Create "syllabuses" table
-CREATE TABLE "syllabuses" (
+CREATE TABLE "public"."syllabuses" (
   "id" text NOT NULL,
   "name" text NOT NULL,
   "en_name" text NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE "syllabuses" (
   PRIMARY KEY ("id")
 );
 -- Create "subjects" table
-CREATE TABLE "subjects" (
+CREATE TABLE "public"."subjects" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
@@ -66,12 +66,12 @@ CREATE TABLE "subjects" (
   "cultural_subject_category" text NOT NULL,
   "syllabus_id" text NOT NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_subjects_syllabus" FOREIGN KEY ("syllabus_id") REFERENCES "syllabuses" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
+  CONSTRAINT "fk_subjects_syllabus" FOREIGN KEY ("syllabus_id") REFERENCES "public"."syllabuses" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
 );
 -- Create index "idx_subjects_syllabus_id" to table: "subjects"
-CREATE UNIQUE INDEX "idx_subjects_syllabus_id" ON "subjects" ("syllabus_id");
+CREATE UNIQUE INDEX "idx_subjects_syllabus_id" ON "public"."subjects" ("syllabus_id");
 -- Create "cancelled_classes" table
-CREATE TABLE "cancelled_classes" (
+CREATE TABLE "public"."cancelled_classes" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
@@ -80,14 +80,14 @@ CREATE TABLE "cancelled_classes" (
   "period" text NOT NULL,
   "comment" text NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_cancelled_classes_subject" FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
+  CONSTRAINT "fk_cancelled_classes_subject" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
 );
 -- Create index "idx_cancelled_classes_date" to table: "cancelled_classes"
-CREATE INDEX "idx_cancelled_classes_date" ON "cancelled_classes" ("date");
+CREATE INDEX "idx_cancelled_classes_date" ON "public"."cancelled_classes" ("date");
 -- Create index "idx_cancelled_classes_subject_id" to table: "cancelled_classes"
-CREATE INDEX "idx_cancelled_classes_subject_id" ON "cancelled_classes" ("subject_id");
+CREATE INDEX "idx_cancelled_classes_subject_id" ON "public"."cancelled_classes" ("subject_id");
 -- Create "users" table
-CREATE TABLE "users" (
+CREATE TABLE "public"."users" (
   "id" text NOT NULL,
   "email" text NOT NULL,
   "grade" text NULL,
@@ -96,17 +96,17 @@ CREATE TABLE "users" (
   PRIMARY KEY ("id")
 );
 -- Create "course_registrations" table
-CREATE TABLE "course_registrations" (
+CREATE TABLE "public"."course_registrations" (
   "user_id" text NOT NULL,
   "subject_id" uuid NOT NULL,
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY ("user_id", "subject_id"),
-  CONSTRAINT "fk_course_registrations_subject" FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION,
-  CONSTRAINT "fk_course_registrations_user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
+  CONSTRAINT "fk_course_registrations_subject" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT "fk_course_registrations_user" FOREIGN KEY ("user_id") REFERENCES "public"."users" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
 );
 -- Create "faculties" table
-CREATE TABLE "faculties" (
+CREATE TABLE "public"."faculties" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
@@ -115,7 +115,7 @@ CREATE TABLE "faculties" (
   PRIMARY KEY ("id")
 );
 -- Create "rooms" table
-CREATE TABLE "rooms" (
+CREATE TABLE "public"."rooms" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
@@ -124,29 +124,29 @@ CREATE TABLE "rooms" (
   PRIMARY KEY ("id")
 );
 -- Create "faculty_rooms" table
-CREATE TABLE "faculty_rooms" (
+CREATE TABLE "public"."faculty_rooms" (
   "faculty_id" uuid NOT NULL,
   "room_id" uuid NOT NULL,
   "year" bigint NOT NULL,
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY ("faculty_id", "room_id", "year"),
-  CONSTRAINT "fk_faculty_rooms_faculty" FOREIGN KEY ("faculty_id") REFERENCES "faculties" ("id") ON UPDATE CASCADE ON DELETE NO ACTION,
-  CONSTRAINT "fk_faculty_rooms_room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
+  CONSTRAINT "fk_faculty_rooms_faculty" FOREIGN KEY ("faculty_id") REFERENCES "public"."faculties" ("id") ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT "fk_faculty_rooms_room" FOREIGN KEY ("room_id") REFERENCES "public"."rooms" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
 );
 -- Create "fcm_tokens" table
-CREATE TABLE "fcm_tokens" (
+CREATE TABLE "public"."fcm_tokens" (
   "token" text NOT NULL,
   "user_id" text NOT NULL,
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY ("token"),
-  CONSTRAINT "fk_fcm_tokens_user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON UPDATE CASCADE ON DELETE CASCADE
+  CONSTRAINT "fk_fcm_tokens_user" FOREIGN KEY ("user_id") REFERENCES "public"."users" ("id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 -- Create index "idx_fcm_tokens_user_id" to table: "fcm_tokens"
-CREATE INDEX "idx_fcm_tokens_user_id" ON "fcm_tokens" ("user_id");
+CREATE INDEX "idx_fcm_tokens_user_id" ON "public"."fcm_tokens" ("user_id");
 -- Create "makeup_classes" table
-CREATE TABLE "makeup_classes" (
+CREATE TABLE "public"."makeup_classes" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
@@ -155,14 +155,14 @@ CREATE TABLE "makeup_classes" (
   "period" text NOT NULL,
   "comment" text NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_makeup_classes_subject" FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
+  CONSTRAINT "fk_makeup_classes_subject" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
 );
 -- Create index "idx_makeup_classes_date" to table: "makeup_classes"
-CREATE INDEX "idx_makeup_classes_date" ON "makeup_classes" ("date");
+CREATE INDEX "idx_makeup_classes_date" ON "public"."makeup_classes" ("date");
 -- Create index "idx_makeup_classes_subject_id" to table: "makeup_classes"
-CREATE INDEX "idx_makeup_classes_subject_id" ON "makeup_classes" ("subject_id");
+CREATE INDEX "idx_makeup_classes_subject_id" ON "public"."makeup_classes" ("subject_id");
 -- Create "notifications" table
-CREATE TABLE "notifications" (
+CREATE TABLE "public"."notifications" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
@@ -183,22 +183,22 @@ CREATE TABLE "notifications" (
   PRIMARY KEY ("id")
 );
 -- Create index "idx_notifications_notify_after" to table: "notifications"
-CREATE INDEX "idx_notifications_notify_after" ON "notifications" ("notify_after");
+CREATE INDEX "idx_notifications_notify_after" ON "public"."notifications" ("notify_after");
 -- Create index "idx_notifications_notify_before" to table: "notifications"
-CREATE INDEX "idx_notifications_notify_before" ON "notifications" ("notify_before");
+CREATE INDEX "idx_notifications_notify_before" ON "public"."notifications" ("notify_before");
 -- Create "notification_target_users" table
-CREATE TABLE "notification_target_users" (
+CREATE TABLE "public"."notification_target_users" (
   "notification_id" uuid NOT NULL,
   "user_id" text NOT NULL,
   "notified_at" timestamptz NULL,
   PRIMARY KEY ("notification_id", "user_id"),
-  CONSTRAINT "fk_notification_target_users_notification" FOREIGN KEY ("notification_id") REFERENCES "notifications" ("id") ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT "fk_notification_target_users_user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON UPDATE CASCADE ON DELETE CASCADE
+  CONSTRAINT "fk_notification_target_users_notification" FOREIGN KEY ("notification_id") REFERENCES "public"."notifications" ("id") ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT "fk_notification_target_users_user" FOREIGN KEY ("user_id") REFERENCES "public"."users" ("id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 -- Create index "idx_notification_target_users_notified_at" to table: "notification_target_users"
-CREATE INDEX "idx_notification_target_users_notified_at" ON "notification_target_users" ("notified_at");
+CREATE INDEX "idx_notification_target_users_notified_at" ON "public"."notification_target_users" ("notified_at");
 -- Create "room_changes" table
-CREATE TABLE "room_changes" (
+CREATE TABLE "public"."room_changes" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
@@ -208,50 +208,50 @@ CREATE TABLE "room_changes" (
   "original_room_id" uuid NOT NULL,
   "new_room_id" uuid NOT NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_room_changes_new_room" FOREIGN KEY ("new_room_id") REFERENCES "rooms" ("id") ON UPDATE CASCADE ON DELETE NO ACTION,
-  CONSTRAINT "fk_room_changes_original_room" FOREIGN KEY ("original_room_id") REFERENCES "rooms" ("id") ON UPDATE CASCADE ON DELETE NO ACTION,
-  CONSTRAINT "fk_room_changes_subject" FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
+  CONSTRAINT "fk_room_changes_new_room" FOREIGN KEY ("new_room_id") REFERENCES "public"."rooms" ("id") ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT "fk_room_changes_original_room" FOREIGN KEY ("original_room_id") REFERENCES "public"."rooms" ("id") ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT "fk_room_changes_subject" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
 );
 -- Create index "idx_room_changes_date" to table: "room_changes"
-CREATE INDEX "idx_room_changes_date" ON "room_changes" ("date");
+CREATE INDEX "idx_room_changes_date" ON "public"."room_changes" ("date");
 -- Create index "idx_room_changes_subject_id" to table: "room_changes"
-CREATE INDEX "idx_room_changes_subject_id" ON "room_changes" ("subject_id");
+CREATE INDEX "idx_room_changes_subject_id" ON "public"."room_changes" ("subject_id");
 -- Create "subject_eligible_attributes" table
-CREATE TABLE "subject_eligible_attributes" (
+CREATE TABLE "public"."subject_eligible_attributes" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "subject_id" uuid NOT NULL,
   "grade" text NOT NULL,
   "class" text NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_subjects_eligible_attributes" FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
+  CONSTRAINT "fk_subjects_eligible_attributes" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
 );
 -- Create index "idx_subject_eligible_attributes_subject_id" to table: "subject_eligible_attributes"
-CREATE INDEX "idx_subject_eligible_attributes_subject_id" ON "subject_eligible_attributes" ("subject_id");
+CREATE INDEX "idx_subject_eligible_attributes_subject_id" ON "public"."subject_eligible_attributes" ("subject_id");
 -- Create "subject_faculties" table
-CREATE TABLE "subject_faculties" (
+CREATE TABLE "public"."subject_faculties" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "subject_id" uuid NOT NULL,
   "faculty_id" uuid NOT NULL,
   "is_primary" boolean NOT NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_subject_faculties_faculty" FOREIGN KEY ("faculty_id") REFERENCES "faculties" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "fk_subjects_faculties" FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
+  CONSTRAINT "fk_subject_faculties_faculty" FOREIGN KEY ("faculty_id") REFERENCES "public"."faculties" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "fk_subjects_faculties" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
 );
 -- Create index "idx_subject_faculties_subject_id" to table: "subject_faculties"
-CREATE INDEX "idx_subject_faculties_subject_id" ON "subject_faculties" ("subject_id");
+CREATE INDEX "idx_subject_faculties_subject_id" ON "public"."subject_faculties" ("subject_id");
 -- Create "subject_requirements" table
-CREATE TABLE "subject_requirements" (
+CREATE TABLE "public"."subject_requirements" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "subject_id" uuid NOT NULL,
   "course" text NOT NULL,
   "requirement_type" text NOT NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_subjects_requirements" FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
+  CONSTRAINT "fk_subjects_requirements" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects" ("id") ON UPDATE CASCADE ON DELETE NO ACTION
 );
 -- Create index "idx_subject_requirements_subject_id" to table: "subject_requirements"
-CREATE INDEX "idx_subject_requirements_subject_id" ON "subject_requirements" ("subject_id");
+CREATE INDEX "idx_subject_requirements_subject_id" ON "public"."subject_requirements" ("subject_id");
 -- Create "timetable_items" table
-CREATE TABLE "timetable_items" (
+CREATE TABLE "public"."timetable_items" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
@@ -259,15 +259,15 @@ CREATE TABLE "timetable_items" (
   "day_of_week" text NULL,
   "period" text NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_timetable_items_subject" FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+  CONSTRAINT "fk_timetable_items_subject" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 -- Create index "idx_timetable_items_subject_id" to table: "timetable_items"
-CREATE INDEX "idx_timetable_items_subject_id" ON "timetable_items" ("subject_id");
+CREATE INDEX "idx_timetable_items_subject_id" ON "public"."timetable_items" ("subject_id");
 -- Create "timetable_item_rooms" table
-CREATE TABLE "timetable_item_rooms" (
+CREATE TABLE "public"."timetable_item_rooms" (
   "timetable_item_id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "room_id" uuid NOT NULL DEFAULT gen_random_uuid(),
   PRIMARY KEY ("timetable_item_id", "room_id"),
-  CONSTRAINT "fk_timetable_item_rooms_room" FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "fk_timetable_item_rooms_timetable_item" FOREIGN KEY ("timetable_item_id") REFERENCES "timetable_items" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+  CONSTRAINT "fk_timetable_item_rooms_room" FOREIGN KEY ("room_id") REFERENCES "public"."rooms" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "fk_timetable_item_rooms_timetable_item" FOREIGN KEY ("timetable_item_id") REFERENCES "public"."timetable_items" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
