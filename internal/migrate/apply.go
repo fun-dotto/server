@@ -1,40 +1,45 @@
+// Package migrate は、atlas CLI が生成した versioned SQL を本番環境
+// (Cloud Run Job) で適用するためのランタイム実装。
+//
+// diff 生成はローカル / CI で `atlas migrate diff --env local` が担当し、
+// このパッケージは cloudsqlconn 経由で IAM 認証された *sql.DB を受け取って
+// `migrations/` 配下を Atlas Go API で適用するだけに専念する。
 package migrate
 
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"ariga.io/atlas/sql/migrate"
 	"ariga.io/atlas/sql/postgres"
 )
 
-// ApplyMigrations はディレクトリ内のSQLファイルをDBに適用します
+// ApplyMigrations は dirPath 配下の未適用 SQL マイグレーションを順に DB へ適用する。
+// 適用済みリビジョンは atlas CLI 互換の atlas_schema_revisions テーブルで管理する。
 func ApplyMigrations(ctx context.Context, db *sql.DB, dirPath string) error {
-	// 1. Atlasドライバの準備
 	drv, err := postgres.Open(db)
 	if err != nil {
-		return err
+		return fmt.Errorf("open postgres driver: %w", err)
 	}
 
-	// 2. マイグレーションファイルの読み込み
 	dir, err := migrate.NewLocalDir(dirPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("open migration dir %q: %w", dirPath, err)
 	}
 
-	// 3. リビジョン管理テーブル (atlas_schema_revisions) の準備
-	// これにより、適用済みのファイルが二重に実行されるのを防ぎます
-	reg, err := migrate.NewEntRevisions(ctx, drv)
+	rrw, err := newPGRevisions(ctx, db)
 	if err != nil {
-		return err
+		return fmt.Errorf("init revisions table: %w", err)
 	}
 
-	// 4. 実行器の作成と適用
-	executor, err := migrate.NewExecutor(drv, dir, reg)
+	exec, err := migrate.NewExecutor(drv, dir, rrw)
 	if err != nil {
-		return err
+		return fmt.Errorf("create executor: %w", err)
 	}
 
-	// 未適用のファイルをすべて実行
-	return executor.ApplyAll(ctx)
+	if err := exec.ExecuteN(ctx, 0); err != nil {
+		return fmt.Errorf("apply migrations: %w", err)
+	}
+	return nil
 }
