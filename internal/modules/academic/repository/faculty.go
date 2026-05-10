@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/fun-dotto/server/internal/modules/academic/database"
 	"github.com/fun-dotto/server/internal/modules/academic/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 )
 
@@ -18,45 +18,43 @@ func NewFacultyRepository(db *gorm.DB) *FacultyRepository {
 }
 
 func (r *FacultyRepository) List(ctx context.Context, ids []string) ([]domain.Faculty, error) {
-	var dbFaculties []database.Faculty
+	var records []model.Faculty
 	query := r.db.WithContext(ctx)
 	if len(ids) > 0 {
-		query = query.Where("id IN ?", ids)
+		query = query.Where("id IN ?", parseUUIDs(ids))
 	}
-	if err := query.Order("email ASC").Find(&dbFaculties).Error; err != nil {
+	if err := query.Order("email ASC").Find(&records).Error; err != nil {
 		return nil, err
 	}
 
-	domainFaculties := make([]domain.Faculty, len(dbFaculties))
-	for i, dbFaculty := range dbFaculties {
-		domainFaculties[i] = database.FacultyToDomain(dbFaculty)
+	results := make([]domain.Faculty, len(records))
+	for i, rec := range records {
+		results[i] = facultyToDomain(rec)
 	}
-
-	return domainFaculties, nil
+	return results, nil
 }
 
 func (r *FacultyRepository) GetByID(ctx context.Context, id string) (domain.Faculty, error) {
-	var dbFaculty database.Faculty
-	if err := r.db.WithContext(ctx).First(&dbFaculty, "id = ?", id).Error; err != nil {
+	var record model.Faculty
+	if err := r.db.WithContext(ctx).First(&record, "id = ?", parseUUIDOrNil(id)).Error; err != nil {
 		return domain.Faculty{}, err
 	}
-	return database.FacultyToDomain(dbFaculty), nil
+	return facultyToDomain(record), nil
 }
 
 func (r *FacultyRepository) Create(ctx context.Context, faculty domain.Faculty) (domain.Faculty, error) {
-	// TODO: faculty.ID が空の場合に uuid.New().String() で採番する（空のまま渡すと primary key 制約違反で INSERT 失敗）
-	dbFaculty := database.FacultyFromDomain(faculty)
-	if err := r.db.WithContext(ctx).Create(&dbFaculty).Error; err != nil {
+	record := facultyFromDomain(faculty)
+	if err := r.db.WithContext(ctx).Create(&record).Error; err != nil {
 		return domain.Faculty{}, err
 	}
-	return database.FacultyToDomain(dbFaculty), nil
+	return facultyToDomain(record), nil
 }
 
 func (r *FacultyRepository) Update(ctx context.Context, faculty domain.Faculty) (domain.Faculty, error) {
-	dbFaculty := database.FacultyFromDomain(faculty)
-	if err := r.db.WithContext(ctx).Model(&database.Faculty{}).Where("id = ?", faculty.ID).Updates(map[string]interface{}{
-		"name":  dbFaculty.Name,
-		"email": dbFaculty.Email,
+	id := parseUUIDOrNil(faculty.ID)
+	if err := r.db.WithContext(ctx).Model(&model.Faculty{}).Where("id = ?", id).Updates(map[string]any{
+		"name":  faculty.Name,
+		"email": faculty.Email,
 	}).Error; err != nil {
 		return domain.Faculty{}, err
 	}
@@ -64,25 +62,25 @@ func (r *FacultyRepository) Update(ctx context.Context, faculty domain.Faculty) 
 }
 
 func (r *FacultyRepository) Delete(ctx context.Context, id string) error {
+	uid := parseUUIDOrNil(id)
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// Ensure the faculty exists before deleting dependent rows to keep not-found deletes side-effect free.
-		var faculty database.Faculty
-		if err := tx.Where("id = ?", id).First(&faculty).Error; err != nil {
+		var faculty model.Faculty
+		if err := tx.Where("id = ?", uid).First(&faculty).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
 			return err
 		}
 
-		if err := tx.Where("faculty_id = ?", id).Delete(&database.SubjectFaculty{}).Error; err != nil {
+		if err := tx.Where("faculty_id = ?", uid).Delete(&model.SubjectFaculty{}).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Where("faculty_id = ?", id).Delete(&database.FacultyRoom{}).Error; err != nil {
+		if err := tx.Where("faculty_id = ?", uid).Delete(&model.FacultyRoom{}).Error; err != nil {
 			return err
 		}
 
-		result := tx.Where("id = ?", id).Delete(&database.Faculty{})
+		result := tx.Where("id = ?", uid).Delete(&model.Faculty{})
 		if result.Error != nil {
 			return result.Error
 		}
