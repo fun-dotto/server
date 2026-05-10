@@ -19,7 +19,7 @@ type Subject struct {
 }
 
 type SubjectFaculty struct {
-	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
 	SubjectID uuid.UUID `gorm:"type:uuid;not null;index"`
 	FacultyID uuid.UUID `gorm:"type:uuid;not null"`
 	Faculty   *Faculty  `gorm:"foreignKey:FacultyID"`
@@ -27,14 +27,14 @@ type SubjectFaculty struct {
 }
 
 type SubjectEligibleAttribute struct {
-	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
 	SubjectID uuid.UUID `gorm:"type:uuid;not null;index"`
 	Grade     string    `gorm:"not null"`
 	Class     *string
 }
 
 type SubjectRequirement struct {
-	ID              uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	ID              uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
 	SubjectID       uuid.UUID `gorm:"type:uuid;not null;index"`
 	Course          string    `gorm:"not null"`
 	RequirementType string    `gorm:"not null"`
