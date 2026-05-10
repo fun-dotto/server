@@ -32,6 +32,7 @@ run = [
   "mkdir -p ./bin",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/academic-api ./cmd/academic-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/migrate",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/apply-table-privileges ./cmd/apply-table-privileges",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/build-class-change-notifications-job ./cmd/build-class-change-notifications-job",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/dispatch-notifications-job ./cmd/dispatch-notifications-job",
 ]
@@ -41,7 +42,7 @@ description = "GORM モデルから desired state を生成し、versioned SQL �
 usage = '''
 arg "name" help="生成するマイグレーション名 (省略可、例: add_users_table)" default=""
 '''
-run = 'atlas migrate diff {{arg(name="name")}} --env local'
+run = 'atlas migrate diff {{arg(name="name")}} --env gorm'
 
 [tasks."migrate:apply"]
 description = "cmd/migrate を起動し、cloudsqlconn (IAM 認証) で接続した DB に migrations/ を適用する"
