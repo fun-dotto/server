@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/fun-dotto/server/internal/modules/academic/database"
 	"github.com/fun-dotto/server/internal/modules/academic/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 )
 
@@ -28,7 +28,7 @@ func (r *SubjectRepository) List(ctx context.Context, filter domain.SubjectListF
 	query := r.subjectPreload(ctxDB)
 
 	if len(filter.IDs) > 0 {
-		query = query.Where("id IN ?", filter.IDs)
+		query = query.Where("id IN ?", parseUUIDs(filter.IDs))
 	}
 	if filter.Q != nil {
 		// TODO: filter.Q に含まれる LIKE ワイルドカード文字（%, _）をエスケープする。現状ユーザー入力がそのまま LIKE パターンに埋め込まれる。
@@ -40,7 +40,7 @@ func (r *SubjectRepository) List(ctx context.Context, filter domain.SubjectListF
 	if len(filter.Semester) > 0 {
 		query = query.Where("semester IN ?", filter.Semester)
 	}
-	attrSubQuery := ctxDB.Model(&database.SubjectEligibleAttribute{}).Select("subject_id")
+	attrSubQuery := ctxDB.Model(&model.SubjectEligibleAttribute{}).Select("subject_id")
 	hasAttrFilter := false
 	if len(filter.Grade) > 0 {
 		attrSubQuery = attrSubQuery.Where("grade IN ?", filter.Grade)
@@ -53,7 +53,7 @@ func (r *SubjectRepository) List(ctx context.Context, filter domain.SubjectListF
 	if hasAttrFilter {
 		query = query.Where("id IN (?)", attrSubQuery)
 	}
-	reqSubQuery := ctxDB.Model(&database.SubjectRequirement{}).Select("subject_id")
+	reqSubQuery := ctxDB.Model(&model.SubjectRequirement{}).Select("subject_id")
 	hasReqFilter := false
 	if len(filter.Courses) > 0 {
 		reqSubQuery = reqSubQuery.Where("course IN ?", filter.Courses)
@@ -75,39 +75,40 @@ func (r *SubjectRepository) List(ctx context.Context, filter domain.SubjectListF
 
 	query = query.Order("syllabus_id ASC")
 
-	var records []database.Subject
+	var records []model.Subject
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err
 	}
 	results := make([]domain.Subject, len(records))
 	for i, rec := range records {
-		results[i] = database.SubjectToDomain(rec)
+		results[i] = subjectToDomain(rec)
 	}
 	return results, nil
 }
 
 func (r *SubjectRepository) GetByID(ctx context.Context, id string) (domain.Subject, error) {
-	var record database.Subject
-	if err := r.subjectPreload(r.db.WithContext(ctx)).First(&record, "id = ?", id).Error; err != nil {
+	var record model.Subject
+	if err := r.subjectPreload(r.db.WithContext(ctx)).First(&record, "id = ?", parseUUIDOrNil(id)).Error; err != nil {
 		return domain.Subject{}, err
 	}
-	return database.SubjectToDomain(record), nil
+	return subjectToDomain(record), nil
 }
 
 func (r *SubjectRepository) Delete(ctx context.Context, id string) error {
+	uid := parseUUIDOrNil(id)
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var record database.Subject
-		if err := tx.First(&record, "id = ?", id).Error; err != nil {
+		var record model.Subject
+		if err := tx.First(&record, "id = ?", uid).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Where("subject_id = ?", id).Delete(&database.SubjectFaculty{}).Error; err != nil {
+		if err := tx.Where("subject_id = ?", uid).Delete(&model.SubjectFaculty{}).Error; err != nil {
 			return err
 		}
-		if err := tx.Where("subject_id = ?", id).Delete(&database.SubjectEligibleAttribute{}).Error; err != nil {
+		if err := tx.Where("subject_id = ?", uid).Delete(&model.SubjectEligibleAttribute{}).Error; err != nil {
 			return err
 		}
-		if err := tx.Where("subject_id = ?", id).Delete(&database.SubjectRequirement{}).Error; err != nil {
+		if err := tx.Where("subject_id = ?", uid).Delete(&model.SubjectRequirement{}).Error; err != nil {
 			return err
 		}
 

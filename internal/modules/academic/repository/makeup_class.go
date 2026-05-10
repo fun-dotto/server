@@ -4,9 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/fun-dotto/server/internal/modules/academic/database"
 	"github.com/fun-dotto/server/internal/modules/academic/domain"
-	"github.com/google/uuid"
+	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 )
 
@@ -26,17 +25,17 @@ func (r *MakeupClassRepository) makeupClassPreload(db *gorm.DB) *gorm.DB {
 }
 
 func (r *MakeupClassRepository) List(ctx context.Context, filter domain.MakeupClassListFilter) ([]domain.MakeupClass, error) {
-	var records []database.MakeupClass
+	var records []model.MakeupClass
 	query := r.makeupClassPreload(r.db.WithContext(ctx))
 
 	if len(filter.SubjectIDs) > 0 {
-		query = query.Where("subject_id IN ?", filter.SubjectIDs)
+		query = query.Where("subject_id IN ?", parseUUIDs(filter.SubjectIDs))
 	}
 	if filter.From != nil {
-		query = query.Where("date >= ?", filter.From.Format("2006-01-02"))
+		query = query.Where("date >= ?", filter.From.Format(dateLayout))
 	}
 	if filter.Until != nil {
-		query = query.Where("date <= ?", filter.Until.Format("2006-01-02"))
+		query = query.Where("date <= ?", filter.Until.Format(dateLayout))
 	}
 
 	query = query.
@@ -49,42 +48,39 @@ func (r *MakeupClassRepository) List(ctx context.Context, filter domain.MakeupCl
 
 	results := make([]domain.MakeupClass, len(records))
 	for i, rec := range records {
-		results[i] = database.MakeupClassToDomain(rec)
+		results[i] = makeupClassToDomain(rec)
 	}
 	return results, nil
 }
 
 func (r *MakeupClassRepository) GetByID(ctx context.Context, id string) (domain.MakeupClass, error) {
-	var record database.MakeupClass
-	if err := r.makeupClassPreload(r.db.WithContext(ctx)).First(&record, "id = ?", id).Error; err != nil {
+	var record model.MakeupClass
+	if err := r.makeupClassPreload(r.db.WithContext(ctx)).First(&record, "id = ?", parseUUIDOrNil(id)).Error; err != nil {
 		return domain.MakeupClass{}, err
 	}
-	return database.MakeupClassToDomain(record), nil
+	return makeupClassToDomain(record), nil
 }
 
 func (r *MakeupClassRepository) Create(ctx context.Context, mc domain.MakeupClass) (domain.MakeupClass, error) {
-	dbRecord := database.MakeupClassFromDomain(mc)
-	if dbRecord.ID == "" {
-		dbRecord.ID = uuid.New().String()
-	}
-
-	if err := r.db.WithContext(ctx).Create(&dbRecord).Error; err != nil {
+	record := makeupClassFromDomain(mc)
+	if err := r.db.WithContext(ctx).Create(&record).Error; err != nil {
 		return domain.MakeupClass{}, err
 	}
-	return r.GetByID(ctx, dbRecord.ID)
+	return r.GetByID(ctx, record.ID.String())
 }
 
 func (r *MakeupClassRepository) Delete(ctx context.Context, id string) error {
+	uid := parseUUIDOrNil(id)
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var record database.MakeupClass
-		if err := tx.Where("id = ?", id).First(&record).Error; err != nil {
+		var record model.MakeupClass
+		if err := tx.Where("id = ?", uid).First(&record).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
 			return err
 		}
 
-		result := tx.Where("id = ?", id).Delete(&database.MakeupClass{})
+		result := tx.Where("id = ?", uid).Delete(&model.MakeupClass{})
 		if result.Error != nil {
 			return result.Error
 		}

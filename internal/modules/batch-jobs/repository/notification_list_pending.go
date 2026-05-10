@@ -4,12 +4,13 @@ import (
 	"context"
 	"time"
 
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/database"
 	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/google/uuid"
 )
 
 func (r *NotificationRepository) ListPendingNotifications(ctx context.Context, now time.Time) ([]domain.Notification, error) {
-	var dbNotifications []database.Notification
+	var dbNotifications []model.Notification
 	if err := r.db.WithContext(ctx).
 		Where("notify_after <= ?", now).
 		Where("notify_before > ?", now).
@@ -26,13 +27,13 @@ func (r *NotificationRepository) ListPendingNotifications(ctx context.Context, n
 		return []domain.Notification{}, nil
 	}
 
-	notificationIDs := make([]string, 0, len(dbNotifications))
+	notificationIDs := make([]uuid.UUID, 0, len(dbNotifications))
 	for _, n := range dbNotifications {
 		notificationIDs = append(notificationIDs, n.ID)
 	}
 
 	// 未通知ユーザーだけを送信対象として返す。
-	var allTargets []database.NotificationTargetUser
+	var allTargets []model.NotificationTargetUser
 	if err := r.db.WithContext(ctx).
 		Where("notification_id IN ?", notificationIDs).
 		Where("notified_at IS NULL").
@@ -42,15 +43,17 @@ func (r *NotificationRepository) ListPendingNotifications(ctx context.Context, n
 
 	targetMap := make(map[string][]domain.NotificationTargetUser)
 	for _, t := range allTargets {
-		targetMap[t.NotificationID] = append(targetMap[t.NotificationID], domain.NotificationTargetUser{
+		key := t.NotificationID.String()
+		targetMap[key] = append(targetMap[key], domain.NotificationTargetUser{
 			UserID:     t.UserID,
 			NotifiedAt: t.NotifiedAt,
 		})
 	}
 
 	notifications := make([]domain.Notification, 0, len(dbNotifications))
-	for _, n := range dbNotifications {
-		notifications = append(notifications, n.ToDomain(targetMap[n.ID]))
+	for i := range dbNotifications {
+		key := dbNotifications[i].ID.String()
+		notifications = append(notifications, notificationToDomain(&dbNotifications[i], targetMap[key]))
 	}
 
 	return notifications, nil
