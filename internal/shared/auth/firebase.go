@@ -13,7 +13,8 @@ import (
 )
 
 // Clients は Extract / RequireUserUnlessAllowed が依存する Firebase クライアントの束。
-// AppCheck は省略可能（nil でも extract は Bearer のみで動作する）。
+// Auth / AppCheck の両方が必須。NewClients が初期化に失敗した場合は呼び出し側で
+// 起動を中断する想定 (fail-loud)。
 type Clients struct {
 	Auth     *auth.Client
 	AppCheck *appcheck.Client

@@ -67,11 +67,7 @@ func tryVerifyBearer(c *gin.Context, ctx context.Context, authClient *auth.Clien
 }
 
 // tryVerifyAppCheck は X-Firebase-AppCheck ヘッダがあれば検証する。
-// AppCheck クライアント未注入の場合は何もしない。
 func tryVerifyAppCheck(c *gin.Context, clients *Clients) {
-	if clients.AppCheck == nil {
-		return
-	}
 	header := c.GetHeader(appCheckHeader)
 	if header == "" {
 		return
