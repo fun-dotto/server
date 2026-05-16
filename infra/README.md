@@ -2,7 +2,7 @@
 
 `fun-dotto/server` モノレポの Terraform 構成。Cloud Run Service / Job、Artifact Registry、Service Account、Cloud Scheduler を `for_each` で集約し、環境は `envs/<env>.tfvars` で `-var-file` 渡しする。
 
-- backend: `gcs` バケット `swift2023groupc-tfstate`、prefix は **env ごとに `server/<env>`** へ分離 (`terraform init -backend-config="prefix=server/<env>"`)
+- backend: `gcs` バケット `swift2023groupc-tfstate`、prefix は **env ごとに `server/<env>`** へ分離 (`terraform init -backend-config=envs/<env>.backend.hcl`)
 - provider: `hashicorp/google ~> 6.0`
 - Terraform: `1.9.8` (mise.toml でピン)
 - 命名規約: prod は `<resource>`、それ以外は `<resource>-<env>` (way の set-env と同形)
@@ -22,18 +22,19 @@
 | `iam.tf` | HTTP サービスの公開 (allUsers invoker) |
 | `outputs.tf` | image / service URL / job name / SA email マップ |
 | `envs/<env>.tfvars` | 環境ごとの変数値 (project_id / instance_connection_name は `REPLACE_ME` プレースホルダ、実値は手元で上書き) |
+| `envs/<env>.backend.hcl` | 環境ごとの GCS backend 設定 (bucket / prefix)。`terraform init -backend-config=envs/<env>.backend.hcl` で渡す |
 
 ## state 分離
 
-backend prefix を `server` 固定にすると 4 env で 1 state を共有してしまい、`-var-file` を切り替えた瞬間に他環境のリソースを置換/削除する事故が起きる。env ごとに prefix を分けて apply する:
+backend prefix を `server` 固定にすると 4 env で 1 state を共有してしまい、`-var-file` を切り替えた瞬間に他環境のリソースを置換/削除する事故が起きる。`main.tf` の `backend "gcs" {}` は bucket / prefix とも未指定の partial configuration にしており、env ごとの `envs/<env>.backend.hcl` を必ず渡す運用に揃える (bucket を未指定にしているため、`-backend-config` を渡さない素の `terraform init` は bucket 必須エラーで落ちる):
 
 ```bash
 # dev
-terraform init -reconfigure -backend-config="prefix=server/dev"
+terraform init -reconfigure -backend-config=envs/dev.backend.hcl
 terraform apply -var-file=envs/dev.tfvars
 
 # prod
-terraform init -reconfigure -backend-config="prefix=server/prod"
+terraform init -reconfigure -backend-config=envs/prod.backend.hcl
 terraform apply -var-file=envs/prod.tfvars
 ```
 
@@ -64,7 +65,7 @@ Cloud Run Service / Job を立てる前に Artifact Registry と SA / Cloud SQL 
 #    prod は variables.tf の validation で image_tag に "latest" 不可のため、
 #    -target で Cloud Run リソースを含まないこの apply でも image_tag を渡す必要がある
 #    (variable validation は -target に関係なく必ず走るため)。
-terraform init -reconfigure -backend-config="prefix=server/prod"
+terraform init -reconfigure -backend-config=envs/prod.backend.hcl
 terraform apply \
     -var-file=envs/prod.tfvars \
     -var=image_tag=<sha> \
@@ -102,7 +103,7 @@ terraform apply -var-file=envs/prod.tfvars -var=image_tag=<sha>
 
 # 8. dev / stg / qa も同様に (共有リソースは create されず参照だけ)
 #    各 env でも 4→5→7 と同じ手順 (SA を IAM ユーザーとして作成 → 役割付与 → 残りを apply) を踏むこと。
-terraform init -reconfigure -backend-config="prefix=server/dev"
+terraform init -reconfigure -backend-config=envs/dev.backend.hcl
 terraform apply -var-file=envs/dev.tfvars -var=image_tag=<sha>
 ```
 
@@ -112,21 +113,21 @@ cutover 段階で `academic-api` / `academic-api-stg` / `academic-api-qa` / `aca
 
 ```bash
 # dev
-terraform init -reconfigure -backend-config="prefix=server/dev"
+terraform init -reconfigure -backend-config=envs/dev.backend.hcl
 terraform import \
     -var-file=envs/dev.tfvars \
     'google_cloud_run_v2_service.http["academic-api"]' \
     "projects/<project_id>/locations/asia-northeast1/services/academic-api-dev"
 
 # stg
-terraform init -reconfigure -backend-config="prefix=server/stg"
+terraform init -reconfigure -backend-config=envs/stg.backend.hcl
 terraform import \
     -var-file=envs/stg.tfvars \
     'google_cloud_run_v2_service.http["academic-api"]' \
     "projects/<project_id>/locations/asia-northeast1/services/academic-api-stg"
 
 # qa
-terraform init -reconfigure -backend-config="prefix=server/qa"
+terraform init -reconfigure -backend-config=envs/qa.backend.hcl
 terraform import \
     -var-file=envs/qa.tfvars \
     'google_cloud_run_v2_service.http["academic-api"]' \
@@ -134,7 +135,7 @@ terraform import \
 
 # prod (prod は env_suffix なしの素の service 名)
 #    import でも variable validation が走るため、prod は image_tag を必ず渡す。
-terraform init -reconfigure -backend-config="prefix=server/prod"
+terraform init -reconfigure -backend-config=envs/prod.backend.hcl
 terraform import \
     -var-file=envs/prod.tfvars \
     -var=image_tag=<sha> \
