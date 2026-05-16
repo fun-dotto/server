@@ -13,6 +13,29 @@ resource "google_artifact_registry_repository" "server" {
   format        = "DOCKER"
   description   = "Modular monolith server image (multi-binary)"
 
+  # cleanup_policies を実行する (true にすると評価のみで削除されない)。
+  cleanup_policy_dry_run = false
+
+  # commit SHA 単位で日々イメージが増える前提のため、最初から retention を入れる。
+  # - 直近 50 タグはロールバック余地として残す
+  # - タグ未付与の untagged manifest は 7 日で削除 (CI 中間レイヤなど)
+  cleanup_policies {
+    id     = "keep-recent-tagged"
+    action = "KEEP"
+    most_recent_versions {
+      keep_count = 50
+    }
+  }
+
+  cleanup_policies {
+    id     = "delete-untagged-after-7d"
+    action = "DELETE"
+    condition {
+      tag_state  = "UNTAGGED"
+      older_than = "604800s"
+    }
+  }
+
   # 全 env が文字列パスで暗黙参照しているため、prod state で誤って destroy
   # されると非 prod の Cloud Run image pull が即死する。
   lifecycle {

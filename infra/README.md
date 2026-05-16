@@ -14,7 +14,7 @@
 | `main.tf` | backend 設定 / provider 宣言 / 必要な Google API 有効化 |
 | `variables.tf` | 環境変数定義 (project_id / region / environment / DB / image_tag / cron) |
 | `locals.tf` | env_suffix と http_services / cloud_run_jobs マップ、SA account_id 用 sa_id、fcm_sender role 固定パス |
-| `artifact_registry.tf` | `server` Docker repo (1 イメージに全バイナリを同梱、prod state でのみ create) |
+| `artifact_registry.tf` | `server` Docker repo (1 イメージに全バイナリを同梱、prod state でのみ create、`cleanup_policies` で直近 50 タグ保持 + untagged 7 日削除) |
 | `service_account.tf` | Service / Job ごとの SA、cloudsql.client/instanceUser、google_sql_user、fcm_sender カスタムロール (prod のみ)、scheduler SA |
 | `cloud_run_services.tf` | HTTP サービス (`for_each = local.http_services`) |
 | `cloud_run_jobs.tf` | Cloud Run Job (`for_each = local.cloud_run_jobs`、migrate-job も含む) |

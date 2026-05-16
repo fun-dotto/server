@@ -8,6 +8,9 @@ resource "google_cloud_run_v2_service" "http" {
 
   template {
     service_account = google_service_account.workload[each.key].email
+    # gen2 を明示。gen1 と比べてネットワーク / FS の挙動が安定し、
+    # Direct VPC egress 等の将来要件にも gen2 が前提。
+    execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
 
     scaling {
       max_instance_count = each.value.max_instance_count

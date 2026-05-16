@@ -10,6 +10,8 @@ resource "google_cloud_run_v2_job" "jobs" {
       service_account = google_service_account.workload[each.key].email
       timeout         = each.value.timeout
       max_retries     = each.value.max_retries
+      # gen2 を明示 (cloud_run_services.tf と同じ理由)。
+      execution_environment = "EXECUTION_ENVIRONMENT_GEN2"
 
       containers {
         image   = local.image
