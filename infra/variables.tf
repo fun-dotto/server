@@ -42,12 +42,6 @@ variable "image_tag" {
   default     = "latest"
 }
 
-variable "secret_project_id" {
-  type        = string
-  description = "Secret Manager を保持するプロジェクト ID。Phase 1 では未使用だが命名と紐付けのため宣言だけ残す"
-  default     = ""
-}
-
 variable "build_class_change_notifications_schedule" {
   type        = string
   description = "build-class-change-notifications-job の cron 式 (Asia/Tokyo)"
