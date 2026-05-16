@@ -1,5 +1,7 @@
 terraform {
-  required_version = ">= 1.5.0"
+  # variables.tf の image_tag validation で var.environment を参照するため、
+  # cross-variable validation が GA になった Terraform 1.9 系以上を必須にする。
+  required_version = ">= 1.9.0"
 
   backend "gcs" {
     bucket = "swift2023groupc-tfstate"

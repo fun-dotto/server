@@ -10,6 +10,5 @@ gen/**/*_test.go
 **/*.out
 docs/
 infra/
-migrations/
 way/
 *.md

@@ -75,29 +75,68 @@ terraform apply \
     -target=google_service_account.scheduler \
     -target=google_service_account_iam_member.scheduler_token_creator
 
-# 5. 1 度 Docker イメージを push (GitHub Actions deploy.yml で自動化される)
+# 5. 新規 IAM ユーザーを既存の PostgreSQL ロールに所属させる (env ごと、一度だけ)
+#    Terraform で google_sql_user.workload を作っただけでは IAM ユーザーは
+#    どの dotto_* ロールにも属していないため、アプリが接続できても
+#    SELECT/INSERT 等で permission denied になる。Cloud SQL Auth Proxy 経由で
+#    dotto_admin (or DB スーパーユーザー) として psql に入り、SA ごとに役割を付与する。
+#    way 規約: HTTP サービスの SA は dotto_service、migrate-job は dotto_admin、
+#    apply-table-privileges-job は dotto_admin、それ以外の Job は用途に合わせて dotto_service。
+#
+#    例 (prod):
+#      GRANT dotto_admin   TO "migrate-job@<project>.iam";
+#      GRANT dotto_admin   TO "apply-table-privileges@<project>.iam";  -- Job 追加時
+#      GRANT dotto_service TO "academic-api@<project>.iam";
+#      GRANT dotto_service TO "class-change-notif-job@<project>.iam";
+#      GRANT dotto_service TO "dispatch-notif-job@<project>.iam";
+#    (非 prod は SA 名末尾に env_suffix が付くので "<sa>-<env>@<project>.iam" となる)
 
-# 6. prod の残りを apply
+# 6. 1 度 Docker イメージを push (GitHub Actions deploy.yml で自動化される)
+
+# 7. prod の残りを apply
 terraform apply -var-file=envs/prod.tfvars -var=image_tag=<sha>
 
-# 7. dev / stg / qa も同様に (共有リソースは create されず参照だけ)
+# 8. dev / stg / qa も同様に (共有リソースは create されず参照だけ)
+#    各 env でも 4→5→7 と同じ手順 (SA を IAM ユーザーとして作成 → 役割付与 → 残りを apply) を踏むこと。
 terraform init -reconfigure -backend-config="prefix=server/dev"
 terraform apply -var-file=envs/dev.tfvars -var=image_tag=<sha>
 ```
 
 ## 既存 academic-api Cloud Run Service の取り込み (cutover)
 
-cutover 段階で `academic-api` / `academic-api-stg` / `academic-api-dev` Cloud Run Service を server state に取り込む。リソース名・リージョン・SA・環境変数キーを既存に合わせて差分ゼロにする。state は env ごとに分けてあるので、import も env ごとに実行する。
+cutover 段階で `academic-api` / `academic-api-stg` / `academic-api-qa` / `academic-api-dev` Cloud Run Service を server state に取り込む。リソース名・リージョン・SA・環境変数キーを既存に合わせて差分ゼロにする。state は env ごとに分けてあるので、import も env ごとに実行する。
 
 ```bash
+# dev
 terraform init -reconfigure -backend-config="prefix=server/dev"
 terraform import \
     -var-file=envs/dev.tfvars \
     'google_cloud_run_v2_service.http["academic-api"]' \
     "projects/<project_id>/locations/asia-northeast1/services/academic-api-dev"
+
+# stg
+terraform init -reconfigure -backend-config="prefix=server/stg"
+terraform import \
+    -var-file=envs/stg.tfvars \
+    'google_cloud_run_v2_service.http["academic-api"]' \
+    "projects/<project_id>/locations/asia-northeast1/services/academic-api-stg"
+
+# qa
+terraform init -reconfigure -backend-config="prefix=server/qa"
+terraform import \
+    -var-file=envs/qa.tfvars \
+    'google_cloud_run_v2_service.http["academic-api"]' \
+    "projects/<project_id>/locations/asia-northeast1/services/academic-api-qa"
+
+# prod (prod は env_suffix なしの素の service 名)
+terraform init -reconfigure -backend-config="prefix=server/prod"
+terraform import \
+    -var-file=envs/prod.tfvars \
+    'google_cloud_run_v2_service.http["academic-api"]' \
+    "projects/<project_id>/locations/asia-northeast1/services/academic-api"
 ```
 
-prod / stg も同様に実施し、`terraform plan` が clean になるまで属性を合わせ込む (詳細は Notion 計画 §H)。
+各 env で `terraform plan` が clean になるまで属性を合わせ込む (詳細は Notion 計画 §H)。
 
 ## Terraform 対象外として明記
 
