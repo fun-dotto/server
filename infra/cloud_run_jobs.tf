@@ -9,7 +9,7 @@ resource "google_cloud_run_v2_job" "jobs" {
     template {
       service_account = google_service_account.workload[each.key].email
       timeout         = each.value.timeout
-      max_retries     = 1
+      max_retries     = each.value.max_retries
 
       containers {
         image   = local.image

@@ -29,6 +29,15 @@ variable "instance_connection_name" {
     ])
     error_message = "instance_connection_name は \"project:region:instance\" 形式で指定してください。"
   }
+
+  validation {
+    # google_sql_user は var.project_id 上で connection name の instance 部分のみを使うため、
+    # connection name の project 部分が project_id と一致していないと
+    # 「Cloud Run が接続する Cloud SQL」と「Terraform が IAM ユーザーを作る Cloud SQL」が
+    # 別プロジェクトに分かれる事故を起こす。
+    condition     = split(":", var.instance_connection_name)[0] == var.project_id
+    error_message = "instance_connection_name の project 部分は var.project_id と一致させてください (別プロジェクトの Cloud SQL を参照する構成は未サポート)。"
+  }
 }
 
 variable "db_name" {

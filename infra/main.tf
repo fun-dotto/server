@@ -3,9 +3,12 @@ terraform {
   # cross-variable validation が GA になった Terraform 1.9 系以上を必須にする。
   required_version = ">= 1.9.0"
 
+  # prefix は env ごとに分離するため partial configuration にしている。
+  # `terraform init -backend-config="prefix=server/<env>"` が必須。
+  # ここで prefix を固定しておくと 4 env で同一 state を共有する事故が起きるため、
+  # 意図的に未指定 (-backend-config 忘れ時は init がエラーになる)。
   backend "gcs" {
     bucket = "swift2023groupc-tfstate"
-    prefix = "server"
   }
 
   required_providers {

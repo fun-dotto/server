@@ -26,47 +26,56 @@ locals {
   #
   # sa_id: google_service_account.account_id は 30 文字までという GCP 制約があるため、
   #        SA 用に短縮した識別子を別途持たせる (env_suffix を足しても 30 字以内に収まること)。
+  # max_instance_count: Cloud SQL 接続数を圧迫しないようサービスごとの上限を明示する
+  #        (各インスタンスが SetMaxOpenConns(20) のプールを持つ前提で計算すること)。
   http_services = {
     "academic-api" = {
-      sa_id   = "academic-api"
-      command = ["/bin/academic-api"]
-      cpu     = "1"
-      memory  = "512Mi"
+      sa_id              = "academic-api"
+      command            = ["/bin/academic-api"]
+      cpu                = "1"
+      memory             = "512Mi"
+      max_instance_count = 10
     }
   }
 
   # Cloud Run Job 定義。schedule = null の Job は Cloud Scheduler を作らない。
+  # max_retries: dispatch-notifications-job は FCM 送信成功後に DB を更新する実装で、
+  #              DB 更新失敗で再実行されると同じ FCM 通知をユーザーに重複配信する。
+  #              そのため自動リトライを 0 にする。べき等性が担保された他 Job は 1 を維持。
   cloud_run_jobs = {
     "build-class-change-notifications-job" = {
-      sa_id    = "class-change-notif-job"
-      command  = ["/bin/build-class-change-notifications-job"]
-      schedule = var.build_class_change_notifications_schedule
-      args     = []
-      cpu      = "1"
-      memory   = "512Mi"
-      timeout  = "900s"
+      sa_id       = "class-change-notif-job"
+      command     = ["/bin/build-class-change-notifications-job"]
+      schedule    = var.build_class_change_notifications_schedule
+      args        = []
+      cpu         = "1"
+      memory      = "512Mi"
+      timeout     = "900s"
+      max_retries = 1
     }
     # 非 prod では dispatch-notifications-job の Cloud Scheduler を作成しない
     # (実 FCM トークン宛にテスト push を飛ばさないため、手動 execute のみ許可)。
     "dispatch-notifications-job" = {
-      sa_id    = "dispatch-notif-job"
-      command  = ["/bin/dispatch-notifications-job"]
-      schedule = var.environment == "prod" ? var.dispatch_notifications_schedule : null
-      args     = []
-      cpu      = "1"
-      memory   = "512Mi"
-      timeout  = "900s"
+      sa_id       = "dispatch-notif-job"
+      command     = ["/bin/dispatch-notifications-job"]
+      schedule    = var.environment == "prod" ? var.dispatch_notifications_schedule : null
+      args        = []
+      cpu         = "1"
+      memory      = "512Mi"
+      timeout     = "900s"
+      max_retries = 0
     }
     # Cloud Run Job 名は "migrate-job" (way 規約上 Job には -job 接尾辞) だが、
     # 同梱バイナリは cmd/migrate に対応する /bin/migrate を起動する。
     "migrate-job" = {
-      sa_id    = "migrate-job"
-      command  = ["/bin/migrate"]
-      schedule = null
-      args     = []
-      cpu      = "1"
-      memory   = "512Mi"
-      timeout  = "900s"
+      sa_id       = "migrate-job"
+      command     = ["/bin/migrate"]
+      schedule    = null
+      args        = []
+      cpu         = "1"
+      memory      = "512Mi"
+      timeout     = "900s"
+      max_retries = 1
     }
   }
 

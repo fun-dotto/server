@@ -61,9 +61,13 @@ Cloud Run Service / Job を立てる前に Artifact Registry と SA / Cloud SQL 
 #    (実値は社内 wiki / Secret Manager 参照。コミットしないこと)
 
 # 4. AR / SA / IAM だけ先に apply (prod から)
+#    prod は variables.tf の validation で image_tag に "latest" 不可のため、
+#    -target で Cloud Run リソースを含まないこの apply でも image_tag を渡す必要がある
+#    (variable validation は -target に関係なく必ず走るため)。
 terraform init -reconfigure -backend-config="prefix=server/prod"
 terraform apply \
     -var-file=envs/prod.tfvars \
+    -var=image_tag=<sha> \
     -target=google_project_service.required_apis \
     -target=google_artifact_registry_repository.server \
     -target=google_service_account.workload \
@@ -129,9 +133,11 @@ terraform import \
     "projects/<project_id>/locations/asia-northeast1/services/academic-api-qa"
 
 # prod (prod は env_suffix なしの素の service 名)
+#    import でも variable validation が走るため、prod は image_tag を必ず渡す。
 terraform init -reconfigure -backend-config="prefix=server/prod"
 terraform import \
     -var-file=envs/prod.tfvars \
+    -var=image_tag=<sha> \
     'google_cloud_run_v2_service.http["academic-api"]' \
     "projects/<project_id>/locations/asia-northeast1/services/academic-api"
 ```
