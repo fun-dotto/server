@@ -38,8 +38,15 @@ variable "db_name" {
 
 variable "image_tag" {
   type        = string
-  description = "Cloud Run Service / Job が参照する Docker イメージタグ (commit SHA を想定)"
+  description = "Cloud Run Service / Job が参照する Docker イメージタグ (commit SHA を想定)。prod は revision 追跡のため latest 禁止。"
   default     = "latest"
+
+  validation {
+    # prod では追跡可能なタグ (commit SHA など) を必ず明示させる。
+    # 他 env はローカル検証用に latest フォールバックを許容する。
+    condition     = var.environment != "prod" || var.image_tag != "latest"
+    error_message = "prod 環境では image_tag に \"latest\" を指定できません。commit SHA など追跡可能なタグを指定してください。"
+  }
 }
 
 variable "build_class_change_notifications_schedule" {

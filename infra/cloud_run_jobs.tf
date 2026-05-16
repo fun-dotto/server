@@ -3,7 +3,7 @@ resource "google_cloud_run_v2_job" "jobs" {
 
   name                = "${each.key}${local.env_suffix}"
   location            = var.region
-  deletion_protection = false
+  deletion_protection = var.environment == "prod"
 
   template {
     template {

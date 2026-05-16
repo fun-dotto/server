@@ -55,9 +55,11 @@ locals {
       memory   = "512Mi"
       timeout  = "900s"
     }
+    # Cloud Run Job 名は "migrate-job" (way 規約上 Job には -job 接尾辞) だが、
+    # 同梱バイナリは cmd/migrate に対応する /bin/migrate を起動する。
     "migrate-job" = {
       sa_id    = "migrate-job"
-      command  = ["/bin/migrate-job"]
+      command  = ["/bin/migrate"]
       schedule = null
       args     = []
       cpu      = "1"

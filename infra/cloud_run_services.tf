@@ -3,7 +3,7 @@ resource "google_cloud_run_v2_service" "http" {
 
   name                = "${each.key}${local.env_suffix}"
   location            = var.region
-  deletion_protection = false
+  deletion_protection = var.environment == "prod"
   ingress             = "INGRESS_TRAFFIC_ALL"
 
   template {
