@@ -13,5 +13,11 @@ resource "google_artifact_registry_repository" "server" {
   format        = "DOCKER"
   description   = "Modular monolith server image (multi-binary)"
 
+  # 全 env が文字列パスで暗黙参照しているため、prod state で誤って destroy
+  # されると非 prod の Cloud Run image pull が即死する。
+  lifecycle {
+    prevent_destroy = true
+  }
+
   depends_on = [google_project_service.required_apis]
 }

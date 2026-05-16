@@ -54,6 +54,13 @@ resource "google_project_iam_custom_role" "fcm_sender" {
   permissions = [
     "cloudmessaging.messages.create",
   ]
+
+  # 全 env が local.fcm_sender_role の固定パスで参照しているため、prod state
+  # で誤って destroy されると非 prod の dispatch-notifications-job の IAM が
+  # 即座に壊れる。
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # fcm_sender ロールへの付与は env ごとに行う (dispatch-notifications-job の SA が env 別なので)。

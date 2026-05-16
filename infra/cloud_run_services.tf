@@ -37,8 +37,6 @@ resource "google_cloud_run_v2_service" "http" {
         }
       }
     }
-
-    timeout = "30s"
   }
 
   traffic {

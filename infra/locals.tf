@@ -46,10 +46,12 @@ locals {
       memory   = "512Mi"
       timeout  = "900s"
     }
+    # 非 prod では dispatch-notifications-job の Cloud Scheduler を作成しない
+    # (実 FCM トークン宛にテスト push を飛ばさないため、手動 execute のみ許可)。
     "dispatch-notifications-job" = {
       sa_id    = "dispatch-notif-job"
       command  = ["/bin/dispatch-notifications-job"]
-      schedule = var.dispatch_notifications_schedule
+      schedule = var.environment == "prod" ? var.dispatch_notifications_schedule : null
       args     = []
       cpu      = "1"
       memory   = "512Mi"
