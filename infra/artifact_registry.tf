@@ -19,11 +19,23 @@ resource "google_artifact_registry_repository" "server" {
   # commit SHA 単位で日々イメージが増える前提のため、最初から retention を入れる。
   # - 直近 50 タグはロールバック余地として残す
   # - タグ未付与の untagged manifest は 7 日で削除 (CI 中間レイヤなど)
+  #
+  # AR の cleanup policy は「DELETE 条件に一致した version を KEEP で除外する」評価順。
+  # KEEP 単独では何も削除されないため、tagged 版を削除するには DELETE 条件と
+  # 組み合わせる必要がある (KEEP は DELETE より常に優先される)。
   cleanup_policies {
     id     = "keep-recent-tagged"
     action = "KEEP"
     most_recent_versions {
       keep_count = 50
+    }
+  }
+
+  cleanup_policies {
+    id     = "delete-old-tagged"
+    action = "DELETE"
+    condition {
+      tag_state = "TAGGED"
     }
   }
 

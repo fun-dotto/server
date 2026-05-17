@@ -51,6 +51,13 @@ variable "image_tag" {
   default     = "latest"
 
   validation {
+    # 空文字や空白だけだと local.image が ".../server:" となり Cloud Run apply 時に
+    # 不正な image URI で失敗する。
+    condition     = trimspace(var.image_tag) != ""
+    error_message = "image_tag に空文字や空白だけの値は指定できません。"
+  }
+
+  validation {
     # prod では追跡可能なタグ (commit SHA など) を必ず明示させる。
     # 他 env はローカル検証用に latest フォールバックを許容する。
     condition     = var.environment != "prod" || var.image_tag != "latest"
