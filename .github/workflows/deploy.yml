@@ -8,7 +8,7 @@ on:
       environment_name:
         description: Environment (dev / stg / qa / prod)
         required: true
-        default: stg
+        default: dev
         type: choice
         options:
           - dev
@@ -16,7 +16,7 @@ on:
           - qa
           - prod
 concurrency:
-  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.inputs.environment_name || 'stg' }}
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.inputs.environment_name || 'dev' }}
   cancel-in-progress: false
 jobs:
   set-env:
@@ -34,7 +34,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             ENV="${{ github.event.inputs.environment_name }}"
           else
-            ENV="stg"
+            ENV="dev"
           fi
           IMAGE_TAG="${{ github.sha }}"
           IMAGE="${{ vars._AR_HOSTNAME }}/${{ vars.PROJECT_ID }}/server/server:${IMAGE_TAG}"
