@@ -19,7 +19,9 @@ resource "google_cloud_scheduler_job" "triggers" {
 
   http_target {
     http_method = "POST"
-    uri         = "https://run.googleapis.com/v2/projects/${var.project_id}/locations/${var.region}/jobs/${each.key}${local.env_suffix}:run"
+    # Job リソース属性から URI を組み立てて、google_cloud_run_v2_job.jobs 側で
+    # name / location / project の派生方法が変わってもトリガー先がずれないようにする。
+    uri = "https://run.googleapis.com/v2/projects/${google_cloud_run_v2_job.jobs[each.key].project}/locations/${google_cloud_run_v2_job.jobs[each.key].location}/jobs/${google_cloud_run_v2_job.jobs[each.key].name}:run"
     headers = {
       "Content-Type" = "application/json"
     }

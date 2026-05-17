@@ -2,7 +2,7 @@
 
 `fun-dotto/server` モノレポの Terraform 構成。Cloud Run Service / Job、Artifact Registry、Service Account、Cloud Scheduler を `for_each` で集約し、環境は `envs/<env>.tfvars` で `-var-file` 渡しする。
 
-- backend: `gcs` バケット `swift2023groupc-tfstate`、prefix `server`
+- backend: `gcs` バケット `swift2023groupc-tfstate`、prefix は **env ごとに `server/<env>`** へ分離 (`terraform init -backend-config=envs/<env>.backend.hcl`)
 - provider: `hashicorp/google ~> 6.0`
 - Terraform: `1.9.8` (mise.toml でピン)
 - 命名規約: prod は `<resource>`、それ以外は `<resource>-<env>` (way の set-env と同形)
@@ -13,15 +13,43 @@
 | --- | --- |
 | `main.tf` | backend 設定 / provider 宣言 / 必要な Google API 有効化 |
 | `variables.tf` | 環境変数定義 (project_id / region / environment / DB / image_tag / cron) |
-| `locals.tf` | env_suffix と http_services / cloud_run_jobs マップ |
-| `artifact_registry.tf` | `server` Docker repo (1 イメージに全バイナリを同梱) |
-| `service_account.tf` | Service / Job ごとの SA、cloudsql.client/instanceUser、google_sql_user、fcm_sender カスタムロール、scheduler SA |
+| `locals.tf` | env_suffix と http_services / cloud_run_jobs マップ、SA account_id 用 sa_id、fcm_sender role 固定パス |
+| `artifact_registry.tf` | `server` Docker repo (1 イメージに全バイナリを同梱、prod state でのみ create、`cleanup_policies` で直近 50 タグ保持 + untagged 7 日削除) |
+| `service_account.tf` | Service / Job ごとの SA、cloudsql.client/instanceUser、google_sql_user、fcm_sender カスタムロール (prod のみ)、scheduler SA |
 | `cloud_run_services.tf` | HTTP サービス (`for_each = local.http_services`) |
 | `cloud_run_jobs.tf` | Cloud Run Job (`for_each = local.cloud_run_jobs`、migrate-job も含む) |
 | `scheduler.tf` | Cloud Scheduler (`for_each = local.scheduled_jobs`) と Job invoker IAM |
 | `iam.tf` | HTTP サービスの公開 (allUsers invoker) |
 | `outputs.tf` | image / service URL / job name / SA email マップ |
-| `envs/<env>.tfvars` | 環境ごとの変数値 |
+| `envs/<env>.tfvars` | 環境ごとの変数値 (project_id / instance_connection_name は `REPLACE_ME` プレースホルダ、実値は手元で上書き) |
+| `envs/<env>.backend.hcl` | 環境ごとの GCS backend 設定 (bucket / prefix)。`terraform init -backend-config=envs/<env>.backend.hcl` で渡す |
+
+## state 分離
+
+backend prefix を `server` 固定にすると 4 env で 1 state を共有してしまい、`-var-file` を切り替えた瞬間に他環境のリソースを置換/削除する事故が起きる。`main.tf` の `backend "gcs" {}` は bucket / prefix とも未指定の partial configuration にしており、env ごとの `envs/<env>.backend.hcl` を必ず渡す運用に揃える (bucket を未指定にしているため、`-backend-config` を渡さない素の `terraform init` は bucket 必須エラーで落ちる):
+
+```bash
+# dev
+terraform init -reconfigure -backend-config=envs/dev.backend.hcl
+terraform apply -var-file=envs/dev.tfvars
+
+# prod
+terraform init -reconfigure -backend-config=envs/prod.backend.hcl
+terraform apply -var-file=envs/prod.tfvars
+```
+
+(`terraform workspace` で代替してもよいが、CI/CD では `-backend-config` で env を 1 ジョブ 1 state に固定する方が事故が少ない。)
+
+## 共有リソース所有権
+
+プロジェクト単位で一意な以下のリソースは **prod state でのみ create** する。dev / stg / qa state からは固定パスで参照するだけ。
+
+| 共有リソース | 所有 state | 非 prod での扱い |
+| --- | --- | --- |
+| `google_artifact_registry_repository.server` (`server` Docker repo) | prod | image URI 文字列で参照のみ (`local.image`) |
+| `google_project_iam_custom_role.fcm_sender` (`fcmSender` カスタムロール) | prod | `projects/<project>/roles/fcmSender` 固定パスで IAM binding |
+
+この前提により、**非 prod env の apply 前に prod env の apply が完了している必要がある**。CI/CD では prod を先に通すパイプラインに固定すること。
 
 ## 初回ブートストラップ
 
@@ -30,11 +58,17 @@ Cloud Run Service / Job を立てる前に Artifact Registry と SA / Cloud SQL 
 ```bash
 # 1. プロジェクト・GCS state バケット・Cloud SQL インスタンスは事前準備済み (本リポジトリの管理対象外)
 # 2. Workload Identity Federation の設定 (way 配下のドキュメント参照)
+# 3. envs/<env>.tfvars の REPLACE_ME を実 project_id / instance_connection_name に書き換える
+#    (実値は社内 wiki / Secret Manager 参照。コミットしないこと)
 
-# 3. AR / SA / IAM だけ先に apply
-terraform init
+# 4. AR / SA / IAM だけ先に apply (prod から)
+#    prod は variables.tf の validation で image_tag に "latest" 不可のため、
+#    -target で Cloud Run リソースを含まないこの apply でも image_tag を渡す必要がある
+#    (variable validation は -target に関係なく必ず走るため)。
+terraform init -reconfigure -backend-config=envs/prod.backend.hcl
 terraform apply \
-    -var-file=envs/dev.tfvars \
+    -var-file=envs/prod.tfvars \
+    -var=image_tag=<sha> \
     -target=google_project_service.required_apis \
     -target=google_artifact_registry_repository.server \
     -target=google_service_account.workload \
@@ -46,24 +80,70 @@ terraform apply \
     -target=google_service_account.scheduler \
     -target=google_service_account_iam_member.scheduler_token_creator
 
-# 4. 1 度 Docker イメージを push (GitHub Actions deploy.yml で自動化される)
+# 5. 新規 IAM ユーザーを既存の PostgreSQL ロールに所属させる (env ごと、一度だけ)
+#    Terraform で google_sql_user.workload を作っただけでは IAM ユーザーは
+#    どの dotto_* ロールにも属していないため、アプリが接続できても
+#    SELECT/INSERT 等で permission denied になる。Cloud SQL Auth Proxy 経由で
+#    dotto_admin (or DB スーパーユーザー) として psql に入り、SA ごとに役割を付与する。
+#    way 規約: HTTP サービスの SA は dotto_service、migrate-job は dotto_admin、
+#    apply-table-privileges-job は dotto_admin、それ以外の Job は用途に合わせて dotto_service。
+#
+#    例 (prod):
+#      GRANT dotto_admin   TO "migrate-job@<project>.iam";
+#      GRANT dotto_admin   TO "apply-table-privileges@<project>.iam";  -- Job 追加時
+#      GRANT dotto_service TO "academic-api@<project>.iam";
+#      GRANT dotto_service TO "class-change-notif-job@<project>.iam";
+#      GRANT dotto_service TO "dispatch-notif-job@<project>.iam";
+#    (非 prod は SA 名末尾に env_suffix が付くので "<sa>-<env>@<project>.iam" となる)
 
-# 5. 残りを apply
+# 6. 1 度 Docker イメージを push (GitHub Actions deploy.yml で自動化される)
+
+# 7. prod の残りを apply
+terraform apply -var-file=envs/prod.tfvars -var=image_tag=<sha>
+
+# 8. dev / stg / qa も同様に (共有リソースは create されず参照だけ)
+#    各 env でも 4→5→7 と同じ手順 (SA を IAM ユーザーとして作成 → 役割付与 → 残りを apply) を踏むこと。
+terraform init -reconfigure -backend-config=envs/dev.backend.hcl
 terraform apply -var-file=envs/dev.tfvars -var=image_tag=<sha>
 ```
 
 ## 既存 academic-api Cloud Run Service の取り込み (cutover)
 
-cutover 段階で `academic-api` / `academic-api-stg` / `academic-api-dev` Cloud Run Service を server state に取り込む。リソース名・リージョン・SA・環境変数キーを既存に合わせて差分ゼロにする。
+cutover 段階で `academic-api` / `academic-api-stg` / `academic-api-qa` / `academic-api-dev` Cloud Run Service を server state に取り込む。リソース名・リージョン・SA・環境変数キーを既存に合わせて差分ゼロにする。state は env ごとに分けてあるので、import も env ごとに実行する。
 
 ```bash
+# dev
+terraform init -reconfigure -backend-config=envs/dev.backend.hcl
 terraform import \
     -var-file=envs/dev.tfvars \
     'google_cloud_run_v2_service.http["academic-api"]' \
     "projects/<project_id>/locations/asia-northeast1/services/academic-api-dev"
+
+# stg
+terraform init -reconfigure -backend-config=envs/stg.backend.hcl
+terraform import \
+    -var-file=envs/stg.tfvars \
+    'google_cloud_run_v2_service.http["academic-api"]' \
+    "projects/<project_id>/locations/asia-northeast1/services/academic-api-stg"
+
+# qa
+terraform init -reconfigure -backend-config=envs/qa.backend.hcl
+terraform import \
+    -var-file=envs/qa.tfvars \
+    'google_cloud_run_v2_service.http["academic-api"]' \
+    "projects/<project_id>/locations/asia-northeast1/services/academic-api-qa"
+
+# prod (prod は env_suffix なしの素の service 名)
+#    import でも variable validation が走るため、prod は image_tag を必ず渡す。
+terraform init -reconfigure -backend-config=envs/prod.backend.hcl
+terraform import \
+    -var-file=envs/prod.tfvars \
+    -var=image_tag=<sha> \
+    'google_cloud_run_v2_service.http["academic-api"]' \
+    "projects/<project_id>/locations/asia-northeast1/services/academic-api"
 ```
 
-prod / stg も同様に実施し、`terraform plan` が clean になるまで属性を合わせ込む (詳細は Notion 計画 §H)。
+各 env で `terraform plan` が clean になるまで属性を合わせ込む (詳細は Notion 計画 §H)。
 
 ## Terraform 対象外として明記
 

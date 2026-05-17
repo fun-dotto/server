@@ -29,6 +29,15 @@ variable "instance_connection_name" {
     ])
     error_message = "instance_connection_name は \"project:region:instance\" 形式で指定してください。"
   }
+
+  validation {
+    # google_sql_user は var.project_id 上で connection name の instance 部分のみを使うため、
+    # connection name の project 部分が project_id と一致していないと
+    # 「Cloud Run が接続する Cloud SQL」と「Terraform が IAM ユーザーを作る Cloud SQL」が
+    # 別プロジェクトに分かれる事故を起こす。
+    condition     = split(":", var.instance_connection_name)[0] == var.project_id
+    error_message = "instance_connection_name の project 部分は var.project_id と一致させてください (別プロジェクトの Cloud SQL を参照する構成は未サポート)。"
+  }
 }
 
 variable "db_name" {
@@ -38,14 +47,22 @@ variable "db_name" {
 
 variable "image_tag" {
   type        = string
-  description = "Cloud Run Service / Job が参照する Docker イメージタグ (commit SHA を想定)"
+  description = "Cloud Run Service / Job が参照する Docker イメージタグ (commit SHA を想定)。prod は revision 追跡のため latest 禁止。"
   default     = "latest"
-}
 
-variable "secret_project_id" {
-  type        = string
-  description = "Secret Manager を保持するプロジェクト ID。Phase 1 では未使用だが命名と紐付けのため宣言だけ残す"
-  default     = ""
+  validation {
+    # 空文字や空白だけだと local.image が ".../server:" となり Cloud Run apply 時に
+    # 不正な image URI で失敗する。
+    condition     = trimspace(var.image_tag) != ""
+    error_message = "image_tag に空文字や空白だけの値は指定できません。"
+  }
+
+  validation {
+    # prod では追跡可能なタグ (commit SHA など) を必ず明示させる。
+    # 他 env はローカル検証用に latest フォールバックを許容する。
+    condition     = var.environment != "prod" || var.image_tag != "latest"
+    error_message = "prod 環境では image_tag に \"latest\" を指定できません。commit SHA など追跡可能なタグを指定してください。"
+  }
 }
 
 variable "build_class_change_notifications_schedule" {

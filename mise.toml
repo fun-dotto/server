@@ -48,6 +48,10 @@ run = 'atlas migrate diff {{arg(name="name")}} --env gorm'
 description = "cmd/migrate を起動し、cloudsqlconn (IAM 認証) で接続した DB に migrations/ を適用する"
 run = "go run ./cmd/migrate"
 
+[tasks.academic-api]
+description = "cmd/academic-api を起動する"
+run = "go run ./cmd/academic-api"
+
 [tasks.test]
 description = "Run all unit tests"
 run = "go test -v ./..."
