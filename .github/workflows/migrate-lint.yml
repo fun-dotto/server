@@ -13,15 +13,10 @@ jobs:
   lint:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    services:
-      docker:
-        image: docker:25-dind
-        options: --privileged
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          submodules: true
       - uses: jdx/mise-action@v3
       # atlas-provider-gorm を go run で呼ぶため Go 依存を整える
       - name: Sync Go modules
