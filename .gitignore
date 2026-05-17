@@ -72,7 +72,7 @@ Temporary Items
 
 # Atlas / Terraform / mise local state
 /.atlas/
-/.terraform/
+**/.terraform/
 *.tfplan
 .mise.local.toml
 
