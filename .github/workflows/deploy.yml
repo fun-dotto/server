@@ -22,6 +22,11 @@ jobs:
   set-env:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # push to main は dev に固定。prod へは workflow_dispatch で environment_name=prod を
+    # 明示した場合のみ到達する (本ジョブで ENV を決定し、後続ジョブの environment: に伝搬する)。
+    # vars._AR_HOSTNAME / vars.PROJECT_ID を環境スコープで解決させるため、本ジョブにも
+    # environment: を指定する。
+    environment: ${{ github.event.inputs.environment_name || 'dev' }}
     outputs:
       environment: ${{ steps.set-env.outputs.environment }}
       image: ${{ steps.set-env.outputs.image }}
@@ -30,14 +35,20 @@ jobs:
     steps:
       - id: set-env
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_ENVIRONMENT: ${{ github.event.inputs.environment_name }}
+          COMMIT_SHA: ${{ github.sha }}
+          AR_HOSTNAME: ${{ vars._AR_HOSTNAME }}
+          PROJECT_ID: ${{ vars.PROJECT_ID }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            ENV="${{ github.event.inputs.environment_name }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            ENV="$INPUT_ENVIRONMENT"
           else
             ENV="dev"
           fi
-          IMAGE_TAG="${{ github.sha }}"
-          IMAGE="${{ vars._AR_HOSTNAME }}/${{ vars.PROJECT_ID }}/server/server:${IMAGE_TAG}"
+          IMAGE_TAG="$COMMIT_SHA"
+          IMAGE="${AR_HOSTNAME}/${PROJECT_ID}/server/server:${IMAGE_TAG}"
           if [ "$ENV" = "prod" ]; then
             MIGRATE_JOB="migrate-job"
           else

@@ -22,4 +22,4 @@ jobs:
       - name: Sync Go modules
         run: go mod download
       - name: Atlas migrate lint
-        run: atlas migrate lint --env local --latest 1
+        run: atlas migrate lint --env gorm --latest 1
