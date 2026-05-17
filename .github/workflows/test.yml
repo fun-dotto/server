@@ -4,6 +4,17 @@ on:
   push:
     branches:
       - main
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
-    uses: fun-dotto/way/.github/workflows/backend-test.yml@main
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: jdx/mise-action@v3
+      - name: Test
+        run: mise run test
