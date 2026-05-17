@@ -21,10 +21,12 @@ concurrency:
 jobs:
   set-env:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       environment: ${{ steps.set-env.outputs.environment }}
       image: ${{ steps.set-env.outputs.image }}
       image_tag: ${{ steps.set-env.outputs.image_tag }}
+      migrate_job: ${{ steps.set-env.outputs.migrate_job }}
     steps:
       - id: set-env
         shell: bash
@@ -36,12 +38,19 @@ jobs:
           fi
           IMAGE_TAG="${{ github.sha }}"
           IMAGE="${{ vars._AR_HOSTNAME }}/${{ vars.PROJECT_ID }}/server/server:${IMAGE_TAG}"
+          if [ "$ENV" = "prod" ]; then
+            MIGRATE_JOB="migrate-job"
+          else
+            MIGRATE_JOB="migrate-job-$ENV"
+          fi
           echo "environment=$ENV" >> "$GITHUB_OUTPUT"
           echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "migrate_job=$MIGRATE_JOB" >> "$GITHUB_OUTPUT"
 
   build-and-push:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       id-token: write
@@ -66,8 +75,11 @@ jobs:
       - name: Push server image
         run: docker push ${{ needs.set-env.outputs.image }}
 
-  terraform-apply:
+  # フェーズ1: Cloud Run Jobs (migrate-job 含む) だけを新イメージに更新する。
+  # Service はまだ古いまま → 新コードに対して migration を先に走らせるため。
+  terraform-apply-jobs:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       id-token: write
@@ -89,24 +101,30 @@ jobs:
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.SERVICE_ACCOUNT }}
       - name: Terraform init
-        run: terraform init -input=false
-      - name: Terraform apply
+        run: terraform init -input=false -backend-config=envs/${{ needs.set-env.outputs.environment }}.backend.hcl
+      - name: Terraform plan (Cloud Run Jobs only)
         run: |
-          terraform apply \
+          terraform plan \
             -input=false \
-            -auto-approve \
+            -no-color \
+            -target='google_cloud_run_v2_job.jobs' \
             -var-file=envs/${{ needs.set-env.outputs.environment }}.tfvars \
-            -var=image_tag=${{ needs.set-env.outputs.image_tag }}
+            -var=image_tag=${{ needs.set-env.outputs.image_tag }} \
+            -out=tfplan-jobs.binary
+      - name: Terraform apply (Cloud Run Jobs only)
+        run: terraform apply -input=false -auto-approve tfplan-jobs.binary
 
+  # フェーズ2: Job の新イメージで migration を実行する。
   migrate:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
       id-token: write
     environment: ${{ needs.set-env.outputs.environment }}
     needs:
       - set-env
-      - terraform-apply
+      - terraform-apply-jobs
     steps:
       - uses: google-github-actions/auth@v3
         with:
@@ -115,19 +133,46 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v3
         with:
           project_id: ${{ vars.PROJECT_ID }}
-      - name: Determine migrate-job name
-        id: name
-        shell: bash
-        run: |
-          ENV="${{ needs.set-env.outputs.environment }}"
-          if [ "$ENV" = "prod" ]; then
-            JOB="migrate-job"
-          else
-            JOB="migrate-job-$ENV"
-          fi
-          echo "job=$JOB" >> "$GITHUB_OUTPUT"
       - name: Execute migrate-job
         run: |
-          gcloud run jobs execute ${{ steps.name.outputs.job }} \
+          gcloud run jobs execute ${{ needs.set-env.outputs.migrate_job }} \
             --region ${{ vars._DEPLOY_REGION }} \
             --wait
+
+  # フェーズ3: migration 成功後に Cloud Run Service を新イメージへ切り替える。
+  # フェーズ1 の -target で残った差分はここで全て当たる (Service / Scheduler 含む)。
+  terraform-apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    environment: ${{ needs.set-env.outputs.environment }}
+    needs:
+      - set-env
+      - migrate
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: true
+      - uses: jdx/mise-action@v3
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.SERVICE_ACCOUNT }}
+      - name: Terraform init
+        run: terraform init -input=false -backend-config=envs/${{ needs.set-env.outputs.environment }}.backend.hcl
+      - name: Terraform plan
+        run: |
+          terraform plan \
+            -input=false \
+            -no-color \
+            -var-file=envs/${{ needs.set-env.outputs.environment }}.tfvars \
+            -var=image_tag=${{ needs.set-env.outputs.image_tag }} \
+            -out=tfplan.binary
+      - name: Terraform apply
+        run: terraform apply -input=false -auto-approve tfplan.binary
