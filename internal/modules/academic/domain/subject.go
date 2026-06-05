@@ -43,4 +43,5 @@ type SubjectListFilter struct {
 
 	SortByUserAttribute bool
 	SortCourse          *CourseType
+	SortGrade           *Grade
 }
