@@ -938,6 +938,13 @@ paths:
             items:
               $ref: '#/components/schemas/DottoFoundationV1.CulturalSubjectCategory'
           explode: false
+        - name: userId
+          in: query
+          required: false
+          description: ユーザーID; 指定した場合はユーザーのコース・学年に近い順にソートする
+          schema:
+            type: string
+          explode: false
       responses:
         '200':
           description: 科目のリスト
