@@ -40,4 +40,8 @@ type SubjectListFilter struct {
 	Semester                []CourseSemester
 	RequirementType         []SubjectRequirementType
 	CulturalSubjectCategory []CulturalSubjectCategory
+
+	SortByUserAttribute bool
+	SortCourse          *CourseType
+	SortGrade           *Grade
 }
