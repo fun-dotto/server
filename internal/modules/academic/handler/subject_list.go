@@ -17,6 +17,7 @@ func (h *Handler) SubjectsV1List(ctx context.Context, request api.SubjectsV1List
 		if found {
 			filter.SortByUserAttribute = true
 			filter.SortCourse = user.Course
+			filter.SortGrade = user.Grade
 		}
 	}
 

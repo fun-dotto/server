@@ -34,7 +34,7 @@ func (s *SubjectService) List(ctx context.Context, filter domain.SubjectListFilt
 		return nil, err
 	}
 	if filter.SortByUserAttribute {
-		sortSubjects(subjects, filter.SortCourse)
+		sortSubjects(subjects, filter.SortCourse, filter.SortGrade)
 	}
 	return subjects, nil
 }
@@ -53,6 +53,12 @@ func (s *SubjectService) GetSyllabus(ctx context.Context, subjectID string) (dom
 		return domain.Syllabus{}, err
 	}
 	return s.syllabusRepo.GetByID(ctx, subject.SyllabusID)
+}
+
+var classificationOrder = map[domain.SubjectClassification]int{
+	domain.SubjectClassificationSpecialized:         0,
+	domain.SubjectClassificationResearchInstruction: 1,
+	domain.SubjectClassificationCultural:            2,
 }
 
 var courseOrder = map[domain.CourseType]int{
@@ -75,6 +81,15 @@ var gradeOrder = map[domain.Grade]int{
 	domain.GradeD3: 8,
 }
 
+// classificationRank は科目区分のソートキーを返す。
+// 専門 → 研究指導 → 教養 の順。
+func classificationRank(s domain.Subject) int {
+	if rank, ok := classificationOrder[s.Classification]; ok {
+		return rank
+	}
+	return math.MaxInt
+}
+
 // courseRank はソートキーを返す。
 // ユーザーのコースと一致する場合は -1（最優先）、
 // それ以外は enum 定義順、Requirements が空なら math.MaxInt（最後）。
@@ -95,14 +110,17 @@ func courseRank(s domain.Subject, userCourse *domain.CourseType) int {
 }
 
 // gradeRank はソートキーを返す。
-// EligibleAttributes の中で最も若い学年の順位を返す。
-// EligibleAttributes が空なら math.MaxInt（最後）。
-func gradeRank(s domain.Subject) int {
+// ユーザーの学年と一致する場合は -1（最優先）、
+// それ以外は学年の昇順（B1=0, B2=1, ...）、EligibleAttributes が空なら math.MaxInt（最後）。
+func gradeRank(s domain.Subject, userGrade *domain.Grade) int {
 	if len(s.EligibleAttributes) == 0 {
 		return math.MaxInt
 	}
 	best := math.MaxInt
 	for _, a := range s.EligibleAttributes {
+		if userGrade != nil && a.Grade == *userGrade {
+			return -1
+		}
 		if rank, ok := gradeOrder[a.Grade]; ok && rank < best {
 			best = rank
 		}
@@ -110,11 +128,14 @@ func gradeRank(s domain.Subject) int {
 	return best
 }
 
-func sortSubjects(subjects []domain.Subject, userCourse *domain.CourseType) {
+func sortSubjects(subjects []domain.Subject, userCourse *domain.CourseType, userGrade *domain.Grade) {
 	slices.SortStableFunc(subjects, func(a, b domain.Subject) int {
+		if c := cmp.Compare(classificationRank(a), classificationRank(b)); c != 0 {
+			return c
+		}
 		if c := cmp.Compare(courseRank(a, userCourse), courseRank(b, userCourse)); c != 0 {
 			return c
 		}
-		return cmp.Compare(gradeRank(a), gradeRank(b))
+		return cmp.Compare(gradeRank(a, userGrade), gradeRank(b, userGrade))
 	})
 }
