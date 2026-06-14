@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup mise
+        uses: jdx/mise-action@v4
+        with:
+          github_token: ${{ github.token }}
+          cache: true
+          # 最新版は linux-x64 資産が未公開で 404 になることがあるため明示的にピン留めする
+          version: 2026.6.6
+
+      - name: Setup
+        run: mise setup
+
+      - name: Run unit tests
+        run: go test ./...
+
+  build:
+    name: Build
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup mise
+        uses: jdx/mise-action@v4
+        with:
+          github_token: ${{ github.token }}
+          cache: true
+          # 最新版は linux-x64 資産が未公開で 404 になることがあるため明示的にピン留めする
+          version: 2026.6.6
+
+      - name: Setup
+        run: mise setup
+
+      - name: Build all binaries
+        run: mise run build
+
+  lint:
+    name: Lint
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup mise
+        uses: jdx/mise-action@v4
+        with:
+          github_token: ${{ github.token }}
+          cache: true
+          # 最新版は linux-x64 資産が未公開で 404 になることがあるため明示的にピン留めする
+          version: 2026.6.6
+
+      - name: Setup
+        run: mise setup
+
+      - name: gofmt
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "::error::以下のファイルが gofmt されていません:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: go vet
+        run: go vet ./...
