@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/fun-dotto/user-api/internal/service"
+	"github.com/fun-dotto/server/internal/modules/user/service"
 )
 
 type Handler struct {

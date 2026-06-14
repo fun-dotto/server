@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	api "github.com/fun-dotto/user-api/generated"
+	api "github.com/fun-dotto/server/gen/user"
 )
 
 func (h *Handler) FCMTokenV1Upsert(ctx context.Context, request api.FCMTokenV1UpsertRequestObject) (api.FCMTokenV1UpsertResponseObject, error) {

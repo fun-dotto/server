@@ -3,12 +3,12 @@ package repository
 import (
 	"context"
 
-	"github.com/fun-dotto/user-api/internal/database"
-	"github.com/fun-dotto/user-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/user/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 )
 
 func (r *NotificationRepository) ListNotifications(ctx context.Context, filter domain.NotificationListFilter) ([]domain.Notification, error) {
-	query := r.db.WithContext(ctx).Model(&database.Notification{})
+	query := r.db.WithContext(ctx).Model(&model.Notification{})
 
 	if filter.NotifyAtFrom != nil {
 		query = query.Where("notify_before >= ?", *filter.NotifyAtFrom)
@@ -26,7 +26,7 @@ func (r *NotificationRepository) ListNotifications(ctx context.Context, filter d
 		}
 	}
 
-	var dbNotifications []database.Notification
+	var dbNotifications []model.Notification
 	if err := query.Order("notify_after DESC").Find(&dbNotifications).Error; err != nil {
 		return nil, err
 	}
@@ -40,14 +40,15 @@ func (r *NotificationRepository) ListNotifications(ctx context.Context, filter d
 		notificationIDs = append(notificationIDs, n.ID)
 	}
 
-	var allTargets []database.NotificationTargetUser
+	var allTargets []model.NotificationTargetUser
 	if err := r.db.WithContext(ctx).Where("notification_id IN ?", notificationIDs).Find(&allTargets).Error; err != nil {
 		return nil, err
 	}
 
 	targetMap := make(map[string][]domain.NotificationTargetUser)
 	for _, t := range allTargets {
-		targetMap[t.NotificationID] = append(targetMap[t.NotificationID], domain.NotificationTargetUser{
+		key := t.NotificationID.String()
+		targetMap[key] = append(targetMap[key], domain.NotificationTargetUser{
 			UserID:     t.UserID,
 			NotifiedAt: t.NotifiedAt,
 		})
@@ -55,7 +56,7 @@ func (r *NotificationRepository) ListNotifications(ctx context.Context, filter d
 
 	notifications := make([]domain.Notification, 0, len(dbNotifications))
 	for _, n := range dbNotifications {
-		notifications = append(notifications, n.ToDomain(targetMap[n.ID]))
+		notifications = append(notifications, notificationToDomain(n, targetMap[n.ID]))
 	}
 
 	return notifications, nil

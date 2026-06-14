@@ -5,18 +5,24 @@ import (
 	"errors"
 	"time"
 
-	"github.com/fun-dotto/user-api/internal/database"
-	"github.com/fun-dotto/user-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/user/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 func (r *NotificationRepository) UpdateNotification(ctx context.Context, notification domain.Notification) (domain.Notification, error) {
-	var dbNotification database.Notification
+	notificationID, err := uuid.Parse(notification.ID)
+	if err != nil {
+		return domain.Notification{}, err
+	}
+
+	var dbNotification model.Notification
 	uniqueTargets := uniqueTargetUsers(notification.TargetUsers)
 
-	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var existing database.Notification
+	err = r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var existing model.Notification
 		if err := tx.First(&existing, "id = ?", notification.ID).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return domain.ErrNotFound
@@ -24,13 +30,13 @@ func (r *NotificationRepository) UpdateNotification(ctx context.Context, notific
 			return err
 		}
 
-		dbNotification = database.NotificationFromDomain(notification)
+		dbNotification = notificationFromDomain(notification)
 
 		if err := tx.Save(&dbNotification).Error; err != nil {
 			return err
 		}
 
-		var existingTargets []database.NotificationTargetUser
+		var existingTargets []model.NotificationTargetUser
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 			Where("notification_id = ?", notification.ID).
 			Find(&existingTargets).Error; err != nil {
@@ -41,12 +47,12 @@ func (r *NotificationRepository) UpdateNotification(ctx context.Context, notific
 			existingNotifiedAt[t.UserID] = t.NotifiedAt
 		}
 
-		if err := tx.Where("notification_id = ?", notification.ID).Delete(&database.NotificationTargetUser{}).Error; err != nil {
+		if err := tx.Where("notification_id = ?", notification.ID).Delete(&model.NotificationTargetUser{}).Error; err != nil {
 			return err
 		}
 
 		if len(uniqueTargets) > 0 {
-			targets := make([]database.NotificationTargetUser, 0, len(uniqueTargets))
+			targets := make([]model.NotificationTargetUser, 0, len(uniqueTargets))
 			for i, t := range uniqueTargets {
 				notifiedAt := t.NotifiedAt
 				if notifiedAt == nil {
@@ -55,13 +61,14 @@ func (r *NotificationRepository) UpdateNotification(ctx context.Context, notific
 						uniqueTargets[i].NotifiedAt = prev
 					}
 				}
-				targets = append(targets, database.NotificationTargetUser{
-					NotificationID: notification.ID,
+				targets = append(targets, model.NotificationTargetUser{
+					NotificationID: notificationID,
 					UserID:         t.UserID,
 					NotifiedAt:     notifiedAt,
 				})
 			}
-			if err := tx.Create(&targets).Error; err != nil {
+			// Notification/User の関連は親側で更新済みなので Omit して GORM の auto-upsert を抑止する。
+			if err := tx.Omit("Notification", "User").Create(&targets).Error; err != nil {
 				return err
 			}
 		}
@@ -75,5 +82,5 @@ func (r *NotificationRepository) UpdateNotification(ctx context.Context, notific
 		return domain.Notification{}, err
 	}
 
-	return dbNotification.ToDomain(uniqueTargets), nil
+	return notificationToDomain(dbNotification, uniqueTargets), nil
 }

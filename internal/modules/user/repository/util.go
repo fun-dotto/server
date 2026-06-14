@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/fun-dotto/user-api/internal/domain"
+import "github.com/fun-dotto/server/internal/modules/user/domain"
 
 func uniqueStrings(s []string) []string {
 	seen := make(map[string]struct{}, len(s))

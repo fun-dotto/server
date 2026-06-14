@@ -1,8 +1,8 @@
 package handler
 
 import (
-	api "github.com/fun-dotto/user-api/generated"
-	"github.com/fun-dotto/user-api/internal/domain"
+	api "github.com/fun-dotto/server/gen/user"
+	"github.com/fun-dotto/server/internal/modules/user/domain"
 )
 
 func toAPIUser(u domain.User) api.User {

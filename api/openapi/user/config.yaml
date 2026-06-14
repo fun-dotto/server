@@ -3,4 +3,4 @@ generate:
   gin-server: true
   models: true
   strict-server: true
-output: generated/api.gen.go
+output: gen/user/api.gen.go

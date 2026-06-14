@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	api "github.com/fun-dotto/user-api/generated"
+	api "github.com/fun-dotto/server/gen/user"
 )
 
 func (h *Handler) UsersV1List(ctx context.Context, _ api.UsersV1ListRequestObject) (api.UsersV1ListResponseObject, error) {

@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/fun-dotto/user-api/internal/database"
-	"github.com/fun-dotto/user-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/user/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -18,7 +18,7 @@ func NewFCMTokenRepository(db *gorm.DB) *FCMTokenRepository {
 }
 
 func (r *FCMTokenRepository) ListFCMTokens(ctx context.Context, filter domain.FCMTokenListFilter) ([]domain.FCMToken, error) {
-	query := r.db.WithContext(ctx).Model(&database.FCMToken{})
+	query := r.db.WithContext(ctx).Model(&model.FCMToken{})
 
 	if len(filter.UserIDs) > 0 {
 		query = query.Where("user_id IN ?", filter.UserIDs)
@@ -33,25 +33,25 @@ func (r *FCMTokenRepository) ListFCMTokens(ctx context.Context, filter domain.FC
 		query = query.Where("updated_at <= ?", *filter.UpdatedAtTo)
 	}
 
-	var dbTokens []database.FCMToken
+	var dbTokens []model.FCMToken
 	if err := query.Order("updated_at DESC").Find(&dbTokens).Error; err != nil {
 		return nil, err
 	}
 
 	tokens := make([]domain.FCMToken, 0, len(dbTokens))
 	for _, t := range dbTokens {
-		tokens = append(tokens, t.ToDomain())
+		tokens = append(tokens, fcmTokenToDomain(t))
 	}
 
 	return tokens, nil
 }
 
 func (r *FCMTokenRepository) UpsertFCMToken(ctx context.Context, token domain.FCMToken) (domain.FCMToken, error) {
-	dbToken := database.FCMTokenFromDomain(token)
+	dbToken := fcmTokenFromDomain(token)
 
-	if err := r.db.WithContext(ctx).Clauses(clause.OnConflict{
+	if err := r.db.WithContext(ctx).Omit("User").Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "token"}},
-		DoUpdates: clause.Assignments(map[string]interface{}{
+		DoUpdates: clause.Assignments(map[string]any{
 			"user_id":    dbToken.UserID,
 			"updated_at": gorm.Expr("NOW()"),
 		}),
@@ -63,5 +63,5 @@ func (r *FCMTokenRepository) UpsertFCMToken(ctx context.Context, token domain.FC
 		return domain.FCMToken{}, err
 	}
 
-	return dbToken.ToDomain(), nil
+	return fcmTokenToDomain(dbToken), nil
 }

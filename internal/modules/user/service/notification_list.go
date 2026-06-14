@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/fun-dotto/user-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/user/domain"
 )
 
 func (s *NotificationService) ListNotifications(ctx context.Context, filter domain.NotificationListFilter) ([]domain.Notification, error) {

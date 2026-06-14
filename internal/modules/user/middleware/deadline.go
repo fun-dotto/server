@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	api "github.com/fun-dotto/user-api/generated"
+	api "github.com/fun-dotto/server/gen/user"
 	"github.com/gin-gonic/gin"
 )
 

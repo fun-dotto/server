@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	api "github.com/fun-dotto/user-api/generated"
+	api "github.com/fun-dotto/server/gen/user"
 )
 
 func (h *Handler) NotificationV1List(ctx context.Context, request api.NotificationV1ListRequestObject) (api.NotificationV1ListResponseObject, error) {

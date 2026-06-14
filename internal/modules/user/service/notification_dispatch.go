@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"firebase.google.com/go/v4/messaging"
-	"github.com/fun-dotto/user-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/user/domain"
 )
 
 func (s *NotificationService) DispatchNotifications(ctx context.Context, ids []string) ([]domain.Notification, error) {

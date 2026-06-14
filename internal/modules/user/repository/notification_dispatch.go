@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/fun-dotto/user-api/internal/database"
-	"github.com/fun-dotto/user-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/user/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 )
 
 func (r *NotificationRepository) GetNotificationsByIDs(ctx context.Context, ids []string) ([]domain.Notification, error) {
@@ -14,7 +14,7 @@ func (r *NotificationRepository) GetNotificationsByIDs(ctx context.Context, ids 
 		return []domain.Notification{}, nil
 	}
 
-	var dbNotifications []database.Notification
+	var dbNotifications []model.Notification
 	if err := r.db.WithContext(ctx).Where("id IN ?", uniqueIDs).Find(&dbNotifications).Error; err != nil {
 		return nil, err
 	}
@@ -27,14 +27,15 @@ func (r *NotificationRepository) GetNotificationsByIDs(ctx context.Context, ids 
 		existingIDs = append(existingIDs, n.ID)
 	}
 
-	var allTargets []database.NotificationTargetUser
+	var allTargets []model.NotificationTargetUser
 	if err := r.db.WithContext(ctx).Where("notification_id IN ?", existingIDs).Find(&allTargets).Error; err != nil {
 		return nil, err
 	}
 
 	targetMap := make(map[string][]domain.NotificationTargetUser)
 	for _, t := range allTargets {
-		targetMap[t.NotificationID] = append(targetMap[t.NotificationID], domain.NotificationTargetUser{
+		key := t.NotificationID.String()
+		targetMap[key] = append(targetMap[key], domain.NotificationTargetUser{
 			UserID:     t.UserID,
 			NotifiedAt: t.NotifiedAt,
 		})
@@ -42,7 +43,7 @@ func (r *NotificationRepository) GetNotificationsByIDs(ctx context.Context, ids 
 
 	notifications := make([]domain.Notification, 0, len(dbNotifications))
 	for _, n := range dbNotifications {
-		notifications = append(notifications, n.ToDomain(targetMap[n.ID]))
+		notifications = append(notifications, notificationToDomain(n, targetMap[n.ID]))
 	}
 
 	return notifications, nil
@@ -60,7 +61,7 @@ func (r *NotificationRepository) DispatchNotifications(ctx context.Context, deli
 		if len(uniqueUsers) == 0 {
 			continue
 		}
-		db := r.db.WithContext(ctx).Model(&database.NotificationTargetUser{}).
+		db := r.db.WithContext(ctx).Model(&model.NotificationTargetUser{}).
 			Where("notification_id = ? AND user_id IN ?", nid, uniqueUsers).
 			Update("notified_at", now)
 		if db.Error != nil {

@@ -10,12 +10,13 @@ import (
 	"time"
 
 	firebase "firebase.google.com/go/v4"
-	api "github.com/fun-dotto/user-api/generated"
-	"github.com/fun-dotto/user-api/internal/database"
-	"github.com/fun-dotto/user-api/internal/handler"
-	"github.com/fun-dotto/user-api/internal/middleware"
-	"github.com/fun-dotto/user-api/internal/repository"
-	"github.com/fun-dotto/user-api/internal/service"
+	api "github.com/fun-dotto/server/gen/user"
+	"github.com/fun-dotto/server/internal/modules/user/handler"
+	"github.com/fun-dotto/server/internal/modules/user/middleware"
+	"github.com/fun-dotto/server/internal/modules/user/openapispec"
+	"github.com/fun-dotto/server/internal/modules/user/repository"
+	"github.com/fun-dotto/server/internal/modules/user/service"
+	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -36,21 +37,20 @@ func main() {
 		log.Printf("Warning: .env file not found: %v", err)
 	}
 
-	db, err := database.ConnectWithConnectorIAMAuthN()
+	conn, err := db.ConnectWithConnectorIAMAuthN()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer func() {
-		if err := database.Close(db); err != nil {
+		if err := db.Close(conn); err != nil {
 			log.Printf("Failed to close database: %v", err)
 		}
 	}()
 
-	// if err := database.AutoMigrate(db); err != nil {
-	// 	log.Fatalf("Failed to migrate database: %v", err)
-	// }
+	// マイグレーションは Atlas 専用 Cloud Run Job (cmd/migrate) で適用するため
+	// API プロセス起動時の AutoMigrate 呼び出しは廃止する。
 
-	spec, err := openapi3.NewLoader().LoadFromFile("openapi/openapi.yaml")
+	spec, err := openapi3.NewLoader().LoadFromData(openapispec.Spec)
 	if err != nil {
 		log.Fatalf("Failed to load OpenAPI spec: %v", err)
 	}
@@ -71,9 +71,9 @@ func main() {
 		log.Fatalf("Failed to initialize Firebase Messaging client: %v", err)
 	}
 
-	userRepo := repository.NewUserRepository(db)
-	fcmTokenRepo := repository.NewFCMTokenRepository(db)
-	notificationRepo := repository.NewNotificationRepository(db)
+	userRepo := repository.NewUserRepository(conn)
+	fcmTokenRepo := repository.NewFCMTokenRepository(conn)
+	notificationRepo := repository.NewNotificationRepository(conn)
 	userService := service.NewUserService(userRepo)
 	fcmTokenService := service.NewFCMTokenService(fcmTokenRepo)
 	notificationService := service.NewNotificationService(notificationRepo, fcmTokenRepo, messagingClient)

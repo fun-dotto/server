@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	api "github.com/fun-dotto/user-api/generated"
-	"github.com/fun-dotto/user-api/internal/domain"
+	api "github.com/fun-dotto/server/gen/user"
+	"github.com/fun-dotto/server/internal/modules/user/domain"
 )
 
 func (h *Handler) NotificationV1Update(ctx context.Context, request api.NotificationV1UpdateRequestObject) (api.NotificationV1UpdateResponseObject, error) {
