@@ -5,8 +5,11 @@ on:
     branches:
       - main
   pull_request:
-    branches:
-      - main
+    types:
+      - opened
+      - ready_for_review
+      - reopened
+      - synchronize
   merge_group:
     types:
       - checks_requested
