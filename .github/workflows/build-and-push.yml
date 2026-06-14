@@ -1,0 +1,81 @@
+name: Build and Push
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment_name:
+        description: Environment (dev / stg / qa / prod)
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - stg
+          - qa
+          - prod
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.inputs.environment_name || 'dev' }}
+  cancel-in-progress: false
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # push to main は dev に固定。それ以外の環境へは workflow_dispatch で
+    # environment_name を明示した場合のみ到達する (本ジョブで ENV を決定し、
+    # 後続ジョブの environment: に伝搬する)。
+    # vars._AR_HOSTNAME / vars.PROJECT_ID を環境スコープで解決させるため、
+    # 本ジョブにも environment: を指定する。
+    environment: ${{ github.event.inputs.environment_name || 'dev' }}
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+      image: ${{ steps.set-env.outputs.image }}
+      image_tag: ${{ steps.set-env.outputs.image_tag }}
+    steps:
+      - id: set-env
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_ENVIRONMENT: ${{ github.event.inputs.environment_name }}
+          COMMIT_SHA: ${{ github.sha }}
+          AR_HOSTNAME: ${{ vars._AR_HOSTNAME }}
+          PROJECT_ID: ${{ vars.PROJECT_ID }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            ENV="$INPUT_ENVIRONMENT"
+          else
+            ENV="dev"
+          fi
+          IMAGE_TAG="$COMMIT_SHA"
+          IMAGE="${AR_HOSTNAME}/${PROJECT_ID}/server/server:${IMAGE_TAG}"
+          echo "environment=$ENV" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    environment: ${{ needs.set-env.outputs.environment }}
+    needs:
+      - set-env
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ vars.PROJECT_ID }}
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{ vars._AR_HOSTNAME }}
+      - name: Build server image (multi-binary)
+        run: docker build -t ${{ needs.set-env.outputs.image }} -f Dockerfile .
+      - name: Push server image
+        run: docker push ${{ needs.set-env.outputs.image }}
