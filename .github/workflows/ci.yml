@@ -2,11 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
-# 同一ブランチで新しい push があれば実行中のジョブをキャンセルする
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -17,54 +18,57 @@ permissions:
 jobs:
   test:
     name: Test
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Setup tools (mise)
-        uses: jdx/mise-action@v2
+      - name: Setup mise
+        uses: jdx/mise-action@v4
         with:
-          # 最新版は資産未公開で 404 になることがあるため明示的にピン留めする
-          version: 2026.6.6
+          github_token: ${{ github.token }}
+          cache: true
 
-      - name: Download dependencies
-        run: go mod download
+      - name: Setup
+        run: mise setup
 
       - name: Run unit tests
         run: go test ./...
 
   build:
     name: Build
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Setup tools (mise)
-        uses: jdx/mise-action@v2
+      - name: Setup mise
+        uses: jdx/mise-action@v4
         with:
-          # 最新版は資産未公開で 404 になることがあるため明示的にピン留めする
-          version: 2026.6.6
+          github_token: ${{ github.token }}
+          cache: true
 
-      - name: Download dependencies
-        run: go mod download
+      - name: Setup
+        run: mise setup
 
       - name: Build all binaries
         run: mise run build
 
-  vet:
-    name: Vet & Format
+  lint:
+    name: Lint
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Setup tools (mise)
-        uses: jdx/mise-action@v2
+      - name: Setup mise
+        uses: jdx/mise-action@v4
         with:
-          # 最新版は資産未公開で 404 になることがあるため明示的にピン留めする
-          version: 2026.6.6
+          github_token: ${{ github.token }}
+          cache: true
 
-      - name: Download dependencies
-        run: go mod download
+      - name: Setup
+        run: mise setup
 
       - name: gofmt
         run: |
