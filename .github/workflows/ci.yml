@@ -28,6 +28,8 @@ jobs:
         with:
           github_token: ${{ github.token }}
           cache: true
+          # 最新版は linux-x64 資産が未公開で 404 になることがあるため明示的にピン留めする
+          version: 2026.6.6
 
       - name: Setup
         run: mise setup
@@ -47,6 +49,8 @@ jobs:
         with:
           github_token: ${{ github.token }}
           cache: true
+          # 最新版は linux-x64 資産が未公開で 404 になることがあるため明示的にピン留めする
+          version: 2026.6.6
 
       - name: Setup
         run: mise setup
@@ -66,6 +70,8 @@ jobs:
         with:
           github_token: ${{ github.token }}
           cache: true
+          # 最新版は linux-x64 資産が未公開で 404 になることがあるため明示的にピン留めする
+          version: 2026.6.6
 
       - name: Setup
         run: mise setup
