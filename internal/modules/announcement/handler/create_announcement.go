@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	api "github.com/fun-dotto/announcement-api/generated"
+	api "github.com/fun-dotto/server/gen/announcement"
 )
 
 func (h *Handler) AnnouncementsV1Create(ctx context.Context, request api.AnnouncementsV1CreateRequestObject) (api.AnnouncementsV1CreateResponseObject, error) {

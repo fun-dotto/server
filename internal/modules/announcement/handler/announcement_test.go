@@ -8,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	api "github.com/fun-dotto/announcement-api/generated"
-	"github.com/fun-dotto/announcement-api/internal/domain"
-	"github.com/fun-dotto/announcement-api/internal/repository"
-	"github.com/fun-dotto/announcement-api/internal/service"
+	api "github.com/fun-dotto/server/gen/announcement"
+	"github.com/fun-dotto/server/internal/modules/announcement/domain"
+	"github.com/fun-dotto/server/internal/modules/announcement/repository"
+	"github.com/fun-dotto/server/internal/modules/announcement/service"
 	"github.com/stretchr/testify/assert"
 )
 

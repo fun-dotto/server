@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	api "github.com/fun-dotto/announcement-api/generated"
-	"github.com/fun-dotto/announcement-api/internal/domain"
+	api "github.com/fun-dotto/server/gen/announcement"
+	"github.com/fun-dotto/server/internal/modules/announcement/domain"
 )
 
 func (h *Handler) AnnouncementsV1Update(ctx context.Context, request api.AnnouncementsV1UpdateRequestObject) (api.AnnouncementsV1UpdateResponseObject, error) {

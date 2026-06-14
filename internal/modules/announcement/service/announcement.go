@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/fun-dotto/announcement-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/announcement/domain"
 )
 
 type AnnouncementRepository interface {

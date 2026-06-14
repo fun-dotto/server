@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/fun-dotto/announcement-api/internal/database"
-	"github.com/fun-dotto/announcement-api/internal/domain"
+	"github.com/fun-dotto/server/internal/modules/announcement/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +18,7 @@ func NewAnnouncementRepository(db *gorm.DB) *announcementRepository {
 }
 
 func (r *announcementRepository) GetAnnouncements(ctx context.Context, query domain.AnnouncementQuery) ([]domain.Announcement, error) {
-	var dbAnnouncements []database.Announcement
+	var records []model.Announcement
 	dbQuery := r.db.WithContext(ctx)
 
 	if query.FilterIsActive {
@@ -38,44 +38,44 @@ func (r *announcementRepository) GetAnnouncements(ctx context.Context, query dom
 
 	dbQuery = dbQuery.Order("available_from " + sortDateDirection)
 
-	if err := dbQuery.Find(&dbAnnouncements).Error; err != nil {
+	if err := dbQuery.Find(&records).Error; err != nil {
 		return nil, err
 	}
 
-	domainAnnouncements := make([]domain.Announcement, len(dbAnnouncements))
-	for i, dbAnnouncement := range dbAnnouncements {
-		domainAnnouncements[i] = dbAnnouncement.ToDomain()
+	announcements := make([]domain.Announcement, len(records))
+	for i, record := range records {
+		announcements[i] = toDomainAnnouncement(record)
 	}
 
-	return domainAnnouncements, nil
+	return announcements, nil
 }
 
 func (r *announcementRepository) GetAnnouncementByID(ctx context.Context, id string) (domain.Announcement, error) {
-	var dbAnnouncement database.Announcement
-	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&dbAnnouncement).Error; err != nil {
+	var record model.Announcement
+	if err := r.db.WithContext(ctx).First(&record, "id = ?", parseUUIDOrNil(id)).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return domain.Announcement{}, domain.ErrNotFound
 		}
 		return domain.Announcement{}, err
 	}
-	return dbAnnouncement.ToDomain(), nil
+	return toDomainAnnouncement(record), nil
 }
 
 func (r *announcementRepository) CreateAnnouncement(ctx context.Context, announcement domain.Announcement) (domain.Announcement, error) {
-	dbAnnouncement := database.FromDomain(announcement)
-	if err := r.db.WithContext(ctx).Create(&dbAnnouncement).Error; err != nil {
+	record := fromDomainAnnouncement(announcement)
+	if err := r.db.WithContext(ctx).Create(&record).Error; err != nil {
 		return domain.Announcement{}, err
 	}
-	return dbAnnouncement.ToDomain(), nil
+	return toDomainAnnouncement(record), nil
 }
 
 func (r *announcementRepository) UpdateAnnouncement(ctx context.Context, announcement domain.Announcement) (domain.Announcement, error) {
-	dbAnnouncement := database.FromDomain(announcement)
-	result := r.db.WithContext(ctx).Model(&database.Announcement{}).Where("id = ?", announcement.ID).Updates(map[string]interface{}{
-		"title":           dbAnnouncement.Title,
-		"url":             dbAnnouncement.URL,
-		"available_from":  dbAnnouncement.AvailableFrom,
-		"available_until": dbAnnouncement.AvailableUntil,
+	record := fromDomainAnnouncement(announcement)
+	result := r.db.WithContext(ctx).Model(&model.Announcement{}).Where("id = ?", parseUUIDOrNil(announcement.ID)).Updates(map[string]any{
+		"title":           record.Title,
+		"url":             record.URL,
+		"available_from":  record.AvailableFrom,
+		"available_until": record.AvailableUntil,
 	})
 	if result.Error != nil {
 		return domain.Announcement{}, result.Error
@@ -87,7 +87,7 @@ func (r *announcementRepository) UpdateAnnouncement(ctx context.Context, announc
 }
 
 func (r *announcementRepository) DeleteAnnouncement(ctx context.Context, id string) error {
-	result := r.db.WithContext(ctx).Where("id = ?", id).Delete(&database.Announcement{})
+	result := r.db.WithContext(ctx).Where("id = ?", parseUUIDOrNil(id)).Delete(&model.Announcement{})
 	if result.Error != nil {
 		return result.Error
 	}

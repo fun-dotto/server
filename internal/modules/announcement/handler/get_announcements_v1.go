@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	api "github.com/fun-dotto/announcement-api/generated"
+	api "github.com/fun-dotto/server/gen/announcement"
 )
 
 func (h *Handler) AnnouncementsV1List(ctx context.Context, request api.AnnouncementsV1ListRequestObject) (api.AnnouncementsV1ListResponseObject, error) {
