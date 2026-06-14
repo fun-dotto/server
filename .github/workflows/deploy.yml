@@ -1,0 +1,132 @@
+name: Deploy
+
+# main への push で stg へ自動デプロイ、workflow_dispatch で環境を選んで手動デプロイする。
+# 全環境が 1 イメージ (server リポジトリの :<commit SHA> タグ) を共有するため、
+# commit SHA タグで build/push したうえで、対象環境の Cloud Run Service / Job を
+# `gcloud run ... update --image` で新イメージに差し替える (Terraform / migrate は含めない)。
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: デプロイ先環境
+        type: choice
+        options:
+          - dev
+          - stg
+          - prd
+        default: stg
+
+# 同一環境への同時デプロイ (リビジョン競合) を避ける。デプロイは取りこぼしを防ぐため
+# 走行中ジョブはキャンセルしない。
+concurrency:
+  group: deploy-${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stg' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write # Workload Identity Federation の OIDC トークン発行に必要
+
+env:
+  REGION: asia-northeast1
+  AR_REPOSITORY: server # Artifact Registry リポジトリ名 (infra/locals.tf と一致)
+  IMAGE_NAME: server # 全バイナリ同梱イメージ名 (infra/locals.tf と一致)
+
+jobs:
+  deploy:
+    name: Deploy (${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stg' }})
+    runs-on: ubuntu-latest
+    # GitHub Environments の保護ルール (prod の承認必須など) をここで効かせられる。
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stg' }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Resolve environment
+        id: env
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ENVIRONMENT="${{ inputs.environment }}"
+          else
+            ENVIRONMENT="stg"
+          fi
+          echo "name=${ENVIRONMENT}" >> "$GITHUB_OUTPUT"
+          # 命名規約 (infra/locals.tf env_suffix): prod は無サフィックス、他は -<env>。
+          if [ "$ENVIRONMENT" = "prod" ]; then
+            echo "suffix=" >> "$GITHUB_OUTPUT"
+          else
+            echo "suffix=-${ENVIRONMENT}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compose image reference
+        id: image
+        run: |
+          echo "ref=${REGION}-docker.pkg.dev/${PROJECT_ID}/${AR_REPOSITORY}/${IMAGE_NAME}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+          token_format: access_token
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Log in to Artifact Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGION }}-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.image.outputs.ref }}
+          # GitHub Actions cache でレイヤを再利用しビルドを高速化する。
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 対象環境の Cloud Run Service / Job を新イメージに差し替える。
+      # リソース一覧は infra/locals.tf の http_services / cloud_run_jobs と一致させること。
+      # (Service / Job は Terraform で作成済みである前提。)
+      - name: Deploy Cloud Run services
+        run: |
+          for svc in academic-api; do
+            echo "::group::update service ${svc}${SUFFIX}"
+            gcloud run services update "${svc}${SUFFIX}" \
+              --region="$REGION" \
+              --image="$IMAGE" \
+              --quiet
+            echo "::endgroup::"
+          done
+        env:
+          SUFFIX: ${{ steps.env.outputs.suffix }}
+          IMAGE: ${{ steps.image.outputs.ref }}
+
+      - name: Deploy Cloud Run jobs
+        run: |
+          for job in \
+            build-class-change-notifications-job \
+            dispatch-notifications-job \
+            migrate-job; do
+            echo "::group::update job ${job}${SUFFIX}"
+            gcloud run jobs update "${job}${SUFFIX}" \
+              --region="$REGION" \
+              --image="$IMAGE" \
+              --quiet
+            echo "::endgroup::"
+          done
+        env:
+          SUFFIX: ${{ steps.env.outputs.suffix }}
+          IMAGE: ${{ steps.image.outputs.ref }}
