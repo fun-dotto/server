@@ -1,45 +1,38 @@
-name: Deploy
+name: CD
 
-# main への push で stg へ自動デプロイ、workflow_dispatch で環境を選んで手動デプロイする。
-# 全環境が 1 イメージ (server リポジトリの :<commit SHA> タグ) を共有するため、
-# commit SHA タグで build/push したうえで、対象環境の Cloud Run Service / Job を
-# `gcloud run ... update --image` で新イメージに差し替える (Terraform / migrate は含めない)。
 on:
   push:
     branches:
       - main
   workflow_dispatch:
     inputs:
-      environment:
-        description: デプロイ先環境
+      environment_name:
+        description: Environment
+        required: true
         type: choice
         options:
           - dev
           - stg
           - prd
-        default: stg
 
-# 同一環境への同時デプロイ (リビジョン競合) を避ける。デプロイは取りこぼしを防ぐため
-# 走行中ジョブはキャンセルしない。
 concurrency:
-  group: deploy-${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stg' }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.inputs.environment_name }}
   cancel-in-progress: false
 
 permissions:
   contents: read
-  id-token: write # Workload Identity Federation の OIDC トークン発行に必要
+  id-token: write
 
 env:
   REGION: asia-northeast1
-  AR_REPOSITORY: server # Artifact Registry リポジトリ名 (infra/locals.tf と一致)
-  IMAGE_NAME: server # 全バイナリ同梱イメージ名 (infra/locals.tf と一致)
+  AR_REPOSITORY: server
+  IMAGE_NAME: server
 
 jobs:
   deploy:
-    name: Deploy (${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stg' }})
+    name: Deploy (${{ github.event_name == 'workflow_dispatch' && inputs.environment_name || 'stg' }})
     runs-on: ubuntu-latest
-    # GitHub Environments の保護ルール (prod の承認必須など) をここで効かせられる。
-    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'stg' }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment_name || 'stg' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -47,7 +40,7 @@ jobs:
         id: env
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            ENVIRONMENT="${{ inputs.environment }}"
+            ENVIRONMENT="${{ inputs.environment_name }}"
           else
             ENVIRONMENT="stg"
           fi
@@ -93,13 +86,9 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.image.outputs.ref }}
-          # GitHub Actions cache でレイヤを再利用しビルドを高速化する。
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # 対象環境の Cloud Run Service / Job を新イメージに差し替える。
-      # リソース一覧は infra/locals.tf の http_services / cloud_run_jobs と一致させること。
-      # (Service / Job は Terraform で作成済みである前提。)
       - name: Deploy Cloud Run services
         run: |
           for svc in academic-api announcement-api user-api; do
