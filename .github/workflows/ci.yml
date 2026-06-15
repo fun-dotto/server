@@ -17,7 +17,7 @@ on:
     - cron: "0 15 * * *"
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -36,8 +36,6 @@ jobs:
         with:
           github_token: ${{ github.token }}
           cache: true
-          # 最新版は linux-x64 資産が未公開で 404 になることがあるため明示的にピン留めする
-          version: 2026.6.6
 
       - name: Setup
         run: mise setup
@@ -57,8 +55,6 @@ jobs:
         with:
           github_token: ${{ github.token }}
           cache: true
-          # 最新版は linux-x64 資産が未公開で 404 になることがあるため明示的にピン留めする
-          version: 2026.6.6
 
       - name: Setup
         run: mise setup
@@ -78,8 +74,6 @@ jobs:
         with:
           github_token: ${{ github.token }}
           cache: true
-          # 最新版は linux-x64 資産が未公開で 404 になることがあるため明示的にピン留めする
-          version: 2026.6.6
 
       - name: Setup
         run: mise setup
