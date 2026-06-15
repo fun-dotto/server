@@ -66,8 +66,8 @@ const (
 type SubjectClassification string
 
 const (
-	SubjectClassificationSpecialized        SubjectClassification = "Specialized"
-	SubjectClassificationCultural           SubjectClassification = "Cultural"
+	SubjectClassificationSpecialized         SubjectClassification = "Specialized"
+	SubjectClassificationCultural            SubjectClassification = "Cultural"
 	SubjectClassificationResearchInstruction SubjectClassification = "ResearchInstruction"
 )
 

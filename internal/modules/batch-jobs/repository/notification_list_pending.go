@@ -6,7 +6,6 @@ import (
 
 	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"github.com/google/uuid"
 )
 
 func (r *NotificationRepository) ListPendingNotifications(ctx context.Context, now time.Time) ([]domain.Notification, error) {
@@ -27,7 +26,7 @@ func (r *NotificationRepository) ListPendingNotifications(ctx context.Context, n
 		return []domain.Notification{}, nil
 	}
 
-	notificationIDs := make([]uuid.UUID, 0, len(dbNotifications))
+	notificationIDs := make([]string, 0, len(dbNotifications))
 	for _, n := range dbNotifications {
 		notificationIDs = append(notificationIDs, n.ID)
 	}
@@ -52,7 +51,7 @@ func (r *NotificationRepository) ListPendingNotifications(ctx context.Context, n
 
 	notifications := make([]domain.Notification, 0, len(dbNotifications))
 	for i := range dbNotifications {
-		key := dbNotifications[i].ID.String()
+		key := dbNotifications[i].ID
 		notifications = append(notifications, notificationToDomain(&dbNotifications[i], targetMap[key]))
 	}
 

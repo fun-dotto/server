@@ -7,6 +7,8 @@ import (
 )
 
 type FacultyRoom struct {
+	// Deprecated: Id field is no longer used
+	Id        uuid.UUID `gorm:"type:uuid"`
 	FacultyID uuid.UUID `gorm:"type:uuid;primaryKey"`
 	Faculty   *Faculty  `gorm:"foreignKey:FacultyID;constraint:OnUpdate:CASCADE"`
 	RoomID    uuid.UUID `gorm:"type:uuid;primaryKey"`

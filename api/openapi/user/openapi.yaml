@@ -1,0 +1,628 @@
+openapi: 3.1.0
+info:
+  title: User Service
+  version: 1.0.0
+tags:
+  - name: Users
+  - name: FCM Tokens
+  - name: Notifications
+paths:
+  /v1/fcmTokens:
+    get:
+      operationId: FCMTokenV1_list
+      description: FCMトークンの一覧を取得する
+      parameters:
+        - name: userIds
+          in: query
+          required: false
+          description: ユーザーIDの一覧
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+        - name: tokens
+          in: query
+          required: false
+          description: FCMトークンの一覧
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+        - name: updatedAtFrom
+          in: query
+          required: false
+          description: 更新日時の開始日時 (updatedAt >= updatedAtFrom)
+          schema:
+            type: string
+            format: date-time
+        - name: updatedAtTo
+          in: query
+          required: false
+          description: 更新日時の終了日時 (updatedAt <= updatedAtTo)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: FCMトークンの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fcmTokens:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FCMToken'
+                required:
+                  - fcmTokens
+      tags:
+        - FCM Tokens
+    post:
+      operationId: FCMTokenV1_upsert
+      description: |-
+        FCMトークンを作成または更新する
+        存在しない場合は作成し、存在する場合は更新日時を更新する
+      parameters: []
+      responses:
+        '200':
+          description: 作成または更新されたFCMトークン
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fcmToken:
+                    $ref: '#/components/schemas/FCMToken'
+                required:
+                  - fcmToken
+      tags:
+        - FCM Tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FCMTokenRequest'
+        description: 作成または更新するFCMトークンの情報
+  /v1/notifications:
+    get:
+      operationId: NotificationV1_list
+      description: 通知の一覧を取得する
+      parameters:
+        - name: notifyAtFrom
+          in: query
+          required: false
+          description: '通知予定期間の開始日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyBefore >= notifyAtFrom）'
+          schema:
+            type: string
+            format: date-time
+        - name: notifyAtTo
+          in: query
+          required: false
+          description: '通知予定期間の終了日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyAfter <= notifyAtTo）'
+          schema:
+            type: string
+            format: date-time
+        - name: isNotified
+          in: query
+          required: false
+          description: '通知済みかどうか (true: 通知済みの通知のみ、false: 通知未済みの通知のみ、指定なし: 全ての通知)'
+          schema:
+            type: boolean
+          explode: false
+      responses:
+        '200':
+          description: 通知の一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                required:
+                  - notifications
+      tags:
+        - Notifications
+    post:
+      operationId: NotificationV1_create
+      description: |-
+        通知を作成する
+        存在しない場合は作成し、存在する場合は更新日時を更新する
+      parameters: []
+      responses:
+        '201':
+          description: 作成された通知
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification:
+                    $ref: '#/components/schemas/Notification'
+                required:
+                  - notification
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        description: 作成する通知の情報
+  /v1/notifications/dispatch:
+    post:
+      operationId: NotificationV1_dispatch
+      description: |-
+        指定したIDの通知を、送信状態や送信可能期間に関わらずまとめて送信する
+
+        `notificationIds` が空配列の場合は `400 Bad Request` を返す。
+        存在しないIDが含まれる場合でもエラーにはせず、送信に成功した通知のみをレスポンスに含める。
+      parameters: []
+      responses:
+        '200':
+          description: 送信に成功した通知の一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                required:
+                  - notifications
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notificationIds:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - notificationIds
+        description: 送信対象の通知IDリスト
+  /v1/notifications/{id}:
+    put:
+      operationId: NotificationV1_update
+      description: 通知を更新する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 通知ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 更新された通知
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification:
+                    $ref: '#/components/schemas/Notification'
+                required:
+                  - notification
+        '404':
+          description: The server cannot find the requested resource.
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        description: 更新する通知の情報
+    delete:
+      operationId: NotificationV1_delete
+      description: 通知を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 通知ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: There is no content to send for this request, but the headers may be useful.
+        '404':
+          description: The server cannot find the requested resource.
+      tags:
+        - Notifications
+  /v1/users:
+    get:
+      operationId: UsersV1_list
+      description: ユーザーの一覧を取得する
+      parameters: []
+      responses:
+        '200':
+          description: ユーザーの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                required:
+                  - users
+      tags:
+        - Users
+  /v1/users/{id}:
+    get:
+      operationId: UsersV1_detail
+      description: ユーザーを取得する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ユーザーID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ユーザーの情報
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                required:
+                  - user
+        '404':
+          description: The server cannot find the requested resource.
+      tags:
+        - Users
+    post:
+      operationId: UsersV1_upsert
+      description: ユーザーを作成または更新する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 作成または更新されたユーザー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                required:
+                  - user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        description: 作成または更新するユーザーの情報
+components:
+  schemas:
+    DottoFoundationV1.Class:
+      type: string
+      enum:
+        - A
+        - B
+        - C
+        - D
+        - E
+        - F
+        - G
+        - H
+        - I
+        - J
+        - K
+        - L
+      description: クラス
+    DottoFoundationV1.Course:
+      type: string
+      enum:
+        - InformationSystem
+        - InformationDesign
+        - AdvancedICT
+        - ComplexSystem
+        - IntelligentSystem
+      description: コース
+    DottoFoundationV1.Grade:
+      type: string
+      enum:
+        - B1
+        - B2
+        - B3
+        - B4
+        - M1
+        - M2
+        - D1
+        - D2
+        - D3
+      description: 学年
+    FCMToken:
+      type: object
+      required:
+        - token
+        - userId
+        - createdAt
+        - updatedAt
+      properties:
+        token:
+          type: string
+          description: FCMトークン
+        userId:
+          type: string
+          description: ユーザーID
+        createdAt:
+          type: string
+          format: date-time
+          description: 作成日時
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新日時
+    FCMTokenRequest:
+      type: object
+      required:
+        - userId
+        - token
+      properties:
+        userId:
+          type: string
+        token:
+          type: string
+    Notification:
+      type: object
+      required:
+        - id
+        - title
+        - body
+        - notifyAfter
+        - notifyBefore
+        - targetUsers
+      properties:
+        id:
+          type: string
+          description: 通知ID
+        title:
+          type: string
+          description: 通知タイトル
+        body:
+          type: string
+          description: 通知本文
+        imageUrl:
+          type: string
+          description: 通知に表示する画像のURL
+        analyticsLabel:
+          type: string
+          description: |-
+            Firebase Analytics に記録する分析ラベル
+
+            通知の開封率計測などに利用
+        apnsBadge:
+          type: integer
+          description: |-
+            APNs のバッジ数
+
+            アプリアイコンに表示される数値。0 でバッジを消去
+        apnsSound:
+          type: string
+          description: |-
+            APNs の通知音
+
+            - "default": OS 標準の通知音
+            - "" または省略: 無音
+            - 任意のファイル名（例: "alert.caf"）: アプリバンドルまたは Library/Sounds/ に同梱されたカスタムサウンド
+            対応フォーマットは .caf / .aiff / .wav（Linear PCM, MA4, µ-law, a-law）、最大30秒
+        apnsContentAvailable:
+          type: boolean
+          description: |-
+            APNs の content-available フラグ
+
+            true でサイレントプッシュ（バックグラウンド更新）になる
+        androidChannelId:
+          type: string
+          description: |-
+            Android の通知チャンネルID
+
+            Android 8.0 以降、通知はチャンネル単位で管理される
+        androidPriority:
+          type: string
+          description: |-
+            Android の通知優先度
+
+            "normal" または "high"。"high" は即時配信される
+        androidTtlSeconds:
+          type: integer
+          description: |-
+            Android の通知TTL（秒）
+
+            FCM がメッセージを保持する最大時間。期限切れで破棄される
+        webpushLink:
+          type: string
+          description: Web Push 通知をクリックした際に開くURL
+        url:
+          type: string
+          description: |-
+            通知をタップした時に開くURL
+            アプリを開くのみの場合は未指定
+        notifyAfter:
+          type: string
+          format: date-time
+          description: 通知送信可能になる日時（この時刻以降に送信対象となる）
+        notifyBefore:
+          type: string
+          format: date-time
+          description: 通知送信期限日時（この時刻を過ぎた場合は送信しない）
+        targetUsers:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationTargetUser'
+          description: 対象ユーザーのリスト
+    NotificationRequest:
+      type: object
+      required:
+        - title
+        - body
+        - notifyAfter
+        - notifyBefore
+        - targetUserIds
+      properties:
+        title:
+          type: string
+          description: 通知タイトル
+        body:
+          type: string
+          description: 通知本文
+        imageUrl:
+          type: string
+          description: 通知に表示する画像のURL
+        analyticsLabel:
+          type: string
+          description: Firebase Analytics に記録する分析ラベル
+        apnsBadge:
+          type: integer
+          description: APNs のバッジ数
+        apnsSound:
+          type: string
+          description: |-
+            APNs の通知音
+
+            - "default": OS 標準の通知音
+            - "" または省略: 無音
+            - 任意のファイル名（例: "alert.caf"）: アプリバンドルまたは Library/Sounds/ に同梱されたカスタムサウンド
+            対応フォーマットは .caf / .aiff / .wav（Linear PCM, MA4, µ-law, a-law）、最大30秒
+        apnsContentAvailable:
+          type: boolean
+          description: APNs の content-available フラグ（true でサイレントプッシュ）
+        androidChannelId:
+          type: string
+          description: Android の通知チャンネルID
+        androidPriority:
+          type: string
+          description: Android の通知優先度（"normal" または "high"）
+        androidTtlSeconds:
+          type: integer
+          description: Android の通知TTL（秒）
+        webpushLink:
+          type: string
+          description: Web Push 通知をクリックした際に開くURL
+        url:
+          type: string
+          description: |-
+            通知をタップした時に開くURL
+            アプリを開くのみの場合は未指定
+        notifyAfter:
+          type: string
+          format: date-time
+          description: 通知送信可能になる日時（この時刻以降に送信対象となる）
+        notifyBefore:
+          type: string
+          format: date-time
+          description: 通知送信期限日時（この時刻を過ぎた場合は送信しない）
+        targetUserIds:
+          type: array
+          items:
+            type: string
+          description: 対象ユーザーIDのリスト
+    NotificationTargetUser:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+          description: ユーザーID
+        notifiedAt:
+          type: string
+          format: date-time
+          description: |-
+            通知送信日時
+
+            通知が送信された日時。送信前は null
+    User:
+      type: object
+      required:
+        - id
+        - email
+      properties:
+        id:
+          type: string
+          description: |-
+            ユーザーID
+
+            Firebase Authentication の UID
+        email:
+          type: string
+          description: |-
+            メールアドレス
+
+            Firebase Authentication のメールアドレス
+        grade:
+          allOf:
+            - $ref: '#/components/schemas/DottoFoundationV1.Grade'
+          description: 学年
+        course:
+          allOf:
+            - $ref: '#/components/schemas/DottoFoundationV1.Course'
+          description: コース
+        class:
+          allOf:
+            - $ref: '#/components/schemas/DottoFoundationV1.Class'
+          description: クラス
+    UserRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+        grade:
+          $ref: '#/components/schemas/DottoFoundationV1.Grade'
+        course:
+          $ref: '#/components/schemas/DottoFoundationV1.Course'
+        class:
+          $ref: '#/components/schemas/DottoFoundationV1.Class'
+servers:
+  - url: http://localhost:8080
+    description: Local
+    variables: {}
+  - url: https://user-api-dev-107577467292.asia-northeast1.run.app
+    description: Development
+    variables: {}
+  - url: https://user-api-stg-107577467292.asia-northeast1.run.app
+    description: Staging
+    variables: {}
+  - url: https://user-api-qa-107577467292.asia-northeast1.run.app
+    description: QA
+    variables: {}
+  - url: https://user-api-107577467292.asia-northeast1.run.app
+    description: Production
+    variables: {}

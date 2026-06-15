@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "dotto-notion": {
+      "url": "https://mcp.notion.com/mcp",
+      "type": "http"
+    }
+  }
+}

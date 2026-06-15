@@ -368,9 +368,11 @@ func timetableItemToDomain(m model.TimetableItem) domain.TimetableItem {
 		subject = subjectToDomain(*m.Subject)
 	}
 
-	rooms := make([]domain.Room, len(m.Rooms))
-	for i, r := range m.Rooms {
-		rooms[i] = roomToDomain(r)
+	rooms := make([]domain.Room, 0, len(m.Rooms))
+	for _, r := range m.Rooms {
+		if r.Room != nil {
+			rooms = append(rooms, roomToDomain(*r.Room))
+		}
 	}
 
 	return domain.TimetableItem{
@@ -391,9 +393,13 @@ func timetableItemFromDomain(d domain.TimetableItem) model.TimetableItem {
 		period = &p
 	}
 
-	rooms := make([]model.Room, len(d.Rooms))
+	rooms := make([]model.TimetableItemRoom, len(d.Rooms))
 	for i, room := range d.Rooms {
-		rooms[i] = roomFromDomain(room)
+		rm := roomFromDomain(room)
+		rooms[i] = model.TimetableItemRoom{
+			RoomID: rm.ID.String(),
+			Room:   &rm,
+		}
 	}
 
 	m := model.TimetableItem{

@@ -44,4 +44,3 @@ func (s *SubjectService) GetSyllabus(ctx context.Context, subjectID string) (dom
 	}
 	return s.syllabusRepo.GetByID(ctx, subject.SyllabusID)
 }
-
