@@ -102,7 +102,7 @@ jobs:
       # (Service / Job は Terraform で作成済みである前提。)
       - name: Deploy Cloud Run services
         run: |
-          for svc in academic-api; do
+          for svc in academic-api announcement-api user-api; do
             echo "::group::update service ${svc}${SUFFIX}"
             gcloud run services update "${svc}${SUFFIX}" \
               --region="$REGION" \
