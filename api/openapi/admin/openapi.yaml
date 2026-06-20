@@ -25,7 +25,7 @@ paths:
       operationId: AnnouncementsV1_list
       parameters: []
       responses:
-        "200":
+        '200':
           description: おしらせのリスト
           content:
             application/json:
@@ -35,10 +35,10 @@ paths:
                   announcements:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AnnouncementService.Announcement"
+                      $ref: '#/components/schemas/AnnouncementService.Announcement'
                 required:
                   - announcements
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Announcements
@@ -47,7 +47,7 @@ paths:
       description: おしらせを作成する
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成されたおしらせ
           content:
             application/json:
@@ -55,10 +55,10 @@ paths:
                 type: object
                 properties:
                   announcement:
-                    $ref: "#/components/schemas/AnnouncementService.Announcement"
+                    $ref: '#/components/schemas/AnnouncementService.Announcement'
                 required:
                   - announcement
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Announcements
@@ -67,7 +67,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AnnouncementService.AnnouncementRequest"
+              $ref: '#/components/schemas/AnnouncementService.AnnouncementRequest'
         description: 作成するおしらせの情報
   /v1/announcements/{id}:
     get:
@@ -81,7 +81,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: おしらせの詳細
           content:
             application/json:
@@ -89,12 +89,12 @@ paths:
                 type: object
                 properties:
                   announcement:
-                    $ref: "#/components/schemas/AnnouncementService.Announcement"
+                    $ref: '#/components/schemas/AnnouncementService.Announcement'
                 required:
                   - announcement
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Announcements
@@ -109,7 +109,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: 更新されたおしらせ
           content:
             application/json:
@@ -117,12 +117,12 @@ paths:
                 type: object
                 properties:
                   announcement:
-                    $ref: "#/components/schemas/AnnouncementService.Announcement"
+                    $ref: '#/components/schemas/AnnouncementService.Announcement'
                 required:
                   - announcement
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Announcements
@@ -131,7 +131,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AnnouncementService.AnnouncementRequest"
+              $ref: '#/components/schemas/AnnouncementService.AnnouncementRequest'
         description: 更新するおしらせの情報
     delete:
       operationId: AnnouncementsV1_delete
@@ -144,11 +144,11 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Announcements
@@ -181,7 +181,7 @@ paths:
             type: string
             format: date
       responses:
-        "200":
+        '200':
           description: 休講のリスト
           content:
             application/json:
@@ -191,10 +191,10 @@ paths:
                   cancelledClasses:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AcademicService.CancelledClass"
+                      $ref: '#/components/schemas/AcademicService.CancelledClass'
                 required:
                   - cancelledClasses
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - CancelledClasses
@@ -203,7 +203,7 @@ paths:
       description: 休講を作成する
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成された休講
           content:
             application/json:
@@ -211,10 +211,10 @@ paths:
                 type: object
                 properties:
                   cancelledClass:
-                    $ref: "#/components/schemas/AcademicService.CancelledClass"
+                    $ref: '#/components/schemas/AcademicService.CancelledClass'
                 required:
                   - cancelledClass
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - CancelledClasses
@@ -223,7 +223,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcademicService.CancelledClassRequest"
+              $ref: '#/components/schemas/AcademicService.CancelledClassRequest'
         description: 作成する休講の情報
   /v1/cancelledClasses/{id}:
     delete:
@@ -237,11 +237,11 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - CancelledClasses
@@ -271,10 +271,10 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+              $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
           explode: false
       responses:
-        "200":
+        '200':
           description: 履修情報のリスト
           content:
             application/json:
@@ -284,10 +284,10 @@ paths:
                   registrations:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AcademicService.CourseRegistration"
+                      $ref: '#/components/schemas/AcademicService.CourseRegistration'
                 required:
                   - registrations
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - CourseRegistrations
@@ -296,7 +296,7 @@ paths:
       description: 履修情報を作成する
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成された履修情報
           content:
             application/json:
@@ -304,10 +304,10 @@ paths:
                 type: object
                 properties:
                   registration:
-                    $ref: "#/components/schemas/AcademicService.CourseRegistration"
+                    $ref: '#/components/schemas/AcademicService.CourseRegistration'
                 required:
                   - registration
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - CourseRegistrations
@@ -316,7 +316,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcademicService.CourseRegistrationRequest"
+              $ref: '#/components/schemas/AcademicService.CourseRegistrationRequest'
         description: 作成する履修情報の情報
   /v1/courseRegistrations/{id}:
     delete:
@@ -330,11 +330,11 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - CourseRegistrations
@@ -351,7 +351,7 @@ paths:
             type: string
           explode: false
       responses:
-        "200":
+        '200':
           description: 教員のリスト
           content:
             application/json:
@@ -361,10 +361,10 @@ paths:
                   faculties:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AcademicService.Faculty"
+                      $ref: '#/components/schemas/AcademicService.Faculty'
                 required:
                   - faculties
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Faculties
@@ -373,7 +373,7 @@ paths:
       description: 教員を作成する
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成された教員
           content:
             application/json:
@@ -381,10 +381,10 @@ paths:
                 type: object
                 properties:
                   faculty:
-                    $ref: "#/components/schemas/AcademicService.Faculty"
+                    $ref: '#/components/schemas/AcademicService.Faculty'
                 required:
                   - faculty
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Faculties
@@ -393,7 +393,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcademicService.FacultyRequest"
+              $ref: '#/components/schemas/AcademicService.FacultyRequest'
         description: 作成する教員の情報
   /v1/faculties/{id}:
     get:
@@ -407,7 +407,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: 教員の詳細
           content:
             application/json:
@@ -415,12 +415,12 @@ paths:
                 type: object
                 properties:
                   faculty:
-                    $ref: "#/components/schemas/AcademicService.Faculty"
+                    $ref: '#/components/schemas/AcademicService.Faculty'
                 required:
                   - faculty
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Faculties
@@ -435,7 +435,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: 更新された教員
           content:
             application/json:
@@ -443,12 +443,12 @@ paths:
                 type: object
                 properties:
                   faculty:
-                    $ref: "#/components/schemas/AcademicService.Faculty"
+                    $ref: '#/components/schemas/AcademicService.Faculty'
                 required:
                   - faculty
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Faculties
@@ -457,7 +457,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcademicService.FacultyRequest"
+              $ref: '#/components/schemas/AcademicService.FacultyRequest'
         description: 更新する教員の情報
     delete:
       operationId: FacultiesV1_delete
@@ -470,13 +470,13 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
-        "409":
+        '409':
           description: The request conflicts with the current state of the server.
       tags:
         - Faculties
@@ -493,7 +493,7 @@ paths:
             type: integer
           explode: false
       responses:
-        "200":
+        '200':
           description: 教員室のリスト
           content:
             application/json:
@@ -503,10 +503,10 @@ paths:
                   facultyRooms:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AcademicService.FacultyRoom"
+                      $ref: '#/components/schemas/AcademicService.FacultyRoom'
                 required:
                   - facultyRooms
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - FacultyRooms
@@ -518,7 +518,7 @@ paths:
         同一年度で同じ教員または同じ教室が既に登録されている場合は409を返す。
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成された教員室
           content:
             application/json:
@@ -526,12 +526,12 @@ paths:
                 type: object
                 properties:
                   facultyRoom:
-                    $ref: "#/components/schemas/AcademicService.FacultyRoom"
+                    $ref: '#/components/schemas/AcademicService.FacultyRoom'
                 required:
                   - facultyRoom
-        "401":
+        '401':
           description: Access is unauthorized.
-        "409":
+        '409':
           description: The request conflicts with the current state of the server.
       tags:
         - FacultyRooms
@@ -540,7 +540,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcademicService.FacultyRoomRequest"
+              $ref: '#/components/schemas/AcademicService.FacultyRoomRequest'
         description: 追加する教員室の情報
   /v1/facultyRooms/{id}:
     delete:
@@ -554,11 +554,11 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - FacultyRooms
@@ -600,7 +600,7 @@ paths:
             type: string
             format: date-time
       responses:
-        "200":
+        '200':
           description: FCMトークンの一覧
           content:
             application/json:
@@ -610,10 +610,10 @@ paths:
                   fcmTokens:
                     type: array
                     items:
-                      $ref: "#/components/schemas/UserService.FCMToken"
+                      $ref: '#/components/schemas/UserService.FCMToken'
                 required:
                   - fcmTokens
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - FCM Tokens
@@ -624,7 +624,7 @@ paths:
         存在しない場合は作成し、存在する場合は更新日時を更新する
       parameters: []
       responses:
-        "200":
+        '200':
           description: 作成または更新されたFCMトークン
           content:
             application/json:
@@ -632,10 +632,10 @@ paths:
                 type: object
                 properties:
                   fcmToken:
-                    $ref: "#/components/schemas/UserService.FCMToken"
+                    $ref: '#/components/schemas/UserService.FCMToken'
                 required:
                   - fcmToken
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - FCM Tokens
@@ -644,7 +644,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserService.FCMTokenRequest"
+              $ref: '#/components/schemas/UserService.FCMTokenRequest'
         description: 作成または更新するFCMトークンの情報
   /v1/makeupClasses:
     get:
@@ -675,7 +675,7 @@ paths:
             type: string
             format: date
       responses:
-        "200":
+        '200':
           description: 補講のリスト
           content:
             application/json:
@@ -685,10 +685,10 @@ paths:
                   makeupClasses:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AcademicService.MakeupClass"
+                      $ref: '#/components/schemas/AcademicService.MakeupClass'
                 required:
                   - makeupClasses
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - MakeupClasses
@@ -697,7 +697,7 @@ paths:
       description: 補講を作成する
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成された補講
           content:
             application/json:
@@ -705,10 +705,10 @@ paths:
                 type: object
                 properties:
                   makeupClass:
-                    $ref: "#/components/schemas/AcademicService.MakeupClass"
+                    $ref: '#/components/schemas/AcademicService.MakeupClass'
                 required:
                   - makeupClass
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - MakeupClasses
@@ -717,7 +717,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcademicService.MakeupClassRequest"
+              $ref: '#/components/schemas/AcademicService.MakeupClassRequest'
         description: 作成する補講の情報
   /v1/makeupClasses/{id}:
     delete:
@@ -731,11 +731,11 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - MakeupClasses
@@ -752,7 +752,7 @@ paths:
             type: string
             format: date
       responses:
-        "200":
+        '200':
           description: メニューのリスト
           content:
             application/json:
@@ -762,13 +762,40 @@ paths:
                   menuItems:
                     type: array
                     items:
-                      $ref: "#/components/schemas/FunchService.MenuItem"
+                      $ref: '#/components/schemas/FunchService.MenuItem'
                 required:
                   - menuItems
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - MenuItems
+    post:
+      operationId: MenuItemsV1_create
+      description: メニューを作成する
+      parameters: []
+      responses:
+        '201':
+          description: 作成されたメニュー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  menuItem:
+                    $ref: '#/components/schemas/FunchService.MenuItem'
+                required:
+                  - menuItem
+        '401':
+          description: Access is unauthorized.
+      tags:
+        - MenuItems
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FunchService.MenuItemRequest'
+        description: 作成するメニューの情報
   /v1/notifications:
     get:
       operationId: NotificationV1_list
@@ -777,26 +804,26 @@ paths:
         - name: notifyAtFrom
           in: query
           required: false
-          description: "通知予定期間の開始日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyBefore >= notifyAtFrom）"
+          description: '通知予定期間の開始日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyBefore >= notifyAtFrom）'
           schema:
             type: string
             format: date-time
         - name: notifyAtTo
           in: query
           required: false
-          description: "通知予定期間の終了日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyAfter <= notifyAtTo）"
+          description: '通知予定期間の終了日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyAfter <= notifyAtTo）'
           schema:
             type: string
             format: date-time
         - name: isNotified
           in: query
           required: false
-          description: "通知済みかどうか (true: 通知済みの通知のみ、false: 通知未済みの通知のみ、指定なし: 全ての通知)"
+          description: '通知済みかどうか (true: 通知済みの通知のみ、false: 通知未済みの通知のみ、指定なし: 全ての通知)'
           schema:
             type: boolean
           explode: false
       responses:
-        "200":
+        '200':
           description: 通知の一覧
           content:
             application/json:
@@ -806,10 +833,10 @@ paths:
                   notifications:
                     type: array
                     items:
-                      $ref: "#/components/schemas/UserService.Notification"
+                      $ref: '#/components/schemas/UserService.Notification'
                 required:
                   - notifications
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Notifications
@@ -820,7 +847,7 @@ paths:
         存在しない場合は作成し、存在する場合は更新日時を更新する
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成された通知
           content:
             application/json:
@@ -828,10 +855,10 @@ paths:
                 type: object
                 properties:
                   notification:
-                    $ref: "#/components/schemas/UserService.Notification"
+                    $ref: '#/components/schemas/UserService.Notification'
                 required:
                   - notification
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Notifications
@@ -840,7 +867,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserService.NotificationRequest"
+              $ref: '#/components/schemas/UserService.NotificationRequest'
         description: 作成する通知の情報
   /v1/notifications/dispatch:
     post:
@@ -852,7 +879,7 @@ paths:
         存在しないIDが含まれる場合でもエラーにはせず、送信に成功した通知のみをレスポンスに含める。
       parameters: []
       responses:
-        "200":
+        '200':
           description: 送信に成功した通知の一覧
           content:
             application/json:
@@ -862,12 +889,12 @@ paths:
                   notifications:
                     type: array
                     items:
-                      $ref: "#/components/schemas/UserService.Notification"
+                      $ref: '#/components/schemas/UserService.Notification'
                 required:
                   - notifications
-        "400":
+        '400':
           description: The server could not understand the request due to invalid syntax.
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Notifications
@@ -897,7 +924,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: 更新された通知
           content:
             application/json:
@@ -905,12 +932,12 @@ paths:
                 type: object
                 properties:
                   notification:
-                    $ref: "#/components/schemas/UserService.Notification"
+                    $ref: '#/components/schemas/UserService.Notification'
                 required:
                   - notification
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Notifications
@@ -919,7 +946,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserService.NotificationRequest"
+              $ref: '#/components/schemas/UserService.NotificationRequest'
         description: 更新する通知の情報
     delete:
       operationId: NotificationV1_delete
@@ -932,11 +959,11 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Notifications
@@ -963,7 +990,7 @@ paths:
               format: date
           explode: false
       responses:
-        "200":
+        '200':
           description: 個人カレンダーアイテムのリスト; 時間割、履修情報、休講補講、振替授業日情報から構築される
           content:
             application/json:
@@ -973,10 +1000,10 @@ paths:
                   personalCalendarItems:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AcademicService.PersonalCalendarItem"
+                      $ref: '#/components/schemas/AcademicService.PersonalCalendarItem'
                 required:
                   - personalCalendarItems
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - PersonalCalendarItems
@@ -1011,7 +1038,7 @@ paths:
             type: string
             format: date-time
       responses:
-        "200":
+        '200':
           description: 予約のリスト
           content:
             application/json:
@@ -1021,10 +1048,10 @@ paths:
                   reservations:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AcademicService.Reservation"
+                      $ref: '#/components/schemas/AcademicService.Reservation'
                 required:
                   - reservations
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Reservations
@@ -1033,7 +1060,7 @@ paths:
       description: 教室を予約する
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成された予約
           content:
             application/json:
@@ -1041,10 +1068,10 @@ paths:
                 type: object
                 properties:
                   reservation:
-                    $ref: "#/components/schemas/AcademicService.Reservation"
+                    $ref: '#/components/schemas/AcademicService.Reservation'
                 required:
                   - reservation
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Reservations
@@ -1053,7 +1080,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcademicService.ReservationRequest"
+              $ref: '#/components/schemas/AcademicService.ReservationRequest'
         description: 予約する教室の情報
   /v1/reservations/{id}:
     delete:
@@ -1067,11 +1094,11 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Reservations
@@ -1104,7 +1131,7 @@ paths:
             type: string
             format: date
       responses:
-        "200":
+        '200':
           description: 教室変更のリスト
           content:
             application/json:
@@ -1114,10 +1141,10 @@ paths:
                   roomChanges:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AcademicService.RoomChange"
+                      $ref: '#/components/schemas/AcademicService.RoomChange'
                 required:
                   - roomChanges
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - RoomChanges
@@ -1126,7 +1153,7 @@ paths:
       description: 教室変更を作成する
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成された教室変更
           content:
             application/json:
@@ -1134,10 +1161,10 @@ paths:
                 type: object
                 properties:
                   roomChange:
-                    $ref: "#/components/schemas/AcademicService.RoomChange"
+                    $ref: '#/components/schemas/AcademicService.RoomChange'
                 required:
                   - roomChange
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - RoomChanges
@@ -1146,7 +1173,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcademicService.RoomChangeRequest"
+              $ref: '#/components/schemas/AcademicService.RoomChangeRequest'
         description: 作成する教室変更の情報
   /v1/roomChanges/{id}:
     delete:
@@ -1160,11 +1187,11 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - RoomChanges
@@ -1187,10 +1214,10 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.Floor"
+              $ref: '#/components/schemas/DottoFoundationV1.Floor'
           explode: false
       responses:
-        "200":
+        '200':
           description: 教室のリスト
           content:
             application/json:
@@ -1200,10 +1227,10 @@ paths:
                   rooms:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AcademicService.Room"
+                      $ref: '#/components/schemas/AcademicService.Room'
                 required:
                   - rooms
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Rooms
@@ -1212,7 +1239,7 @@ paths:
       description: 教室を作成する
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成された教室
           content:
             application/json:
@@ -1220,10 +1247,10 @@ paths:
                 type: object
                 properties:
                   room:
-                    $ref: "#/components/schemas/AcademicService.Room"
+                    $ref: '#/components/schemas/AcademicService.Room'
                 required:
                   - room
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Rooms
@@ -1232,7 +1259,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcademicService.RoomRequest"
+              $ref: '#/components/schemas/AcademicService.RoomRequest'
         description: 作成する教室の情報
   /v1/rooms/{id}:
     get:
@@ -1246,7 +1273,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: 教室の詳細
           content:
             application/json:
@@ -1254,12 +1281,12 @@ paths:
                 type: object
                 properties:
                   room:
-                    $ref: "#/components/schemas/AcademicService.Room"
+                    $ref: '#/components/schemas/AcademicService.Room'
                 required:
                   - room
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Rooms
@@ -1274,7 +1301,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: 更新された教室
           content:
             application/json:
@@ -1282,12 +1309,12 @@ paths:
                 type: object
                 properties:
                   room:
-                    $ref: "#/components/schemas/AcademicService.Room"
+                    $ref: '#/components/schemas/AcademicService.Room'
                 required:
                   - room
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Rooms
@@ -1296,7 +1323,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcademicService.RoomRequest"
+              $ref: '#/components/schemas/AcademicService.RoomRequest'
         description: 更新する教室の情報
     delete:
       operationId: RoomsV1_delete
@@ -1309,13 +1336,13 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
-        "409":
+        '409':
           description: The request conflicts with the current state of the server.
       tags:
         - Rooms
@@ -1341,7 +1368,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.Grade"
+              $ref: '#/components/schemas/DottoFoundationV1.Grade'
           explode: false
         - name: courses
           in: query
@@ -1350,7 +1377,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.Course"
+              $ref: '#/components/schemas/DottoFoundationV1.Course'
           explode: false
         - name: classes
           in: query
@@ -1359,16 +1386,16 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.Class"
+              $ref: '#/components/schemas/DottoFoundationV1.Class'
           explode: false
         - name: classifications
           in: query
           required: false
-          description: "学部: 専門・教養; 大学院: 専門・研究指導"
+          description: '学部: 専門・教養; 大学院: 専門・研究指導'
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.SubjectClassification"
+              $ref: '#/components/schemas/DottoFoundationV1.SubjectClassification'
           explode: false
         - name: year
           in: query
@@ -1384,7 +1411,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+              $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
           explode: false
         - name: requirementTypes
           in: query
@@ -1393,7 +1420,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.SubjectRequirementType"
+              $ref: '#/components/schemas/DottoFoundationV1.SubjectRequirementType'
           explode: false
         - name: culturalSubjectCategories
           in: query
@@ -1402,10 +1429,10 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.CulturalSubjectCategory"
+              $ref: '#/components/schemas/DottoFoundationV1.CulturalSubjectCategory'
           explode: false
       responses:
-        "200":
+        '200':
           description: 科目のリスト
           content:
             application/json:
@@ -1415,10 +1442,10 @@ paths:
                   subjects:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AcademicService.Subject"
+                      $ref: '#/components/schemas/AcademicService.Subject'
                 required:
                   - subjects
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Subjects
@@ -1434,7 +1461,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: 科目の詳細
           content:
             application/json:
@@ -1442,12 +1469,12 @@ paths:
                 type: object
                 properties:
                   subject:
-                    $ref: "#/components/schemas/AcademicService.Subject"
+                    $ref: '#/components/schemas/AcademicService.Subject'
                 required:
                   - subject
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Subjects
@@ -1462,13 +1489,13 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
-        "409":
+        '409':
           description: The request conflicts with the current state of the server.
       tags:
         - Subjects
@@ -1491,10 +1518,10 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+              $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
           explode: false
       responses:
-        "200":
+        '200':
           description: 時間割のリスト
           content:
             application/json:
@@ -1504,10 +1531,10 @@ paths:
                   items:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AcademicService.TimetableItem"
+                      $ref: '#/components/schemas/AcademicService.TimetableItem'
                 required:
                   - items
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - TimetableItems
@@ -1516,7 +1543,7 @@ paths:
       description: 時間割に追加する
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成された時間割
           content:
             application/json:
@@ -1524,10 +1551,10 @@ paths:
                 type: object
                 properties:
                   item:
-                    $ref: "#/components/schemas/AcademicService.TimetableItem"
+                    $ref: '#/components/schemas/AcademicService.TimetableItem'
                 required:
                   - item
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - TimetableItems
@@ -1536,7 +1563,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AcademicService.TimetableItemRequest"
+              $ref: '#/components/schemas/AcademicService.TimetableItemRequest'
         description: 追加する時間割の情報
   /v1/timetableItmes/{id}:
     delete:
@@ -1550,11 +1577,11 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - TimetableItems
@@ -1564,7 +1591,7 @@ paths:
       description: ユーザーの一覧を取得する
       parameters: []
       responses:
-        "200":
+        '200':
           description: ユーザーの一覧
           content:
             application/json:
@@ -1574,10 +1601,10 @@ paths:
                   users:
                     type: array
                     items:
-                      $ref: "#/components/schemas/UserService.User"
+                      $ref: '#/components/schemas/UserService.User'
                 required:
                   - users
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Users
@@ -1593,7 +1620,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: ユーザーの情報
           content:
             application/json:
@@ -1601,12 +1628,12 @@ paths:
                 type: object
                 properties:
                   user:
-                    $ref: "#/components/schemas/UserService.User"
+                    $ref: '#/components/schemas/UserService.User'
                 required:
                   - user
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Users
@@ -1620,7 +1647,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: 作成または更新されたユーザー
           content:
             application/json:
@@ -1628,10 +1655,10 @@ paths:
                 type: object
                 properties:
                   user:
-                    $ref: "#/components/schemas/UserService.User"
+                    $ref: '#/components/schemas/UserService.User'
                 required:
                   - user
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Users
@@ -1640,7 +1667,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserService.UserRequest"
+              $ref: '#/components/schemas/UserService.UserRequest'
         description: 作成または更新するユーザーの情報
 security:
   - BearerAuth: []
@@ -1658,12 +1685,12 @@ components:
         id:
           type: string
         subject:
-          $ref: "#/components/schemas/AcademicService.Subject"
+          $ref: '#/components/schemas/AcademicService.Subject'
         date:
           type: string
           format: date
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
         comment:
           type: string
       description: 休講
@@ -1681,7 +1708,7 @@ components:
           type: string
           format: date
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
         comment:
           type: string
     AcademicService.CourseRegistration:
@@ -1696,7 +1723,7 @@ components:
         userId:
           type: string
         subject:
-          $ref: "#/components/schemas/AcademicService.Subject"
+          $ref: '#/components/schemas/AcademicService.Subject'
     AcademicService.CourseRegistrationRequest:
       type: object
       required:
@@ -1741,9 +1768,9 @@ components:
         id:
           type: string
         faculty:
-          $ref: "#/components/schemas/AcademicService.Faculty"
+          $ref: '#/components/schemas/AcademicService.Faculty'
         room:
-          $ref: "#/components/schemas/AcademicService.Room"
+          $ref: '#/components/schemas/AcademicService.Room'
         year:
           type: integer
     AcademicService.FacultyRoomRequest:
@@ -1771,12 +1798,12 @@ components:
         id:
           type: string
         subject:
-          $ref: "#/components/schemas/AcademicService.Subject"
+          $ref: '#/components/schemas/AcademicService.Subject'
         date:
           type: string
           format: date
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
         comment:
           type: string
       description: 補講
@@ -1794,7 +1821,7 @@ components:
           type: string
           format: date
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
         comment:
           type: string
     AcademicService.PersonalCalendarItem:
@@ -1810,15 +1837,15 @@ components:
           type: string
           format: date
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
         subject:
-          $ref: "#/components/schemas/AcademicService.Subject"
+          $ref: '#/components/schemas/AcademicService.Subject'
         rooms:
           type: array
           items:
-            $ref: "#/components/schemas/AcademicService.Room"
+            $ref: '#/components/schemas/AcademicService.Room'
         status:
-          $ref: "#/components/schemas/DottoFoundationV1.PersonalCalendarItemStatus"
+          $ref: '#/components/schemas/DottoFoundationV1.PersonalCalendarItemStatus'
     AcademicService.Reservation:
       type: object
       required:
@@ -1831,7 +1858,7 @@ components:
         id:
           type: string
         room:
-          $ref: "#/components/schemas/AcademicService.Room"
+          $ref: '#/components/schemas/AcademicService.Room'
         startAt:
           type: string
           format: date-time
@@ -1872,14 +1899,14 @@ components:
           description: 部屋名
         floor:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.Floor"
+            - $ref: '#/components/schemas/DottoFoundationV1.Floor'
           description: |-
             フロア
 
             オンラインなどの仮想教室の場合はVirtualを使用
         faculty:
           allOf:
-            - $ref: "#/components/schemas/AcademicService.Faculty"
+            - $ref: '#/components/schemas/AcademicService.Faculty'
           description: |-
             教員
 
@@ -1898,16 +1925,16 @@ components:
         id:
           type: string
         subject:
-          $ref: "#/components/schemas/AcademicService.Subject"
+          $ref: '#/components/schemas/AcademicService.Subject'
         date:
           type: string
           format: date
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
         originalRoom:
-          $ref: "#/components/schemas/AcademicService.Room"
+          $ref: '#/components/schemas/AcademicService.Room'
         newRoom:
-          $ref: "#/components/schemas/AcademicService.Room"
+          $ref: '#/components/schemas/AcademicService.Room'
       description: 教室変更
     AcademicService.RoomChangeRequest:
       type: object
@@ -1924,7 +1951,7 @@ components:
           type: string
           format: date
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
         originalRoomId:
           type: string
         newRoomId:
@@ -1938,7 +1965,7 @@ components:
         name:
           type: string
         floor:
-          $ref: "#/components/schemas/DottoFoundationV1.Floor"
+          $ref: '#/components/schemas/DottoFoundationV1.Floor'
     AcademicService.Subject:
       type: object
       required:
@@ -1956,13 +1983,13 @@ components:
         faculties:
           type: array
           items:
-            $ref: "#/components/schemas/AcademicService.SubjectFaculty"
+            $ref: '#/components/schemas/AcademicService.SubjectFaculty'
         year:
           type: integer
           description: 開講年度
         semester:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+            - $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
           description: 開講時期
         credit:
           type: integer
@@ -1970,7 +1997,7 @@ components:
         eligibleAttributes:
           type: array
           items:
-            $ref: "#/components/schemas/AcademicService.SubjectTargetClass"
+            $ref: '#/components/schemas/AcademicService.SubjectTargetClass'
           description: |-
             授業名末尾の`学年-クラス`をもとに決定
 
@@ -1978,7 +2005,7 @@ components:
         requirements:
           type: array
           items:
-            $ref: "#/components/schemas/AcademicService.SubjectRequirement"
+            $ref: '#/components/schemas/AcademicService.SubjectRequirement'
           description: |-
             科目群・科目区分をもとに決定
 
@@ -1990,7 +2017,7 @@ components:
         - isPrimary
       properties:
         faculty:
-          $ref: "#/components/schemas/AcademicService.Faculty"
+          $ref: '#/components/schemas/AcademicService.Faculty'
         isPrimary:
           type: boolean
     AcademicService.SubjectRequirement:
@@ -2000,19 +2027,19 @@ components:
         - requirementType
       properties:
         course:
-          $ref: "#/components/schemas/DottoFoundationV1.Course"
+          $ref: '#/components/schemas/DottoFoundationV1.Course'
         requirementType:
-          $ref: "#/components/schemas/DottoFoundationV1.SubjectRequirementType"
+          $ref: '#/components/schemas/DottoFoundationV1.SubjectRequirementType'
     AcademicService.SubjectTargetClass:
       type: object
       required:
         - grade
       properties:
         grade:
-          $ref: "#/components/schemas/DottoFoundationV1.Grade"
+          $ref: '#/components/schemas/DottoFoundationV1.Grade'
         class:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.Class"
+            - $ref: '#/components/schemas/DottoFoundationV1.Class'
           description: 修士課程・博士課程対象の場合はnull
       description: 対象学年・クラス
     AcademicService.TimetableItem:
@@ -2025,15 +2052,15 @@ components:
         id:
           type: string
         subject:
-          $ref: "#/components/schemas/AcademicService.Subject"
+          $ref: '#/components/schemas/AcademicService.Subject'
         slot:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.TimetableSlot"
+            - $ref: '#/components/schemas/DottoFoundationV1.TimetableSlot'
           description: 集中講義など、時間割に含まれていない場合はnull
         rooms:
           type: array
           items:
-            $ref: "#/components/schemas/AcademicService.Room"
+            $ref: '#/components/schemas/AcademicService.Room'
     AcademicService.TimetableItemRequest:
       type: object
       required:
@@ -2043,7 +2070,7 @@ components:
         subjectId:
           type: string
         slot:
-          $ref: "#/components/schemas/DottoFoundationV1.TimetableSlot"
+          $ref: '#/components/schemas/DottoFoundationV1.TimetableSlot'
         roomIds:
           type: array
           items:
@@ -2206,9 +2233,9 @@ components:
         - period
       properties:
         dayOfWeek:
-          $ref: "#/components/schemas/DottoFoundationV1.DayOfWeek"
+          $ref: '#/components/schemas/DottoFoundationV1.DayOfWeek'
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
     FunchService.Category:
       type: string
       enum:
@@ -2238,11 +2265,34 @@ components:
           type: string
           format: uri
         category:
-          $ref: "#/components/schemas/FunchService.Category"
+          $ref: '#/components/schemas/FunchService.Category'
         prices:
           type: array
           items:
-            $ref: "#/components/schemas/FunchService.Price"
+            $ref: '#/components/schemas/FunchService.Price'
+    FunchService.MenuItemRequest:
+      type: object
+      required:
+        - date
+        - name
+        - imageUrl
+        - category
+        - prices
+      properties:
+        date:
+          type: string
+          format: date
+        name:
+          type: string
+        imageUrl:
+          type: string
+          format: uri
+        category:
+          $ref: '#/components/schemas/FunchService.Category'
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/FunchService.Price'
     FunchService.Price:
       type: object
       required:
@@ -2251,7 +2301,7 @@ components:
       properties:
         size:
           allOf:
-            - $ref: "#/components/schemas/FunchService.Size"
+            - $ref: '#/components/schemas/FunchService.Size'
           description: サイズ
         price:
           type: integer
@@ -2381,7 +2431,7 @@ components:
         targetUsers:
           type: array
           items:
-            $ref: "#/components/schemas/UserService.NotificationTargetUser"
+            $ref: '#/components/schemas/UserService.NotificationTargetUser'
           description: 対象ユーザーのリスト
     UserService.NotificationRequest:
       type: object
@@ -2484,15 +2534,15 @@ components:
             Firebase Authentication のメールアドレス
         grade:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.Grade"
+            - $ref: '#/components/schemas/DottoFoundationV1.Grade'
           description: 学年
         course:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.Course"
+            - $ref: '#/components/schemas/DottoFoundationV1.Course'
           description: コース
         class:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.Class"
+            - $ref: '#/components/schemas/DottoFoundationV1.Class'
           description: クラス
     UserService.UserRequest:
       type: object
@@ -2502,11 +2552,11 @@ components:
         email:
           type: string
         grade:
-          $ref: "#/components/schemas/DottoFoundationV1.Grade"
+          $ref: '#/components/schemas/DottoFoundationV1.Grade'
         course:
-          $ref: "#/components/schemas/DottoFoundationV1.Course"
+          $ref: '#/components/schemas/DottoFoundationV1.Course'
         class:
-          $ref: "#/components/schemas/DottoFoundationV1.Class"
+          $ref: '#/components/schemas/DottoFoundationV1.Class'
   securitySchemes:
     BearerAuth:
       type: http
