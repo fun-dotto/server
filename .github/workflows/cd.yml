@@ -75,7 +75,7 @@ jobs:
           docker push \
           ${{ env.IMAGE_TAG }}
 
-  # cmd/* から生成した matrix で各ターゲットを並列デプロイする。サービス/ジョブが増減しても自動追従する。
+  # set-env が明示列挙した matrix で各ターゲットを並列デプロイする。対象の増減は set-env の DEPLOY_TARGETS を編集する。
   deploy:
     runs-on: ubuntu-latest
     permissions:
