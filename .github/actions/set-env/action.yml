@@ -1,0 +1,84 @@
+name: Set Environment
+description: Set environment, shared image tag, and the deploy matrix based on trigger context
+inputs:
+  ar_hostname:
+    description: Artifact Registry hostname
+    required: true
+  project_id:
+    description: GCP project ID
+    required: true
+outputs:
+  environment:
+    description: Target environment (e.g. stg, prd)
+    value: ${{ steps.set-env.outputs.environment }}
+  service_suffix:
+    description: Suffix appended to each Cloud Run service/job name (empty for prd)
+    value: ${{ steps.set-env.outputs.service_suffix }}
+  image_tag:
+    description: Shared Docker image tag (one image for all cmd targets)
+    value: ${{ steps.set-env.outputs.image_tag }}
+  matrix:
+    description: |
+      JSON deploy matrix derived from cmd/*. Shape: {"include":[{"name","type"}]}.
+      type is "service" for *-api targets, otherwise "job".
+    value: ${{ steps.set-matrix.outputs.matrix }}
+runs:
+  using: composite
+  steps:
+    - id: set-env
+      shell: bash
+      run: |
+        # Environment
+        IS_WORKFLOW_DISPATCH="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment_name != '' }}"
+        IS_PUSH_TO_MAIN="${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.base_ref == 'main') }}"
+        if [ $IS_WORKFLOW_DISPATCH = "true" ]; then
+          export TARGET_ENVIRONMENT="${{ github.event.inputs.environment_name }}"
+        elif [ $IS_PUSH_TO_MAIN = "true" ]; then
+          export TARGET_ENVIRONMENT="stg"
+        else
+          exit 1
+        fi
+
+        echo "Environment: $TARGET_ENVIRONMENT"
+
+        # Service name suffix
+        if [ "$TARGET_ENVIRONMENT" = "prd" ]; then
+          export SERVICE_NAME_SUFFIX=""
+        else
+          export SERVICE_NAME_SUFFIX="-$TARGET_ENVIRONMENT"
+        fi
+
+        export REPO_NAME=$(echo ${{ github.repository }} | awk -F '/' '{print $2}')
+        # 全 cmd ターゲットで 1 つのイメージを共有するため、タグはサービス名を含めない。
+        export IMAGE_TAG=${{ inputs.ar_hostname }}/${{ inputs.project_id }}/github-actions/$REPO_NAME:${{ github.sha }}
+
+        echo "Repository name: $REPO_NAME"
+        echo "Service suffix: $SERVICE_NAME_SUFFIX"
+        echo "Image tag: $IMAGE_TAG"
+
+        echo "environment=$TARGET_ENVIRONMENT" >> "$GITHUB_OUTPUT"
+        echo "service_suffix=$SERVICE_NAME_SUFFIX" >> "$GITHUB_OUTPUT"
+        echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+    - id: set-matrix
+      shell: bash
+      run: |
+        # cmd/* を走査してデプロイ対象を自動生成する。
+        # 末尾が "-api" のターゲットを Cloud Run Service、それ以外を Cloud Run Job として分類する。
+        # サービス/ジョブが増減しても cmd/ に追従するため、ワークフロー側の編集は不要。
+        include=""
+        for dir in cmd/*/; do
+          name=$(basename "$dir")
+          [ "$name" = "*" ] && continue
+          case "$name" in
+            *-api) type="service" ;;
+            *)     type="job" ;;
+          esac
+          include="$include{\"name\":\"$name\",\"type\":\"$type\"},"
+        done
+        if [ -z "$include" ]; then
+          echo "No deploy targets found under cmd/" >&2
+          exit 1
+        fi
+        matrix="{\"include\":[${include%,}]}"
+        echo "Matrix: $matrix"
+        echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
