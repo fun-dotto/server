@@ -6,23 +6,21 @@ terraform = "1.9.8"
 [tasks.setup]
 description = "Install pinned tools and download Go module dependencies"
 run = [
-  "mise install",
-  "go mod download",
-]
-
-[tasks.install]
-description = "Sync go.mod / go.sum"
-run = [
   "go get -tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest",
   "go mod tidy",
 ]
 
-[tasks."generate:academic"]
-description = "Generate academic API server code from OpenAPI spec"
+[tasks."generate:openapi"]
+description = "Generate code from OpenAPI spec"
 run = [
-  "rm -rf ./gen/academic",
-  "mkdir -p ./gen/academic",
+  "rm -rf ./gen",
+  "mkdir -p ./gen",
   "go tool oapi-codegen -config ./api/openapi/academic/config.yaml ./api/openapi/academic/openapi.yaml",
+  "go tool oapi-codegen -config ./api/openapi/admin/config.yaml ./api/openapi/admin/openapi.yaml",
+  "go tool oapi-codegen -config ./api/openapi/announcement/config.yaml ./api/openapi/announcement/openapi.yaml",
+  "go tool oapi-codegen -config ./api/openapi/app/config.yaml ./api/openapi/app/openapi.yaml",
+  "go tool oapi-codegen -config ./api/openapi/funch/config.yaml ./api/openapi/funch/openapi.yaml",
+  "go tool oapi-codegen -config ./api/openapi/user/config.yaml ./api/openapi/user/openapi.yaml",
 ]
 
 [tasks.build]

@@ -1,0 +1,107 @@
+openapi: 3.1.0
+info:
+  title: Funch Service
+  version: 1.0.0
+tags:
+  - name: MenuItems
+paths:
+  /v1/menuItems:
+    get:
+      operationId: MenuItemsV1_list
+      description: メニューを取得する
+      parameters:
+        - name: date
+          in: query
+          required: true
+          description: メニューを取得する日付
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: メニューのリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  menuItems:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MenuItem"
+                required:
+                  - menuItems
+      tags:
+        - MenuItems
+components:
+  schemas:
+    Category:
+      type: string
+      enum:
+        - SetAndSingle
+        - BowlAndCurry
+        - Noodle
+        - Side
+        - Dessert
+    MenuItem:
+      type: object
+      required:
+        - id
+        - date
+        - name
+        - imageUrl
+        - category
+        - prices
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          format: date
+        name:
+          type: string
+        imageUrl:
+          type: string
+          format: uri
+        category:
+          $ref: "#/components/schemas/Category"
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/Price"
+    Price:
+      type: object
+      required:
+        - size
+        - price
+      properties:
+        size:
+          allOf:
+            - $ref: "#/components/schemas/Size"
+          description: サイズ
+        price:
+          type: integer
+          format: int32
+          description: 価格
+    Size:
+      type: string
+      enum:
+        - Small
+        - Medium
+        - Large
+servers:
+  - url: http://localhost:8080
+    description: Local
+    variables: {}
+  - url: https://funch-api-dev-107577467292.asia-northeast1.run.app
+    description: Development
+    variables: {}
+  - url: https://funch-api-stg-107577467292.asia-northeast1.run.app
+    description: Staging
+    variables: {}
+  - url: https://funch-api-qa-107577467292.asia-northeast1.run.app
+    description: QA
+    variables: {}
+  - url: https://funch-api-107577467292.asia-northeast1.run.app
+    description: Production
+    variables: {}

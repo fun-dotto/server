@@ -4,4 +4,4 @@ generate:
   gin-server: true
   models: true
   strict-server: true
-output: gen/academic/api.gen.go
+output: gen/funch/api.gen.go
