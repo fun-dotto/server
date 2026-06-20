@@ -19,7 +19,7 @@ outputs:
     value: ${{ steps.set-env.outputs.image_tag }}
   matrix:
     description: |
-      JSON deploy matrix derived from cmd/*. Shape: {"include":[{"name","type"}]}.
+      JSON deploy matrix from the explicit DEPLOY_TARGETS list. Shape: {"include":[{"name","type"}]}.
       type is "service" for *-api targets, otherwise "job".
     value: ${{ steps.set-matrix.outputs.matrix }}
 runs:
@@ -62,13 +62,23 @@ runs:
     - id: set-matrix
       shell: bash
       run: |
-        # cmd/* を走査してデプロイ対象を自動生成する。
+        # デプロイ対象を明示的に列挙する。ここに無い cmd/ ターゲット
+        # (例: atlas-loader, migrate, apply-table-privileges) はデプロイされない。
         # 末尾が "-api" のターゲットを Cloud Run Service、それ以外を Cloud Run Job として分類する。
-        # サービス/ジョブが増減しても cmd/ に追従するため、ワークフロー側の編集は不要。
+        # 対象を増減するときはこの DEPLOY_TARGETS を編集する。
+        DEPLOY_TARGETS="
+          academic-api
+          announcement-api
+          user-api
+          build-class-change-notifications-job
+          dispatch-notifications-job
+        "
         include=""
-        for dir in cmd/*/; do
-          name=$(basename "$dir")
-          [ "$name" = "*" ] && continue
+        for name in $DEPLOY_TARGETS; do
+          if [ ! -d "cmd/$name" ]; then
+            echo "Deploy target cmd/$name not found" >&2
+            exit 1
+          fi
           case "$name" in
             *-api) type="service" ;;
             *)     type="job" ;;
@@ -76,7 +86,7 @@ runs:
           include="$include{\"name\":\"$name\",\"type\":\"$type\"},"
         done
         if [ -z "$include" ]; then
-          echo "No deploy targets found under cmd/" >&2
+          echo "No deploy targets configured" >&2
           exit 1
         fi
         matrix="{\"include\":[${include%,}]}"
