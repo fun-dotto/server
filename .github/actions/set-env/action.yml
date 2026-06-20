@@ -9,10 +9,10 @@ inputs:
     required: true
 outputs:
   environment:
-    description: Target environment (e.g. stg, prod)
+    description: Target environment (e.g. stg, prd)
     value: ${{ steps.set-env.outputs.environment }}
   service_suffix:
-    description: Suffix appended to each Cloud Run service/job name (empty for prod)
+    description: Suffix appended to each Cloud Run service/job name (empty for prd)
     value: ${{ steps.set-env.outputs.service_suffix }}
   image_tag:
     description: Shared Docker image tag (one image for all cmd targets)
@@ -42,7 +42,7 @@ runs:
         echo "Environment: $TARGET_ENVIRONMENT"
 
         # Service name suffix
-        if [ "$TARGET_ENVIRONMENT" = "prod" ]; then
+        if [ "$TARGET_ENVIRONMENT" = "prd" ]; then
           export SERVICE_NAME_SUFFIX=""
         else
           export SERVICE_NAME_SUFFIX="-$TARGET_ENVIRONMENT"
