@@ -18,7 +18,11 @@ func (r *MakeupClassRepository) ListByDate(ctx context.Context, date time.Time) 
 	}
 	out := make([]domain.MakeupClass, 0, len(rows))
 	for i := range rows {
-		out = append(out, makeupClassToDomain(&rows[i]))
+		makeupClass, err := makeupClassToDomain(&rows[i])
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, makeupClass)
 	}
 	return out, nil
 }

@@ -19,7 +19,11 @@ func (r *RoomChangeRepository) ListByDate(ctx context.Context, date time.Time) (
 	}
 	out := make([]domain.RoomChange, 0, len(rows))
 	for i := range rows {
-		out = append(out, roomChangeToDomain(&rows[i]))
+		roomChange, err := roomChangeToDomain(&rows[i])
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, roomChange)
 	}
 	return out, nil
 }

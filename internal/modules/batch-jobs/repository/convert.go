@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
@@ -10,9 +11,17 @@ import (
 
 const dateLayout = "2006-01-02"
 
-func parseDate(s string) time.Time {
-	t, _ := time.Parse(dateLayout, s)
-	return t
+func parseDate(s string) (time.Time, error) {
+	if t, err := time.Parse(dateLayout, s); err == nil {
+		return t, nil
+	}
+	if t, err := time.Parse("2006-01-02T15:04:05Z", s); err == nil {
+		return t, nil
+	}
+	if t, err := time.Parse(time.RFC3339, s); err == nil {
+		return t, nil
+	}
+	return time.Time{}, fmt.Errorf("invalid date %q", s)
 }
 
 func subjectToDomain(m *model.Subject) domain.Subject {
@@ -35,34 +44,46 @@ func roomToDomain(m *model.Room) domain.Room {
 	}
 }
 
-func cancelledClassToDomain(m *model.CancelledClass) domain.CancelledClass {
+func cancelledClassToDomain(m *model.CancelledClass) (domain.CancelledClass, error) {
+	date, err := parseDate(m.Date)
+	if err != nil {
+		return domain.CancelledClass{}, err
+	}
 	d := domain.CancelledClass{
 		ID:     m.ID.String(),
-		Date:   parseDate(m.Date),
+		Date:   date,
 		Period: m.Period,
 	}
 	if m.Subject != nil {
 		d.Subject = subjectToDomain(m.Subject)
 	}
-	return d
+	return d, nil
 }
 
-func makeupClassToDomain(m *model.MakeupClass) domain.MakeupClass {
+func makeupClassToDomain(m *model.MakeupClass) (domain.MakeupClass, error) {
+	date, err := parseDate(m.Date)
+	if err != nil {
+		return domain.MakeupClass{}, err
+	}
 	d := domain.MakeupClass{
 		ID:     m.ID.String(),
-		Date:   parseDate(m.Date),
+		Date:   date,
 		Period: m.Period,
 	}
 	if m.Subject != nil {
 		d.Subject = subjectToDomain(m.Subject)
 	}
-	return d
+	return d, nil
 }
 
-func roomChangeToDomain(m *model.RoomChange) domain.RoomChange {
+func roomChangeToDomain(m *model.RoomChange) (domain.RoomChange, error) {
+	date, err := parseDate(m.Date)
+	if err != nil {
+		return domain.RoomChange{}, err
+	}
 	d := domain.RoomChange{
 		ID:     m.ID.String(),
-		Date:   parseDate(m.Date),
+		Date:   date,
 		Period: m.Period,
 	}
 	if m.Subject != nil {
@@ -71,7 +92,7 @@ func roomChangeToDomain(m *model.RoomChange) domain.RoomChange {
 	if m.NewRoom != nil {
 		d.NewRoom = roomToDomain(m.NewRoom)
 	}
-	return d
+	return d, nil
 }
 
 func fcmTokenToDomain(m *model.FCMToken) domain.FCMToken {

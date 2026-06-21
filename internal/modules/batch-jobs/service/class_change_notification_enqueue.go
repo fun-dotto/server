@@ -140,7 +140,10 @@ func (s *ClassChangeNotificationService) enqueueOne(ctx context.Context, spec no
 		return false, nil
 	}
 
-	notifyAfter, notifyBefore := notifyWindow(spec.classDate)
+	notifyAfter, notifyBefore, err := notifyWindow(spec.classDate)
+	if err != nil {
+		return false, err
+	}
 
 	targetUsers := make([]domain.NotificationTargetUser, 0, len(userIDs))
 	for _, uid := range userIDs {
@@ -168,7 +171,10 @@ func deterministicNotificationID(sourceType, sourceID string) string {
 	return uuid.NewSHA1(uuid.NameSpaceURL, []byte(key)).String()
 }
 
-func notifyWindow(classDate time.Time) (notifyAfter, notifyBefore time.Time) {
+func notifyWindow(classDate time.Time) (notifyAfter, notifyBefore time.Time, err error) {
+	if classDate.IsZero() {
+		return time.Time{}, time.Time{}, fmt.Errorf("class date is zero")
+	}
 	classDayJST := time.Date(classDate.Year(), classDate.Month(), classDate.Day(), 0, 0, 0, 0, jst)
 	notifyAfter = classDayJST.AddDate(0, 0, -1).Add(18 * time.Hour)
 	notifyBefore = classDayJST

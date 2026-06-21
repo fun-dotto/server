@@ -18,7 +18,11 @@ func (r *CancelledClassRepository) ListByDate(ctx context.Context, date time.Tim
 	}
 	out := make([]domain.CancelledClass, 0, len(rows))
 	for i := range rows {
-		out = append(out, cancelledClassToDomain(&rows[i]))
+		cancelledClass, err := cancelledClassToDomain(&rows[i])
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, cancelledClass)
 	}
 	return out, nil
 }
