@@ -1,7 +1,6 @@
 [tools]
 atlas = "1.2.0"
 go = "1.25.7"
-terraform = "1.9.8"
 
 [tasks.setup]
 description = "Install pinned tools and download Go module dependencies"
