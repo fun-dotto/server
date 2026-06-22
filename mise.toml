@@ -1,5 +1,9 @@
+[settings]
+minimum_release_age = "7d"
+
 [tools]
 atlas = "1.2.0"
+gcloud = "572.0.0"
 go = "1.25.7"
 
 [tasks.setup]
