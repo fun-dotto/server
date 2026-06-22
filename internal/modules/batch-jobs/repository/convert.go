@@ -1,19 +1,12 @@
 package repository
 
 import (
-	"time"
-
 	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/google/uuid"
 )
 
 const dateLayout = "2006-01-02"
-
-func parseDate(s string) time.Time {
-	t, _ := time.Parse(dateLayout, s)
-	return t
-}
 
 func subjectToDomain(m *model.Subject) domain.Subject {
 	if m == nil {
@@ -38,7 +31,7 @@ func roomToDomain(m *model.Room) domain.Room {
 func cancelledClassToDomain(m *model.CancelledClass) domain.CancelledClass {
 	d := domain.CancelledClass{
 		ID:     m.ID.String(),
-		Date:   parseDate(m.Date),
+		Date:   m.Date,
 		Period: m.Period,
 	}
 	if m.Subject != nil {
@@ -50,7 +43,7 @@ func cancelledClassToDomain(m *model.CancelledClass) domain.CancelledClass {
 func makeupClassToDomain(m *model.MakeupClass) domain.MakeupClass {
 	d := domain.MakeupClass{
 		ID:     m.ID.String(),
-		Date:   parseDate(m.Date),
+		Date:   m.Date,
 		Period: m.Period,
 	}
 	if m.Subject != nil {
@@ -62,7 +55,7 @@ func makeupClassToDomain(m *model.MakeupClass) domain.MakeupClass {
 func roomChangeToDomain(m *model.RoomChange) domain.RoomChange {
 	d := domain.RoomChange{
 		ID:     m.ID.String(),
-		Date:   parseDate(m.Date),
+		Date:   m.Date,
 		Period: m.Period,
 	}
 	if m.Subject != nil {
