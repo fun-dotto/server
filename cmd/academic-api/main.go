@@ -17,6 +17,7 @@ import (
 	"github.com/fun-dotto/server/internal/modules/academic/openapispec"
 	"github.com/fun-dotto/server/internal/modules/academic/repository"
 	"github.com/fun-dotto/server/internal/modules/academic/service"
+	"github.com/fun-dotto/server/internal/shared/auth"
 	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
@@ -36,6 +37,14 @@ const (
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found: %v", err)
+	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	authClients, err := auth.NewClients(ctx)
+	if err != nil {
+		log.Fatalf("Failed to initialize Firebase clients: %v", err)
 	}
 
 	conn, err := db.ConnectWithConnectorIAMAuthN()
@@ -60,7 +69,13 @@ func main() {
 
 	router := gin.Default()
 
+	// 匿名アクセスを許可するルートはモジュール側で必要になったら追加する。
+	// academic-api は現状すべてログイン必須。
+	allowList := auth.NewAllowList()
+
 	router.Use(middleware.Timeout(handlerTimeout))
+	router.Use(auth.Extract(authClients))
+	router.Use(auth.RequireUserUnlessAllowed(allowList))
 	router.Use(oapimw.OapiRequestValidator(spec))
 
 	// Repositories
@@ -112,9 +127,6 @@ func main() {
 		WriteTimeout:      writeTimeout,
 		IdleTimeout:       idleTimeout,
 	}
-
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
 
 	serverErr := make(chan error, 1)
 	go func() {
