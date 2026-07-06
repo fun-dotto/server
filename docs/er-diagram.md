@@ -198,6 +198,14 @@ erDiagram
         timestamp UpdatedAt
     }
 
+    ReservedRooms{
+        uuid Id PK
+        uuid RoomId FK
+        string Title
+        timestamp StartTime
+        timestamp EndTime
+    }
+
     Subject ||--|| Syllabus : "has"
     Subject ||--o{ SubjectFaculty : "has"
     Subject ||--o{ SubjectEligibleAttribute : "has"
@@ -218,4 +226,5 @@ erDiagram
     NotificationTargetUser }o--|| Notification : "belongs to"
     NotificationTargetUser }o--|| User : "belongs to"
     FCMToken }o--|| User : "belongs to"
+    ReservedRooms }o--|| Room : "belongs to"
 ```
