@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"firebase.google.com/go/v4/messaging"
 	"github.com/fun-dotto/server/internal/modules/user/domain"
@@ -14,6 +15,8 @@ type NotificationRepository interface {
 	DeleteNotification(ctx context.Context, id string) error
 	GetNotificationsByIDs(ctx context.Context, ids []string) ([]domain.Notification, error)
 	DispatchNotifications(ctx context.Context, deliveries map[string][]string) ([]domain.Notification, error)
+	ListPendingNotifications(ctx context.Context, now time.Time) ([]domain.Notification, error)
+	MarkUsersAsNotified(ctx context.Context, deliveries map[string][]string) error
 }
 
 type FCMTokenRepositoryForNotification interface {

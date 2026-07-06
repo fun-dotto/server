@@ -4,8 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/repository"
+	academicrepository "github.com/fun-dotto/server/internal/modules/academic/repository"
 	"github.com/fun-dotto/server/internal/modules/batch-jobs/service"
+	userrepository "github.com/fun-dotto/server/internal/modules/user/repository"
 	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/joho/godotenv"
 )
@@ -25,11 +26,11 @@ func main() {
 		}
 	}()
 
-	cancelledRepo := repository.NewCancelledClassRepository(conn)
-	makeupRepo := repository.NewMakeupClassRepository(conn)
-	roomChangeRepo := repository.NewRoomChangeRepository(conn)
-	courseRegRepo := repository.NewCourseRegistrationRepository(conn)
-	notificationRepo := repository.NewNotificationRepository(conn)
+	cancelledRepo := academicrepository.NewCancelledClassRepository(conn)
+	makeupRepo := academicrepository.NewMakeupClassRepository(conn)
+	roomChangeRepo := academicrepository.NewRoomChangeRepository(conn)
+	courseRegRepo := academicrepository.NewCourseRegistrationRepository(conn)
+	notificationRepo := userrepository.NewNotificationRepository(conn)
 
 	svc := service.NewClassChangeNotificationService(
 		cancelledRepo,

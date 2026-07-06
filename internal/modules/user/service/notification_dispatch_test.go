@@ -46,6 +46,12 @@ func (s *stubNotificationRepo) DispatchNotifications(ctx context.Context, delive
 	}
 	return s.dispatch(ctx, deliveries)
 }
+func (s *stubNotificationRepo) ListPendingNotifications(context.Context, time.Time) ([]domain.Notification, error) {
+	return nil, errors.New("not implemented")
+}
+func (s *stubNotificationRepo) MarkUsersAsNotified(context.Context, map[string][]string) error {
+	return errors.New("not implemented")
+}
 
 type stubFCMTokenRepo struct {
 	list       func(ctx context.Context, filter domain.FCMTokenListFilter) ([]domain.FCMToken, error)

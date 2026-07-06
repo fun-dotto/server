@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
+	"github.com/fun-dotto/server/internal/modules/user/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
 )
 
@@ -50,9 +50,8 @@ func (r *NotificationRepository) ListPendingNotifications(ctx context.Context, n
 	}
 
 	notifications := make([]domain.Notification, 0, len(dbNotifications))
-	for i := range dbNotifications {
-		key := dbNotifications[i].ID
-		notifications = append(notifications, notificationToDomain(&dbNotifications[i], targetMap[key]))
+	for _, n := range dbNotifications {
+		notifications = append(notifications, notificationToDomain(n, targetMap[n.ID]))
 	}
 
 	return notifications, nil

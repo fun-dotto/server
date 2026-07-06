@@ -6,8 +6,8 @@ import (
 	"log"
 
 	firebase "firebase.google.com/go/v4"
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/repository"
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/service"
+	"github.com/fun-dotto/server/internal/modules/user/repository"
+	"github.com/fun-dotto/server/internal/modules/user/service"
 	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/joho/godotenv"
 )
@@ -44,9 +44,9 @@ func main() {
 	notificationRepo := repository.NewNotificationRepository(conn)
 	fcmTokenRepo := repository.NewFCMTokenRepository(conn)
 
-	svc := service.NewNotificationDispatchService(notificationRepo, fcmTokenRepo, messagingClient)
+	svc := service.NewNotificationService(notificationRepo, fcmTokenRepo, messagingClient)
 
-	summary, err := svc.DispatchNotifications(ctx, *dryRun)
+	summary, err := svc.DispatchPendingNotifications(ctx, *dryRun)
 	if err != nil {
 		log.Fatalf("Failed to dispatch notifications: %v", err)
 	}
