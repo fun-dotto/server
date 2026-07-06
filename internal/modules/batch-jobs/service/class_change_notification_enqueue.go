@@ -6,7 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
+	academicdomain "github.com/fun-dotto/server/internal/modules/academic/domain"
+	userdomain "github.com/fun-dotto/server/internal/modules/user/domain"
 	"github.com/google/uuid"
 )
 
@@ -19,19 +20,21 @@ type EnqueueSummary struct {
 
 var jst = time.FixedZone("JST", 9*3600)
 
+const dateLayout = "2006-01-02"
+
 func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Context) (EnqueueSummary, error) {
 	var summary EnqueueSummary
 
 	today := time.Now().In(jst)
 	tomorrow := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, jst).AddDate(0, 0, 1)
 
-	cancelled, err := s.cancelled.ListByDate(ctx, tomorrow)
+	cancelled, err := s.cancelled.List(ctx, academicdomain.CancelledClassListFilter{From: &tomorrow, Until: &tomorrow})
 	if err != nil {
 		return summary, fmt.Errorf("list cancelled_classes: %w", err)
 	}
 	for _, cc := range cancelled {
 		var body string
-		if periodStr, ok := periodJa(cc.Period); ok {
+		if periodStr, ok := periodJa(string(cc.Period)); ok {
 			body = fmt.Sprintf("明日、%sの%sは休講です。", periodStr, cc.Subject.Name)
 		} else {
 			log.Printf("warn: unknown period %q for cancelled %s", cc.Period, cc.ID)
@@ -55,13 +58,13 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 		}
 	}
 
-	makeup, err := s.makeup.ListByDate(ctx, tomorrow)
+	makeup, err := s.makeup.List(ctx, academicdomain.MakeupClassListFilter{From: &tomorrow, Until: &tomorrow})
 	if err != nil {
 		return summary, fmt.Errorf("list makeup_classes: %w", err)
 	}
 	for _, m := range makeup {
 		var body string
-		if periodStr, ok := periodJa(m.Period); ok {
+		if periodStr, ok := periodJa(string(m.Period)); ok {
 			body = fmt.Sprintf("明日、%sに%sの補講があります。", periodStr, m.Subject.Name)
 		} else {
 			log.Printf("warn: unknown period %q for makeup %s", m.Period, m.ID)
@@ -85,13 +88,13 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 		}
 	}
 
-	roomChange, err := s.roomChange.ListByDate(ctx, tomorrow)
+	roomChange, err := s.roomChange.List(ctx, academicdomain.RoomChangeListFilter{From: &tomorrow, Until: &tomorrow})
 	if err != nil {
 		return summary, fmt.Errorf("list room_changes: %w", err)
 	}
 	for _, rc := range roomChange {
 		var body string
-		if periodStr, ok := periodJa(rc.Period); ok {
+		if periodStr, ok := periodJa(string(rc.Period)); ok {
 			body = fmt.Sprintf("明日、%sの%sの教室が%sに変更されます。", periodStr, rc.Subject.Name, rc.NewRoom.Name)
 		} else {
 			log.Printf("warn: unknown period %q for room_change %s", rc.Period, rc.ID)
@@ -124,7 +127,7 @@ type notificationSpec struct {
 	subjectID  string
 	title      string
 	body       string
-	classDate  time.Time
+	classDate  string // YYYY-MM-DD (academic domain の日付表現)
 }
 
 // APNsSound はクライアント側でデフォルト通知音を鳴らすために "default" を指定する。
@@ -140,14 +143,17 @@ func (s *ClassChangeNotificationService) enqueueOne(ctx context.Context, spec no
 		return false, nil
 	}
 
-	notifyAfter, notifyBefore := notifyWindow(spec.classDate)
-
-	targetUsers := make([]domain.NotificationTargetUser, 0, len(userIDs))
-	for _, uid := range userIDs {
-		targetUsers = append(targetUsers, domain.NotificationTargetUser{UserID: uid})
+	notifyAfter, notifyBefore, err := notifyWindow(spec.classDate)
+	if err != nil {
+		return false, err
 	}
 
-	n := domain.Notification{
+	targetUsers := make([]userdomain.NotificationTargetUser, 0, len(userIDs))
+	for _, uid := range userIDs {
+		targetUsers = append(targetUsers, userdomain.NotificationTargetUser{UserID: uid})
+	}
+
+	n := userdomain.Notification{
 		ID:           deterministicNotificationID(spec.sourceType, spec.sourceID),
 		Title:        spec.title,
 		Body:         spec.body,
@@ -168,11 +174,14 @@ func deterministicNotificationID(sourceType, sourceID string) string {
 	return uuid.NewSHA1(uuid.NameSpaceURL, []byte(key)).String()
 }
 
-func notifyWindow(classDate time.Time) (notifyAfter, notifyBefore time.Time) {
-	classDayJST := time.Date(classDate.Year(), classDate.Month(), classDate.Day(), 0, 0, 0, 0, jst)
+func notifyWindow(classDate string) (notifyAfter, notifyBefore time.Time, err error) {
+	classDayJST, err := time.ParseInLocation(dateLayout, classDate, jst)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("parse class date %q: %w", classDate, err)
+	}
 	notifyAfter = classDayJST.AddDate(0, 0, -1).Add(18 * time.Hour)
 	notifyBefore = classDayJST
-	return
+	return notifyAfter, notifyBefore, nil
 }
 
 func periodJa(p string) (string, bool) {

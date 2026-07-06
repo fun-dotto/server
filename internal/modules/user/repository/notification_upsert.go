@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
+	"github.com/fun-dotto/server/internal/modules/user/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -15,15 +15,12 @@ func (r *NotificationRepository) UpsertNotification(ctx context.Context, notific
 	if notification.ID == "" {
 		return domain.Notification{}, errors.New("notification ID is required for upsert")
 	}
+	notificationID, err := uuid.Parse(notification.ID)
+	if err != nil {
+		return domain.Notification{}, err
+	}
 
-	dbNotification, err := notificationFromDomain(notification)
-	if err != nil {
-		return domain.Notification{}, err
-	}
-	notificationID, err := uuid.Parse(dbNotification.ID)
-	if err != nil {
-		return domain.Notification{}, err
-	}
+	dbNotification := notificationFromDomain(notification)
 	uniqueTargets := uniqueTargetUsers(notification.TargetUsers)
 
 	err = r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -68,5 +65,5 @@ func (r *NotificationRepository) UpsertNotification(ctx context.Context, notific
 		return domain.Notification{}, err
 	}
 
-	return notificationToDomain(&dbNotification, uniqueTargets), nil
+	return notificationToDomain(dbNotification, uniqueTargets), nil
 }
