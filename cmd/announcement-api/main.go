@@ -1,13 +1,7 @@
 package main
 
 import (
-	"context"
-	"errors"
 	"log"
-	"net/http"
-	"os/signal"
-	"syscall"
-	"time"
 
 	api "github.com/fun-dotto/server/gen/announcement"
 	"github.com/fun-dotto/server/internal/modules/announcement/handler"
@@ -15,18 +9,11 @@ import (
 	"github.com/fun-dotto/server/internal/modules/announcement/repository"
 	"github.com/fun-dotto/server/internal/modules/announcement/service"
 	"github.com/fun-dotto/server/internal/shared/db"
+	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	oapimw "github.com/oapi-codegen/gin-middleware"
-)
-
-const (
-	readHeaderTimeout = 5 * time.Second
-	readTimeout       = 30 * time.Second
-	writeTimeout      = 30 * time.Second
-	idleTimeout       = 120 * time.Second
-	shutdownTimeout   = 8 * time.Second
 )
 
 func main() {
@@ -69,44 +56,7 @@ func main() {
 	strictHandler := api.NewStrictHandler(h, nil)
 	api.RegisterHandlers(router, strictHandler)
 
-	srv := &http.Server{
-		Addr:              ":8080",
-		Handler:           router,
-		ReadHeaderTimeout: readHeaderTimeout,
-		ReadTimeout:       readTimeout,
-		WriteTimeout:      writeTimeout,
-		IdleTimeout:       idleTimeout,
-	}
-
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
-
-	serverErr := make(chan error, 1)
-	go func() {
-		log.Printf("Server starting on %s", srv.Addr)
-		serverErr <- srv.ListenAndServe()
-	}()
-
-	select {
-	case err := <-serverErr:
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Printf("Failed to start server: %v", err)
-		}
-		return
-	case <-ctx.Done():
-		log.Println("Shutdown signal received, draining in-flight requests...")
-	}
-
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	defer cancel()
-	if err := srv.Shutdown(shutdownCtx); err != nil {
-		log.Printf("Server shutdown error: %v", err)
-		if closeErr := srv.Close(); closeErr != nil && !errors.Is(closeErr, http.ErrServerClosed) {
-			log.Printf("Server force close error: %v", closeErr)
-		}
-	}
-
-	if err := <-serverErr; err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Printf("Server exited with error: %v", err)
+	if err := server.Run(router, ":8080"); err != nil {
+		log.Fatalf("Server exited with error: %v", err)
 	}
 }
