@@ -198,7 +198,7 @@ erDiagram
         timestamp UpdatedAt
     }
 
-    ReservedRooms{
+    RoomReservations{
         uuid Id PK
         uuid RoomId FK
         string Title
