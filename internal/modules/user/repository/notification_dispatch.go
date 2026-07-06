@@ -18,63 +18,47 @@ func (r *NotificationRepository) GetNotificationsByIDs(ctx context.Context, ids 
 	if err := r.db.WithContext(ctx).Where("id IN ?", uniqueIDs).Find(&dbNotifications).Error; err != nil {
 		return nil, err
 	}
-	if len(dbNotifications) == 0 {
-		return []domain.Notification{}, nil
-	}
 
-	existingIDs := make([]string, 0, len(dbNotifications))
-	for _, n := range dbNotifications {
-		existingIDs = append(existingIDs, n.ID)
-	}
-
-	var allTargets []model.NotificationTargetUser
-	if err := r.db.WithContext(ctx).Where("notification_id IN ?", existingIDs).Find(&allTargets).Error; err != nil {
-		return nil, err
-	}
-
-	targetMap := make(map[string][]domain.NotificationTargetUser)
-	for _, t := range allTargets {
-		key := t.NotificationID.String()
-		targetMap[key] = append(targetMap[key], domain.NotificationTargetUser{
-			UserID:     t.UserID,
-			NotifiedAt: t.NotifiedAt,
-		})
-	}
-
-	notifications := make([]domain.Notification, 0, len(dbNotifications))
-	for _, n := range dbNotifications {
-		notifications = append(notifications, notificationToDomain(n, targetMap[n.ID]))
-	}
-
-	return notifications, nil
+	return r.hydrateNotifications(ctx, dbNotifications, false)
 }
 
-func (r *NotificationRepository) DispatchNotifications(ctx context.Context, deliveries map[string][]string) ([]domain.Notification, error) {
+// markNotified は通知ID毎に指定ユーザーの notification_target_users.notified_at を現在時刻で更新する。
+// onlyPending が true の場合、既に notified_at が入っているユーザーは上書きしない。
+// updatedNotificationIDs には実際に1件以上更新された通知IDが返る。
+func (r *NotificationRepository) markNotified(ctx context.Context, deliveries map[string][]string, onlyPending bool) (updatedNotificationIDs []string, err error) {
 	if len(deliveries) == 0 {
-		return []domain.Notification{}, nil
+		return nil, nil
 	}
 
 	now := time.Now()
-	notificationIDs := make([]string, 0, len(deliveries))
 	for nid, userIDs := range deliveries {
 		uniqueUsers := uniqueStrings(userIDs)
 		if len(uniqueUsers) == 0 {
 			continue
 		}
-		db := r.db.WithContext(ctx).Model(&model.NotificationTargetUser{}).
-			Where("notification_id = ? AND user_id IN ?", nid, uniqueUsers).
-			Update("notified_at", now)
+		query := r.db.WithContext(ctx).Model(&model.NotificationTargetUser{}).
+			Where("notification_id = ? AND user_id IN ?", nid, uniqueUsers)
+		if onlyPending {
+			query = query.Where("notified_at IS NULL")
+		}
+		db := query.Update("notified_at", now)
 		if db.Error != nil {
 			return nil, db.Error
 		}
 		if db.RowsAffected > 0 {
-			notificationIDs = append(notificationIDs, nid)
+			updatedNotificationIDs = append(updatedNotificationIDs, nid)
 		}
 	}
+	return updatedNotificationIDs, nil
+}
 
+func (r *NotificationRepository) DispatchNotifications(ctx context.Context, deliveries map[string][]string) ([]domain.Notification, error) {
+	notificationIDs, err := r.markNotified(ctx, deliveries, false)
+	if err != nil {
+		return nil, err
+	}
 	if len(notificationIDs) == 0 {
 		return []domain.Notification{}, nil
 	}
-
 	return r.GetNotificationsByIDs(ctx, notificationIDs)
 }
