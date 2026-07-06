@@ -14,3 +14,11 @@ type FacultyRoomImportSummary struct {
 	UnmatchedEmails []string
 	UnmatchedRooms  []string
 }
+
+// FacultyRoomInsert は email / room_name を faculty_id / room_id に解決済みの
+// faculty_rooms 挿入対象 1 件を表す。
+type FacultyRoomInsert struct {
+	FacultyID string
+	RoomID    string
+	Year      int
+}
