@@ -20,8 +20,6 @@ type EnqueueSummary struct {
 
 var jst = time.FixedZone("JST", 9*3600)
 
-const dateLayout = "2006-01-02"
-
 func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Context) (EnqueueSummary, error) {
 	var summary EnqueueSummary
 
@@ -34,7 +32,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 	}
 	for _, cc := range cancelled {
 		var body string
-		if periodStr, ok := periodJa(string(cc.Period)); ok {
+		if periodStr, ok := periodJa(cc.Period); ok {
 			body = fmt.Sprintf("明日、%sの%sは休講です。", periodStr, cc.Subject.Name)
 		} else {
 			log.Printf("warn: unknown period %q for cancelled %s", cc.Period, cc.ID)
@@ -46,7 +44,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 			subjectID:  cc.Subject.ID,
 			title:      "休講のお知らせ",
 			body:       body,
-			classDate:  cc.Date,
+			classDate:  tomorrow,
 		})
 		if err != nil {
 			return summary, fmt.Errorf("enqueue cancelled %s: %w", cc.ID, err)
@@ -64,7 +62,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 	}
 	for _, m := range makeup {
 		var body string
-		if periodStr, ok := periodJa(string(m.Period)); ok {
+		if periodStr, ok := periodJa(m.Period); ok {
 			body = fmt.Sprintf("明日、%sに%sの補講があります。", periodStr, m.Subject.Name)
 		} else {
 			log.Printf("warn: unknown period %q for makeup %s", m.Period, m.ID)
@@ -76,7 +74,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 			subjectID:  m.Subject.ID,
 			title:      "補講のお知らせ",
 			body:       body,
-			classDate:  m.Date,
+			classDate:  tomorrow,
 		})
 		if err != nil {
 			return summary, fmt.Errorf("enqueue makeup %s: %w", m.ID, err)
@@ -94,7 +92,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 	}
 	for _, rc := range roomChange {
 		var body string
-		if periodStr, ok := periodJa(string(rc.Period)); ok {
+		if periodStr, ok := periodJa(rc.Period); ok {
 			body = fmt.Sprintf("明日、%sの%sの教室が%sに変更されます。", periodStr, rc.Subject.Name, rc.NewRoom.Name)
 		} else {
 			log.Printf("warn: unknown period %q for room_change %s", rc.Period, rc.ID)
@@ -106,7 +104,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 			subjectID:  rc.Subject.ID,
 			title:      "教室変更のお知らせ",
 			body:       body,
-			classDate:  rc.Date,
+			classDate:  tomorrow,
 		})
 		if err != nil {
 			return summary, fmt.Errorf("enqueue room_change %s: %w", rc.ID, err)
@@ -127,7 +125,7 @@ type notificationSpec struct {
 	subjectID  string
 	title      string
 	body       string
-	classDate  string // YYYY-MM-DD (academic domain の日付表現)
+	classDate  time.Time
 }
 
 // APNsSound はクライアント側でデフォルト通知音を鳴らすために "default" を指定する。
@@ -143,10 +141,7 @@ func (s *ClassChangeNotificationService) enqueueOne(ctx context.Context, spec no
 		return false, nil
 	}
 
-	notifyAfter, notifyBefore, err := notifyWindow(spec.classDate)
-	if err != nil {
-		return false, err
-	}
+	notifyAfter, notifyBefore := notifyWindow(spec.classDate)
 
 	targetUsers := make([]userdomain.NotificationTargetUser, 0, len(userIDs))
 	for _, uid := range userIDs {
@@ -174,29 +169,25 @@ func deterministicNotificationID(sourceType, sourceID string) string {
 	return uuid.NewSHA1(uuid.NameSpaceURL, []byte(key)).String()
 }
 
-func notifyWindow(classDate string) (notifyAfter, notifyBefore time.Time, err error) {
-	classDayJST, err := time.ParseInLocation(dateLayout, classDate, jst)
-	if err != nil {
-		return time.Time{}, time.Time{}, fmt.Errorf("parse class date %q: %w", classDate, err)
-	}
-	notifyAfter = classDayJST.AddDate(0, 0, -1).Add(18 * time.Hour)
-	notifyBefore = classDayJST
-	return notifyAfter, notifyBefore, nil
+func notifyWindow(classDate time.Time) (notifyAfter, notifyBefore time.Time) {
+	notifyAfter = classDate.AddDate(0, 0, -1).Add(18 * time.Hour)
+	notifyBefore = classDate
+	return notifyAfter, notifyBefore
 }
 
-func periodJa(p string) (string, bool) {
+func periodJa(p academicdomain.Period) (string, bool) {
 	switch p {
-	case "Period1":
+	case academicdomain.PeriodPeriod1:
 		return "1限", true
-	case "Period2":
+	case academicdomain.PeriodPeriod2:
 		return "2限", true
-	case "Period3":
+	case academicdomain.PeriodPeriod3:
 		return "3限", true
-	case "Period4":
+	case academicdomain.PeriodPeriod4:
 		return "4限", true
-	case "Period5":
+	case academicdomain.PeriodPeriod5:
 		return "5限", true
-	case "Period6":
+	case academicdomain.PeriodPeriod6:
 		return "6限", true
 	default:
 		return "", false

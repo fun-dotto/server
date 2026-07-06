@@ -22,37 +22,5 @@ func (r *NotificationRepository) ListPendingNotifications(ctx context.Context, n
 		Find(&dbNotifications).Error; err != nil {
 		return nil, err
 	}
-	if len(dbNotifications) == 0 {
-		return []domain.Notification{}, nil
-	}
-
-	notificationIDs := make([]string, 0, len(dbNotifications))
-	for _, n := range dbNotifications {
-		notificationIDs = append(notificationIDs, n.ID)
-	}
-
-	// 未通知ユーザーだけを送信対象として返す。
-	var allTargets []model.NotificationTargetUser
-	if err := r.db.WithContext(ctx).
-		Where("notification_id IN ?", notificationIDs).
-		Where("notified_at IS NULL").
-		Find(&allTargets).Error; err != nil {
-		return nil, err
-	}
-
-	targetMap := make(map[string][]domain.NotificationTargetUser)
-	for _, t := range allTargets {
-		key := t.NotificationID.String()
-		targetMap[key] = append(targetMap[key], domain.NotificationTargetUser{
-			UserID:     t.UserID,
-			NotifiedAt: t.NotifiedAt,
-		})
-	}
-
-	notifications := make([]domain.Notification, 0, len(dbNotifications))
-	for _, n := range dbNotifications {
-		notifications = append(notifications, notificationToDomain(n, targetMap[n.ID]))
-	}
-
-	return notifications, nil
+	return r.hydrateNotifications(ctx, dbNotifications, true)
 }
