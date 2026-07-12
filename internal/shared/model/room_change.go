@@ -10,7 +10,7 @@ type RoomChange struct {
 	Common
 
 	SubjectID      uuid.UUID `gorm:"type:uuid;not null;index"`
-	Subject        *Subject  `gorm:"foreignKey:SubjectID;constraint:OnUpdate:CASCADE"`
+	Subject        *Subject  `gorm:"foreignKey:SubjectID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Date           time.Time `gorm:"type:date;not null;index"`
 	Period         string    `gorm:"not null"`
 	OriginalRoomID uuid.UUID `gorm:"type:uuid;not null"`

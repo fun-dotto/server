@@ -10,9 +10,9 @@ type FacultyRoom struct {
 	// Deprecated: Id field is no longer used
 	Id        uuid.UUID `gorm:"type:uuid"`
 	FacultyID uuid.UUID `gorm:"type:uuid;primaryKey"`
-	Faculty   *Faculty  `gorm:"foreignKey:FacultyID;constraint:OnUpdate:CASCADE"`
+	Faculty   *Faculty  `gorm:"foreignKey:FacultyID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	RoomID    uuid.UUID `gorm:"type:uuid;primaryKey"`
-	Room      *Room     `gorm:"foreignKey:RoomID;constraint:OnUpdate:CASCADE"`
+	Room      *Room     `gorm:"foreignKey:RoomID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Year      int       `gorm:"not null;primaryKey"`
 
 	CreatedAt time.Time `gorm:"autoCreateTime;default:current_timestamp"`
