@@ -206,6 +206,65 @@ erDiagram
         timestamp EndTime
     }
 
+    routes["routes.txt — 路線"] {
+        string id PK
+        string route_id
+        string route_short_name
+    }
+
+    calendar["calendar.txt — 運行曜日"] {
+        string id PK
+        string service_id
+        int monday
+        int tuesday
+        int wednesday
+        int thursday
+        int friday
+        int saturday
+        int sunday
+        string start_date
+        string end_date
+    }
+
+    calendar_dates["calendar_dates.txt — 運行日の例外"] {
+        string id PK
+        string service_id FK
+        string date
+        int exception_type
+    }
+
+    trips["trips.txt — 便"] {
+        string id PK
+        string trip_id
+        string route_id FK
+        string service_id FK
+        int direction_id
+    }
+
+    stops["stops.txt — 停留所"] {
+        string id PK
+        string stop_id
+        string stop_name
+    }
+
+    stop_times["stop_times.txt — 停車時刻"] {
+        string id PK
+        string trip_id FK
+        string arrival_time
+        string departure_time
+        string stop_id FK
+        int stop_sequence
+    }
+
+    fare_rules["fare_rules.txt — 運賃ルール"] {
+        string id PK
+        string fare_id FK
+        string route_id FK
+        string origin_id FK
+        string destination_id FK
+        float price
+    }
+
     Subject ||--|| Syllabus : "has"
     Subject ||--o{ SubjectFaculty : "has"
     Subject ||--o{ SubjectEligibleAttribute : "has"
@@ -227,4 +286,13 @@ erDiagram
     NotificationTargetUser }o--|| User : "belongs to"
     FCMToken }o--|| User : "belongs to"
     ReservedRooms }o--|| Room : "belongs to"
+
+    routes ||--o{ trips : route_id
+    calendar ||--o{ trips : service_id
+    calendar ||--o{ calendar_dates : service_id
+    trips ||--o{ stop_times : trip_id
+    stops ||--o{ stop_times : stop_id
+    routes ||--o{ fare_rules : route_id
+    stops ||--o{ fare_rules : origin_id
+    stops ||--o{ fare_rules : destination_id
 ```
