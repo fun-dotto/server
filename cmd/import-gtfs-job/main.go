@@ -1,16 +1,13 @@
 package main
 
 import (
-	"archive/zip"
-	"bytes"
 	"context"
-	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
-	"time"
 
+	"github.com/fun-dotto/server/internal/modules/bus/repository"
+	"github.com/fun-dotto/server/internal/modules/bus/service"
+	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/joho/godotenv"
 )
 
@@ -21,48 +18,24 @@ func main() {
 
 	url := os.Getenv("GTFS_SCHEDULE_URL")
 	if url == "" {
-		log.Fatal("GTFS_URL is not set")
+		log.Fatal("GTFS_SCHEDULE_URL is not set")
 	}
 
-	names, err := listZipFileNames(context.Background(), url)
+	conn, err := db.ConnectWithConnectorIAMAuthN()
 	if err != nil {
-		log.Fatalf("Failed to list zip file names: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	for _, name := range names {
-		fmt.Println(name)
-	}
-}
+	defer func() {
+		if err := db.Close(conn); err != nil {
+			log.Printf("Failed to close database: %v", err)
+		}
+	}()
 
-func listZipFileNames(ctx context.Context, url string) ([]string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
-	}
+	repo := repository.NewScheduleRepository(conn)
+	svc := service.NewScheduleService(repo, nil)
 
-	client := &http.Client{Timeout: 60 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("download zip: %w", err)
+	if err := svc.Import(context.Background(), url); err != nil {
+		log.Fatalf("Failed to import gtfs: %v", err)
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("download zip: unexpected status %s", resp.Status)
-	}
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read zip body: %w", err)
-	}
-
-	reader, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
-	if err != nil {
-		return nil, fmt.Errorf("open zip: %w", err)
-	}
-
-	names := make([]string, 0, len(reader.File))
-	for _, f := range reader.File {
-		names = append(names, f.Name)
-	}
-	return names, nil
+	log.Println("gtfs import completed")
 }
