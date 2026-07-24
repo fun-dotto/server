@@ -28,16 +28,3 @@ func (r *UserRepository) FindByID(ctx context.Context, id string) (domain.User, 
 	}
 	return userToDomain(record), true, nil
 }
-
-func userToDomain(m model.User) domain.User {
-	u := domain.User{ID: m.ID}
-	if m.Course != nil {
-		c := domain.CourseType(*m.Course)
-		u.Course = &c
-	}
-	if m.Grade != nil {
-		g := domain.Grade(*m.Grade)
-		u.Grade = &g
-	}
-	return u
-}

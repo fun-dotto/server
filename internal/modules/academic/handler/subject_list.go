@@ -10,7 +10,7 @@ func (h *Handler) SubjectsV1List(ctx context.Context, request api.SubjectsV1List
 	filter := buildSubjectListFilter(request.Params)
 
 	if request.Params.UserId != nil {
-		user, found, err := h.userRepo.FindByID(ctx, *request.Params.UserId)
+		user, found, err := h.userSvc.FindByID(ctx, *request.Params.UserId)
 		if err != nil {
 			return nil, err
 		}

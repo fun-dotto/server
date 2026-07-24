@@ -76,7 +76,7 @@ type facultyRoomService interface {
 	Delete(ctx context.Context, id string) error
 }
 
-type userRepository interface {
+type userService interface {
 	FindByID(ctx context.Context, id string) (domain.User, bool, error)
 }
 
@@ -91,7 +91,7 @@ type Handler struct {
 	makeupClassSvc          makeupClassService
 	roomChangeSvc           roomChangeService
 	facultyRoomSvc          facultyRoomService
-	userRepo                userRepository
+	userSvc                 userService
 }
 
 func NewHandler(
@@ -105,7 +105,7 @@ func NewHandler(
 	makeupClassSvc makeupClassService,
 	roomChangeSvc roomChangeService,
 	facultyRoomSvc facultyRoomService,
-	userRepo userRepository,
+	userSvc userService,
 ) *Handler {
 	return &Handler{
 		subjectSvc:              subjectSvc,
@@ -118,6 +118,6 @@ func NewHandler(
 		makeupClassSvc:          makeupClassSvc,
 		roomChangeSvc:           roomChangeSvc,
 		facultyRoomSvc:          facultyRoomSvc,
-		userRepo:                userRepo,
+		userSvc:                 userSvc,
 	}
 }

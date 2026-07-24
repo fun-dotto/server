@@ -3159,6 +3159,18 @@ func NewSubjectsV1ListRequest(server string, params *SubjectsV1ListParams) (*htt
 
 		}
 
+		if params.UserId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", false, "userId", *params.UserId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
