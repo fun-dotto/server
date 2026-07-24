@@ -27,7 +27,9 @@ const (
 func loginSession() (*http.Client, error) {
 	username := os.Getenv("USER_ID")
 	password := os.Getenv("USER_PASSWORD")
-
+	if username == "" || password == "" {
+		return nil, fmt.Errorf("環境変数 USER_ID / USER_PASSWORD が設定されていません")
+	}
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		return nil, fmt.Errorf("cookiejar作成失敗: %w", err)
