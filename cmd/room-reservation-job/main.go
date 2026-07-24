@@ -86,13 +86,9 @@ func loginSession() (*http.Client, error) {
 	}
 	defer resp2.Body.Close()
 
-	fmt.Println("POST後の実際のURL:", resp2.Request.URL.String())
-
 	if resp2.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("ログインエラー: status=%d", resp2.StatusCode)
 	}
-
-	time.Sleep(2 * time.Second)
 
 	return client, nil
 }
