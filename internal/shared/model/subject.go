@@ -13,16 +13,16 @@ type Subject struct {
 	CulturalSubjectCategory string                     `gorm:"not null"`
 	SyllabusID              string                     `gorm:"not null;uniqueIndex"`
 	Syllabus                *Syllabus                  `gorm:"foreignKey:SyllabusID;constraint:OnUpdate:CASCADE"`
-	Faculties               []SubjectFaculty           `gorm:"foreignKey:SubjectID;constraint:OnUpdate:CASCADE"`
-	EligibleAttributes      []SubjectEligibleAttribute `gorm:"foreignKey:SubjectID;constraint:OnUpdate:CASCADE"`
-	Requirements            []SubjectRequirement       `gorm:"foreignKey:SubjectID;constraint:OnUpdate:CASCADE"`
+	Faculties               []SubjectFaculty           `gorm:"foreignKey:SubjectID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	EligibleAttributes      []SubjectEligibleAttribute `gorm:"foreignKey:SubjectID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Requirements            []SubjectRequirement       `gorm:"foreignKey:SubjectID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 type SubjectFaculty struct {
 	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
 	SubjectID uuid.UUID `gorm:"type:uuid;not null;index"`
 	FacultyID uuid.UUID `gorm:"type:uuid;not null"`
-	Faculty   *Faculty  `gorm:"foreignKey:FacultyID"`
+	Faculty   *Faculty  `gorm:"foreignKey:FacultyID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	IsPrimary bool      `gorm:"not null"`
 }
 

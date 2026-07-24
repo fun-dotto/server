@@ -51,6 +51,18 @@ func (r *CourseRegistrationRepository) List(ctx context.Context, filter domain.C
 	return results, nil
 }
 
+func (r *CourseRegistrationRepository) ListUserIDsBySubject(ctx context.Context, subjectID string) ([]string, error) {
+	var userIDs []string
+	if err := r.db.WithContext(ctx).
+		Model(&model.CourseRegistration{}).
+		Where("subject_id = ?", parseUUIDOrNil(subjectID)).
+		Distinct("user_id").
+		Pluck("user_id", &userIDs).Error; err != nil {
+		return nil, err
+	}
+	return userIDs, nil
+}
+
 func (r *CourseRegistrationRepository) Create(ctx context.Context, cr domain.CourseRegistration) (domain.CourseRegistration, error) {
 	record := courseRegistrationFromDomain(cr)
 	if err := r.db.WithContext(ctx).Create(&record).Error; err != nil {

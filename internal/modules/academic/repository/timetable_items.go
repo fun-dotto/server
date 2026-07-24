@@ -22,7 +22,7 @@ func (r *TimetableItemRepository) timetableItemPreload(db *gorm.DB) *gorm.DB {
 		Preload("Subject.Faculties.Faculty").
 		Preload("Subject.EligibleAttributes").
 		Preload("Subject.Requirements").
-		Preload("Rooms")
+		Preload("Rooms.Room")
 }
 
 func (r *TimetableItemRepository) List(ctx context.Context, filter domain.TimetableItemListFilter) ([]domain.TimetableItem, error) {

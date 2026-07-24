@@ -34,16 +34,11 @@ func parseUUIDs(ss []string) []uuid.UUID {
 	return out
 }
 
-// normalizeDate は date カラムから取得した文字列を YYYY-MM-DD 形式に揃える。
-// shared/model の Date は string で、ドライバ次第で RFC3339 形式が返ることがある。
-func normalizeDate(s string) string {
-	if t, err := time.Parse("2006-01-02T15:04:05Z", s); err == nil {
-		return t.Format(dateLayout)
-	}
-	if t, err := time.Parse(time.RFC3339, s); err == nil {
-		return t.Format(dateLayout)
-	}
-	return s
+// parseDomainDate は domain 層の YYYY-MM-DD 文字列を time.Time に変換する。
+// パース不能な場合は zero value を返す（既存挙動を維持）。
+func parseDomainDate(s string) time.Time {
+	t, _ := time.Parse(dateLayout, s)
+	return t
 }
 
 // 複合 PK を持つテーブル（CourseRegistration / FacultyRoom）は、API 側の
@@ -215,7 +210,7 @@ func subjectToDomain(m model.Subject) domain.Subject {
 func cancelledClassToDomain(m model.CancelledClass) domain.CancelledClass {
 	d := domain.CancelledClass{
 		ID:     m.ID.String(),
-		Date:   normalizeDate(m.Date),
+		Date:   m.Date.Format(dateLayout),
 		Period: domain.Period(m.Period),
 	}
 	if m.Comment != nil {
@@ -234,7 +229,7 @@ func cancelledClassFromDomain(d domain.CancelledClass) model.CancelledClass {
 	}
 	m := model.CancelledClass{
 		SubjectID: parseUUIDOrNil(d.Subject.ID),
-		Date:      d.Date,
+		Date:      parseDomainDate(d.Date),
 		Period:    string(d.Period),
 		Comment:   comment,
 	}
@@ -247,7 +242,7 @@ func cancelledClassFromDomain(d domain.CancelledClass) model.CancelledClass {
 func makeupClassToDomain(m model.MakeupClass) domain.MakeupClass {
 	d := domain.MakeupClass{
 		ID:     m.ID.String(),
-		Date:   normalizeDate(m.Date),
+		Date:   m.Date.Format(dateLayout),
 		Period: domain.Period(m.Period),
 	}
 	if m.Comment != nil {
@@ -266,7 +261,7 @@ func makeupClassFromDomain(d domain.MakeupClass) model.MakeupClass {
 	}
 	m := model.MakeupClass{
 		SubjectID: parseUUIDOrNil(d.Subject.ID),
-		Date:      d.Date,
+		Date:      parseDomainDate(d.Date),
 		Period:    string(d.Period),
 		Comment:   comment,
 	}
@@ -279,7 +274,7 @@ func makeupClassFromDomain(d domain.MakeupClass) model.MakeupClass {
 func roomChangeToDomain(m model.RoomChange) domain.RoomChange {
 	d := domain.RoomChange{
 		ID:     m.ID.String(),
-		Date:   normalizeDate(m.Date),
+		Date:   m.Date.Format(dateLayout),
 		Period: domain.Period(m.Period),
 	}
 	if m.Subject != nil {
@@ -297,7 +292,7 @@ func roomChangeToDomain(m model.RoomChange) domain.RoomChange {
 func roomChangeFromDomain(d domain.RoomChange) model.RoomChange {
 	m := model.RoomChange{
 		SubjectID:      parseUUIDOrNil(d.Subject.ID),
-		Date:           d.Date,
+		Date:           parseDomainDate(d.Date),
 		Period:         string(d.Period),
 		OriginalRoomID: parseUUIDOrNil(d.OriginalRoom.ID),
 		NewRoomID:      parseUUIDOrNil(d.NewRoom.ID),

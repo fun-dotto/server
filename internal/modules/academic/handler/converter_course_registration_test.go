@@ -75,11 +75,11 @@ func TestBuildCourseRegistrationListFilter(t *testing.T) {
 	year2025 := 2025
 
 	tests := []struct {
-		name           string
-		params         api.CourseRegistrationsV1ListParams
-		wantUserID     string
-		wantYear       int
-		wantSemesters  []domain.CourseSemester
+		name          string
+		params        api.CourseRegistrationsV1ListParams
+		wantUserID    string
+		wantYear      int
+		wantSemesters []domain.CourseSemester
 	}{
 		{
 			name: "年度とセメスターを指定",

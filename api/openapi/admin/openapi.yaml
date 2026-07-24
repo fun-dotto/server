@@ -1,0 +1,2529 @@
+openapi: 3.1.0
+info:
+  title: Admin BFF Service
+  version: 1.0.0
+tags:
+  - name: Announcements
+  - name: CourseRegistrations
+  - name: Faculties
+  - name: PersonalCalendarItems
+  - name: CancelledClasses
+  - name: Notifications
+  - name: MakeupClasses
+  - name: RoomChanges
+  - name: Rooms
+  - name: Reservations
+  - name: Subjects
+  - name: TimetableItems
+  - name: Users
+  - name: FCM Tokens
+  - name: MenuItems
+  - name: FacultyRooms
+paths:
+  /v1/announcements:
+    get:
+      operationId: AnnouncementsV1_list
+      parameters: []
+      responses:
+        "200":
+          description: おしらせのリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcements:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AnnouncementService.Announcement"
+                required:
+                  - announcements
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Announcements
+    post:
+      operationId: AnnouncementsV1_create
+      description: おしらせを作成する
+      parameters: []
+      responses:
+        "201":
+          description: 作成されたおしらせ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcement:
+                    $ref: "#/components/schemas/AnnouncementService.Announcement"
+                required:
+                  - announcement
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Announcements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnnouncementService.AnnouncementRequest"
+        description: 作成するおしらせの情報
+  /v1/announcements/{id}:
+    get:
+      operationId: AnnouncementsV1_detail
+      description: おしらせを詳細取得する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: おしらせID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: おしらせの詳細
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcement:
+                    $ref: "#/components/schemas/AnnouncementService.Announcement"
+                required:
+                  - announcement
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Announcements
+    put:
+      operationId: AnnouncementsV1_update
+      description: おしらせを更新する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: おしらせID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 更新されたおしらせ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  announcement:
+                    $ref: "#/components/schemas/AnnouncementService.Announcement"
+                required:
+                  - announcement
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Announcements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnnouncementService.AnnouncementRequest"
+        description: 更新するおしらせの情報
+    delete:
+      operationId: AnnouncementsV1_delete
+      description: おしらせを削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: おしらせID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Announcements
+  /v1/cancelledClasses:
+    get:
+      operationId: CancelledClassesV1_list
+      description: 休講一覧を取得する
+      parameters:
+        - name: subjectIds
+          in: query
+          required: false
+          description: 科目IDのリスト; 指定した科目の休講のみを取得する; 指定しない場合は全科目を検索対象とする
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+        - name: from
+          in: query
+          required: false
+          description: 検索対象開始日付
+          schema:
+            type: string
+            format: date
+        - name: until
+          in: query
+          required: false
+          description: 検索対象終了日付
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: 休講のリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cancelledClasses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AcademicService.CancelledClass"
+                required:
+                  - cancelledClasses
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - CancelledClasses
+    post:
+      operationId: CancelledClassesV1_create
+      description: 休講を作成する
+      parameters: []
+      responses:
+        "201":
+          description: 作成された休講
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cancelledClass:
+                    $ref: "#/components/schemas/AcademicService.CancelledClass"
+                required:
+                  - cancelledClass
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - CancelledClasses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicService.CancelledClassRequest"
+        description: 作成する休講の情報
+  /v1/cancelledClasses/{id}:
+    delete:
+      operationId: CancelledClassesV1_delete
+      description: 休講を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 休講ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - CancelledClasses
+  /v1/courseRegistrations:
+    get:
+      operationId: CourseRegistrationsV1_list
+      description: 履修情報を取得する
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          description: ユーザーID
+          schema:
+            type: string
+          explode: false
+        - name: year
+          in: query
+          required: false
+          description: 開講年度; 指定しない場合は今年度が選択される
+          schema:
+            type: integer
+          explode: false
+        - name: semesters
+          in: query
+          required: true
+          description: 開講時期
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+          explode: false
+      responses:
+        "200":
+          description: 履修情報のリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  registrations:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AcademicService.CourseRegistration"
+                required:
+                  - registrations
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - CourseRegistrations
+    post:
+      operationId: CourseRegistrationsV1_create
+      description: 履修情報を作成する
+      parameters: []
+      responses:
+        "201":
+          description: 作成された履修情報
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  registration:
+                    $ref: "#/components/schemas/AcademicService.CourseRegistration"
+                required:
+                  - registration
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - CourseRegistrations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicService.CourseRegistrationRequest"
+        description: 作成する履修情報の情報
+  /v1/courseRegistrations/{id}:
+    delete:
+      operationId: CourseRegistrationsV1_delete
+      description: 履修情報を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 履修情報ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - CourseRegistrations
+  /v1/faculties:
+    get:
+      operationId: FacultiesV1_list
+      description: 教員一覧を取得する
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: 検索ワード; 教員の名前で部分一致検索される
+          schema:
+            type: string
+          explode: false
+      responses:
+        "200":
+          description: 教員のリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  faculties:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AcademicService.Faculty"
+                required:
+                  - faculties
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Faculties
+    post:
+      operationId: FacultiesV1_create
+      description: 教員を作成する
+      parameters: []
+      responses:
+        "201":
+          description: 作成された教員
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  faculty:
+                    $ref: "#/components/schemas/AcademicService.Faculty"
+                required:
+                  - faculty
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Faculties
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicService.FacultyRequest"
+        description: 作成する教員の情報
+  /v1/faculties/{id}:
+    get:
+      operationId: FacultiesV1_detail
+      description: 教員を詳細取得する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 教員ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 教員の詳細
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  faculty:
+                    $ref: "#/components/schemas/AcademicService.Faculty"
+                required:
+                  - faculty
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Faculties
+    put:
+      operationId: FacultiesV1_update
+      description: 教員を更新する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 教員ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 更新された教員
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  faculty:
+                    $ref: "#/components/schemas/AcademicService.Faculty"
+                required:
+                  - faculty
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Faculties
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicService.FacultyRequest"
+        description: 更新する教員の情報
+    delete:
+      operationId: FacultiesV1_delete
+      description: 教員を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 教員ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+        "409":
+          description: The request conflicts with the current state of the server.
+      tags:
+        - Faculties
+  /v1/facultyRooms:
+    get:
+      operationId: FacultyRoomsV1_list
+      description: 教員室を取得する
+      parameters:
+        - name: year
+          in: query
+          required: false
+          description: 年度; 指定しない場合は今年度が選択される
+          schema:
+            type: integer
+          explode: false
+      responses:
+        "200":
+          description: 教員室のリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  facultyRooms:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AcademicService.FacultyRoom"
+                required:
+                  - facultyRooms
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - FacultyRooms
+    post:
+      operationId: FacultyRoomsV1_create
+      description: |-
+        教員室を追加する
+
+        同一年度で同じ教員または同じ教室が既に登録されている場合は409を返す。
+      parameters: []
+      responses:
+        "201":
+          description: 作成された教員室
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  facultyRoom:
+                    $ref: "#/components/schemas/AcademicService.FacultyRoom"
+                required:
+                  - facultyRoom
+        "401":
+          description: Access is unauthorized.
+        "409":
+          description: The request conflicts with the current state of the server.
+      tags:
+        - FacultyRooms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicService.FacultyRoomRequest"
+        description: 追加する教員室の情報
+  /v1/facultyRooms/{id}:
+    delete:
+      operationId: FacultyRoomsV1_delete
+      description: 教員室を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 教員室ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - FacultyRooms
+  /v1/fcmTokens:
+    get:
+      operationId: FCMTokenV1_list
+      description: FCMトークンの一覧を取得する
+      parameters:
+        - name: userIds
+          in: query
+          required: false
+          description: ユーザーIDの一覧
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+        - name: tokens
+          in: query
+          required: false
+          description: FCMトークンの一覧
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+        - name: updatedAtFrom
+          in: query
+          required: false
+          description: 更新日時の開始日時 (updatedAt >= updatedAtFrom)
+          schema:
+            type: string
+            format: date-time
+        - name: updatedAtTo
+          in: query
+          required: false
+          description: 更新日時の終了日時 (updatedAt <= updatedAtTo)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: FCMトークンの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fcmTokens:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/UserService.FCMToken"
+                required:
+                  - fcmTokens
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - FCM Tokens
+    post:
+      operationId: FCMTokenV1_upsert
+      description: |-
+        FCMトークンを作成または更新する
+        存在しない場合は作成し、存在する場合は更新日時を更新する
+      parameters: []
+      responses:
+        "200":
+          description: 作成または更新されたFCMトークン
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fcmToken:
+                    $ref: "#/components/schemas/UserService.FCMToken"
+                required:
+                  - fcmToken
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - FCM Tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserService.FCMTokenRequest"
+        description: 作成または更新するFCMトークンの情報
+  /v1/makeupClasses:
+    get:
+      operationId: MakeupClassesV1_list
+      description: 補講一覧を取得する
+      parameters:
+        - name: subjectIds
+          in: query
+          required: false
+          description: 科目IDのリスト; 指定した科目の補講のみを取得する; 指定しない場合は全科目を検索対象とする
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+        - name: from
+          in: query
+          required: false
+          description: 検索対象開始日付
+          schema:
+            type: string
+            format: date
+        - name: until
+          in: query
+          required: false
+          description: 検索対象終了日付
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: 補講のリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  makeupClasses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AcademicService.MakeupClass"
+                required:
+                  - makeupClasses
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - MakeupClasses
+    post:
+      operationId: MakeupClassesV1_create
+      description: 補講を作成する
+      parameters: []
+      responses:
+        "201":
+          description: 作成された補講
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  makeupClass:
+                    $ref: "#/components/schemas/AcademicService.MakeupClass"
+                required:
+                  - makeupClass
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - MakeupClasses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicService.MakeupClassRequest"
+        description: 作成する補講の情報
+  /v1/makeupClasses/{id}:
+    delete:
+      operationId: MakeupClassesV1_delete
+      description: 補講を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 補講ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - MakeupClasses
+  /v1/menuItems:
+    get:
+      operationId: MenuItemsV1_list
+      description: メニューを取得する
+      parameters:
+        - name: date
+          in: query
+          required: true
+          description: メニューを取得する日付
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: メニューのリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  menuItems:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FunchService.MenuItem"
+                required:
+                  - menuItems
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - MenuItems
+  /v1/notifications:
+    get:
+      operationId: NotificationV1_list
+      description: 通知の一覧を取得する
+      parameters:
+        - name: notifyAtFrom
+          in: query
+          required: false
+          description: "通知予定期間の開始日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyBefore >= notifyAtFrom）"
+          schema:
+            type: string
+            format: date-time
+        - name: notifyAtTo
+          in: query
+          required: false
+          description: "通知予定期間の終了日時（通知ウィンドウがこの範囲と重なるものを抽出: notifyAfter <= notifyAtTo）"
+          schema:
+            type: string
+            format: date-time
+        - name: isNotified
+          in: query
+          required: false
+          description: "通知済みかどうか (true: 通知済みの通知のみ、false: 通知未済みの通知のみ、指定なし: 全ての通知)"
+          schema:
+            type: boolean
+          explode: false
+      responses:
+        "200":
+          description: 通知の一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/UserService.Notification"
+                required:
+                  - notifications
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Notifications
+    post:
+      operationId: NotificationV1_create
+      description: |-
+        通知を作成する
+        存在しない場合は作成し、存在する場合は更新日時を更新する
+      parameters: []
+      responses:
+        "201":
+          description: 作成された通知
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification:
+                    $ref: "#/components/schemas/UserService.Notification"
+                required:
+                  - notification
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserService.NotificationRequest"
+        description: 作成する通知の情報
+  /v1/notifications/dispatch:
+    post:
+      operationId: NotificationV1_dispatch
+      description: |-
+        指定したIDの通知を、送信状態や送信可能期間に関わらずまとめて送信する
+
+        `notificationIds` が空配列の場合は `400 Bad Request` を返す。
+        存在しないIDが含まれる場合でもエラーにはせず、送信に成功した通知のみをレスポンスに含める。
+      parameters: []
+      responses:
+        "200":
+          description: 送信に成功した通知の一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/UserService.Notification"
+                required:
+                  - notifications
+        "400":
+          description: The server could not understand the request due to invalid syntax.
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notificationIds:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - notificationIds
+        description: 送信対象の通知IDリスト
+  /v1/notifications/{id}:
+    put:
+      operationId: NotificationV1_update
+      description: 通知を更新する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 通知ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 更新された通知
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification:
+                    $ref: "#/components/schemas/UserService.Notification"
+                required:
+                  - notification
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserService.NotificationRequest"
+        description: 更新する通知の情報
+    delete:
+      operationId: NotificationV1_delete
+      description: 通知を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 通知ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Notifications
+  /v1/personalCalendarItems:
+    get:
+      operationId: PersonalCalendarItemsV1_list
+      description: 個人カレンダーアイテム一覧を取得する
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          description: ユーザーID
+          schema:
+            type: string
+          explode: false
+        - name: dates
+          in: query
+          required: true
+          description: 日付のリスト; 指定した日付の個人カレンダーアイテムのみを取得する
+          schema:
+            type: array
+            items:
+              type: string
+              format: date
+          explode: false
+      responses:
+        "200":
+          description: 個人カレンダーアイテムのリスト; 時間割、履修情報、休講補講、振替授業日情報から構築される
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  personalCalendarItems:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AcademicService.PersonalCalendarItem"
+                required:
+                  - personalCalendarItems
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - PersonalCalendarItems
+  /v1/reservations:
+    get:
+      operationId: ReservationsV1_list
+      description: |-
+        教室の予約一覧を取得する
+        検索対象期間に一部でも重複する予約が取得される
+      parameters:
+        - name: roomIds
+          in: query
+          required: false
+          description: 教室IDのリスト
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+        - name: from
+          in: query
+          required: false
+          description: 検索対象開始日時
+          schema:
+            type: string
+            format: date-time
+        - name: until
+          in: query
+          required: false
+          description: 検索対象終了日時
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: 予約のリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reservations:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AcademicService.Reservation"
+                required:
+                  - reservations
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Reservations
+    post:
+      operationId: ReservationsV1_create
+      description: 教室を予約する
+      parameters: []
+      responses:
+        "201":
+          description: 作成された予約
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reservation:
+                    $ref: "#/components/schemas/AcademicService.Reservation"
+                required:
+                  - reservation
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Reservations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicService.ReservationRequest"
+        description: 予約する教室の情報
+  /v1/reservations/{id}:
+    delete:
+      operationId: ReservationsV1_delete
+      description: 予約を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 予約ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Reservations
+  /v1/roomChanges:
+    get:
+      operationId: RoomChangesV1_list
+      description: 教室変更一覧を取得する
+      parameters:
+        - name: subjectIds
+          in: query
+          required: false
+          description: 科目IDのリスト; 指定した科目の教室変更のみを取得する; 指定しない場合は全科目を検索対象とする
+          schema:
+            type: array
+            items:
+              type: string
+          explode: false
+        - name: from
+          in: query
+          required: false
+          description: 検索対象開始日付
+          schema:
+            type: string
+            format: date
+        - name: until
+          in: query
+          required: false
+          description: 検索対象終了日付
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: 教室変更のリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  roomChanges:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AcademicService.RoomChange"
+                required:
+                  - roomChanges
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - RoomChanges
+    post:
+      operationId: RoomChangesV1_create
+      description: 教室変更を作成する
+      parameters: []
+      responses:
+        "201":
+          description: 作成された教室変更
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  roomChange:
+                    $ref: "#/components/schemas/AcademicService.RoomChange"
+                required:
+                  - roomChange
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - RoomChanges
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicService.RoomChangeRequest"
+        description: 作成する教室変更の情報
+  /v1/roomChanges/{id}:
+    delete:
+      operationId: RoomChangesV1_delete
+      description: 教室変更を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 教室変更ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - RoomChanges
+  /v1/rooms:
+    get:
+      operationId: RoomsV1_list
+      description: 教室一覧を取得する
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: 検索ワード; 部屋名・部屋番号・教員名の部分一致検索される
+          schema:
+            type: string
+          explode: false
+        - name: floors
+          in: query
+          required: false
+          description: 階数; 指定した場合は指定した階数の部屋のみを取得する
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DottoFoundationV1.Floor"
+          explode: false
+      responses:
+        "200":
+          description: 教室のリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rooms:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AcademicService.Room"
+                required:
+                  - rooms
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Rooms
+    post:
+      operationId: RoomsV1_create
+      description: 教室を作成する
+      parameters: []
+      responses:
+        "201":
+          description: 作成された教室
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  room:
+                    $ref: "#/components/schemas/AcademicService.Room"
+                required:
+                  - room
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Rooms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicService.RoomRequest"
+        description: 作成する教室の情報
+  /v1/rooms/{id}:
+    get:
+      operationId: RoomsV1_detail
+      description: 教室を詳細取得する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 教室ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 教室の詳細
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  room:
+                    $ref: "#/components/schemas/AcademicService.Room"
+                required:
+                  - room
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Rooms
+    put:
+      operationId: RoomsV1_update
+      description: 教室を更新する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 教室ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 更新された教室
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  room:
+                    $ref: "#/components/schemas/AcademicService.Room"
+                required:
+                  - room
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Rooms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicService.RoomRequest"
+        description: 更新する教室の情報
+    delete:
+      operationId: RoomsV1_delete
+      description: 教室を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 教室ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+        "409":
+          description: The request conflicts with the current state of the server.
+      tags:
+        - Rooms
+  /v1/subjects:
+    get:
+      operationId: SubjectsV1_list
+      description: |-
+        科目一覧を取得する
+
+        同一項目同士はOR、異なる項目同士はANDでフィルタリングされます。
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: 検索ワード
+          schema:
+            type: string
+          explode: false
+        - name: grades
+          in: query
+          required: false
+          description: 学年
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DottoFoundationV1.Grade"
+          explode: false
+        - name: courses
+          in: query
+          required: false
+          description: コース; 大学院の場合は大学院コースに読み替え
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DottoFoundationV1.Course"
+          explode: false
+        - name: classes
+          in: query
+          required: false
+          description: クラス; 大学院の学年を選択した場合は選択できない
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DottoFoundationV1.Class"
+          explode: false
+        - name: classifications
+          in: query
+          required: false
+          description: "学部: 専門・教養; 大学院: 専門・研究指導"
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DottoFoundationV1.SubjectClassification"
+          explode: false
+        - name: year
+          in: query
+          required: false
+          description: 開講年度; 指定しない場合は今年度が選択される
+          schema:
+            type: integer
+          explode: false
+        - name: semesters
+          in: query
+          required: false
+          description: 開講時期
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+          explode: false
+        - name: requirementTypes
+          in: query
+          required: false
+          description: 必修・選択・選択必修
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DottoFoundationV1.SubjectRequirementType"
+          explode: false
+        - name: culturalSubjectCategories
+          in: query
+          required: false
+          description: 教養科目カテゴリ
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DottoFoundationV1.CulturalSubjectCategory"
+          explode: false
+      responses:
+        "200":
+          description: 科目のリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subjects:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AcademicService.Subject"
+                required:
+                  - subjects
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Subjects
+  /v1/subjects/{id}:
+    get:
+      operationId: SubjectsV1_detail
+      description: 科目を詳細取得する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 科目ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 科目の詳細
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subject:
+                    $ref: "#/components/schemas/AcademicService.Subject"
+                required:
+                  - subject
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Subjects
+    delete:
+      operationId: SubjectsV1_delete
+      description: 科目を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 科目ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+        "409":
+          description: The request conflicts with the current state of the server.
+      tags:
+        - Subjects
+  /v1/timetableItmes:
+    get:
+      operationId: TimetableItemsV1_list
+      description: 時間割を取得する
+      parameters:
+        - name: year
+          in: query
+          required: false
+          description: 開講年度; 指定しない場合は今年度が選択される
+          schema:
+            type: integer
+          explode: false
+        - name: semesters
+          in: query
+          required: true
+          description: 開講時期
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+          explode: false
+      responses:
+        "200":
+          description: 時間割のリスト
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AcademicService.TimetableItem"
+                required:
+                  - items
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - TimetableItems
+    post:
+      operationId: TimetableItemsV1_create
+      description: 時間割に追加する
+      parameters: []
+      responses:
+        "201":
+          description: 作成された時間割
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  item:
+                    $ref: "#/components/schemas/AcademicService.TimetableItem"
+                required:
+                  - item
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - TimetableItems
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcademicService.TimetableItemRequest"
+        description: 追加する時間割の情報
+  /v1/timetableItmes/{id}:
+    delete:
+      operationId: TimetableItemsV1_delete
+      description: 時間割を削除する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 時間割ID
+          schema:
+            type: string
+      responses:
+        "204":
+          description: There is no content to send for this request, but the headers may be useful.
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - TimetableItems
+  /v1/users:
+    get:
+      operationId: UsersV1_list
+      description: ユーザーの一覧を取得する
+      parameters: []
+      responses:
+        "200":
+          description: ユーザーの一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/UserService.User"
+                required:
+                  - users
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Users
+  /v1/users/{id}:
+    get:
+      operationId: UsersV1_detail
+      description: ユーザーを取得する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ユーザーID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ユーザーの情報
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserService.User"
+                required:
+                  - user
+        "401":
+          description: Access is unauthorized.
+        "404":
+          description: The server cannot find the requested resource.
+      tags:
+        - Users
+    post:
+      operationId: UsersV1_upsert
+      description: ユーザーを作成または更新する
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 作成または更新されたユーザー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserService.User"
+                required:
+                  - user
+        "401":
+          description: Access is unauthorized.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserService.UserRequest"
+        description: 作成または更新するユーザーの情報
+security:
+  - BearerAuth: []
+components:
+  schemas:
+    AcademicService.CancelledClass:
+      type: object
+      required:
+        - id
+        - subject
+        - date
+        - period
+        - comment
+      properties:
+        id:
+          type: string
+        subject:
+          $ref: "#/components/schemas/AcademicService.Subject"
+        date:
+          type: string
+          format: date
+        period:
+          $ref: "#/components/schemas/DottoFoundationV1.Period"
+        comment:
+          type: string
+      description: 休講
+    AcademicService.CancelledClassRequest:
+      type: object
+      required:
+        - subjectId
+        - date
+        - period
+        - comment
+      properties:
+        subjectId:
+          type: string
+        date:
+          type: string
+          format: date
+        period:
+          $ref: "#/components/schemas/DottoFoundationV1.Period"
+        comment:
+          type: string
+    AcademicService.CourseRegistration:
+      type: object
+      required:
+        - id
+        - userId
+        - subject
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        subject:
+          $ref: "#/components/schemas/AcademicService.Subject"
+    AcademicService.CourseRegistrationRequest:
+      type: object
+      required:
+        - userId
+        - subjectId
+      properties:
+        userId:
+          type: string
+        subjectId:
+          type: string
+    AcademicService.Faculty:
+      type: object
+      required:
+        - id
+        - name
+        - email
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+    AcademicService.FacultyRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+    AcademicService.FacultyRoom:
+      type: object
+      required:
+        - id
+        - faculty
+        - room
+        - year
+      properties:
+        id:
+          type: string
+        faculty:
+          $ref: "#/components/schemas/AcademicService.Faculty"
+        room:
+          $ref: "#/components/schemas/AcademicService.Room"
+        year:
+          type: integer
+    AcademicService.FacultyRoomRequest:
+      type: object
+      required:
+        - facultyId
+        - roomId
+        - year
+      properties:
+        facultyId:
+          type: string
+        roomId:
+          type: string
+        year:
+          type: integer
+    AcademicService.MakeupClass:
+      type: object
+      required:
+        - id
+        - subject
+        - date
+        - period
+        - comment
+      properties:
+        id:
+          type: string
+        subject:
+          $ref: "#/components/schemas/AcademicService.Subject"
+        date:
+          type: string
+          format: date
+        period:
+          $ref: "#/components/schemas/DottoFoundationV1.Period"
+        comment:
+          type: string
+      description: 補講
+    AcademicService.MakeupClassRequest:
+      type: object
+      required:
+        - subjectId
+        - date
+        - period
+        - comment
+      properties:
+        subjectId:
+          type: string
+        date:
+          type: string
+          format: date
+        period:
+          $ref: "#/components/schemas/DottoFoundationV1.Period"
+        comment:
+          type: string
+    AcademicService.PersonalCalendarItem:
+      type: object
+      required:
+        - date
+        - period
+        - subject
+        - rooms
+        - status
+      properties:
+        date:
+          type: string
+          format: date
+        period:
+          $ref: "#/components/schemas/DottoFoundationV1.Period"
+        subject:
+          $ref: "#/components/schemas/AcademicService.Subject"
+        rooms:
+          type: array
+          items:
+            $ref: "#/components/schemas/AcademicService.Room"
+        status:
+          $ref: "#/components/schemas/DottoFoundationV1.PersonalCalendarItemStatus"
+    AcademicService.Reservation:
+      type: object
+      required:
+        - id
+        - room
+        - startAt
+        - endAt
+        - title
+      properties:
+        id:
+          type: string
+        room:
+          $ref: "#/components/schemas/AcademicService.Room"
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        title:
+          type: string
+    AcademicService.ReservationRequest:
+      type: object
+      required:
+        - roomId
+        - startAt
+        - endAt
+        - title
+      properties:
+        roomId:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        title:
+          type: string
+    AcademicService.Room:
+      type: object
+      required:
+        - id
+        - name
+        - floor
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: 部屋名
+        floor:
+          allOf:
+            - $ref: "#/components/schemas/DottoFoundationV1.Floor"
+          description: |-
+            フロア
+
+            オンラインなどの仮想教室の場合はVirtualを使用
+        faculty:
+          allOf:
+            - $ref: "#/components/schemas/AcademicService.Faculty"
+          description: |-
+            教員
+
+            空室の教員室や教員室でない場合は省略
+            基準は現在の年度
+    AcademicService.RoomChange:
+      type: object
+      required:
+        - id
+        - subject
+        - date
+        - period
+        - originalRoom
+        - newRoom
+      properties:
+        id:
+          type: string
+        subject:
+          $ref: "#/components/schemas/AcademicService.Subject"
+        date:
+          type: string
+          format: date
+        period:
+          $ref: "#/components/schemas/DottoFoundationV1.Period"
+        originalRoom:
+          $ref: "#/components/schemas/AcademicService.Room"
+        newRoom:
+          $ref: "#/components/schemas/AcademicService.Room"
+      description: 教室変更
+    AcademicService.RoomChangeRequest:
+      type: object
+      required:
+        - subjectId
+        - date
+        - period
+        - originalRoomId
+        - newRoomId
+      properties:
+        subjectId:
+          type: string
+        date:
+          type: string
+          format: date
+        period:
+          $ref: "#/components/schemas/DottoFoundationV1.Period"
+        originalRoomId:
+          type: string
+        newRoomId:
+          type: string
+    AcademicService.RoomRequest:
+      type: object
+      required:
+        - name
+        - floor
+      properties:
+        name:
+          type: string
+        floor:
+          $ref: "#/components/schemas/DottoFoundationV1.Floor"
+    AcademicService.Subject:
+      type: object
+      required:
+        - id
+        - name
+        - faculties
+        - year
+        - semester
+        - credit
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        faculties:
+          type: array
+          items:
+            $ref: "#/components/schemas/AcademicService.SubjectFaculty"
+        year:
+          type: integer
+          description: 開講年度
+        semester:
+          allOf:
+            - $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+          description: 開講時期
+        credit:
+          type: integer
+          description: 単位数
+        eligibleAttributes:
+          type: array
+          items:
+            $ref: "#/components/schemas/AcademicService.SubjectTargetClass"
+          description: |-
+            授業名末尾の`学年-クラス`をもとに決定
+
+            科目詳細取得でのみ必須
+        requirements:
+          type: array
+          items:
+            $ref: "#/components/schemas/AcademicService.SubjectRequirement"
+          description: |-
+            科目群・科目区分をもとに決定
+
+            科目詳細取得でのみ必須
+    AcademicService.SubjectFaculty:
+      type: object
+      required:
+        - faculty
+        - isPrimary
+      properties:
+        faculty:
+          $ref: "#/components/schemas/AcademicService.Faculty"
+        isPrimary:
+          type: boolean
+    AcademicService.SubjectRequirement:
+      type: object
+      required:
+        - course
+        - requirementType
+      properties:
+        course:
+          $ref: "#/components/schemas/DottoFoundationV1.Course"
+        requirementType:
+          $ref: "#/components/schemas/DottoFoundationV1.SubjectRequirementType"
+    AcademicService.SubjectTargetClass:
+      type: object
+      required:
+        - grade
+      properties:
+        grade:
+          $ref: "#/components/schemas/DottoFoundationV1.Grade"
+        class:
+          allOf:
+            - $ref: "#/components/schemas/DottoFoundationV1.Class"
+          description: 修士課程・博士課程対象の場合はnull
+      description: 対象学年・クラス
+    AcademicService.TimetableItem:
+      type: object
+      required:
+        - id
+        - subject
+        - rooms
+      properties:
+        id:
+          type: string
+        subject:
+          $ref: "#/components/schemas/AcademicService.Subject"
+        slot:
+          allOf:
+            - $ref: "#/components/schemas/DottoFoundationV1.TimetableSlot"
+          description: 集中講義など、時間割に含まれていない場合はnull
+        rooms:
+          type: array
+          items:
+            $ref: "#/components/schemas/AcademicService.Room"
+    AcademicService.TimetableItemRequest:
+      type: object
+      required:
+        - subjectId
+        - roomIds
+      properties:
+        subjectId:
+          type: string
+        slot:
+          $ref: "#/components/schemas/DottoFoundationV1.TimetableSlot"
+        roomIds:
+          type: array
+          items:
+            type: string
+    AnnouncementService.Announcement:
+      type: object
+      required:
+        - id
+        - title
+        - availableFrom
+        - url
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        availableFrom:
+          type: string
+          format: date-time
+        availableUntil:
+          type: string
+          format: date-time
+        url:
+          type: string
+          format: uri
+    AnnouncementService.AnnouncementRequest:
+      type: object
+      required:
+        - title
+        - availableFrom
+        - url
+      properties:
+        title:
+          type: string
+        availableFrom:
+          type: string
+          format: date-time
+        availableUntil:
+          type: string
+          format: date-time
+        url:
+          type: string
+          format: uri
+    DottoFoundationV1.Class:
+      type: string
+      enum:
+        - A
+        - B
+        - C
+        - D
+        - E
+        - F
+        - G
+        - H
+        - I
+        - J
+        - K
+        - L
+      description: クラス
+    DottoFoundationV1.Course:
+      type: string
+      enum:
+        - InformationSystem
+        - InformationDesign
+        - AdvancedICT
+        - ComplexSystem
+        - IntelligentSystem
+      description: コース
+    DottoFoundationV1.CourseSemester:
+      type: string
+      enum:
+        - AllYear
+        - H1
+        - H2
+        - Q1
+        - Q2
+        - Q3
+        - Q4
+        - SummerIntensive
+        - WinterIntensive
+      description: 開講時期
+    DottoFoundationV1.CulturalSubjectCategory:
+      type: string
+      enum:
+        - Society
+        - Human
+        - Science
+        - Health
+        - Communication
+      description: 教養科目カテゴリ
+    DottoFoundationV1.DayOfWeek:
+      type: string
+      enum:
+        - Sunday
+        - Monday
+        - Tuesday
+        - Wednesday
+        - Thursday
+        - Friday
+        - Saturday
+    DottoFoundationV1.Floor:
+      type: string
+      enum:
+        - Floor1
+        - Floor2
+        - Floor3
+        - Floor4
+        - Floor5
+        - Floor6
+        - Floor7
+        - Virtual
+    DottoFoundationV1.Grade:
+      type: string
+      enum:
+        - B1
+        - B2
+        - B3
+        - B4
+        - M1
+        - M2
+        - D1
+        - D2
+        - D3
+      description: 学年
+    DottoFoundationV1.Period:
+      type: string
+      enum:
+        - Period1
+        - Period2
+        - Period3
+        - Period4
+        - Period5
+        - Period6
+    DottoFoundationV1.PersonalCalendarItemStatus:
+      type: string
+      enum:
+        - Normal
+        - Cancelled
+        - Makeup
+        - RoomChanged
+      description: 教室変更よりも休講・補講が優先される
+    DottoFoundationV1.SubjectClassification:
+      type: string
+      enum:
+        - Specialized
+        - Cultural
+        - ResearchInstruction
+      description: 科目カテゴリ
+    DottoFoundationV1.SubjectRequirementType:
+      type: string
+      enum:
+        - Required
+        - Optional
+        - OptionalRequired
+      description: 必修・選択
+    DottoFoundationV1.TimetableSlot:
+      type: object
+      required:
+        - dayOfWeek
+        - period
+      properties:
+        dayOfWeek:
+          $ref: "#/components/schemas/DottoFoundationV1.DayOfWeek"
+        period:
+          $ref: "#/components/schemas/DottoFoundationV1.Period"
+    FunchService.Category:
+      type: string
+      enum:
+        - SetAndSingle
+        - BowlAndCurry
+        - Noodle
+        - Side
+        - Dessert
+    FunchService.MenuItem:
+      type: object
+      required:
+        - id
+        - date
+        - name
+        - imageUrl
+        - category
+        - prices
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          format: date
+        name:
+          type: string
+        imageUrl:
+          type: string
+          format: uri
+        category:
+          $ref: "#/components/schemas/FunchService.Category"
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/FunchService.Price"
+    FunchService.Price:
+      type: object
+      required:
+        - size
+        - price
+      properties:
+        size:
+          allOf:
+            - $ref: "#/components/schemas/FunchService.Size"
+          description: サイズ
+        price:
+          type: integer
+          format: int32
+          description: 価格
+    FunchService.Size:
+      type: string
+      enum:
+        - Small
+        - Medium
+        - Large
+    UserService.FCMToken:
+      type: object
+      required:
+        - token
+        - userId
+        - createdAt
+        - updatedAt
+      properties:
+        token:
+          type: string
+          description: FCMトークン
+        userId:
+          type: string
+          description: ユーザーID
+        createdAt:
+          type: string
+          format: date-time
+          description: 作成日時
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新日時
+    UserService.FCMTokenRequest:
+      type: object
+      required:
+        - userId
+        - token
+      properties:
+        userId:
+          type: string
+        token:
+          type: string
+    UserService.Notification:
+      type: object
+      required:
+        - id
+        - title
+        - body
+        - notifyAfter
+        - notifyBefore
+        - targetUsers
+      properties:
+        id:
+          type: string
+          description: 通知ID
+        title:
+          type: string
+          description: 通知タイトル
+        body:
+          type: string
+          description: 通知本文
+        imageUrl:
+          type: string
+          description: 通知に表示する画像のURL
+        analyticsLabel:
+          type: string
+          description: |-
+            Firebase Analytics に記録する分析ラベル
+
+            通知の開封率計測などに利用
+        apnsBadge:
+          type: integer
+          description: |-
+            APNs のバッジ数
+
+            アプリアイコンに表示される数値。0 でバッジを消去
+        apnsSound:
+          type: string
+          description: |-
+            APNs の通知音
+
+            - "default": OS 標準の通知音
+            - "" または省略: 無音
+            - 任意のファイル名（例: "alert.caf"）: アプリバンドルまたは Library/Sounds/ に同梱されたカスタムサウンド
+            対応フォーマットは .caf / .aiff / .wav（Linear PCM, MA4, µ-law, a-law）、最大30秒
+        apnsContentAvailable:
+          type: boolean
+          description: |-
+            APNs の content-available フラグ
+
+            true でサイレントプッシュ（バックグラウンド更新）になる
+        androidChannelId:
+          type: string
+          description: |-
+            Android の通知チャンネルID
+
+            Android 8.0 以降、通知はチャンネル単位で管理される
+        androidPriority:
+          type: string
+          description: |-
+            Android の通知優先度
+
+            "normal" または "high"。"high" は即時配信される
+        androidTtlSeconds:
+          type: integer
+          description: |-
+            Android の通知TTL（秒）
+
+            FCM がメッセージを保持する最大時間。期限切れで破棄される
+        webpushLink:
+          type: string
+          description: Web Push 通知をクリックした際に開くURL
+        url:
+          type: string
+          description: |-
+            通知をタップした時に開くURL
+            アプリを開くのみの場合は未指定
+        notifyAfter:
+          type: string
+          format: date-time
+          description: 通知送信可能になる日時（この時刻以降に送信対象となる）
+        notifyBefore:
+          type: string
+          format: date-time
+          description: 通知送信期限日時（この時刻を過ぎた場合は送信しない）
+        targetUsers:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserService.NotificationTargetUser"
+          description: 対象ユーザーのリスト
+    UserService.NotificationRequest:
+      type: object
+      required:
+        - title
+        - body
+        - notifyAfter
+        - notifyBefore
+        - targetUserIds
+      properties:
+        title:
+          type: string
+          description: 通知タイトル
+        body:
+          type: string
+          description: 通知本文
+        imageUrl:
+          type: string
+          description: 通知に表示する画像のURL
+        analyticsLabel:
+          type: string
+          description: Firebase Analytics に記録する分析ラベル
+        apnsBadge:
+          type: integer
+          description: APNs のバッジ数
+        apnsSound:
+          type: string
+          description: |-
+            APNs の通知音
+
+            - "default": OS 標準の通知音
+            - "" または省略: 無音
+            - 任意のファイル名（例: "alert.caf"）: アプリバンドルまたは Library/Sounds/ に同梱されたカスタムサウンド
+            対応フォーマットは .caf / .aiff / .wav（Linear PCM, MA4, µ-law, a-law）、最大30秒
+        apnsContentAvailable:
+          type: boolean
+          description: APNs の content-available フラグ（true でサイレントプッシュ）
+        androidChannelId:
+          type: string
+          description: Android の通知チャンネルID
+        androidPriority:
+          type: string
+          description: Android の通知優先度（"normal" または "high"）
+        androidTtlSeconds:
+          type: integer
+          description: Android の通知TTL（秒）
+        webpushLink:
+          type: string
+          description: Web Push 通知をクリックした際に開くURL
+        url:
+          type: string
+          description: |-
+            通知をタップした時に開くURL
+            アプリを開くのみの場合は未指定
+        notifyAfter:
+          type: string
+          format: date-time
+          description: 通知送信可能になる日時（この時刻以降に送信対象となる）
+        notifyBefore:
+          type: string
+          format: date-time
+          description: 通知送信期限日時（この時刻を過ぎた場合は送信しない）
+        targetUserIds:
+          type: array
+          items:
+            type: string
+          description: 対象ユーザーIDのリスト
+    UserService.NotificationTargetUser:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+          description: ユーザーID
+        notifiedAt:
+          type: string
+          format: date-time
+          description: |-
+            通知送信日時
+
+            通知が送信された日時。送信前は null
+    UserService.User:
+      type: object
+      required:
+        - id
+        - email
+      properties:
+        id:
+          type: string
+          description: |-
+            ユーザーID
+
+            Firebase Authentication の UID
+        email:
+          type: string
+          description: |-
+            メールアドレス
+
+            Firebase Authentication のメールアドレス
+        grade:
+          allOf:
+            - $ref: "#/components/schemas/DottoFoundationV1.Grade"
+          description: 学年
+        course:
+          allOf:
+            - $ref: "#/components/schemas/DottoFoundationV1.Course"
+          description: コース
+        class:
+          allOf:
+            - $ref: "#/components/schemas/DottoFoundationV1.Class"
+          description: クラス
+    UserService.UserRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+        grade:
+          $ref: "#/components/schemas/DottoFoundationV1.Grade"
+        course:
+          $ref: "#/components/schemas/DottoFoundationV1.Course"
+        class:
+          $ref: "#/components/schemas/DottoFoundationV1.Class"
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: Bearer
+servers:
+  - url: http://localhost:8080
+    description: Local
+    variables: {}
+  - url: https://admin-bff-api-dev-107577467292.asia-northeast1.run.app
+    description: Development
+    variables: {}
+  - url: https://admin-bff-api-stg-107577467292.asia-northeast1.run.app
+    description: Staging
+    variables: {}
+  - url: https://admin-bff-api-qa-107577467292.asia-northeast1.run.app
+    description: QA
+    variables: {}
+  - url: https://admin-bff-api-107577467292.asia-northeast1.run.app
+    description: Production
+    variables: {}

@@ -11,9 +11,9 @@ func TestTimetableItemToAPI_Slot(t *testing.T) {
 	baseSubject := domain.Subject{ID: "subject-1", Name: "Test"}
 
 	tests := []struct {
-		name     string
-		slot     *domain.TimetableSlot
-		wantNil  bool
+		name    string
+		slot    *domain.TimetableSlot
+		wantNil bool
 		wantDow api.DottoFoundationV1DayOfWeek
 		wantPer api.DottoFoundationV1Period
 	}{

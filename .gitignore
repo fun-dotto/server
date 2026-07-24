@@ -69,6 +69,7 @@ Temporary Items
 # Local environment
 .env
 .env.*.local
+.envrc
 
 # Atlas / Terraform / mise local state
 /.atlas/

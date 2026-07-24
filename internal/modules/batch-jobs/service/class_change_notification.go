@@ -2,21 +2,21 @@ package service
 
 import (
 	"context"
-	"time"
 
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
+	academicdomain "github.com/fun-dotto/server/internal/modules/academic/domain"
+	userdomain "github.com/fun-dotto/server/internal/modules/user/domain"
 )
 
 type CancelledClassRepository interface {
-	ListByDate(ctx context.Context, date time.Time) ([]domain.CancelledClass, error)
+	List(ctx context.Context, filter academicdomain.CancelledClassListFilter) ([]academicdomain.CancelledClass, error)
 }
 
 type MakeupClassRepository interface {
-	ListByDate(ctx context.Context, date time.Time) ([]domain.MakeupClass, error)
+	List(ctx context.Context, filter academicdomain.MakeupClassListFilter) ([]academicdomain.MakeupClass, error)
 }
 
 type RoomChangeRepository interface {
-	ListByDate(ctx context.Context, date time.Time) ([]domain.RoomChange, error)
+	List(ctx context.Context, filter academicdomain.RoomChangeListFilter) ([]academicdomain.RoomChange, error)
 }
 
 type CourseRegistrationRepository interface {
@@ -24,7 +24,7 @@ type CourseRegistrationRepository interface {
 }
 
 type NotificationRepository interface {
-	UpsertNotification(ctx context.Context, notification domain.Notification) (domain.Notification, error)
+	UpsertNotification(ctx context.Context, notification userdomain.Notification) (userdomain.Notification, error)
 }
 
 type ClassChangeNotificationService struct {

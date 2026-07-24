@@ -6,7 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/fun-dotto/server/internal/modules/batch-jobs/domain"
+	academicdomain "github.com/fun-dotto/server/internal/modules/academic/domain"
+	userdomain "github.com/fun-dotto/server/internal/modules/user/domain"
 	"github.com/google/uuid"
 )
 
@@ -25,7 +26,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 	today := time.Now().In(jst)
 	tomorrow := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, jst).AddDate(0, 0, 1)
 
-	cancelled, err := s.cancelled.ListByDate(ctx, tomorrow)
+	cancelled, err := s.cancelled.List(ctx, academicdomain.CancelledClassListFilter{From: &tomorrow, Until: &tomorrow})
 	if err != nil {
 		return summary, fmt.Errorf("list cancelled_classes: %w", err)
 	}
@@ -43,7 +44,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 			subjectID:  cc.Subject.ID,
 			title:      "休講のお知らせ",
 			body:       body,
-			classDate:  cc.Date,
+			classDate:  tomorrow,
 		})
 		if err != nil {
 			return summary, fmt.Errorf("enqueue cancelled %s: %w", cc.ID, err)
@@ -55,7 +56,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 		}
 	}
 
-	makeup, err := s.makeup.ListByDate(ctx, tomorrow)
+	makeup, err := s.makeup.List(ctx, academicdomain.MakeupClassListFilter{From: &tomorrow, Until: &tomorrow})
 	if err != nil {
 		return summary, fmt.Errorf("list makeup_classes: %w", err)
 	}
@@ -73,7 +74,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 			subjectID:  m.Subject.ID,
 			title:      "補講のお知らせ",
 			body:       body,
-			classDate:  m.Date,
+			classDate:  tomorrow,
 		})
 		if err != nil {
 			return summary, fmt.Errorf("enqueue makeup %s: %w", m.ID, err)
@@ -85,7 +86,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 		}
 	}
 
-	roomChange, err := s.roomChange.ListByDate(ctx, tomorrow)
+	roomChange, err := s.roomChange.List(ctx, academicdomain.RoomChangeListFilter{From: &tomorrow, Until: &tomorrow})
 	if err != nil {
 		return summary, fmt.Errorf("list room_changes: %w", err)
 	}
@@ -103,7 +104,7 @@ func (s *ClassChangeNotificationService) EnqueueNotifications(ctx context.Contex
 			subjectID:  rc.Subject.ID,
 			title:      "教室変更のお知らせ",
 			body:       body,
-			classDate:  rc.Date,
+			classDate:  tomorrow,
 		})
 		if err != nil {
 			return summary, fmt.Errorf("enqueue room_change %s: %w", rc.ID, err)
@@ -142,12 +143,12 @@ func (s *ClassChangeNotificationService) enqueueOne(ctx context.Context, spec no
 
 	notifyAfter, notifyBefore := notifyWindow(spec.classDate)
 
-	targetUsers := make([]domain.NotificationTargetUser, 0, len(userIDs))
+	targetUsers := make([]userdomain.NotificationTargetUser, 0, len(userIDs))
 	for _, uid := range userIDs {
-		targetUsers = append(targetUsers, domain.NotificationTargetUser{UserID: uid})
+		targetUsers = append(targetUsers, userdomain.NotificationTargetUser{UserID: uid})
 	}
 
-	n := domain.Notification{
+	n := userdomain.Notification{
 		ID:           deterministicNotificationID(spec.sourceType, spec.sourceID),
 		Title:        spec.title,
 		Body:         spec.body,
@@ -169,25 +170,24 @@ func deterministicNotificationID(sourceType, sourceID string) string {
 }
 
 func notifyWindow(classDate time.Time) (notifyAfter, notifyBefore time.Time) {
-	classDayJST := time.Date(classDate.Year(), classDate.Month(), classDate.Day(), 0, 0, 0, 0, jst)
-	notifyAfter = classDayJST.AddDate(0, 0, -1).Add(18 * time.Hour)
-	notifyBefore = classDayJST
-	return
+	notifyAfter = classDate.AddDate(0, 0, -1).Add(18 * time.Hour)
+	notifyBefore = classDate
+	return notifyAfter, notifyBefore
 }
 
-func periodJa(p string) (string, bool) {
+func periodJa(p academicdomain.Period) (string, bool) {
 	switch p {
-	case "Period1":
+	case academicdomain.PeriodPeriod1:
 		return "1限", true
-	case "Period2":
+	case academicdomain.PeriodPeriod2:
 		return "2限", true
-	case "Period3":
+	case academicdomain.PeriodPeriod3:
 		return "3限", true
-	case "Period4":
+	case academicdomain.PeriodPeriod4:
 		return "4限", true
-	case "Period5":
+	case academicdomain.PeriodPeriod5:
 		return "5限", true
-	case "Period6":
+	case academicdomain.PeriodPeriod6:
 		return "6限", true
 	default:
 		return "", false
