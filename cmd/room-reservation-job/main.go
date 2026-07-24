@@ -34,7 +34,7 @@ func loginSession() (*http.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cookiejar作成失敗: %w", err)
 	}
-	client := &http.Client{Jar: jar}
+	client := &http.Client{Jar: jar, Timeout: 30 * time.Second}
 
 	// --- 1. ログインページをGETして隠しフィールドを取得 ---
 	resp, err := client.Get(loginURL)
