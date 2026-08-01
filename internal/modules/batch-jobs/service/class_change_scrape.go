@@ -40,12 +40,12 @@ type ScrapeRoomChangeRepository interface {
 // ClassChangeScrapeService は学生ポータルから休講/補講/部屋変更をスクレイプし、
 // subjects/rooms と突合したうえで冪等に DB へ反映する。
 type ClassChangeScrapeService struct {
-	client       ScraperClient
-	subjects     ScrapeSubjectRepository
-	rooms        ScrapeRoomRepository
-	cancelled    ScrapeCancelledClassRepository
-	makeup       ScrapeMakeupClassRepository
-	roomChange   ScrapeRoomChangeRepository
+	client     ScraperClient
+	subjects   ScrapeSubjectRepository
+	rooms      ScrapeRoomRepository
+	cancelled  ScrapeCancelledClassRepository
+	makeup     ScrapeMakeupClassRepository
+	roomChange ScrapeRoomChangeRepository
 }
 
 func NewClassChangeScrapeService(

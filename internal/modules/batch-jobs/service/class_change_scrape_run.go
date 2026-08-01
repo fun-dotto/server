@@ -11,15 +11,15 @@ import (
 
 // ScrapeSummary はスクレイプ・突合・DB 反映の結果集計。
 type ScrapeSummary struct {
-	CancelledInserted    int
-	CancelledDuplicated  int
-	CancelledSkipped     int
-	MakeupInserted       int
-	MakeupDuplicated     int
-	MakeupSkipped        int
-	RoomChangeInserted   int
-	RoomChangeDuplicated int
-	RoomChangeSkipped    int
+	CancelledInserted     int
+	CancelledDuplicated   int
+	CancelledSkipped      int
+	MakeupInserted        int
+	MakeupDuplicated      int
+	MakeupSkipped         int
+	RoomChangeInserted    int
+	RoomChangeDuplicated  int
+	RoomChangeSkipped     int
 	UnmatchedSubjectNames []string
 	UnmatchedRoomNames    []string
 }
