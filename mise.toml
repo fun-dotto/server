@@ -24,11 +24,6 @@ run = [
   "go tool oapi-codegen -config ./api/openapi/app/config.yaml ./api/openapi/app/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/funch/config.yaml ./api/openapi/funch/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/user/config.yaml ./api/openapi/user/openapi.yaml",
-  # openapispec/ に置いた複製は distroless バイナリへ go:embed するためのもの。元仕様と乖離しないよう毎回コピーし直す。
-  "cp ./api/openapi/academic/openapi.yaml ./internal/modules/academic/openapispec/openapi.yaml",
-  "cp ./api/openapi/admin/openapi.yaml ./internal/modules/admin/openapispec/openapi.yaml",
-  "cp ./api/openapi/announcement/openapi.yaml ./internal/modules/announcement/openapispec/openapi.yaml",
-  "cp ./api/openapi/user/openapi.yaml ./internal/modules/user/openapispec/openapi.yaml",
 ]
 
 [tasks.build]

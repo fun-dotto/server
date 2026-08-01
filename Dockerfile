@@ -29,6 +29,8 @@ COPY --from=builder /out/bin/ /bin/
 # cmd/migrate は相対パス "migrations" で SQL を読むため、runtime image にも同梱する。
 # WORKDIR は distroless のデフォルト "/" を前提に、"migrations" → "/migrations" に解決される。
 COPY --from=builder /src/migrations/ /migrations/
+# cmd/admin-api は相対パス "api/openapi/admin/openapi.yaml" で仕様を読むため、同様に同梱する。
+COPY --from=builder /src/api/openapi/ /api/openapi/
 
 USER nonroot:nonroot
 

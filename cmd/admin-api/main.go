@@ -8,7 +8,6 @@ import (
 	api "github.com/fun-dotto/server/gen/admin"
 	"github.com/fun-dotto/server/internal/modules/admin/handler"
 	"github.com/fun-dotto/server/internal/modules/admin/middleware"
-	"github.com/fun-dotto/server/internal/modules/admin/openapispec"
 	"github.com/fun-dotto/server/internal/shared/apiclient"
 	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/getkin/kin-openapi/openapi3"
@@ -33,7 +32,9 @@ func main() {
 		log.Fatalf("Failed to get Firebase Auth client: %v", err)
 	}
 
-	spec, err := openapi3.NewLoader().LoadFromData(openapispec.Spec)
+	// 仕様の原本は api/openapi/admin/openapi.yaml だけに置く。runtime image にも
+	// 同梱しているため、WORKDIR "/" 基準でこの相対パスに解決される。
+	spec, err := openapi3.NewLoader().LoadFromFile("api/openapi/admin/openapi.yaml")
 	if err != nil {
 		log.Fatalf("Failed to load OpenAPI spec: %v", err)
 	}
