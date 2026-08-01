@@ -68,7 +68,9 @@ runs:
         # 対象を増減するときはこの DEPLOY_TARGETS を編集する。
         DEPLOY_TARGETS="
           academic-api
+          admin-api
           announcement-api
+          app-api
           user-api
           build-class-change-notifications-job
           dispatch-notifications-job
