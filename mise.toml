@@ -5,6 +5,9 @@ minimum_release_age = "7d"
 atlas = "1.2.0"
 gcloud = "575.0.0"
 go = "1.25.7"
+# portless (npm backend) の実行に Node.js 24+ が必要
+node = "24.19.0"
+"npm:portless" = "0.15.5"
 
 [tasks.setup]
 description = "Install pinned tools and download Go module dependencies"
@@ -50,8 +53,28 @@ description = "cmd/migrate を起動し、cloudsqlconn (IAM 認証) で接続し
 run = "go run ./cmd/migrate"
 
 [tasks.academic-api]
-description = "cmd/academic-api を起動する"
-run = "go run ./cmd/academic-api"
+description = "cmd/academic-api を portless 経由で起動する (https://academic-api.dotto.localhost)"
+run = "portless academic-api.dotto go run ./cmd/academic-api"
+
+[tasks.user-api]
+description = "cmd/user-api を portless 経由で起動する (https://user-api.dotto.localhost)"
+run = "portless user-api.dotto go run ./cmd/user-api"
+
+[tasks.announcement-api]
+description = "cmd/announcement-api を portless 経由で起動する (https://announcement-api.dotto.localhost)"
+run = "portless announcement-api.dotto go run ./cmd/announcement-api"
+
+[tasks."portless:doctor"]
+description = "portless のプロキシ・DNS・CA 信頼状態を確認する"
+run = "portless doctor"
+
+[tasks."portless:list"]
+description = "portless に登録されているルートを一覧する"
+run = "portless list"
+
+[tasks."portless:stop"]
+description = "portless のプロキシを停止する"
+run = "portless proxy stop"
 
 [tasks.test]
 description = "Run all unit tests"

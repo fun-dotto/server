@@ -8,7 +8,9 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -19,7 +21,20 @@ const (
 	writeTimeout      = 30 * time.Second
 	idleTimeout       = 120 * time.Second
 	shutdownTimeout   = 8 * time.Second
+
+	defaultPort = "8080"
 )
+
+// Addr returns the address the HTTP server should listen on. 環境変数 PORT が
+// 設定されていればそれを使う (Cloud Run が本番で注入し、ローカルでは portless が
+// 4000-4999 の空きポートを注入する)。未設定なら :8080 にフォールバックする。
+func Addr() string {
+	port := strings.TrimSpace(os.Getenv("PORT"))
+	if port == "" {
+		port = defaultPort
+	}
+	return ":" + port
+}
 
 // Run starts an HTTP server on addr with the project's standard timeouts,
 // and blocks until it exits, either because ListenAndServe failed or
