@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     set -eux; \
     mkdir -p /out/bin; \
-    for cmd in academic-api announcement-api apply-table-privileges build-class-change-notifications-job dispatch-notifications-job migrate user-api; do \
+    for cmd in academic-api admin-api announcement-api app-api apply-table-privileges build-class-change-notifications-job dispatch-notifications-job migrate user-api; do \
         CGO_ENABLED=0 GOOS=linux \
             go build -tags timetzdata -trimpath -ldflags='-s -w' \
             -o /out/bin/${cmd} ./cmd/${cmd}; \
@@ -29,6 +29,8 @@ COPY --from=builder /out/bin/ /bin/
 # cmd/migrate は相対パス "migrations" で SQL を読むため、runtime image にも同梱する。
 # WORKDIR は distroless のデフォルト "/" を前提に、"migrations" → "/migrations" に解決される。
 COPY --from=builder /src/migrations/ /migrations/
+# cmd/admin-api は相対パス "api/openapi/admin/openapi.yaml" で仕様を読むため、同様に同梱する。
+COPY --from=builder /src/api/openapi/ /api/openapi/
 
 USER nonroot:nonroot
 

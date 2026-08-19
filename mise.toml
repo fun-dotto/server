@@ -35,6 +35,10 @@ run = [
   "rm -rf ./bin",
   "mkdir -p ./bin",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/academic-api ./cmd/academic-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/admin-api ./cmd/admin-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/announcement-api ./cmd/announcement-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/app-api ./cmd/app-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/user-api ./cmd/user-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/migrate ./cmd/migrate",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/apply-table-privileges ./cmd/apply-table-privileges",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/build-class-change-notifications-job ./cmd/build-class-change-notifications-job",
@@ -75,6 +79,14 @@ run = "portless list"
 [tasks."portless:stop"]
 description = "portless のプロキシを停止する"
 run = "portless proxy stop"
+
+[tasks.admin-api]
+description = "cmd/admin-api (管理画面向け BFF) を起動する"
+run = "go run ./cmd/admin-api"
+
+[tasks.app-api]
+description = "cmd/app-api (モバイルアプリ向け BFF) を起動する"
+run = "go run ./cmd/app-api"
 
 [tasks.test]
 description = "Run all unit tests"
