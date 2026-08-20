@@ -72,6 +72,7 @@ runs:
           user-api
           build-class-change-notifications-job
           dispatch-notifications-job
+          scrape-class-changes-job
         "
         include=""
         for name in $DEPLOY_TARGETS; do
