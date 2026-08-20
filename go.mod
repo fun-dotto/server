@@ -1,6 +1,6 @@
 module github.com/fun-dotto/server
 
-go 1.25.7
+go 1.27.0
 
 require (
 	ariga.io/atlas v1.2.0
