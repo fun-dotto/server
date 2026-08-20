@@ -232,7 +232,7 @@ func ToDomainFareRules(rules []FareRule, attrs []FareAttribute) ([]domain.FareRu
 	out := make([]domain.FareRule, 0, len(rules))
 	for _, rule := range rules {
 		if rule.FareID == "" {
-			return nil, fmt.Errorf("fare_rules: fare_id is required")
+			continue	
 		}
 		if rule.RouteID == "" || rule.OriginID == "" || rule.DestinationID == "" {
 			continue
