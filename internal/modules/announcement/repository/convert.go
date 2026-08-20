@@ -3,7 +3,7 @@ package repository
 import (
 	"github.com/fun-dotto/server/internal/modules/announcement/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"github.com/google/uuid"
+	"uuid"
 )
 
 // shared/model は ID を uuid.UUID で保持する一方、announcement の domain 層は
@@ -12,7 +12,7 @@ import (
 func parseUUIDOrNil(s string) uuid.UUID {
 	id, err := uuid.Parse(s)
 	if err != nil {
-		return uuid.Nil
+		return uuid.Nil()
 	}
 	return id
 }
