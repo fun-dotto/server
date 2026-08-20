@@ -17,9 +17,9 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     set -eux; \
     mkdir -p /out/bin; \
     for cmd in academic-api announcement-api apply-table-privileges build-class-change-notifications-job dispatch-notifications-job migrate user-api import-gtfs-job; do \
-    CGO_ENABLED=0 GOOS=linux \
-    go build -tags timetzdata -trimpath -ldflags='-s -w' \
-    -o /out/bin/${cmd} ./cmd/${cmd}; \
+        CGO_ENABLED=0 GOOS=linux \
+            go build -tags timetzdata -trimpath -ldflags='-s -w' \
+            -o /out/bin/${cmd} ./cmd/${cmd}; \
     done
 
 # ---- Runtime stage ----
