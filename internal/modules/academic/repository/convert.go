@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"uuid"
 
 	"github.com/fun-dotto/server/internal/modules/academic/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"github.com/google/uuid"
 )
 
 const dateLayout = "2006-01-02"
@@ -19,7 +19,7 @@ const dateLayout = "2006-01-02"
 func parseUUIDOrNil(s string) uuid.UUID {
 	id, err := uuid.Parse(s)
 	if err != nil {
-		return uuid.Nil
+		return uuid.Nil()
 	}
 	return id
 }
@@ -56,11 +56,11 @@ func encodeCourseRegistrationID(userID string, subjectID uuid.UUID) string {
 func decodeCourseRegistrationID(id string) (userID string, subjectID uuid.UUID, err error) {
 	parts := strings.SplitN(id, compositeIDSep, 2)
 	if len(parts) != 2 {
-		return "", uuid.Nil, ErrInvalidCompositeID
+		return "", uuid.Nil(), ErrInvalidCompositeID
 	}
 	sid, perr := uuid.Parse(parts[1])
 	if perr != nil {
-		return "", uuid.Nil, ErrInvalidCompositeID
+		return "", uuid.Nil(), ErrInvalidCompositeID
 	}
 	return parts[0], sid, nil
 }
@@ -72,19 +72,19 @@ func encodeFacultyRoomID(facultyID, roomID uuid.UUID, year int) string {
 func decodeFacultyRoomID(id string) (facultyID, roomID uuid.UUID, year int, err error) {
 	parts := strings.Split(id, compositeIDSep)
 	if len(parts) != 3 {
-		return uuid.Nil, uuid.Nil, 0, ErrInvalidCompositeID
+		return uuid.Nil(), uuid.Nil(), 0, ErrInvalidCompositeID
 	}
 	fid, ferr := uuid.Parse(parts[0])
 	if ferr != nil {
-		return uuid.Nil, uuid.Nil, 0, ErrInvalidCompositeID
+		return uuid.Nil(), uuid.Nil(), 0, ErrInvalidCompositeID
 	}
 	rid, rerr := uuid.Parse(parts[1])
 	if rerr != nil {
-		return uuid.Nil, uuid.Nil, 0, ErrInvalidCompositeID
+		return uuid.Nil(), uuid.Nil(), 0, ErrInvalidCompositeID
 	}
 	y, yerr := strconv.Atoi(parts[2])
 	if yerr != nil {
-		return uuid.Nil, uuid.Nil, 0, ErrInvalidCompositeID
+		return uuid.Nil(), uuid.Nil(), 0, ErrInvalidCompositeID
 	}
 	return fid, rid, y, nil
 }

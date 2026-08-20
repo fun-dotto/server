@@ -2,8 +2,7 @@ package handler
 
 import (
 	"context"
-
-	"github.com/google/uuid"
+	"uuid"
 
 	api "github.com/fun-dotto/server/gen/announcement"
 )
