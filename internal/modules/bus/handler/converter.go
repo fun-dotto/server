@@ -7,26 +7,28 @@ import (
 	"github.com/fun-dotto/server/internal/modules/bus/domain"
 )
 
-func toAPIBusTrip(date time.Time, trip domain.Trip, route domain.Route, stopTimes []domain.StopTime, stopByID map[string]domain.Stop) api.BusTrip {
-	stops := make([]api.BusStop, 0, len(stopTimes))
-	for _, stopTime := range stopTimes {
-		stop, ok := stopByID[stopTime.StopID]
-		if !ok {
-			continue
-		}
-		stops = append(stops, api.BusStop{Id: stop.StopID, Name: stop.StopName})
+func toAPIBusTrip(date time.Time, detail domain.TripDetail) api.BusTrip {
+	stops := make([]api.BusStop, 0, len(detail.StopTimes))
+	for _, stopTime := range detail.StopTimes {
+		stops = append(stops, api.BusStop{
+			Id:   stopTime.Stop.StopID,
+			Name: stopTime.Stop.StopName,
+		})
 	}
 
-	departureTime, _ := gtfsTimeToDate(date, stopTimes[0].DepartureTime)
-	arrivalTime, _ := gtfsTimeToDate(date, stopTimes[len(stopTimes)-1].ArrivalTime)
+	var departureTime, arrivalTime time.Time
+	if len(detail.StopTimes) > 0 {
+		departureTime, _ = gtfsTimeToDate(date, detail.StopTimes[0].StopTime.DepartureTime)
+		arrivalTime, _ = gtfsTimeToDate(date, detail.StopTimes[len(detail.StopTimes)-1].StopTime.ArrivalTime)
+	}
 
 	return api.BusTrip{
-		Id:            trip.TripID,
+		Id:            detail.Trip.TripID,
 		DepartureTime: departureTime,
 		ArrivalTime:   arrivalTime,
 		Route: api.BusRoute{
-			Id:   route.RouteID,
-			Name: route.RouteShortName,
+			Id:   detail.Route.RouteID,
+			Name: detail.Route.RouteShortName,
 		},
 		Stops: stops,
 		Delay: "",
@@ -34,11 +36,14 @@ func toAPIBusTrip(date time.Time, trip domain.Trip, route domain.Route, stopTime
 	}
 }
 
-func toAPIBusTimetableStop(tripID string, stopTime domain.StopTime, stop domain.Stop) api.BusTimetableStop {
-	departureTime, _ := parseStopTime(stopTime.DepartureTime)
+func toAPIBusTimetableStop(tripID string, stopTime domain.StopTimeWithStop) api.BusTimetableStop {
+	departureTime, _ := parseStopTime(stopTime.StopTime.DepartureTime)
 	return api.BusTimetableStop{
-		TripId:        tripID,
-		Stop:          api.BusStop{Id: stop.StopID, Name: stop.StopName},
+		TripId: tripID,
+		Stop: api.BusStop{
+			Id:   stopTime.Stop.StopID,
+			Name: stopTime.Stop.StopName,
+		},
 		DepartureTime: departureTime,
 	}
 }

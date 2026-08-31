@@ -12,31 +12,39 @@ import (
 
 type fakeBusService struct{}
 
-func (fakeBusService) ListTrips(ctx context.Context, date time.Time) ([]domain.Trip, error) {
-	return []domain.Trip{{
-		TripID:      "trip-1",
-		RouteID:     "route-1",
-		ServiceID:   "service-1",
-		DirectionID: 1,
+func (fakeBusService) ListTripDetails(ctx context.Context, date time.Time) ([]domain.TripDetail, error) {
+	return []domain.TripDetail{{
+		Trip: domain.Trip{
+			TripID:      "trip-1",
+			RouteID:     "route-1",
+			ServiceID:   "service-1",
+			DirectionID: 1,
+		},
+		Route: domain.Route{RouteID: "route-1", RouteShortName: "1"},
+		StopTimes: []domain.StopTimeWithStop{{
+			StopTime: domain.StopTime{
+				TripID:        "trip-1",
+				StopID:        "stop-a",
+				DepartureTime: "08:00:00",
+				ArrivalTime:   "07:55:00",
+				StopSequence:  1,
+			},
+			Stop: domain.Stop{StopID: "stop-a", StopName: "A"},
+		}},
 	}}, nil
 }
 
-func (fakeBusService) GetRouteByID(ctx context.Context, routeID string) (domain.Route, error) {
-	return domain.Route{RouteID: routeID, RouteShortName: "1"}, nil
-}
-
-func (fakeBusService) ListTimetableStops(ctx context.Context, tripID string) ([]domain.StopTime, error) {
-	return []domain.StopTime{{
-		TripID:        tripID,
-		StopID:        "stop-a",
-		DepartureTime: "08:00:00",
-		ArrivalTime:   "07:55:00",
-		StopSequence:  1,
+func (fakeBusService) ListTimetableStops(ctx context.Context, tripID string) ([]domain.StopTimeWithStop, error) {
+	return []domain.StopTimeWithStop{{
+		StopTime: domain.StopTime{
+			TripID:        tripID,
+			StopID:        "stop-a",
+			DepartureTime: "08:00:00",
+			ArrivalTime:   "07:55:00",
+			StopSequence:  1,
+		},
+		Stop: domain.Stop{StopID: "stop-a", StopName: "A"},
 	}}, nil
-}
-
-func (fakeBusService) GetStopByID(ctx context.Context, stopID string) (domain.Stop, error) {
-	return domain.Stop{StopID: stopID, StopName: "A"}, nil
 }
 
 func TestNewHandler(t *testing.T) {

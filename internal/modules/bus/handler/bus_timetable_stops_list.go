@@ -14,11 +14,7 @@ func (h *Handler) BusTimetableStopsV1List(ctx context.Context, request api.BusTi
 
 	apiStops := make([]api.BusTimetableStop, 0, len(stopTimes))
 	for _, stopTime := range stopTimes {
-		stop, err := h.busService.GetStopByID(ctx, stopTime.StopID)
-		if err != nil {
-			return nil, err
-		}
-		apiStops = append(apiStops, toAPIBusTimetableStop(request.TripId, stopTime, stop))
+		apiStops = append(apiStops, toAPIBusTimetableStop(request.TripId, stopTime))
 	}
 
 	return api.BusTimetableStopsV1List200JSONResponse{BusTimetableStops: apiStops}, nil

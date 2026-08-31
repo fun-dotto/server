@@ -11,10 +11,8 @@ import (
 var _ api.StrictServerInterface = (*Handler)(nil)
 
 type busService interface {
-	ListTrips(ctx context.Context, date time.Time) ([]domain.Trip, error)
-	GetRouteByID(ctx context.Context, routeID string) (domain.Route, error)
-	ListTimetableStops(ctx context.Context, tripID string) ([]domain.StopTime, error)
-	GetStopByID(ctx context.Context, stopID string) (domain.Stop, error)
+	ListTripDetails(ctx context.Context, date time.Time) ([]domain.TripDetail, error)
+	ListTimetableStops(ctx context.Context, tripID string) ([]domain.StopTimeWithStop, error)
 }
 
 type Handler struct {
