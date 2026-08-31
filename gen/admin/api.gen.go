@@ -20,6 +20,24 @@ const (
 	BearerAuthScopes bearerAuthContextKey = "BearerAuth.Scopes"
 )
 
+// Defines values for BusServiceBusAlert.
+const (
+	Cancellation BusServiceBusAlert = "Cancellation"
+	None         BusServiceBusAlert = "None"
+)
+
+// Valid indicates whether the value is a known member of the BusServiceBusAlert enum.
+func (e BusServiceBusAlert) Valid() bool {
+	switch e {
+	case Cancellation:
+		return true
+	case None:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DottoFoundationV1Class.
 const (
 	A DottoFoundationV1Class = "A"
@@ -642,6 +660,41 @@ type AnnouncementServiceAnnouncementRequest struct {
 	Url            string     `json:"url"`
 }
 
+// BusServiceBusAlert defines model for BusService.BusAlert.
+type BusServiceBusAlert string
+
+// BusServiceBusRoute defines model for BusService.BusRoute.
+type BusServiceBusRoute struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// BusServiceBusStop defines model for BusService.BusStop.
+type BusServiceBusStop struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// BusServiceBusTimetableStop defines model for BusService.BusTimetableStop.
+type BusServiceBusTimetableStop struct {
+	DepartureTime time.Time         `json:"departureTime"`
+	Stop          BusServiceBusStop `json:"stop"`
+	TripId        string            `json:"tripId"`
+}
+
+// BusServiceBusTrip defines model for BusService.BusTrip.
+type BusServiceBusTrip struct {
+	Alert         BusServiceBusAlert `json:"alert"`
+	ArrivalTime   time.Time          `json:"arrivalTime"`
+	Delay         string             `json:"delay"`
+	DepartureTime time.Time          `json:"departureTime"`
+	Id            string             `json:"id"`
+	Route         BusServiceBusRoute `json:"route"`
+
+	// Stops 乗車バス停、乗り換えバス停、降車バス停のリスト
+	Stops []BusServiceBusStop `json:"stops"`
+}
+
 // DottoFoundationV1Class クラス
 type DottoFoundationV1Class string
 
@@ -689,6 +742,15 @@ type FunchServiceMenuItem struct {
 	Category FunchServiceCategory `json:"category"`
 	Date     openapi_types.Date   `json:"date"`
 	Id       string               `json:"id"`
+	ImageUrl string               `json:"imageUrl"`
+	Name     string               `json:"name"`
+	Prices   []FunchServicePrice  `json:"prices"`
+}
+
+// FunchServiceMenuItemRequest defines model for FunchService.MenuItemRequest.
+type FunchServiceMenuItemRequest struct {
+	Category FunchServiceCategory `json:"category"`
+	Date     openapi_types.Date   `json:"date"`
 	ImageUrl string               `json:"imageUrl"`
 	Name     string               `json:"name"`
 	Prices   []FunchServicePrice  `json:"prices"`
@@ -899,6 +961,12 @@ type UserServiceUserRequest struct {
 // bearerAuthContextKey is the context key for BearerAuth security scheme
 type bearerAuthContextKey string
 
+// BusTripsV1ListParams defines parameters for BusTripsV1List.
+type BusTripsV1ListParams struct {
+	// Date バスの運行情報を取得する日付
+	Date openapi_types.Date `form:"date" json:"date"`
+}
+
 // CancelledClassesV1ListParams defines parameters for CancelledClassesV1List.
 type CancelledClassesV1ListParams struct {
 	// SubjectIds 科目IDのリスト; 指定した科目の休講のみを取得する; 指定しない場合は全科目を検索対象とする
@@ -1093,6 +1161,9 @@ type FCMTokenV1UpsertJSONRequestBody = UserServiceFCMTokenRequest
 // MakeupClassesV1CreateJSONRequestBody defines body for MakeupClassesV1Create for application/json ContentType.
 type MakeupClassesV1CreateJSONRequestBody = AcademicServiceMakeupClassRequest
 
+// MenuItemsV1CreateJSONRequestBody defines body for MenuItemsV1Create for application/json ContentType.
+type MenuItemsV1CreateJSONRequestBody = FunchServiceMenuItemRequest
+
 // NotificationV1CreateJSONRequestBody defines body for NotificationV1Create for application/json ContentType.
 type NotificationV1CreateJSONRequestBody = UserServiceNotificationRequest
 
@@ -1137,6 +1208,12 @@ type ServerInterface interface {
 
 	// (PUT /v1/announcements/{id})
 	AnnouncementsV1Update(c *gin.Context, id string)
+
+	// (GET /v1/busTrips)
+	BusTripsV1List(c *gin.Context, params BusTripsV1ListParams)
+
+	// (GET /v1/busTrips/{tripId}/busTimetableStops)
+	BusTimetableStopsV1List(c *gin.Context, tripId string)
 
 	// (GET /v1/cancelledClasses)
 	CancelledClassesV1List(c *gin.Context, params CancelledClassesV1ListParams)
@@ -1197,6 +1274,9 @@ type ServerInterface interface {
 
 	// (GET /v1/menuItems)
 	MenuItemsV1List(c *gin.Context, params MenuItemsV1ListParams)
+
+	// (POST /v1/menuItems)
+	MenuItemsV1Create(c *gin.Context)
 
 	// (GET /v1/notifications)
 	NotificationV1List(c *gin.Context, params NotificationV1ListParams)
@@ -1395,6 +1475,62 @@ func (siw *ServerInterfaceWrapper) AnnouncementsV1Update(c *gin.Context) {
 	}
 
 	siw.Handler.AnnouncementsV1Update(c, id)
+}
+
+// BusTripsV1List operation middleware
+func (siw *ServerInterfaceWrapper) BusTripsV1List(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	c.Set(string(BearerAuthScopes), []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params BusTripsV1ListParams
+
+	// ------------- Required query parameter "date" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", true, true, "date", c.Request.URL.Query(), &params.Date, runtime.BindQueryParameterOptions{Type: "string", Format: "date"})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter date: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.BusTripsV1List(c, params)
+}
+
+// BusTimetableStopsV1List operation middleware
+func (siw *ServerInterfaceWrapper) BusTimetableStopsV1List(c *gin.Context) {
+
+	var err error
+	_ = err
+
+	// ------------- Path parameter "tripId" -------------
+	var tripId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "tripId", c.Param("tripId"), &tripId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter tripId: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	c.Set(string(BearerAuthScopes), []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.BusTimetableStopsV1List(c, tripId)
 }
 
 // CancelledClassesV1List operation middleware
@@ -1949,6 +2085,21 @@ func (siw *ServerInterfaceWrapper) MenuItemsV1List(c *gin.Context) {
 	}
 
 	siw.Handler.MenuItemsV1List(c, params)
+}
+
+// MenuItemsV1Create operation middleware
+func (siw *ServerInterfaceWrapper) MenuItemsV1Create(c *gin.Context) {
+
+	c.Set(string(BearerAuthScopes), []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.MenuItemsV1Create(c)
 }
 
 // NotificationV1List operation middleware
@@ -2751,6 +2902,8 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.DELETE(options.BaseURL+"/v1/announcements/:id", wrapper.AnnouncementsV1Delete)
 	router.GET(options.BaseURL+"/v1/announcements/:id", wrapper.AnnouncementsV1Detail)
 	router.PUT(options.BaseURL+"/v1/announcements/:id", wrapper.AnnouncementsV1Update)
+	router.GET(options.BaseURL+"/v1/busTrips", wrapper.BusTripsV1List)
+	router.GET(options.BaseURL+"/v1/busTrips/:tripId/busTimetableStops", wrapper.BusTimetableStopsV1List)
 	router.GET(options.BaseURL+"/v1/cancelledClasses", wrapper.CancelledClassesV1List)
 	router.POST(options.BaseURL+"/v1/cancelledClasses", wrapper.CancelledClassesV1Create)
 	router.DELETE(options.BaseURL+"/v1/cancelledClasses/:id", wrapper.CancelledClassesV1Delete)
@@ -2771,6 +2924,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.POST(options.BaseURL+"/v1/makeupClasses", wrapper.MakeupClassesV1Create)
 	router.DELETE(options.BaseURL+"/v1/makeupClasses/:id", wrapper.MakeupClassesV1Delete)
 	router.GET(options.BaseURL+"/v1/menuItems", wrapper.MenuItemsV1List)
+	router.POST(options.BaseURL+"/v1/menuItems", wrapper.MenuItemsV1Create)
 	router.GET(options.BaseURL+"/v1/notifications", wrapper.NotificationV1List)
 	router.POST(options.BaseURL+"/v1/notifications", wrapper.NotificationV1Create)
 	router.POST(options.BaseURL+"/v1/notifications/dispatch", wrapper.NotificationV1Dispatch)
@@ -2972,6 +3126,70 @@ type AnnouncementsV1Update404Response struct {
 
 func (response AnnouncementsV1Update404Response) VisitAnnouncementsV1UpdateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
+	return nil
+}
+
+type BusTripsV1ListRequestObject struct {
+	Params BusTripsV1ListParams
+}
+
+type BusTripsV1ListResponseObject interface {
+	VisitBusTripsV1ListResponse(w http.ResponseWriter) error
+}
+
+type BusTripsV1List200JSONResponse struct {
+	BusTrips []BusServiceBusTrip `json:"busTrips"`
+}
+
+func (response BusTripsV1List200JSONResponse) VisitBusTripsV1ListResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type BusTripsV1List401Response struct {
+}
+
+func (response BusTripsV1List401Response) VisitBusTripsV1ListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type BusTimetableStopsV1ListRequestObject struct {
+	TripId string `json:"tripId"`
+}
+
+type BusTimetableStopsV1ListResponseObject interface {
+	VisitBusTimetableStopsV1ListResponse(w http.ResponseWriter) error
+}
+
+type BusTimetableStopsV1List200JSONResponse struct {
+	BusTimetableStops []BusServiceBusTimetableStop `json:"busTimetableStops"`
+}
+
+func (response BusTimetableStopsV1List200JSONResponse) VisitBusTimetableStopsV1ListResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type BusTimetableStopsV1List401Response struct {
+}
+
+func (response BusTimetableStopsV1List401Response) VisitBusTimetableStopsV1ListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
 	return nil
 }
 
@@ -3646,6 +3864,38 @@ type MenuItemsV1List401Response struct {
 }
 
 func (response MenuItemsV1List401Response) VisitMenuItemsV1ListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type MenuItemsV1CreateRequestObject struct {
+	Body *MenuItemsV1CreateJSONRequestBody
+}
+
+type MenuItemsV1CreateResponseObject interface {
+	VisitMenuItemsV1CreateResponse(w http.ResponseWriter) error
+}
+
+type MenuItemsV1Create201JSONResponse struct {
+	MenuItem FunchServiceMenuItem `json:"menuItem"`
+}
+
+func (response MenuItemsV1Create201JSONResponse) VisitMenuItemsV1CreateResponse(w http.ResponseWriter) error {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, err := buf.WriteTo(w)
+	return err
+}
+
+type MenuItemsV1Create401Response struct {
+}
+
+func (response MenuItemsV1Create401Response) VisitMenuItemsV1CreateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
 	return nil
 }
@@ -4567,6 +4817,12 @@ type StrictServerInterface interface {
 	// (PUT /v1/announcements/{id})
 	AnnouncementsV1Update(ctx context.Context, request AnnouncementsV1UpdateRequestObject) (AnnouncementsV1UpdateResponseObject, error)
 
+	// (GET /v1/busTrips)
+	BusTripsV1List(ctx context.Context, request BusTripsV1ListRequestObject) (BusTripsV1ListResponseObject, error)
+
+	// (GET /v1/busTrips/{tripId}/busTimetableStops)
+	BusTimetableStopsV1List(ctx context.Context, request BusTimetableStopsV1ListRequestObject) (BusTimetableStopsV1ListResponseObject, error)
+
 	// (GET /v1/cancelledClasses)
 	CancelledClassesV1List(ctx context.Context, request CancelledClassesV1ListRequestObject) (CancelledClassesV1ListResponseObject, error)
 
@@ -4626,6 +4882,9 @@ type StrictServerInterface interface {
 
 	// (GET /v1/menuItems)
 	MenuItemsV1List(ctx context.Context, request MenuItemsV1ListRequestObject) (MenuItemsV1ListResponseObject, error)
+
+	// (POST /v1/menuItems)
+	MenuItemsV1Create(ctx context.Context, request MenuItemsV1CreateRequestObject) (MenuItemsV1CreateResponseObject, error)
 
 	// (GET /v1/notifications)
 	NotificationV1List(ctx context.Context, request NotificationV1ListRequestObject) (NotificationV1ListResponseObject, error)
@@ -4896,6 +5155,58 @@ func (sh *strictHandler) AnnouncementsV1Update(ctx *gin.Context, id string) {
 		sh.options.HandlerErrorFunc(ctx, err)
 	} else if validResponse, ok := response.(AnnouncementsV1UpdateResponseObject); ok {
 		if err := validResponse.VisitAnnouncementsV1UpdateResponse(ctx.Writer); err != nil {
+			sh.options.ResponseErrorHandlerFunc(ctx, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(ctx, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// BusTripsV1List operation middleware
+func (sh *strictHandler) BusTripsV1List(ctx *gin.Context, params BusTripsV1ListParams) {
+	var request BusTripsV1ListRequestObject
+
+	request.Params = params
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.BusTripsV1List(ctx, request.(BusTripsV1ListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "BusTripsV1List")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		sh.options.HandlerErrorFunc(ctx, err)
+	} else if validResponse, ok := response.(BusTripsV1ListResponseObject); ok {
+		if err := validResponse.VisitBusTripsV1ListResponse(ctx.Writer); err != nil {
+			sh.options.ResponseErrorHandlerFunc(ctx, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(ctx, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// BusTimetableStopsV1List operation middleware
+func (sh *strictHandler) BusTimetableStopsV1List(ctx *gin.Context, tripId string) {
+	var request BusTimetableStopsV1ListRequestObject
+
+	request.TripId = tripId
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.BusTimetableStopsV1List(ctx, request.(BusTimetableStopsV1ListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "BusTimetableStopsV1List")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		sh.options.HandlerErrorFunc(ctx, err)
+	} else if validResponse, ok := response.(BusTimetableStopsV1ListResponseObject); ok {
+		if err := validResponse.VisitBusTimetableStopsV1ListResponse(ctx.Writer); err != nil {
 			sh.options.ResponseErrorHandlerFunc(ctx, err)
 		}
 	} else if response != nil {
@@ -5453,6 +5764,37 @@ func (sh *strictHandler) MenuItemsV1List(ctx *gin.Context, params MenuItemsV1Lis
 		sh.options.HandlerErrorFunc(ctx, err)
 	} else if validResponse, ok := response.(MenuItemsV1ListResponseObject); ok {
 		if err := validResponse.VisitMenuItemsV1ListResponse(ctx.Writer); err != nil {
+			sh.options.ResponseErrorHandlerFunc(ctx, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(ctx, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// MenuItemsV1Create operation middleware
+func (sh *strictHandler) MenuItemsV1Create(ctx *gin.Context) {
+	var request MenuItemsV1CreateRequestObject
+
+	var body MenuItemsV1CreateJSONRequestBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(ctx, err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.MenuItemsV1Create(ctx, request.(MenuItemsV1CreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "MenuItemsV1Create")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		sh.options.HandlerErrorFunc(ctx, err)
+	} else if validResponse, ok := response.(MenuItemsV1CreateResponseObject); ok {
+		if err := validResponse.VisitMenuItemsV1CreateResponse(ctx.Writer); err != nil {
 			sh.options.ResponseErrorHandlerFunc(ctx, err)
 		}
 	} else if response != nil {
