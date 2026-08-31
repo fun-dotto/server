@@ -131,7 +131,7 @@ func (r *BusRepository) isTripActive(ctx context.Context, serviceID string, date
 		Where("service_id = ? AND date = ?", serviceID, dateKey).
 		First(&dateException).Error
 	if err == nil {
-		return dateException.ExceptionType != 0, nil
+		return dateException.ExceptionType == 1, nil
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return false, err
