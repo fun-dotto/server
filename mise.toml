@@ -27,6 +27,7 @@ run = [
   "go tool oapi-codegen -config ./api/openapi/app/config.yaml ./api/openapi/app/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/funch/config.yaml ./api/openapi/funch/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/user/config.yaml ./api/openapi/user/openapi.yaml",
+  "go tool oapi-codegen -config ./api/openapi/bus/config.yaml ./api/openapi/bus/openapi.yaml",
 ]
 
 [tasks.build]
