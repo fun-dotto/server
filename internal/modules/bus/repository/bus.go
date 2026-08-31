@@ -19,6 +19,7 @@ func NewBusRepository(db *gorm.DB) *BusRepository {
 	return &BusRepository{db: db}
 }
 
+// ListTripsByDate は指定された日付の有効なバスの運行情報を取得します。
 func (r *BusRepository) ListTripsByDate(ctx context.Context, date time.Time) ([]domain.Trip, error) {
 	var trips []model.Trip
 	if err := r.db.WithContext(ctx).Find(&trips).Error; err != nil {
@@ -49,6 +50,7 @@ func (r *BusRepository) ListTripsByDate(ctx context.Context, date time.Time) ([]
 	return out, nil
 }
 
+// GetRoutesByIDs は指定された路線IDの路線情報を取得します。
 func (r *BusRepository) GetRoutesByIDs(ctx context.Context, routeIDs []string) (map[string]domain.Route, error) {
 	if len(routeIDs) == 0 {
 		return map[string]domain.Route{}, nil
@@ -70,6 +72,7 @@ func (r *BusRepository) GetRoutesByIDs(ctx context.Context, routeIDs []string) (
 	return out, nil
 }
 
+// ListStopTimesByTripIDs は指定されたバスIDの停車時刻情報を取得します。
 func (r *BusRepository) ListStopTimesByTripIDs(ctx context.Context, tripIDs []string) ([]domain.StopTime, error) {
 	if len(tripIDs) == 0 {
 		return []domain.StopTime{}, nil
@@ -97,6 +100,7 @@ func (r *BusRepository) ListStopTimesByTripIDs(ctx context.Context, tripIDs []st
 	return out, nil
 }
 
+// GetStopsByIDs は指定された停車所IDの停車所情報を取得します。
 func (r *BusRepository) GetStopsByIDs(ctx context.Context, stopIDs []string) (map[string]domain.Stop, error) {
 	if len(stopIDs) == 0 {
 		return map[string]domain.Stop{}, nil
@@ -118,6 +122,7 @@ func (r *BusRepository) GetStopsByIDs(ctx context.Context, stopIDs []string) (ma
 	return out, nil
 }
 
+// isTripActive は指定されたサービスIDと日付のバスが有効かどうかを判断します。
 func (r *BusRepository) isTripActive(ctx context.Context, serviceID string, date time.Time) (bool, error) {
 	dateKey := date.Format("20060102")
 

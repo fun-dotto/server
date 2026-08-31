@@ -23,6 +23,7 @@ func NewBusService(busRepository BusRepository) *BusService {
 	return &BusService{busRepository: busRepository}
 }
 
+// ListTripDetails は指定された日付の有効なバスの運行情報を取得します。
 func (s *BusService) ListTripDetails(ctx context.Context, date time.Time) ([]domain.TripDetail, error) {
 	trips, err := s.busRepository.ListTripsByDate(ctx, date)
 	if err != nil {
@@ -81,6 +82,7 @@ func (s *BusService) ListTripDetails(ctx context.Context, date time.Time) ([]dom
 	return details, nil
 }
 
+// ListTimetableStops は指定されたバスIDの停車時刻情報を取得します。
 func (s *BusService) ListTimetableStops(ctx context.Context, tripID string) ([]domain.StopTimeWithStop, error) {
 	stopTimes, err := s.busRepository.ListStopTimesByTripIDs(ctx, []string{tripID})
 	if err != nil {
