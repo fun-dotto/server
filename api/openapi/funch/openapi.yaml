@@ -18,7 +18,7 @@ paths:
             type: string
             format: date
       responses:
-        "200":
+        '200':
           description: メニューのリスト
           content:
             application/json:
@@ -28,11 +28,34 @@ paths:
                   menuItems:
                     type: array
                     items:
-                      $ref: "#/components/schemas/MenuItem"
+                      $ref: '#/components/schemas/MenuItem'
                 required:
                   - menuItems
       tags:
         - MenuItems
+    post:
+      operationId: MenuItemsV1_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  menuItem:
+                    $ref: '#/components/schemas/MenuItem'
+                required:
+                  - menuItem
+      tags:
+        - MenuItems
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuItemRequest'
 components:
   schemas:
     Category:
@@ -64,11 +87,34 @@ components:
           type: string
           format: uri
         category:
-          $ref: "#/components/schemas/Category"
+          $ref: '#/components/schemas/Category'
         prices:
           type: array
           items:
-            $ref: "#/components/schemas/Price"
+            $ref: '#/components/schemas/Price'
+    MenuItemRequest:
+      type: object
+      required:
+        - date
+        - name
+        - imageUrl
+        - category
+        - prices
+      properties:
+        date:
+          type: string
+          format: date
+        name:
+          type: string
+        imageUrl:
+          type: string
+          format: uri
+        category:
+          $ref: '#/components/schemas/Category'
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Price'
     Price:
       type: object
       required:
@@ -77,7 +123,7 @@ components:
       properties:
         size:
           allOf:
-            - $ref: "#/components/schemas/Size"
+            - $ref: '#/components/schemas/Size'
           description: サイズ
         price:
           type: integer

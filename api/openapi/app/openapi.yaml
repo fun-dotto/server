@@ -21,7 +21,7 @@ paths:
       operationId: AnnouncementsV1_list
       parameters: []
       responses:
-        "200":
+        '200':
           description: おしらせのリスト
           content:
             application/json:
@@ -31,10 +31,10 @@ paths:
                   announcements:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Announcement"
+                      $ref: '#/components/schemas/Announcement'
                 required:
                   - announcements
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Announcements
@@ -67,7 +67,7 @@ paths:
             type: string
             format: date
       responses:
-        "200":
+        '200':
           description: 休講のリスト
           content:
             application/json:
@@ -77,10 +77,10 @@ paths:
                   cancelledClasses:
                     type: array
                     items:
-                      $ref: "#/components/schemas/CancelledClass"
+                      $ref: '#/components/schemas/CancelledClass'
                 required:
                   - cancelledClasses
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - CancelledClasses
@@ -106,10 +106,10 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+              $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
           explode: false
       responses:
-        "200":
+        '200':
           description: 履修情報のリスト
           content:
             application/json:
@@ -119,10 +119,10 @@ paths:
                   courseRegistrations:
                     type: array
                     items:
-                      $ref: "#/components/schemas/CourseRegistration"
+                      $ref: '#/components/schemas/CourseRegistration'
                 required:
                   - courseRegistrations
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - CourseRegistrations
@@ -134,7 +134,7 @@ paths:
       description: 履修情報を作成する
       parameters: []
       responses:
-        "201":
+        '201':
           description: 作成された履修情報
           content:
             application/json:
@@ -142,10 +142,10 @@ paths:
                 type: object
                 properties:
                   courseRegistration:
-                    $ref: "#/components/schemas/CourseRegistration"
+                    $ref: '#/components/schemas/CourseRegistration'
                 required:
                   - courseRegistration
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - CourseRegistrations
@@ -154,7 +154,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CourseRegistrationRequest"
+              $ref: '#/components/schemas/CourseRegistrationRequest'
         description: 作成する履修情報の情報
       security:
         - BearerAuth: []
@@ -171,11 +171,11 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: There is no content to send for this request, but the headers may be useful.
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - CourseRegistrations
@@ -190,7 +190,7 @@ paths:
         存在しない場合は作成し、存在する場合は更新日時を更新する
       parameters: []
       responses:
-        "200":
+        '200':
           description: 作成または更新されたFCMトークン
           content:
             application/json:
@@ -198,10 +198,10 @@ paths:
                 type: object
                 properties:
                   fcmToken:
-                    $ref: "#/components/schemas/FCMToken"
+                    $ref: '#/components/schemas/FCMToken'
                 required:
                   - fcmToken
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - FCM Tokens
@@ -210,7 +210,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/FCMTokenRequest"
+              $ref: '#/components/schemas/FCMTokenRequest'
         description: 作成または更新するFCMトークンの情報
       security:
         - BearerAuth: []
@@ -244,7 +244,7 @@ paths:
             type: string
             format: date
       responses:
-        "200":
+        '200':
           description: 補講のリスト
           content:
             application/json:
@@ -254,10 +254,10 @@ paths:
                   makeupClasses:
                     type: array
                     items:
-                      $ref: "#/components/schemas/MakeupClass"
+                      $ref: '#/components/schemas/MakeupClass'
                 required:
                   - makeupClasses
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - MakeupClasses
@@ -278,7 +278,7 @@ paths:
             format: date
           explode: false
       responses:
-        "200":
+        '200':
           description: メニューのリスト
           content:
             application/json:
@@ -288,10 +288,10 @@ paths:
                   menuItems:
                     type: array
                     items:
-                      $ref: "#/components/schemas/MenuItem"
+                      $ref: '#/components/schemas/MenuItem'
                 required:
                   - menuItems
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - MenuItems
@@ -311,7 +311,7 @@ paths:
               format: date
           explode: false
       responses:
-        "200":
+        '200':
           description: 個人カレンダーアイテムのリスト; 時間割、履修情報、休講補講、振替授業日情報から構築される
           content:
             application/json:
@@ -321,10 +321,10 @@ paths:
                   personalCalendarItems:
                     type: array
                     items:
-                      $ref: "#/components/schemas/PersonalCalendarItem"
+                      $ref: '#/components/schemas/PersonalCalendarItem'
                 required:
                   - personalCalendarItems
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - PersonalCalendarItems
@@ -362,7 +362,7 @@ paths:
             type: string
             format: date-time
       responses:
-        "200":
+        '200':
           description: 予約のリスト
           content:
             application/json:
@@ -372,10 +372,10 @@ paths:
                   reservations:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Reservation"
+                      $ref: '#/components/schemas/Reservation'
                 required:
                   - reservations
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Reservations
@@ -411,7 +411,7 @@ paths:
             type: string
             format: date
       responses:
-        "200":
+        '200':
           description: 教室変更のリスト
           content:
             application/json:
@@ -421,10 +421,10 @@ paths:
                   roomChanges:
                     type: array
                     items:
-                      $ref: "#/components/schemas/RoomChange"
+                      $ref: '#/components/schemas/RoomChange'
                 required:
                   - roomChanges
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - RoomChanges
@@ -453,7 +453,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.Grade"
+              $ref: '#/components/schemas/DottoFoundationV1.Grade'
           explode: false
         - name: courses
           in: query
@@ -462,7 +462,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.Course"
+              $ref: '#/components/schemas/DottoFoundationV1.Course'
           explode: false
         - name: classes
           in: query
@@ -471,16 +471,16 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.Class"
+              $ref: '#/components/schemas/DottoFoundationV1.Class'
           explode: false
         - name: classifications
           in: query
           required: false
-          description: "学部: 専門・教養; 大学院: 専門・研究指導"
+          description: '学部: 専門・教養; 大学院: 専門・研究指導'
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.SubjectClassification"
+              $ref: '#/components/schemas/DottoFoundationV1.SubjectClassification'
           explode: false
         - name: semesters
           in: query
@@ -489,7 +489,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+              $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
           explode: false
         - name: requirementTypes
           in: query
@@ -498,7 +498,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.SubjectRequirementType"
+              $ref: '#/components/schemas/DottoFoundationV1.SubjectRequirementType'
           explode: false
         - name: culturalSubjectCategories
           in: query
@@ -507,10 +507,10 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.CulturalSubjectCategory"
+              $ref: '#/components/schemas/DottoFoundationV1.CulturalSubjectCategory'
           explode: false
       responses:
-        "200":
+        '200':
           description: 科目のリスト
           content:
             application/json:
@@ -520,10 +520,10 @@ paths:
                   subjects:
                     type: array
                     items:
-                      $ref: "#/components/schemas/SubjectSummary"
+                      $ref: '#/components/schemas/SubjectSummary'
                 required:
                   - subjects
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Subjects
@@ -537,7 +537,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: 科目の詳細
           content:
             application/json:
@@ -545,12 +545,12 @@ paths:
                 type: object
                 properties:
                   subject:
-                    $ref: "#/components/schemas/SubjectDetail"
+                    $ref: '#/components/schemas/SubjectDetail'
                 required:
                   - subject
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Subjects
@@ -573,10 +573,10 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+              $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
           explode: false
       responses:
-        "200":
+        '200':
           description: 時間割のリスト
           content:
             application/json:
@@ -586,10 +586,10 @@ paths:
                   timetableItems:
                     type: array
                     items:
-                      $ref: "#/components/schemas/TimetableItem"
+                      $ref: '#/components/schemas/TimetableItem'
                 required:
                   - timetableItems
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - TimetableItems
@@ -599,7 +599,7 @@ paths:
       description: ユーザーを取得する
       parameters: []
       responses:
-        "200":
+        '200':
           description: ユーザーの情報
           content:
             application/json:
@@ -607,12 +607,12 @@ paths:
                 type: object
                 properties:
                   user:
-                    $ref: "#/components/schemas/UserInfo"
+                    $ref: '#/components/schemas/UserInfo'
                 required:
                   - user
-        "401":
+        '401':
           description: Access is unauthorized.
-        "404":
+        '404':
           description: The server cannot find the requested resource.
       tags:
         - Users
@@ -624,7 +624,7 @@ paths:
       description: ユーザーを作成または更新する
       parameters: []
       responses:
-        "200":
+        '200':
           description: 作成または更新されたユーザー
           content:
             application/json:
@@ -632,10 +632,10 @@ paths:
                 type: object
                 properties:
                   user:
-                    $ref: "#/components/schemas/UserInfo"
+                    $ref: '#/components/schemas/UserInfo'
                 required:
                   - user
-        "401":
+        '401':
           description: Access is unauthorized.
       tags:
         - Users
@@ -644,7 +644,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserInfo"
+              $ref: '#/components/schemas/UserInfo'
         description: 作成または更新するユーザーの情報
       security:
         - BearerAuth: []
@@ -673,19 +673,19 @@ components:
         - requirementType
       properties:
         course:
-          $ref: "#/components/schemas/DottoFoundationV1.Course"
+          $ref: '#/components/schemas/DottoFoundationV1.Course'
         requirementType:
-          $ref: "#/components/schemas/DottoFoundationV1.SubjectRequirementType"
+          $ref: '#/components/schemas/DottoFoundationV1.SubjectRequirementType'
     AcademicService.SubjectTargetClass:
       type: object
       required:
         - grade
       properties:
         grade:
-          $ref: "#/components/schemas/DottoFoundationV1.Grade"
+          $ref: '#/components/schemas/DottoFoundationV1.Grade'
         class:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.Class"
+            - $ref: '#/components/schemas/DottoFoundationV1.Class'
           description: 修士課程・博士課程対象の場合はnull
       description: 対象学年・クラス
     AcademicService.Syllabus:
@@ -831,12 +831,12 @@ components:
         id:
           type: string
         subject:
-          $ref: "#/components/schemas/SubjectSummary"
+          $ref: '#/components/schemas/SubjectSummary'
         date:
           type: string
           format: date
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
         comment:
           type: string
       description: 休講
@@ -857,7 +857,7 @@ components:
         id:
           type: string
         subject:
-          $ref: "#/components/schemas/SubjectSummary"
+          $ref: '#/components/schemas/SubjectSummary'
     CourseRegistrationRequest:
       type: object
       required:
@@ -984,9 +984,9 @@ components:
         - period
       properties:
         dayOfWeek:
-          $ref: "#/components/schemas/DottoFoundationV1.DayOfWeek"
+          $ref: '#/components/schemas/DottoFoundationV1.DayOfWeek'
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
     FCMToken:
       type: object
       required:
@@ -1037,12 +1037,12 @@ components:
         id:
           type: string
         subject:
-          $ref: "#/components/schemas/SubjectSummary"
+          $ref: '#/components/schemas/SubjectSummary'
         date:
           type: string
           format: date
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
         comment:
           type: string
       description: 補講
@@ -1067,11 +1067,11 @@ components:
           type: string
           format: uri
         category:
-          $ref: "#/components/schemas/Category"
+          $ref: '#/components/schemas/Category'
         prices:
           type: array
           items:
-            $ref: "#/components/schemas/Price"
+            $ref: '#/components/schemas/Price'
     PersonalCalendarItem:
       type: object
       required:
@@ -1085,15 +1085,15 @@ components:
           type: string
           format: date
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
         subject:
-          $ref: "#/components/schemas/SubjectSummary"
+          $ref: '#/components/schemas/SubjectSummary'
         rooms:
           type: array
           items:
-            $ref: "#/components/schemas/Room"
+            $ref: '#/components/schemas/Room'
         status:
-          $ref: "#/components/schemas/DottoFoundationV1.PersonalCalendarItemStatus"
+          $ref: '#/components/schemas/DottoFoundationV1.PersonalCalendarItemStatus'
     Price:
       type: object
       required:
@@ -1101,7 +1101,7 @@ components:
         - price
       properties:
         size:
-          $ref: "#/components/schemas/Size"
+          $ref: '#/components/schemas/Size'
         price:
           type: integer
           format: int32
@@ -1117,7 +1117,7 @@ components:
         id:
           type: string
         room:
-          $ref: "#/components/schemas/Room"
+          $ref: '#/components/schemas/Room'
         startAt:
           type: string
           format: date-time
@@ -1140,14 +1140,14 @@ components:
           description: 部屋名
         floor:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.Floor"
+            - $ref: '#/components/schemas/DottoFoundationV1.Floor'
           description: |-
             フロア
 
             オンラインなどの仮想教室の場合はVirtualを使用
         faculty:
           allOf:
-            - $ref: "#/components/schemas/Faculty"
+            - $ref: '#/components/schemas/Faculty'
           description: |-
             教員
 
@@ -1165,16 +1165,16 @@ components:
         id:
           type: string
         subject:
-          $ref: "#/components/schemas/SubjectSummary"
+          $ref: '#/components/schemas/SubjectSummary'
         date:
           type: string
           format: date
         period:
-          $ref: "#/components/schemas/DottoFoundationV1.Period"
+          $ref: '#/components/schemas/DottoFoundationV1.Period'
         originalRoom:
-          $ref: "#/components/schemas/Room"
+          $ref: '#/components/schemas/Room'
         newRoom:
-          $ref: "#/components/schemas/Room"
+          $ref: '#/components/schemas/Room'
       description: 教室変更
     Size:
       type: string
@@ -1202,13 +1202,13 @@ components:
         faculties:
           type: array
           items:
-            $ref: "#/components/schemas/SubjectFaculty"
+            $ref: '#/components/schemas/SubjectFaculty'
         year:
           type: integer
           description: 開講年度
         semester:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+            - $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
           description: 開講時期
         credit:
           type: integer
@@ -1216,15 +1216,15 @@ components:
         eligibleAttributes:
           type: array
           items:
-            $ref: "#/components/schemas/AcademicService.SubjectTargetClass"
+            $ref: '#/components/schemas/AcademicService.SubjectTargetClass'
           description: 授業名末尾の`学年-クラス`をもとに決定
         requirements:
           type: array
           items:
-            $ref: "#/components/schemas/AcademicService.SubjectRequirement"
+            $ref: '#/components/schemas/AcademicService.SubjectRequirement'
           description: 科目群・科目区分をもとに決定
         syllabus:
-          $ref: "#/components/schemas/AcademicService.Syllabus"
+          $ref: '#/components/schemas/AcademicService.Syllabus'
     SubjectFaculty:
       type: object
       required:
@@ -1232,7 +1232,7 @@ components:
         - isPrimary
       properties:
         faculty:
-          $ref: "#/components/schemas/AcademicService.Faculty"
+          $ref: '#/components/schemas/AcademicService.Faculty'
         isPrimary:
           type: boolean
     SubjectSummary:
@@ -1252,13 +1252,13 @@ components:
         faculties:
           type: array
           items:
-            $ref: "#/components/schemas/SubjectFaculty"
+            $ref: '#/components/schemas/SubjectFaculty'
         year:
           type: integer
           description: 開講年度
         semester:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.CourseSemester"
+            - $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
           description: 開講時期
         credit:
           type: integer
@@ -1273,30 +1273,30 @@ components:
         id:
           type: string
         subject:
-          $ref: "#/components/schemas/SubjectSummary"
+          $ref: '#/components/schemas/SubjectSummary'
         slot:
           allOf:
-            - $ref: "#/components/schemas/DottoFoundationV1.TimetableSlot"
+            - $ref: '#/components/schemas/DottoFoundationV1.TimetableSlot'
           description: 集中講義など、時間割に含まれていない場合はnull
         rooms:
           type: array
           items:
-            $ref: "#/components/schemas/Room"
+            $ref: '#/components/schemas/Room'
     UserInfo:
       type: object
       properties:
         grade:
-          $ref: "#/components/schemas/DottoFoundationV1.Grade"
+          $ref: '#/components/schemas/DottoFoundationV1.Grade'
         course:
-          $ref: "#/components/schemas/DottoFoundationV1.Course"
+          $ref: '#/components/schemas/DottoFoundationV1.Course'
         class:
-          $ref: "#/components/schemas/DottoFoundationV1.Class"
+          $ref: '#/components/schemas/DottoFoundationV1.Class'
   securitySchemes:
     FirebaseAppCheckAuth:
       type: apiKey
       in: header
       name: X-Firebase-AppCheck
-      description: "Set a bearer token in the format: `Bearer <token>`."
+      description: 'Set a bearer token in the format: `Bearer <token>`.'
     BearerAuth:
       type: http
       scheme: Bearer
