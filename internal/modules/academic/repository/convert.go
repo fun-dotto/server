@@ -408,3 +408,16 @@ func timetableItemFromDomain(d domain.TimetableItem) model.TimetableItem {
 	}
 	return m
 }
+
+func userToDomain(m model.User) domain.User {
+	d := domain.User{ID: m.ID}
+	if m.Course != nil {
+		c := domain.CourseType(*m.Course)
+		d.Course = &c
+	}
+	if m.Grade != nil {
+		g := domain.Grade(*m.Grade)
+		d.Grade = &g
+	}
+	return d
+}

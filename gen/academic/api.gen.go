@@ -820,6 +820,9 @@ type SubjectsV1ListParams struct {
 
 	// CulturalSubjectCategories 教養科目カテゴリ
 	CulturalSubjectCategories *[]DottoFoundationV1CulturalSubjectCategory `form:"culturalSubjectCategories,omitempty" json:"culturalSubjectCategories,omitempty"`
+
+	// UserId ユーザーID; 指定した場合はユーザーのコース・学年に近い順にソートする
+	UserId *string `form:"userId,omitempty" json:"userId,omitempty"`
 }
 
 // TimetableItemsV1ListParams defines parameters for TimetableItemsV1List.
@@ -3147,6 +3150,18 @@ func NewSubjectsV1ListRequest(server string, params *SubjectsV1ListParams) (*htt
 		if params.CulturalSubjectCategories != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", false, "culturalSubjectCategories", *params.CulturalSubjectCategories, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "array", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UserId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", false, "userId", *params.UserId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -6964,6 +6979,14 @@ func (siw *ServerInterfaceWrapper) SubjectsV1List(c *gin.Context) {
 	err = runtime.BindQueryParameterWithOptions("form", false, false, "culturalSubjectCategories", c.Request.URL.Query(), &params.CulturalSubjectCategories, runtime.BindQueryParameterOptions{Type: "array", Format: ""})
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter culturalSubjectCategories: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "userId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", false, false, "userId", c.Request.URL.Query(), &params.UserId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userId: %w", err), http.StatusBadRequest)
 		return
 	}
 
