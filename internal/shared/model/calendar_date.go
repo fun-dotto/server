@@ -7,5 +7,5 @@ type CalendarDate struct {
 
 	ServiceID     string    `gorm:"not null;index"`
 	Date          time.Time `gorm:"type:date;not null;index"`
-	ExceptionType int       `gorm:"not null"`
+	ExceptionType int       `gorm:"not null;check:exception_type IN (1,2)"`
 }
