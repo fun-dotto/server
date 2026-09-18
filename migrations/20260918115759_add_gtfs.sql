@@ -1,3 +1,17 @@
+-- Create "calendar_dates" table
+CREATE TABLE "public"."calendar_dates" (
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
+  "service_id" text NOT NULL,
+  "date" date NOT NULL,
+  "exception_type" bigint NOT NULL,
+  PRIMARY KEY ("id")
+);
+-- Create index "idx_calendar_dates_date" to table: "calendar_dates"
+CREATE INDEX "idx_calendar_dates_date" ON "public"."calendar_dates" ("date");
+-- Create index "idx_calendar_dates_service_id" to table: "calendar_dates"
+CREATE INDEX "idx_calendar_dates_service_id" ON "public"."calendar_dates" ("service_id");
 -- Create "calendars" table
 CREATE TABLE "public"."calendars" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -11,27 +25,12 @@ CREATE TABLE "public"."calendars" (
   "friday" bigint NOT NULL,
   "saturday" bigint NOT NULL,
   "sunday" bigint NOT NULL,
-  "start_date" text NOT NULL,
-  "end_date" text NOT NULL,
+  "start_date" date NOT NULL,
+  "end_date" date NOT NULL,
   PRIMARY KEY ("id")
 );
 -- Create index "idx_calendars_service_id" to table: "calendars"
 CREATE UNIQUE INDEX "idx_calendars_service_id" ON "public"."calendars" ("service_id");
--- Create "calendar_dates" table
-CREATE TABLE "public"."calendar_dates" (
-  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
-  "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
-  "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
-  "service_id" text NOT NULL,
-  "date" text NOT NULL,
-  "exception_type" bigint NOT NULL,
-  PRIMARY KEY ("id"),
-  CONSTRAINT "fk_calendar_dates_calendar" FOREIGN KEY ("service_id") REFERENCES "public"."calendars" ("service_id") ON UPDATE CASCADE ON DELETE CASCADE
-);
--- Create index "idx_calendar_dates_date" to table: "calendar_dates"
-CREATE INDEX "idx_calendar_dates_date" ON "public"."calendar_dates" ("date");
--- Create index "idx_calendar_dates_service_id" to table: "calendar_dates"
-CREATE INDEX "idx_calendar_dates_service_id" ON "public"."calendar_dates" ("service_id");
 -- Create "stops" table
 CREATE TABLE "public"."stops" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -59,9 +58,9 @@ CREATE TABLE "public"."fare_rules" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
-  "route_id" text NOT NULL,
-  "origin_id" text NOT NULL,
-  "destination_id" text NOT NULL,
+  "route_id" text NULL,
+  "origin_id" text NULL,
+  "destination_id" text NULL,
   "price" numeric NOT NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "fk_fare_rules_destination" FOREIGN KEY ("destination_id") REFERENCES "public"."stops" ("stop_id") ON UPDATE CASCADE ON DELETE CASCADE,
@@ -82,9 +81,8 @@ CREATE TABLE "public"."trips" (
   "trip_id" text NOT NULL,
   "route_id" text NOT NULL,
   "service_id" text NOT NULL,
-  "direction_id" bigint NOT NULL,
+  "direction_id" bigint NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "fk_trips_calendar" FOREIGN KEY ("service_id") REFERENCES "public"."calendars" ("service_id") ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT "fk_trips_route" FOREIGN KEY ("route_id") REFERENCES "public"."routes" ("route_id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 -- Create index "idx_trips_route_id" to table: "trips"
@@ -99,8 +97,8 @@ CREATE TABLE "public"."stop_times" (
   "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "trip_id" text NOT NULL,
-  "arrival_time" text NOT NULL,
-  "departure_time" text NOT NULL,
+  "arrival_time" text NULL,
+  "departure_time" text NULL,
   "stop_id" text NOT NULL,
   "stop_sequence" bigint NOT NULL,
   PRIMARY KEY ("id"),
@@ -111,3 +109,5 @@ CREATE TABLE "public"."stop_times" (
 CREATE INDEX "idx_stop_times_stop_id" ON "public"."stop_times" ("stop_id");
 -- Create index "idx_stop_times_trip_id" to table: "stop_times"
 CREATE INDEX "idx_stop_times_trip_id" ON "public"."stop_times" ("trip_id");
+-- Create index "idx_stop_times_trip_seq" to table: "stop_times"
+CREATE UNIQUE INDEX "idx_stop_times_trip_seq" ON "public"."stop_times" ("trip_id", "stop_sequence");
