@@ -6,12 +6,13 @@ CREATE TABLE "public"."calendar_dates" (
   "service_id" text NOT NULL,
   "date" date NOT NULL,
   "exception_type" bigint NOT NULL,
-  PRIMARY KEY ("id")
+  PRIMARY KEY ("id"),
+  CONSTRAINT "chk_calendar_dates_exception_type" CHECK (exception_type = ANY (ARRAY[(1)::bigint, (2)::bigint]))
 );
 -- Create index "idx_calendar_dates_date" to table: "calendar_dates"
 CREATE INDEX "idx_calendar_dates_date" ON "public"."calendar_dates" ("date");
--- Create index "idx_calendar_dates_service_id" to table: "calendar_dates"
-CREATE INDEX "idx_calendar_dates_service_id" ON "public"."calendar_dates" ("service_id");
+-- Create index "idx_calendar_dates_service_date" to table: "calendar_dates"
+CREATE UNIQUE INDEX "idx_calendar_dates_service_date" ON "public"."calendar_dates" ("service_id", "date");
 -- Create "calendars" table
 CREATE TABLE "public"."calendars" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -27,7 +28,14 @@ CREATE TABLE "public"."calendars" (
   "sunday" bigint NOT NULL,
   "start_date" date NOT NULL,
   "end_date" date NOT NULL,
-  PRIMARY KEY ("id")
+  PRIMARY KEY ("id"),
+  CONSTRAINT "chk_calendars_friday" CHECK (friday = ANY (ARRAY[(0)::bigint, (1)::bigint])),
+  CONSTRAINT "chk_calendars_monday" CHECK (monday = ANY (ARRAY[(0)::bigint, (1)::bigint])),
+  CONSTRAINT "chk_calendars_saturday" CHECK (saturday = ANY (ARRAY[(0)::bigint, (1)::bigint])),
+  CONSTRAINT "chk_calendars_sunday" CHECK (sunday = ANY (ARRAY[(0)::bigint, (1)::bigint])),
+  CONSTRAINT "chk_calendars_thursday" CHECK (thursday = ANY (ARRAY[(0)::bigint, (1)::bigint])),
+  CONSTRAINT "chk_calendars_tuesday" CHECK (tuesday = ANY (ARRAY[(0)::bigint, (1)::bigint])),
+  CONSTRAINT "chk_calendars_wednesday" CHECK (wednesday = ANY (ARRAY[(0)::bigint, (1)::bigint]))
 );
 -- Create index "idx_calendars_service_id" to table: "calendars"
 CREATE UNIQUE INDEX "idx_calendars_service_id" ON "public"."calendars" ("service_id");
