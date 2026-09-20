@@ -8,7 +8,7 @@ import (
 
 	academicdomain "github.com/fun-dotto/server/internal/modules/academic/domain"
 	userdomain "github.com/fun-dotto/server/internal/modules/user/domain"
-	"github.com/google/uuid"
+	"github.com/fun-dotto/server/internal/shared/uuidv5"
 )
 
 type EnqueueSummary struct {
@@ -166,7 +166,7 @@ func (s *ClassChangeNotificationService) enqueueOne(ctx context.Context, spec no
 
 func deterministicNotificationID(sourceType, sourceID string) string {
 	key := fmt.Sprintf("urn:schedule-scripts:class-change:%s:%s", sourceType, sourceID)
-	return uuid.NewSHA1(uuid.NameSpaceURL, []byte(key)).String()
+	return uuidv5.NewSHA1(uuidv5.NamespaceURL, []byte(key)).String()
 }
 
 func notifyWindow(classDate time.Time) (notifyAfter, notifyBefore time.Time) {

@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
+	"uuid"
 
 	"github.com/fun-dotto/server/internal/modules/academic/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
