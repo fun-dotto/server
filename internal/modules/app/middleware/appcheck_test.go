@@ -32,7 +32,7 @@ func TestAppCheckMiddleware(t *testing.T) {
 	t.Run("AppCheck が必要な場合はヘッダーが必須", func(t *testing.T) {
 		router := gin.New()
 		router.Use(func(c *gin.Context) {
-			c.Set(api.FirebaseAppCheckAuthScopes, []string{})
+			c.Set(string(api.FirebaseAppCheckAuthScopes), []string{})
 			c.Next()
 		})
 		router.Use(AppCheckMiddleware(nil))

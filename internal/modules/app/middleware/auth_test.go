@@ -33,7 +33,7 @@ func TestAuthMiddleware(t *testing.T) {
 	t.Run("BearerAuth が必要な場合は Authorization が必須", func(t *testing.T) {
 		router := gin.New()
 		router.Use(func(c *gin.Context) {
-			c.Set(api.BearerAuthScopes, []string{})
+			c.Set(string(api.BearerAuthScopes), []string{})
 			c.Next()
 		})
 		router.Use(AuthMiddleware(nil))

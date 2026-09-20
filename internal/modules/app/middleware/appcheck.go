@@ -36,6 +36,6 @@ func AppCheckMiddleware(appCheckClient *appcheck.Client) gin.HandlerFunc {
 }
 
 func requiresFirebaseAppCheck(c *gin.Context) bool {
-	_, ok := c.Get(api.FirebaseAppCheckAuthScopes)
+	_, ok := c.Get(string(api.FirebaseAppCheckAuthScopes))
 	return ok
 }

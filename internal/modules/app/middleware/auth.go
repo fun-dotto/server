@@ -49,7 +49,7 @@ func AuthMiddleware(authClient *auth.Client) gin.HandlerFunc {
 }
 
 func requiresBearerAuth(c *gin.Context) bool {
-	_, ok := c.Get(api.BearerAuthScopes)
+	_, ok := c.Get(string(api.BearerAuthScopes))
 	return ok
 }
 
