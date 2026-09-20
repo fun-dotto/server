@@ -5,6 +5,7 @@ import (
 	"log"
 
 	firebase "firebase.google.com/go/v4"
+	openapispec "github.com/fun-dotto/server/api/openapi/admin"
 	api "github.com/fun-dotto/server/gen/admin"
 	"github.com/fun-dotto/server/internal/modules/admin/handler"
 	"github.com/fun-dotto/server/internal/modules/admin/middleware"
@@ -32,9 +33,7 @@ func main() {
 		log.Fatalf("Failed to get Firebase Auth client: %v", err)
 	}
 
-	// 仕様の原本は api/openapi/admin/openapi.yaml だけに置く。runtime image にも
-	// 同梱しているため、WORKDIR "/" 基準でこの相対パスに解決される。
-	spec, err := openapi3.NewLoader().LoadFromFile("api/openapi/admin/openapi.yaml")
+	spec, err := openapi3.NewLoader().LoadFromData(openapispec.Spec)
 	if err != nil {
 		log.Fatalf("Failed to load OpenAPI spec: %v", err)
 	}
