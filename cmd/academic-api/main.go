@@ -74,13 +74,18 @@ func main() {
 		log.Fatalf("Failed to load holiday set: %v", err)
 	}
 
+	terms, err := event.LoadTerms(assets.TermsJSON)
+	if err != nil {
+		log.Fatalf("Failed to load terms: %v", err)
+	}
+
 	// Services
 	subjectSvc := service.NewSubjectService(subjectRepo, syllabusRepo)
 	facultySvc := service.NewFacultyService(facultyRepo)
 	roomSvc := service.NewRoomService(roomRepo)
 	timetableItemSvc := service.NewTimetableItemService(timetableItemRepo)
 	courseRegistrationSvc := service.NewCourseRegistrationService(courseRegistrationRepo)
-	personalCalendarItemSvc := service.NewPersonalCalendarItemService(courseRegistrationRepo, timetableItemRepo, cancelledClassRepo, makeupClassRepo, roomChangeRepo, substituteDayMap, holidaySet)
+	personalCalendarItemSvc := service.NewPersonalCalendarItemService(courseRegistrationRepo, timetableItemRepo, cancelledClassRepo, makeupClassRepo, roomChangeRepo, substituteDayMap, holidaySet, terms)
 	cancelledClassSvc := service.NewCancelledClassService(cancelledClassRepo)
 	makeupClassSvc := service.NewMakeupClassService(makeupClassRepo)
 	roomChangeSvc := service.NewRoomChangeService(roomChangeRepo)

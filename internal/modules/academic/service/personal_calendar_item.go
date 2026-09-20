@@ -36,6 +36,7 @@ type PersonalCalendarItemService struct {
 	roomChangeRepo         personalCalendarItemRoomChangeRepository
 	substituteDayMap       map[string]domain.DayOfWeek
 	holidaySet             map[string]struct{}
+	terms                  []domain.Term
 }
 
 func NewPersonalCalendarItemService(
@@ -46,6 +47,7 @@ func NewPersonalCalendarItemService(
 	roomChangeRepo personalCalendarItemRoomChangeRepository,
 	substituteDayMap map[string]domain.DayOfWeek,
 	holidaySet map[string]struct{},
+	terms []domain.Term,
 ) *PersonalCalendarItemService {
 	return &PersonalCalendarItemService{
 		courseRegistrationRepo: courseRegistrationRepo,
@@ -55,6 +57,7 @@ func NewPersonalCalendarItemService(
 		roomChangeRepo:         roomChangeRepo,
 		substituteDayMap:       substituteDayMap,
 		holidaySet:             holidaySet,
+		terms:                  terms,
 	}
 }
 
@@ -88,7 +91,10 @@ func (s *PersonalCalendarItemService) List(
 		return []domain.PersonalCalendarItem{}, nil
 	}
 
-	year, semesters := determineSemestersFromDates(dates)
+	year, semesters := determineSemestersFromDates(s.terms, dates)
+	if len(semesters) == 0 {
+		return []domain.PersonalCalendarItem{}, nil
+	}
 	timetableItems, err := s.timetableItemRepo.List(ctx, domain.TimetableItemListFilter{
 		Year:      year,
 		Semesters: semesters,
@@ -317,37 +323,25 @@ func dateRange(dates []time.Time) (*time.Time, *time.Time) {
 	return &minDate, &maxDate
 }
 
-func determineSemestersFromDates(dates []time.Time) (*int, []domain.CourseSemester) {
-	if len(dates) == 0 {
-		return nil, nil
-	}
-
+func determineSemestersFromDates(terms []domain.Term, dates []time.Time) (*int, []domain.CourseSemester) {
 	yearMap := make(map[int]struct{})
 	semesterMap := make(map[domain.CourseSemester]struct{})
 
 	for _, date := range dates {
-		yearMap[date.Year()] = struct{}{}
-
-		month := date.Month()
-		if month >= 4 && month <= 9 {
-			semesterMap[domain.CourseSemesterH1] = struct{}{}
-			semesterMap[domain.CourseSemesterQ1] = struct{}{}
-			semesterMap[domain.CourseSemesterQ2] = struct{}{}
-			semesterMap[domain.CourseSemesterAllYear] = struct{}{}
-		} else {
-			semesterMap[domain.CourseSemesterH2] = struct{}{}
-			semesterMap[domain.CourseSemesterQ3] = struct{}{}
-			semesterMap[domain.CourseSemesterQ4] = struct{}{}
-			semesterMap[domain.CourseSemesterAllYear] = struct{}{}
+		dateStr := date.Format(time.DateOnly)
+		for _, term := range terms {
+			if !term.Contains(dateStr) {
+				continue
+			}
+			yearMap[term.Year] = struct{}{}
+			semesterMap[term.Semester] = struct{}{}
 		}
 	}
 
 	var year *int
 	if len(yearMap) == 1 {
 		for y := range yearMap {
-			y2 := y
-			year = &y2
-			break
+			year = &y
 		}
 	}
 
