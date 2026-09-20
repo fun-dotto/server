@@ -27,9 +27,6 @@ func NewHandler(
 	if announcementClient == nil {
 		panic("announcementClient is required")
 	}
-	if funchClient == nil {
-		panic("funchClient is required")
-	}
 	if userClient == nil {
 		panic("userClient is required")
 	}

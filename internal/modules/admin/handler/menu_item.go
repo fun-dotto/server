@@ -16,6 +16,11 @@ func (h *Handler) MenuItemsV1List(c *gin.Context, params api.MenuItemsV1ListPara
 		return
 	}
 
+	if h.funchClient == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "funch API is not configured"})
+		return
+	}
+
 	response, err := h.funchClient.MenuItemsV1ListWithResponse(c.Request.Context(), &funch_api.MenuItemsV1ListParams{
 		Date: params.Date,
 	})

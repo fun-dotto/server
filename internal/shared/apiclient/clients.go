@@ -23,8 +23,9 @@ const httpClientTimeout = 30 * time.Second
 type ExternalClients struct {
 	Academic     *academic_api.ClientWithResponses
 	Announcement *announcement_api.ClientWithResponses
-	Funch        *funch_api.ClientWithResponses
-	User         *user_api.ClientWithResponses
+	// Funch は FUNCH_API_URL 未設定の場合 nil
+	Funch *funch_api.ClientWithResponses
+	User  *user_api.ClientWithResponses
 }
 
 // NewExternalClients 全ての外部APIクライアントを初期化
@@ -55,17 +56,17 @@ func NewExternalClients(ctx context.Context) (*ExternalClients, error) {
 		return nil, fmt.Errorf("announcement client: %w", err)
 	}
 
-	funchURL, err := requireURL("FUNCH_API_URL")
-	if err != nil {
-		return nil, err
-	}
-	funchHTTP, err := newAuthHTTPClient(ctx, funchURL)
-	if err != nil {
-		return nil, fmt.Errorf("funch client: %w", err)
-	}
-	funch, err := funch_api.NewClientWithResponses(funchURL, funch_api.WithHTTPClient(funchHTTP))
-	if err != nil {
-		return nil, fmt.Errorf("funch client: %w", err)
+	// FUNCH_API_URL は任意。未設定の場合 Funch クライアントは nil になる。
+	var funch *funch_api.ClientWithResponses
+	if funchURL := os.Getenv("FUNCH_API_URL"); funchURL != "" {
+		funchHTTP, err := newAuthHTTPClient(ctx, funchURL)
+		if err != nil {
+			return nil, fmt.Errorf("funch client: %w", err)
+		}
+		funch, err = funch_api.NewClientWithResponses(funchURL, funch_api.WithHTTPClient(funchHTTP))
+		if err != nil {
+			return nil, fmt.Errorf("funch client: %w", err)
+		}
 	}
 
 	userURL, err := requireURL("USER_API_URL")
