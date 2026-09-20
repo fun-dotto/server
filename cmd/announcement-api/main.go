@@ -56,7 +56,7 @@ func main() {
 	strictHandler := api.NewStrictHandler(h, nil)
 	api.RegisterHandlers(router, strictHandler)
 
-	if err := server.Run(router, ":8080"); err != nil {
+	if err := server.Run(router, server.Addr()); err != nil {
 		log.Fatalf("Server exited with error: %v", err)
 	}
 }

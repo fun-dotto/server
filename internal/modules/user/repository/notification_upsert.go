@@ -3,10 +3,10 @@ package repository
 import (
 	"context"
 	"errors"
+	"uuid"
 
 	"github.com/fun-dotto/server/internal/modules/user/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

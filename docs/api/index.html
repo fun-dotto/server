@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <title>Dotto API Documentation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f7f8fa;
+        --fg: #1f2933;
+        --muted: #6b7684;
+        --card-bg: #ffffff;
+        --border: #e3e6ea;
+        --accent: #32329f;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #14161a;
+          --fg: #e8eaed;
+          --muted: #9aa3ad;
+          --card-bg: #1d2026;
+          --border: #2c3038;
+          --accent: #8f8fe0;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.6;
+      }
+
+      main {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 64px 24px 96px;
+      }
+
+      h1 {
+        font-family: "Montserrat", sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 8px;
+      }
+
+      .lead {
+        color: var(--muted);
+        margin: 0 0 40px;
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      a.card {
+        display: block;
+        padding: 20px 24px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        text-decoration: none;
+        color: inherit;
+        transition:
+          border-color 0.15s ease,
+          transform 0.15s ease;
+      }
+
+      a.card:hover,
+      a.card:focus-visible {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+
+      .card-title {
+        font-family: "Montserrat", sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 4px;
+      }
+
+      .card-desc {
+        color: var(--muted);
+        font-size: 0.875rem;
+      }
+
+      footer {
+        margin-top: 56px;
+        color: var(--muted);
+        font-size: 0.875rem;
+      }
+
+      footer a {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Dotto API Documentation</h1>
+      <p class="lead">
+        各APIのOpenAPIドキュメント（Redoc）へのリンク集です。
+      </p>
+
+      <ul>
+        <li>
+          <a class="card" href="./app/">
+            <div class="card-title">App API</div>
+            <div class="card-desc">アプリ向けAPI</div>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./admin/">
+            <div class="card-title">Admin API</div>
+            <div class="card-desc">管理者向けAPI</div>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./user/">
+            <div class="card-title">User API</div>
+            <div class="card-desc">ユーザー関連API</div>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./academic/">
+            <div class="card-title">Academic API</div>
+            <div class="card-desc">教務・学務関連API</div>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./funch/">
+            <div class="card-title">Funch API</div>
+            <div class="card-desc">Funch関連API</div>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="./announcement/">
+            <div class="card-title">Announcement API</div>
+            <div class="card-desc">お知らせ関連API</div>
+          </a>
+        </li>
+      </ul>
+
+      <footer>
+        <a href="https://github.com/fun-dotto/server">fun-dotto/server</a>
+      </footer>
+    </main>
+  </body>
+</html>
