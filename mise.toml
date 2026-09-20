@@ -4,7 +4,7 @@ minimum_release_age = "7d"
 [tools]
 atlas = "1.2.0"
 gcloud = "575.0.0"
-go = "1.25.7"
+go = "1.27.0"
 # portless (npm backend) の実行に Node.js 24+ が必要
 node = "24.19.0"
 "npm:portless" = "0.15.5"
