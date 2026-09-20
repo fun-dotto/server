@@ -5,6 +5,7 @@ import (
 	"log"
 
 	firebaseAdmin "firebase.google.com/go/v4"
+	openapispec "github.com/fun-dotto/server/api/openapi/app"
 	api "github.com/fun-dotto/server/gen/app"
 	"github.com/fun-dotto/server/internal/modules/app/handler"
 	"github.com/fun-dotto/server/internal/modules/app/middleware"
@@ -12,8 +13,11 @@ import (
 	"github.com/fun-dotto/server/internal/modules/app/service"
 	"github.com/fun-dotto/server/internal/shared/apiclient"
 	"github.com/fun-dotto/server/internal/shared/server"
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	ginmiddleware "github.com/oapi-codegen/gin-middleware"
 )
 
 func main() {
@@ -38,6 +42,22 @@ func main() {
 	if err != nil {
 		log.Fatalf("error initializing Auth client: %v\n", err)
 	}
+
+	spec, err := openapi3.NewLoader().LoadFromData(openapispec.Spec)
+	if err != nil {
+		log.Fatalf("Failed to load OpenAPI spec: %v", err)
+	}
+	spec.Servers = nil
+
+	// 認証は AppCheckMiddleware / AuthMiddleware が担うため、バリデータでは検証しない。
+	requestValidator := ginmiddleware.OapiRequestValidatorWithOptions(spec, &ginmiddleware.Options{
+		ErrorHandler: func(c *gin.Context, message string, statusCode int) {
+			c.AbortWithStatusJSON(statusCode, gin.H{"error": message})
+		},
+		Options: openapi3filter.Options{
+			AuthenticationFunc: openapi3filter.NoopAuthenticationFunc,
+		},
+	})
 
 	router := gin.Default()
 
@@ -71,6 +91,7 @@ func main() {
 		Middlewares: []api.MiddlewareFunc{
 			api.MiddlewareFunc(middleware.AppCheckMiddleware(appCheckClient)),
 			api.MiddlewareFunc(middleware.AuthMiddleware(authClient)),
+			api.MiddlewareFunc(requestValidator),
 		},
 	})
 
