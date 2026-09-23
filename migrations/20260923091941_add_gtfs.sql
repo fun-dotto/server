@@ -46,6 +46,8 @@ CREATE TABLE "public"."stops" (
   "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
   "stop_id" text NOT NULL,
   "stop_name" text NOT NULL,
+  "stop_lat" numeric NOT NULL,
+  "stop_lon" numeric NOT NULL,
   PRIMARY KEY ("id")
 );
 -- Create index "idx_stops_stop_id" to table: "stops"
