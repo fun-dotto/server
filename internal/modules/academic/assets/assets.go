@@ -7,3 +7,6 @@ var EventsJSON []byte
 
 //go:embed holidays.json
 var HolidaysJSON []byte
+
+//go:embed terms.json
+var TermsJSON []byte

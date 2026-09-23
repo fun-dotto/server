@@ -66,9 +66,12 @@ runs:
         # (例: atlas-loader, migrate, apply-table-privileges) はデプロイされない。
         # 末尾が "-api" のターゲットを Cloud Run Service、それ以外を Cloud Run Job として分類する。
         # 対象を増減するときはこの DEPLOY_TARGETS を編集する。
+        # TODO: BFF廃止後は、admin-apiとapp-api、各Jobのみになる。
         DEPLOY_TARGETS="
           academic-api
+          admin-bff-api
           announcement-api
+          app-bff-api
           user-api
           build-class-change-notifications-job
           dispatch-notifications-job
