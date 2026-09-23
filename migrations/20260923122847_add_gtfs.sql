@@ -71,7 +71,6 @@ CREATE TABLE "public"."fare_rules" (
   "route_id" text NULL,
   "origin_id" text NULL,
   "destination_id" text NULL,
-  "price" numeric NOT NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "fk_fare_rules_destination" FOREIGN KEY ("destination_id") REFERENCES "public"."stops" ("stop_id") ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT "fk_fare_rules_origin" FOREIGN KEY ("origin_id") REFERENCES "public"."stops" ("stop_id") ON UPDATE CASCADE ON DELETE CASCADE,
@@ -83,6 +82,19 @@ CREATE INDEX "idx_fare_rules_destination_id" ON "public"."fare_rules" ("destinat
 CREATE INDEX "idx_fare_rules_origin_id" ON "public"."fare_rules" ("origin_id");
 -- Create index "idx_fare_rules_route_id" to table: "fare_rules"
 CREATE INDEX "idx_fare_rules_route_id" ON "public"."fare_rules" ("route_id");
+-- Create "fare_prices" table
+CREATE TABLE "public"."fare_prices" (
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "created_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" timestamptz NULL DEFAULT CURRENT_TIMESTAMP,
+  "fare_rule_id" uuid NOT NULL,
+  "rider_category" text NOT NULL DEFAULT 'adult',
+  "price" numeric NOT NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "fk_fare_rules_prices" FOREIGN KEY ("fare_rule_id") REFERENCES "public"."fare_rules" ("id") ON UPDATE CASCADE ON DELETE CASCADE
+);
+-- Create index "idx_fare_price_rule_category" to table: "fare_prices"
+CREATE UNIQUE INDEX "idx_fare_price_rule_category" ON "public"."fare_prices" ("fare_rule_id", "rider_category");
 -- Create "trips" table
 CREATE TABLE "public"."trips" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
