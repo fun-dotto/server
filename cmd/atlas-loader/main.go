@@ -12,9 +12,13 @@ import (
 func main() {
 	stmts, err := gormschema.New("postgres").Load(
 		&model.Announcement{},
+		&model.Calendar{},
+		&model.CalendarDate{},
 		&model.CancelledClass{},
 		&model.CourseRegistration{},
 		&model.FCMToken{},
+		&model.FarePrice{},
+		&model.FareRule{},
 		&model.Faculty{},
 		&model.FacultyRoom{},
 		&model.MakeupClass{},
@@ -22,6 +26,9 @@ func main() {
 		&model.NotificationTargetUser{},
 		&model.Room{},
 		&model.RoomChange{},
+		&model.Route{},
+		&model.Stop{},
+		&model.StopTime{},
 		&model.Subject{},
 		&model.SubjectEligibleAttribute{},
 		&model.SubjectFaculty{},
@@ -29,6 +36,7 @@ func main() {
 		&model.Syllabus{},
 		&model.TimetableItem{},
 		&model.TimetableItemRoom{},
+		&model.Trip{},
 		&model.User{},
 	)
 	if err != nil {
