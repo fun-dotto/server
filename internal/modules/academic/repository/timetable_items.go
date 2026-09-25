@@ -90,7 +90,7 @@ func (r *TimetableItemRepository) Create(ctx context.Context, item domain.Timeta
 		for _, roomID := range roomIDs {
 			if err := tx.Exec(
 				"INSERT INTO timetable_item_rooms (timetable_item_id, room_id) VALUES (?, ?)",
-				record.ID, roomID,
+				record.ID.String(), roomID.String(),
 			).Error; err != nil {
 				return err
 			}
@@ -102,7 +102,7 @@ func (r *TimetableItemRepository) Create(ctx context.Context, item domain.Timeta
 	}
 
 	var created model.TimetableItem
-	if err := r.timetableItemPreload(r.db.WithContext(ctx)).First(&created, "id = ?", record.ID).Error; err != nil {
+	if err := r.timetableItemPreload(r.db.WithContext(ctx)).First(&created, "id = ?", record.ID.String()).Error; err != nil {
 		return domain.TimetableItem{}, err
 	}
 	return timetableItemToDomain(created), nil
@@ -112,11 +112,11 @@ func (r *TimetableItemRepository) Delete(ctx context.Context, id string) error {
 	uid := parseUUIDOrNil(id)
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var record model.TimetableItem
-		if err := tx.First(&record, "id = ?", uid).Error; err != nil {
+		if err := tx.First(&record, "id = ?", uid.String()).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Exec("DELETE FROM timetable_item_rooms WHERE timetable_item_id = ?", uid).Error; err != nil {
+		if err := tx.Exec("DELETE FROM timetable_item_rooms WHERE timetable_item_id = ?", uid.String()).Error; err != nil {
 			return err
 		}
 

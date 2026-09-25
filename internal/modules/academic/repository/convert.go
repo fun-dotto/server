@@ -24,11 +24,11 @@ func parseUUIDOrNil(s string) uuid.UUID {
 	return id
 }
 
-func parseUUIDs(ss []string) []uuid.UUID {
-	out := make([]uuid.UUID, 0, len(ss))
+func parseUUIDs(ss []string) []string {
+	out := make([]string, 0, len(ss))
 	for _, s := range ss {
 		if id, err := uuid.Parse(s); err == nil {
-			out = append(out, id)
+			out = append(out, id.String())
 		}
 	}
 	return out

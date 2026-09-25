@@ -36,7 +36,7 @@ func (r *FacultyRepository) List(ctx context.Context, ids []string) ([]domain.Fa
 
 func (r *FacultyRepository) GetByID(ctx context.Context, id string) (domain.Faculty, error) {
 	var record model.Faculty
-	if err := r.db.WithContext(ctx).First(&record, "id = ?", parseUUIDOrNil(id)).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&record, "id = ?", parseUUIDOrNil(id).String()).Error; err != nil {
 		return domain.Faculty{}, err
 	}
 	return facultyToDomain(record), nil
@@ -52,7 +52,7 @@ func (r *FacultyRepository) Create(ctx context.Context, faculty domain.Faculty) 
 
 func (r *FacultyRepository) Update(ctx context.Context, faculty domain.Faculty) (domain.Faculty, error) {
 	id := parseUUIDOrNil(faculty.ID)
-	if err := r.db.WithContext(ctx).Model(&model.Faculty{}).Where("id = ?", id).Updates(map[string]any{
+	if err := r.db.WithContext(ctx).Model(&model.Faculty{}).Where("id = ?", id.String()).Updates(map[string]any{
 		"name":  faculty.Name,
 		"email": faculty.Email,
 	}).Error; err != nil {
@@ -65,22 +65,22 @@ func (r *FacultyRepository) Delete(ctx context.Context, id string) error {
 	uid := parseUUIDOrNil(id)
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var faculty model.Faculty
-		if err := tx.Where("id = ?", uid).First(&faculty).Error; err != nil {
+		if err := tx.Where("id = ?", uid.String()).First(&faculty).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
 			return err
 		}
 
-		if err := tx.Where("faculty_id = ?", uid).Delete(&model.SubjectFaculty{}).Error; err != nil {
+		if err := tx.Where("faculty_id = ?", uid.String()).Delete(&model.SubjectFaculty{}).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Where("faculty_id = ?", uid).Delete(&model.FacultyRoom{}).Error; err != nil {
+		if err := tx.Where("faculty_id = ?", uid.String()).Delete(&model.FacultyRoom{}).Error; err != nil {
 			return err
 		}
 
-		result := tx.Where("id = ?", uid).Delete(&model.Faculty{})
+		result := tx.Where("id = ?", uid.String()).Delete(&model.Faculty{})
 		if result.Error != nil {
 			return result.Error
 		}

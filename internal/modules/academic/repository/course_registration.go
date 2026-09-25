@@ -55,7 +55,7 @@ func (r *CourseRegistrationRepository) ListUserIDsBySubject(ctx context.Context,
 	var userIDs []string
 	if err := r.db.WithContext(ctx).
 		Model(&model.CourseRegistration{}).
-		Where("subject_id = ?", parseUUIDOrNil(subjectID)).
+		Where("subject_id = ?", parseUUIDOrNil(subjectID).String()).
 		Distinct("user_id").
 		Pluck("user_id", &userIDs).Error; err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (r *CourseRegistrationRepository) Create(ctx context.Context, cr domain.Cou
 
 	var created model.CourseRegistration
 	if err := r.courseRegistrationPreload(r.db.WithContext(ctx)).
-		Where("user_id = ? AND subject_id = ?", record.UserID, record.SubjectID).
+		Where("user_id = ? AND subject_id = ?", record.UserID, record.SubjectID.String()).
 		First(&created).Error; err != nil {
 		return domain.CourseRegistration{}, err
 	}
@@ -86,13 +86,13 @@ func (r *CourseRegistrationRepository) Delete(ctx context.Context, id string) er
 
 	var record model.CourseRegistration
 	if err := r.db.WithContext(ctx).
-		Where("user_id = ? AND subject_id = ?", userID, subjectID).
+		Where("user_id = ? AND subject_id = ?", userID, subjectID.String()).
 		First(&record).Error; err != nil {
 		return err
 	}
 
 	result := r.db.WithContext(ctx).
-		Where("user_id = ? AND subject_id = ?", userID, subjectID).
+		Where("user_id = ? AND subject_id = ?", userID, subjectID.String()).
 		Delete(&model.CourseRegistration{})
 	if result.Error != nil {
 		return result.Error

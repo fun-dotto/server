@@ -59,7 +59,7 @@ func (r *FacultyRoomRepository) Create(ctx context.Context, fr domain.FacultyRoo
 
 	var created model.FacultyRoom
 	if err := r.facultyRoomPreload(r.db.WithContext(ctx)).
-		Where("faculty_id = ? AND room_id = ? AND year = ?", record.FacultyID, record.RoomID, record.Year).
+		Where("faculty_id = ? AND room_id = ? AND year = ?", record.FacultyID.String(), record.RoomID.String(), record.Year).
 		First(&created).Error; err != nil {
 		return domain.FacultyRoom{}, err
 	}
@@ -74,12 +74,12 @@ func (r *FacultyRoomRepository) Delete(ctx context.Context, id string) error {
 
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var record model.FacultyRoom
-		if err := tx.Where("faculty_id = ? AND room_id = ? AND year = ?", facultyID, roomID, year).
+		if err := tx.Where("faculty_id = ? AND room_id = ? AND year = ?", facultyID.String(), roomID.String(), year).
 			First(&record).Error; err != nil {
 			return err
 		}
 
-		result := tx.Where("faculty_id = ? AND room_id = ? AND year = ?", facultyID, roomID, year).
+		result := tx.Where("faculty_id = ? AND room_id = ? AND year = ?", facultyID.String(), roomID.String(), year).
 			Delete(&model.FacultyRoom{})
 		if result.Error != nil {
 			return result.Error
