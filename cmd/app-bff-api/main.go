@@ -11,12 +11,16 @@ import (
 	"github.com/fun-dotto/server/internal/modules/app/repository"
 	"github.com/fun-dotto/server/internal/modules/app/service"
 	"github.com/fun-dotto/server/internal/shared/apiclient"
+	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/server"
+	"github.com/fun-dotto/server/internal/shared/strictgin"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+	logging.Setup()
+
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found: %v", err)
 	}
@@ -39,7 +43,7 @@ func main() {
 		log.Fatalf("error initializing Auth client: %v\n", err)
 	}
 
-	router := gin.Default()
+	router := gin.New()
 
 	// 外部APIクライアントを初期化
 	clients, err := apiclient.NewExternalClients(ctx)
@@ -70,7 +74,11 @@ func main() {
 
 	h := handler.NewHandler(opts...)
 
-	strictHandler := api.NewStrictHandler(h, nil)
+	strictHandler := api.NewStrictHandlerWithOptions(h, nil, api.StrictGinServerOptions{
+		RequestErrorHandlerFunc:  strictgin.RequestErrorHandler,
+		HandlerErrorFunc:         strictgin.HandlerErrorHandler,
+		ResponseErrorHandlerFunc: strictgin.ResponseErrorHandler,
+	})
 	api.RegisterHandlersWithOptions(router, strictHandler, api.GinServerOptions{
 		Middlewares: []api.MiddlewareFunc{
 			api.MiddlewareFunc(middleware.AppCheckMiddleware(appCheckClient)),
@@ -78,7 +86,7 @@ func main() {
 		},
 	})
 
-	if err := server.Run(router, ":8080"); err != nil {
+	if err := server.Run(logging.Middleware(router), ":8080"); err != nil {
 		log.Fatalf("Server exited with error: %v", err)
 	}
 }
