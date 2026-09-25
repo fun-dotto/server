@@ -6,6 +6,7 @@ require (
 	ariga.io/atlas v1.2.0
 	ariga.io/atlas-provider-gorm v0.6.0
 	cloud.google.com/go/cloudsqlconn v1.21.0
+	cloud.google.com/go/compute/metadata v0.9.0
 	firebase.google.com/go/v4 v4.19.0
 	github.com/getkin/kin-openapi v0.138.0
 	github.com/gin-contrib/timeout v1.2.1
@@ -25,7 +26,6 @@ require (
 	cloud.google.com/go v0.123.0 // indirect
 	cloud.google.com/go/auth v0.20.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
-	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	cloud.google.com/go/firestore v1.21.0 // indirect
 	cloud.google.com/go/iam v1.5.3 // indirect
 	cloud.google.com/go/longrunning v0.8.0 // indirect

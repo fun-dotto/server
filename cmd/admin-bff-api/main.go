@@ -10,6 +10,7 @@ import (
 	"github.com/fun-dotto/server/internal/modules/admin/handler"
 	"github.com/fun-dotto/server/internal/modules/admin/middleware"
 	"github.com/fun-dotto/server/internal/shared/apiclient"
+	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
@@ -19,6 +20,8 @@ import (
 )
 
 func main() {
+	logging.Setup()
+
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found: %v", err)
 	}
@@ -40,7 +43,7 @@ func main() {
 
 	spec.Servers = nil
 
-	router := gin.Default()
+	router := gin.New()
 
 	router.Use(ginmiddleware.OapiRequestValidatorWithOptions(spec, &ginmiddleware.Options{
 		ErrorHandler: func(c *gin.Context, message string, statusCode int) {
@@ -63,7 +66,7 @@ func main() {
 	h := handler.NewHandler(clients.Academic, clients.Announcement, clients.Funch, clients.User)
 	api.RegisterHandlers(router, h)
 
-	if err := server.Run(router, ":8080"); err != nil {
+	if err := server.Run(logging.Middleware(router), ":8080"); err != nil {
 		log.Fatalf("Server exited with error: %v", err)
 	}
 }
