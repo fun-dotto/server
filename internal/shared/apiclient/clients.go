@@ -14,6 +14,7 @@ import (
 	announcement_api "github.com/fun-dotto/server/gen/announcement"
 	funch_api "github.com/fun-dotto/server/gen/funch"
 	user_api "github.com/fun-dotto/server/gen/user"
+	"github.com/fun-dotto/server/internal/shared/logging"
 	"google.golang.org/api/idtoken"
 )
 
@@ -105,5 +106,5 @@ func newAuthHTTPClient(ctx context.Context, targetURL string) (*http.Client, err
 		return nil, fmt.Errorf("failed to create auth client: %w", err)
 	}
 	client.Timeout = httpClientTimeout
-	return client, nil
+	return logging.WrapClient(client), nil
 }

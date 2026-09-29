@@ -15,7 +15,7 @@ type TimetableItem struct {
 }
 
 type TimetableItemRoom struct {
-	ID              string `gorm:"type:uuid;primaryKey"`
+	ID              string `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
 	TimetableItemID string `gorm:"type:uuid;not null;index"`
 	RoomID          string `gorm:"type:uuid;not null;index"`
 	Room            *Room  `gorm:"foreignKey:RoomID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

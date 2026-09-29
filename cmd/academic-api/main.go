@@ -13,7 +13,9 @@ import (
 	"github.com/fun-dotto/server/internal/modules/academic/repository"
 	"github.com/fun-dotto/server/internal/modules/academic/service"
 	"github.com/fun-dotto/server/internal/shared/db"
+	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/server"
+	"github.com/fun-dotto/server/internal/shared/strictgin"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -23,6 +25,8 @@ import (
 const handlerTimeout = 15 * time.Second
 
 func main() {
+	logging.Setup()
+
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found: %v", err)
 	}
@@ -47,7 +51,7 @@ func main() {
 
 	spec.Servers = nil
 
-	router := gin.Default()
+	router := gin.New()
 
 	router.Use(middleware.Timeout(handlerTimeout))
 	router.Use(oapimw.OapiRequestValidator(spec))
@@ -93,12 +97,16 @@ func main() {
 
 	// Handler + Router
 	h := handler.NewHandler(subjectSvc, facultySvc, roomSvc, timetableItemSvc, courseRegistrationSvc, personalCalendarItemSvc, cancelledClassSvc, makeupClassSvc, roomChangeSvc, facultyRoomSvc)
-	strictHandler := api.NewStrictHandler(h, []api.StrictMiddlewareFunc{
+	strictHandler := api.NewStrictHandlerWithOptions(h, []api.StrictMiddlewareFunc{
 		middleware.DeadlineErrorMapper(),
+	}, api.StrictGinServerOptions{
+		RequestErrorHandlerFunc:  strictgin.RequestErrorHandler,
+		HandlerErrorFunc:         strictgin.HandlerErrorHandler,
+		ResponseErrorHandlerFunc: strictgin.ResponseErrorHandler,
 	})
 	api.RegisterHandlers(router, strictHandler)
 
-	if err := server.Run(router, server.Addr()); err != nil {
+	if err := server.Run(logging.Middleware(router), server.Addr()); err != nil {
 		log.Fatalf("Server exited with error: %v", err)
 	}
 }

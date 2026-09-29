@@ -8,10 +8,13 @@ import (
 	"github.com/fun-dotto/server/internal/modules/batch-jobs/service"
 	userrepository "github.com/fun-dotto/server/internal/modules/user/repository"
 	"github.com/fun-dotto/server/internal/shared/db"
+	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+	logging.Setup()
+
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found: %v", err)
 	}

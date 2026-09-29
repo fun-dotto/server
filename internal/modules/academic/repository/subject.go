@@ -88,7 +88,7 @@ func (r *SubjectRepository) List(ctx context.Context, filter domain.SubjectListF
 
 func (r *SubjectRepository) GetByID(ctx context.Context, id string) (domain.Subject, error) {
 	var record model.Subject
-	if err := r.subjectPreload(r.db.WithContext(ctx)).First(&record, "id = ?", parseUUIDOrNil(id)).Error; err != nil {
+	if err := r.subjectPreload(r.db.WithContext(ctx)).First(&record, "id = ?", parseUUIDOrNil(id).String()).Error; err != nil {
 		return domain.Subject{}, err
 	}
 	return subjectToDomain(record), nil
@@ -98,17 +98,17 @@ func (r *SubjectRepository) Delete(ctx context.Context, id string) error {
 	uid := parseUUIDOrNil(id)
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var record model.Subject
-		if err := tx.First(&record, "id = ?", uid).Error; err != nil {
+		if err := tx.First(&record, "id = ?", uid.String()).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Where("subject_id = ?", uid).Delete(&model.SubjectFaculty{}).Error; err != nil {
+		if err := tx.Where("subject_id = ?", uid.String()).Delete(&model.SubjectFaculty{}).Error; err != nil {
 			return err
 		}
-		if err := tx.Where("subject_id = ?", uid).Delete(&model.SubjectEligibleAttribute{}).Error; err != nil {
+		if err := tx.Where("subject_id = ?", uid.String()).Delete(&model.SubjectEligibleAttribute{}).Error; err != nil {
 			return err
 		}
-		if err := tx.Where("subject_id = ?", uid).Delete(&model.SubjectRequirement{}).Error; err != nil {
+		if err := tx.Where("subject_id = ?", uid.String()).Delete(&model.SubjectRequirement{}).Error; err != nil {
 			return err
 		}
 

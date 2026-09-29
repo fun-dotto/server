@@ -9,10 +9,13 @@ import (
 	"github.com/fun-dotto/server/internal/modules/user/repository"
 	"github.com/fun-dotto/server/internal/modules/user/service"
 	"github.com/fun-dotto/server/internal/shared/db"
+	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+	logging.Setup()
+
 	dryRun := flag.Bool("dry-run", false, "If set, log planned FCM sends without actually calling Firebase or updating notified_at")
 	flag.Parse()
 

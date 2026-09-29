@@ -6,6 +6,7 @@ require (
 	ariga.io/atlas v1.2.0
 	ariga.io/atlas-provider-gorm v0.6.0
 	cloud.google.com/go/cloudsqlconn v1.21.0
+	cloud.google.com/go/compute/metadata v0.9.0
 	firebase.google.com/go/v4 v4.19.0
 	github.com/getkin/kin-openapi v0.138.0
 	github.com/gin-contrib/timeout v1.2.1
@@ -16,6 +17,7 @@ require (
 	github.com/oapi-codegen/runtime v1.4.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/stretchr/testify v1.11.1
+	golang.org/x/tools v0.43.0
 	google.golang.org/api v0.276.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
@@ -26,7 +28,6 @@ require (
 	cloud.google.com/go v0.123.0 // indirect
 	cloud.google.com/go/auth v0.20.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
-	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	cloud.google.com/go/firestore v1.21.0 // indirect
 	cloud.google.com/go/iam v1.5.3 // indirect
 	cloud.google.com/go/longrunning v0.8.0 // indirect
@@ -141,7 +142,6 @@ require (
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	golang.org/x/tools v0.43.0 // indirect
 	google.golang.org/appengine/v2 v2.0.6 // indirect
 	google.golang.org/genproto v0.0.0-20260319201613-d00831a3d3e7 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260319201613-d00831a3d3e7 // indirect

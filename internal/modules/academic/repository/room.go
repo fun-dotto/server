@@ -43,7 +43,7 @@ func (r *RoomRepository) List(ctx context.Context, filter domain.RoomListFilter)
 
 func (r *RoomRepository) GetByID(ctx context.Context, id string) (domain.Room, error) {
 	var record model.Room
-	if err := r.db.WithContext(ctx).First(&record, "id = ?", parseUUIDOrNil(id)).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&record, "id = ?", parseUUIDOrNil(id).String()).Error; err != nil {
 		return domain.Room{}, err
 	}
 	return roomToDomain(record), nil
@@ -59,7 +59,7 @@ func (r *RoomRepository) Create(ctx context.Context, room domain.Room) (domain.R
 
 func (r *RoomRepository) Update(ctx context.Context, room domain.Room) (domain.Room, error) {
 	id := parseUUIDOrNil(room.ID)
-	if err := r.db.WithContext(ctx).Model(&model.Room{}).Where("id = ?", id).Updates(map[string]any{
+	if err := r.db.WithContext(ctx).Model(&model.Room{}).Where("id = ?", id.String()).Updates(map[string]any{
 		"name":  room.Name,
 		"floor": string(room.Floor),
 	}).Error; err != nil {
@@ -75,7 +75,7 @@ func (r *RoomRepository) Delete(ctx context.Context, id string) error {
 	uid := parseUUIDOrNil(id)
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var room model.Room
-		if err := tx.Where("id = ?", uid).First(&room).Error; err != nil {
+		if err := tx.Where("id = ?", uid.String()).First(&room).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
@@ -83,14 +83,14 @@ func (r *RoomRepository) Delete(ctx context.Context, id string) error {
 		}
 
 		var facultyRoomCount int64
-		if err := tx.Model(&model.FacultyRoom{}).Where("room_id = ?", uid).Count(&facultyRoomCount).Error; err != nil {
+		if err := tx.Model(&model.FacultyRoom{}).Where("room_id = ?", uid.String()).Count(&facultyRoomCount).Error; err != nil {
 			return err
 		}
 		if facultyRoomCount > 0 {
 			return ErrRoomInUse
 		}
 
-		result := tx.Where("id = ?", uid).Delete(&model.Room{})
+		result := tx.Where("id = ?", uid.String()).Delete(&model.Room{})
 		if result.Error != nil {
 			return result.Error
 		}

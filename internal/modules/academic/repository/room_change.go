@@ -57,7 +57,7 @@ func (r *RoomChangeRepository) List(ctx context.Context, filter domain.RoomChang
 
 func (r *RoomChangeRepository) GetByID(ctx context.Context, id string) (domain.RoomChange, error) {
 	var record model.RoomChange
-	if err := r.roomChangePreload(r.db.WithContext(ctx)).First(&record, "id = ?", parseUUIDOrNil(id)).Error; err != nil {
+	if err := r.roomChangePreload(r.db.WithContext(ctx)).First(&record, "id = ?", parseUUIDOrNil(id).String()).Error; err != nil {
 		return domain.RoomChange{}, err
 	}
 	return roomChangeToDomain(record), nil
@@ -75,14 +75,14 @@ func (r *RoomChangeRepository) Delete(ctx context.Context, id string) error {
 	uid := parseUUIDOrNil(id)
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var record model.RoomChange
-		if err := tx.Where("id = ?", uid).First(&record).Error; err != nil {
+		if err := tx.Where("id = ?", uid.String()).First(&record).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
 			return err
 		}
 
-		result := tx.Where("id = ?", uid).Delete(&model.RoomChange{})
+		result := tx.Where("id = ?", uid.String()).Delete(&model.RoomChange{})
 		if result.Error != nil {
 			return result.Error
 		}

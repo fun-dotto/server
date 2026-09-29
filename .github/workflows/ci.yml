@@ -89,3 +89,6 @@ jobs:
 
       - name: go vet
         run: go vet ./...
+
+      - name: gormuuid
+        run: mise run lint:gormuuid

@@ -9,7 +9,9 @@ import (
 	"github.com/fun-dotto/server/internal/modules/announcement/repository"
 	"github.com/fun-dotto/server/internal/modules/announcement/service"
 	"github.com/fun-dotto/server/internal/shared/db"
+	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/server"
+	"github.com/fun-dotto/server/internal/shared/strictgin"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -17,6 +19,8 @@ import (
 )
 
 func main() {
+	logging.Setup()
+
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found: %v", err)
 	}
@@ -41,7 +45,7 @@ func main() {
 
 	spec.Servers = nil
 
-	router := gin.Default()
+	router := gin.New()
 
 	router.Use(oapimw.OapiRequestValidator(spec))
 
@@ -53,10 +57,14 @@ func main() {
 
 	// Handler + Router
 	h := handler.NewHandler(announcementSvc)
-	strictHandler := api.NewStrictHandler(h, nil)
+	strictHandler := api.NewStrictHandlerWithOptions(h, nil, api.StrictGinServerOptions{
+		RequestErrorHandlerFunc:  strictgin.RequestErrorHandler,
+		HandlerErrorFunc:         strictgin.HandlerErrorHandler,
+		ResponseErrorHandlerFunc: strictgin.ResponseErrorHandler,
+	})
 	api.RegisterHandlers(router, strictHandler)
 
-	if err := server.Run(router, server.Addr()); err != nil {
+	if err := server.Run(logging.Middleware(router), server.Addr()); err != nil {
 		log.Fatalf("Server exited with error: %v", err)
 	}
 }
