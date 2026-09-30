@@ -5,4 +5,5 @@ type Stop struct {
 	StopName string  `gorm:"not null"`
 	StopLat  float64 `gorm:"not null"`
 	StopLon  float64 `gorm:"not null"`
+	ZoneID   *string `gorm:"index"`
 }
