@@ -1,8 +1,6 @@
 package model
 
 type Route struct {
-	Common
-
-	RouteID        string `gorm:"not null;uniqueIndex"`
+	RouteID        string `gorm:"primaryKey"`
 	RouteShortName string `gorm:"not null"`
 }
