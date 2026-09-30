@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/shopspring/decimal"
 )
+
 type RiderCategory string
 
 const (
@@ -10,8 +11,7 @@ const (
 )
 
 type FarePrice struct {
-	FareRuleID    string          `gorm:"primaryKey"`
-	FareRule      *FareRule       `gorm:"belongsTo;foreignKey:FareRuleID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	FareID        string          `gorm:"primaryKey"`
 	RiderCategory RiderCategory   `gorm:"type:text;primaryKey;default:'adult'"`
 	Price         decimal.Decimal `gorm:"type:numeric;not null"`
 }
