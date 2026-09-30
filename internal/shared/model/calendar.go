@@ -3,9 +3,7 @@ package model
 import "time"
 
 type Calendar struct {
-	Common
-
-	ServiceID string    `gorm:"not null;uniqueIndex"`
+	ServiceID string    `gorm:"primaryKey"`
 	Monday    int       `gorm:"not null;check:monday IN (0,1)"`
 	Tuesday   int       `gorm:"not null;check:tuesday IN (0,1)"`
 	Wednesday int       `gorm:"not null;check:wednesday IN (0,1)"`
