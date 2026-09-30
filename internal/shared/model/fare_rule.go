@@ -5,7 +5,7 @@ package model
 type FareRule struct {
 	FareID        string  `gorm:"primaryKey"`
 	RouteID       *string `gorm:"index"`
-	Route         *Route  `gorm:"references:RouteID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Route         *Route  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	OriginID      *string `gorm:"index"`
 	Origin        *Stop   `gorm:"references:StopID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	DestinationID *string `gorm:"index"`
