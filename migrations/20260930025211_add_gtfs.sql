@@ -1,10 +1,3 @@
--- Create "fare_prices" table
-CREATE TABLE "public"."fare_prices" (
-  "fare_id" text NOT NULL,
-  "rider_category" text NOT NULL DEFAULT 'adult',
-  "price" numeric NOT NULL,
-  PRIMARY KEY ("fare_id", "rider_category")
-);
 -- Create "trips" table
 CREATE TABLE "public"."trips" (
   "trip_id" text NOT NULL,
@@ -56,6 +49,14 @@ CREATE INDEX "idx_fare_rules_destination_id" ON "public"."fare_rules" ("destinat
 CREATE INDEX "idx_fare_rules_origin_id" ON "public"."fare_rules" ("origin_id");
 -- Create index "idx_fare_rules_route_id" to table: "fare_rules"
 CREATE INDEX "idx_fare_rules_route_id" ON "public"."fare_rules" ("route_id");
+-- Create "fare_prices" table
+CREATE TABLE "public"."fare_prices" (
+  "fare_id" text NOT NULL,
+  "rider_category" text NOT NULL DEFAULT 'adult',
+  "price" numeric NOT NULL,
+  PRIMARY KEY ("fare_id", "rider_category"),
+  CONSTRAINT "fk_fare_prices_fare_rule" FOREIGN KEY ("fare_id") REFERENCES "public"."fare_rules" ("fare_id") ON UPDATE NO ACTION ON DELETE CASCADE
+);
 -- Create "routes" table
 CREATE TABLE "public"."routes" (
   "route_id" text NOT NULL,
@@ -68,8 +69,8 @@ CREATE TABLE "public"."routes" (
 CREATE TABLE "public"."stops" (
   "stop_id" text NOT NULL,
   "stop_name" text NOT NULL,
-  "stop_lat" numeric(9,6) NOT NULL,
-  "stop_lon" numeric(9,6) NOT NULL,
+  "stop_lat" numeric(10,7) NOT NULL,
+  "stop_lon" numeric(10,7) NOT NULL,
   "zone_id" text NULL,
   PRIMARY KEY ("stop_id")
 );
@@ -78,10 +79,10 @@ CREATE INDEX "idx_stops_zone_id" ON "public"."stops" ("zone_id");
 -- Create "stop_times" table
 CREATE TABLE "public"."stop_times" (
   "trip_id" text NOT NULL,
+  "stop_sequence" bigint NOT NULL,
+  "stop_id" text NOT NULL,
   "arrival_time" text NOT NULL,
   "departure_time" text NOT NULL,
-  "stop_id" text NOT NULL,
-  "stop_sequence" bigint NOT NULL,
   PRIMARY KEY ("trip_id", "stop_sequence"),
   CONSTRAINT "fk_stop_times_stop" FOREIGN KEY ("stop_id") REFERENCES "public"."stops" ("stop_id") ON UPDATE NO ACTION ON DELETE CASCADE,
   CONSTRAINT "fk_stop_times_trip" FOREIGN KEY ("trip_id") REFERENCES "public"."trips" ("trip_id") ON UPDATE NO ACTION ON DELETE CASCADE
