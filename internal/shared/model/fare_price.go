@@ -10,8 +10,6 @@ const (
 	RiderCategoryAdult RiderCategory = "adult"
 )
 
-// FarePrice は FareRule (どの区間か) に対する、運賃区分ごとの金額を持つ。
-// 現状は 1 FareRule につき adult の 1 行のみが作られる想定。
 type FarePrice struct {
 	Common
 
