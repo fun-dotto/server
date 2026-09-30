@@ -4,9 +4,6 @@ import (
 	"github.com/shopspring/decimal"
 	"uuid"
 )
-
-// RiderCategory は運賃区分。現状は adult のみが実データに存在するが、
-// 将来 子ども料金 等が追加された場合に列追加ではなく値の追加で対応できるようにしている。
 type RiderCategory string
 
 const (
