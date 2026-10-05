@@ -38,6 +38,7 @@ func main() {
 		&model.TimetableItemRoom{},
 		&model.Trip{},
 		&model.User{},
+		&model.Zone{},
 	)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to load gorm schema: %v\n", err)
