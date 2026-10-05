@@ -5,6 +5,6 @@ type Trip struct {
 	RouteID     string   `gorm:"not null;index"`
 	ServiceID   string   `gorm:"not null;index"`
 	DirectionID *int     `gorm:"check:direction_id IN (0,1)"`
-	Route       Route    `gorm:"foreignKey:RouteID;constraint:OnDelete:CASCADE"`
-	Calendar    Calendar `gorm:"foreignKey:ServiceID;constraint:OnDelete:CASCADE"`
+	Route       Route    `gorm:"belongsTo;foreignKey:RouteID;constraint:OnDelete:CASCADE"`
+	Calendar    Calendar `gorm:"belongsTo;foreignKey:ServiceID;constraint:OnDelete:CASCADE"`
 }

@@ -5,5 +5,5 @@ type FareRule struct {
 	RouteID       *string `gorm:"index"`
 	OriginID      *string `gorm:"index"`
 	DestinationID *string `gorm:"index"`
-	Route         Route   `gorm:"foreignKey:RouteID;constraint:OnDelete:CASCADE"`
+	Route         Route   `gorm:"belongsTo;foreignKey:RouteID;constraint:OnDelete:CASCADE"`
 }
