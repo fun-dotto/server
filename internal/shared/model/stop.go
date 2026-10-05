@@ -8,5 +8,5 @@ type Stop struct {
 	StopLat  decimal.Decimal `gorm:"type:numeric(10,7);not null"`
 	StopLon  decimal.Decimal `gorm:"type:numeric(10,7);not null"`
 	ZoneID   *string         `gorm:"index"`
-	Zone     *Zone           `gorm:"foreignKey:ZoneID;constraint:OnDelete:SET NULL"`
+	Zone     *Zone           `gorm:"foreignKey:ZoneID;constraint:OnDelete:CASCADE"`
 }
