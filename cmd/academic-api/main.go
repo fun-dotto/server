@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"time"
 
 	api "github.com/fun-dotto/server/gen/academic"
@@ -91,50 +90,12 @@ func main() {
 
 	// Handler + Router
 	h := handler.NewHandler(subjectSvc, facultySvc, roomSvc, timetableItemSvc, courseRegistrationSvc, personalCalendarItemSvc, cancelledClassSvc, makeupClassSvc, roomChangeSvc, facultyRoomSvc, userSvc)
-	strictHandler := api.NewStrictHandlerWithOptions(h, []api.StrictMiddlewareFunc{
+	strictHandler := api.NewStrictHandler(h, []api.StrictMiddlewareFunc{
 		middleware.DeadlineErrorMapper(),
-	}, api.StrictGinServerOptions{
-		RequestErrorHandlerFunc:  requestErrorHandler,
-		HandlerErrorFunc:         handlerErrorHandler,
-		ResponseErrorHandlerFunc: responseErrorHandler,
 	})
 	api.RegisterHandlers(router, strictHandler)
 
 	if err := server.Run(router, ":8080"); err != nil {
 		log.Fatalf("Server exited with error: %v", err)
 	}
-}
-
-// oapi-codegen が生成する strict handler の既定のエラーハンドラは err.Error() を
-// そのままレスポンス本文に載せるため、SQL 文やドライバのエラーメッセージといった
-// 内部実装の詳細がクライアントへ露出し得る。本文は固定文言に差し替え、
-// 詳細はサーバー側のログにのみ出力する。
-
-const (
-	badRequestMessage    = "invalid request"
-	internalErrorMessage = "internal server error"
-)
-
-// requestErrorHandler はリクエストのパース・デコードに失敗した場合に 400 を返す。
-func requestErrorHandler(c *gin.Context, err error) {
-	logStrictError(c, "request error", err)
-	c.JSON(http.StatusBadRequest, gin.H{"msg": badRequestMessage})
-}
-
-// handlerErrorHandler はハンドラ（および strict middleware）が non-nil error を
-// 返した場合に 500 を返す。
-func handlerErrorHandler(c *gin.Context, err error) {
-	logStrictError(c, "handler error", err)
-	c.JSON(http.StatusInternalServerError, gin.H{"msg": internalErrorMessage})
-}
-
-// responseErrorHandler はレスポンスのシリアライズに失敗した場合、あるいは想定外の
-// レスポンス型が返された場合に 500 を返す。
-func responseErrorHandler(c *gin.Context, err error) {
-	logStrictError(c, "response error", err)
-	c.JSON(http.StatusInternalServerError, gin.H{"msg": internalErrorMessage})
-}
-
-func logStrictError(c *gin.Context, kind string, err error) {
-	log.Printf("%s: %s %s: %v", kind, c.Request.Method, c.Request.URL.Path, err)
 }

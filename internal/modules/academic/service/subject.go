@@ -28,13 +28,13 @@ func NewSubjectService(repo subjectRepository, syllabusRepo syllabusRepository) 
 	return &SubjectService{repo: repo, syllabusRepo: syllabusRepo}
 }
 
-func (s *SubjectService) List(ctx context.Context, filter domain.SubjectListFilter) ([]domain.Subject, error) {
+func (s *SubjectService) List(ctx context.Context, filter domain.SubjectListFilter, sort *domain.SubjectListSort) ([]domain.Subject, error) {
 	subjects, err := s.repo.List(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	if filter.SortByUserAttribute {
-		sortSubjects(subjects, filter.SortCourse, filter.SortGrade)
+	if sort != nil {
+		sortSubjects(subjects, sort.UserCourse, sort.UserGrade)
 	}
 	return subjects, nil
 }

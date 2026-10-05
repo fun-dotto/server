@@ -11,7 +11,7 @@ import (
 var _ api.StrictServerInterface = (*Handler)(nil)
 
 type subjectService interface {
-	List(ctx context.Context, filter domain.SubjectListFilter) ([]domain.Subject, error)
+	List(ctx context.Context, filter domain.SubjectListFilter, sort *domain.SubjectListSort) ([]domain.Subject, error)
 	GetByID(ctx context.Context, id string) (domain.Subject, error)
 	Delete(ctx context.Context, id string) error
 	GetSyllabus(ctx context.Context, subjectID string) (domain.Syllabus, error)
