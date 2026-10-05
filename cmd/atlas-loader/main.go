@@ -17,7 +17,7 @@ func main() {
 		&model.CancelledClass{},
 		&model.CourseRegistration{},
 		&model.FCMToken{},
-		&model.FarePrice{},
+		&model.FareAttribute{},
 		&model.FareRule{},
 		&model.Faculty{},
 		&model.FacultyRoom{},
