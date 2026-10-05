@@ -4,7 +4,7 @@ import "time"
 
 type CalendarDate struct {
 	ServiceID     string    `gorm:"primaryKey"`
+	Calendar      *Calendar `gorm:"belongsTo;foreignKey:ServiceID;constraint:OnDelete:CASCADE"`
 	Date          time.Time `gorm:"type:date;primaryKey"`
-	ExceptionType bool      `gorm:"not null"`
-	Calendar      Calendar  `gorm:"foreignKey:ServiceID;constraint:OnDelete:CASCADE"`
+	ExceptionType int       `gorm:"not null;check:exception_type IN (1,2)"`
 }
