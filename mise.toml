@@ -19,6 +19,7 @@ run = [
 ]
 
 [tasks.rulesync]
+description = "rulesyncの設定を生成する"
 run = "rulesync generate"
 
 [tasks."generate"]
