@@ -15,3 +15,10 @@ func (h *Handler) MenuItemsV1List(c *gin.Context, _ api.MenuItemsV1ListParams) {
 	}
 	c.JSON(http.StatusNotImplemented, gin.H{"error": "menu items are not available"})
 }
+
+func (h *Handler) MenuItemsV1Create(c *gin.Context) {
+	if !middleware.RequireAnyClaim(c, "admin", "developer") {
+		return
+	}
+	c.JSON(http.StatusNotImplemented, gin.H{"error": "not implemented"})
+}
