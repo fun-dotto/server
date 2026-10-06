@@ -65,12 +65,6 @@ func main() {
 		handler.WithAcademicService(academicService),
 		handler.WithUserService(userService),
 	}
-	if clients.Funch != nil {
-		funchRepository := repository.NewFunchRepository(clients.Funch)
-		opts = append(opts, handler.WithFunchService(service.NewFunchService(funchRepository)))
-	} else {
-		log.Printf("Warning: FUNCH_API_URL is not set; funch endpoints are disabled")
-	}
 
 	h := handler.NewHandler(opts...)
 
