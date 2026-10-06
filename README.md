@@ -7,7 +7,7 @@
 ### セットアップ
 
 ```bash
-mise bootstrap
+mise run bootstrap
 ```
 
 ### API サーバーの起動
