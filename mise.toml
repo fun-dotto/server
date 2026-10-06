@@ -10,22 +10,21 @@ node = "26.10.0"
 "npm:portless" = "0.15.6"
 "npm:rulesync" = "24.0.0"
 
-[tasks.setup]
-description = "Install pinned tools and download Go module dependencies"
+[tasks.bootstrap]
+description = "依存関係をセットアップする"
 run = [
+  { task = "rulesync" },
   "go get -tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest",
   "go mod tidy",
-  { task = "rulesync" }
 ]
 
 [tasks.rulesync]
 run = "rulesync generate"
 
-[tasks."generate:openapi"]
-description = "Generate code from OpenAPI spec"
+[tasks."generate"]
+description = "API定義からコードを生成する"
 run = [
-  "rm -rf ./gen",
-  "mkdir -p ./gen",
+  "buf generate",
   "go tool oapi-codegen -config ./api/openapi/academic/config.yaml ./api/openapi/academic/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/admin/config.yaml ./api/openapi/admin/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/announcement/config.yaml ./api/openapi/announcement/openapi.yaml",
@@ -34,43 +33,59 @@ run = [
 ]
 
 [tasks.build]
-description = "Build all binaries under cmd/"
+description = "ビルドを実行する"
 run = [
-  "rm -rf ./bin",
-  "mkdir -p ./bin",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/academic-api ./cmd/academic-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/admin-api ./cmd/admin-bff-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/announcement-api ./cmd/announcement-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/app-api ./cmd/app-bff-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/user-api ./cmd/user-api",
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/migrate ./cmd/migrate",
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/apply-table-privileges ./cmd/apply-table-privileges",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/build-class-change-notifications-job ./cmd/build-class-change-notifications-job",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/dispatch-notifications-job ./cmd/dispatch-notifications-job",
 ]
 
+[tasks."lint"]
+description = "静的解析を実行する"
+run = [
+  "go vet ./...",
+  "go build -o ./bin/gormuuidlint ./cmd/gormuuidlint",
+  "go vet -vettool=./bin/gormuuidlint ./...",
+]
+
+[tasks.test]
+description = "テストを実行する"
+run = "go test -v ./..."
+
 [tasks."migrate:diff"]
-description = "GORM モデルから desired state を生成し、versioned SQL の差分を migrations/ に書き出す (atlas CLI / env=local)"
+description = "マイグレーションスキーマを生成する"
 usage = '''
 arg "name" help="生成するマイグレーション名 (省略可、例: add_users_table)" default=""
 '''
 run = 'atlas migrate diff {{arg(name="name")}} --env gorm'
 
 [tasks."migrate:apply"]
-description = "cmd/migrate を起動し、cloudsqlconn (IAM 認証) で接続した DB に migrations/ を適用する"
+description = "マイグレーションを実行する"
 run = "go run ./cmd/migrate"
 
-[tasks.academic-api]
-description = "cmd/academic-api を portless 経由で起動する (https://academic-api.dotto.localhost)"
+[tasks."run:academic-api"]
+description = "academic-api を 起動する (https://academic-api.dotto.localhost)"
 run = "portless academic-api.dotto go run ./cmd/academic-api"
 
-[tasks.user-api]
-description = "cmd/user-api を portless 経由で起動する (https://user-api.dotto.localhost)"
-run = "portless user-api.dotto go run ./cmd/user-api"
+[tasks."run:admin-bff-api"]
+description = "admin-bff-api を起動する (https://admin-bff-api.dotto.localhost)"
+run = "portless admin-bff-api.dotto go run ./cmd/admin-bff-api"
 
-[tasks.announcement-api]
-description = "cmd/announcement-api を portless 経由で起動する (https://announcement-api.dotto.localhost)"
+[tasks."run:announcement-api"]
+description = "announcement-api を 起動する (https://announcement-api.dotto.localhost)"
 run = "portless announcement-api.dotto go run ./cmd/announcement-api"
+
+[tasks."run:app-bff-api"]
+description = "app-bff-api を起動する (https://app-bff-api.dotto.localhost)"
+run = "portless app-bff-api.dotto go run ./cmd/app-bff-api"
+
+[tasks."run:user-api"]
+description = "user-api を 起動する (https://user-api.dotto.localhost)"
+run = "portless user-api.dotto go run ./cmd/user-api"
 
 [tasks."portless:doctor"]
 description = "portless のプロキシ・DNS・CA 信頼状態を確認する"
@@ -83,26 +98,3 @@ run = "portless list"
 [tasks."portless:stop"]
 description = "portless のプロキシを停止する"
 run = "portless proxy stop"
-
-[tasks.admin-api]
-description = "cmd/admin-bff-api (管理画面向け BFF) を起動する"
-run = "go run ./cmd/admin-bff-api"
-
-[tasks.app-api]
-description = "cmd/app-bff-api (モバイルアプリ向け BFF) を起動する"
-run = "go run ./cmd/app-bff-api"
-
-[tasks.test]
-description = "Run all unit tests"
-run = "go test -v ./..."
-
-[tasks."lint:gormuuid"]
-description = "GORM のクエリ引数に uuid.UUID を直接渡している箇所を検出する"
-run = [
-  "go build -o ./bin/gormuuidlint ./cmd/gormuuidlint",
-  "go vet -vettool=./bin/gormuuidlint ./...",
-]
-
-[tasks.clean]
-description = "Clean build artifacts"
-run = "rm -rf ./bin"
