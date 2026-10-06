@@ -14,7 +14,11 @@ description = "Install pinned tools and download Go module dependencies"
 run = [
   "go get -tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest",
   "go mod tidy",
+  { task = "rulesync" }
 ]
+
+[tasks.rulesync]
+run = "rulesync generate"
 
 [tasks."generate:openapi"]
 description = "Generate code from OpenAPI spec"

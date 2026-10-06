@@ -63,3 +63,14 @@ Temporary Items
 .env
 bin/
 mise.local.toml
+
+**/AGENTS.md
+**/CLAUDE.md
+.agents/*
+.claude/*
+.codex/*
+.github/*
+!.github/actions/
+!.github/workflows/
+!.github/PULL_REQUEST_TEMPLATE.md
+.mcp.json
