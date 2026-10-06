@@ -38,10 +38,10 @@ jobs:
           cache: true
 
       - name: Setup
-        run: mise setup
+        run: mise run bootstrap
 
       - name: Run unit tests
-        run: go test ./...
+        run: mise run test
 
   build:
     name: Build
@@ -57,7 +57,7 @@ jobs:
           cache: true
 
       - name: Setup
-        run: mise setup
+        run: mise bootstrap
 
       - name: Build all binaries
         run: mise run build
@@ -76,7 +76,7 @@ jobs:
           cache: true
 
       - name: Setup
-        run: mise setup
+        run: mise bootstrap
 
       - name: gofmt
         run: |
@@ -87,8 +87,5 @@ jobs:
             exit 1
           fi
 
-      - name: go vet
-        run: go vet ./...
-
-      - name: gormuuid
-        run: mise run lint:gormuuid
+      - name: Lint
+        run: mise run lint
