@@ -26,6 +26,16 @@ CREATE TABLE "public"."zones" (
   "zone_id" text NOT NULL,
   PRIMARY KEY ("zone_id")
 );
+-- Create "fare_attributes" table
+CREATE TABLE "public"."fare_attributes" (
+  "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+  "fare_id" text NOT NULL,
+  "rider_category" text NOT NULL DEFAULT 'adult',
+  "price" numeric NOT NULL,
+  PRIMARY KEY ("id")
+);
+-- Create index "idx_fare_rider" to table: "fare_attributes"
+CREATE UNIQUE INDEX "idx_fare_rider" ON "public"."fare_attributes" ("fare_id", "rider_category");
 -- Create "routes" table
 CREATE TABLE "public"."routes" (
   "route_id" text NOT NULL,
@@ -35,31 +45,24 @@ CREATE TABLE "public"."routes" (
 -- Create "fare_rules" table
 CREATE TABLE "public"."fare_rules" (
   "id" uuid NOT NULL DEFAULT gen_random_uuid(),
-  "fare_id" text NULL,
+  "fare_attribute_id" uuid NOT NULL,
   "route_id" text NULL,
   "origin_id" text NULL,
   "destination_id" text NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "fk_fare_rules_destination" FOREIGN KEY ("destination_id") REFERENCES "public"."zones" ("zone_id") ON UPDATE NO ACTION ON DELETE CASCADE,
+  CONSTRAINT "fk_fare_rules_fare_attribute" FOREIGN KEY ("fare_attribute_id") REFERENCES "public"."fare_attributes" ("id") ON UPDATE NO ACTION ON DELETE CASCADE,
   CONSTRAINT "fk_fare_rules_origin" FOREIGN KEY ("origin_id") REFERENCES "public"."zones" ("zone_id") ON UPDATE NO ACTION ON DELETE CASCADE,
   CONSTRAINT "fk_fare_rules_route" FOREIGN KEY ("route_id") REFERENCES "public"."routes" ("route_id") ON UPDATE NO ACTION ON DELETE CASCADE
 );
 -- Create index "idx_fare_rules_destination_id" to table: "fare_rules"
 CREATE INDEX "idx_fare_rules_destination_id" ON "public"."fare_rules" ("destination_id");
--- Create index "idx_fare_rules_fare_id" to table: "fare_rules"
-CREATE INDEX "idx_fare_rules_fare_id" ON "public"."fare_rules" ("fare_id");
+-- Create index "idx_fare_rules_fare_attribute_id" to table: "fare_rules"
+CREATE INDEX "idx_fare_rules_fare_attribute_id" ON "public"."fare_rules" ("fare_attribute_id");
 -- Create index "idx_fare_rules_origin_id" to table: "fare_rules"
 CREATE INDEX "idx_fare_rules_origin_id" ON "public"."fare_rules" ("origin_id");
 -- Create index "idx_fare_rules_route_id" to table: "fare_rules"
 CREATE INDEX "idx_fare_rules_route_id" ON "public"."fare_rules" ("route_id");
--- Create "fare_attributes" table
-CREATE TABLE "public"."fare_attributes" (
-  "fare_id" uuid NOT NULL,
-  "rider_category" text NOT NULL DEFAULT 'adult',
-  "price" numeric NOT NULL,
-  PRIMARY KEY ("fare_id", "rider_category"),
-  CONSTRAINT "fk_fare_rules_fare_attribute" FOREIGN KEY ("fare_id") REFERENCES "public"."fare_rules" ("id") ON UPDATE NO ACTION ON DELETE CASCADE
-);
 -- Create "stops" table
 CREATE TABLE "public"."stops" (
   "stop_id" text NOT NULL,
