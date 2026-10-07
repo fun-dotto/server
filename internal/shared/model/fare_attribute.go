@@ -1,8 +1,8 @@
 package model
 
 import (
-	"uuid"
 	"github.com/shopspring/decimal"
+	"uuid"
 )
 
 type RiderCategory string
