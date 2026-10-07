@@ -5,3 +5,5 @@ generate:
   models: true
   strict-server: true
 output: gen/user/api.gen.go
+compatibility:
+  enable-auth-scopes-on-context: true

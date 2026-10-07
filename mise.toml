@@ -2,19 +2,23 @@
 minimum_release_age = "7d"
 
 [tools]
-atlas = "1.2.0"
-gcloud = "575.0.0"
-go = "1.27.0"
-# portless (npm backend) の実行に Node.js 24+ が必要
-node = "24.19.0"
-"npm:portless" = "0.15.5"
+atlas = "1.3.0"
+gcloud = "586.0.0"
+go = "1.27.1"
+node = "26.10.0"
+"npm:portless" = "0.15.6"
+"npm:rulesync" = "24.0.0"
 
 [tasks.setup]
 description = "Install pinned tools and download Go module dependencies"
 run = [
   "go get -tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest",
   "go mod tidy",
+  { task = "rulesync" }
 ]
+
+[tasks.rulesync]
+run = "rulesync generate"
 
 [tasks."generate:openapi"]
 description = "Generate code from OpenAPI spec"
@@ -25,7 +29,6 @@ run = [
   "go tool oapi-codegen -config ./api/openapi/admin/config.yaml ./api/openapi/admin/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/announcement/config.yaml ./api/openapi/announcement/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/app/config.yaml ./api/openapi/app/openapi.yaml",
-  "go tool oapi-codegen -config ./api/openapi/funch/config.yaml ./api/openapi/funch/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/user/config.yaml ./api/openapi/user/openapi.yaml",
 ]
 
