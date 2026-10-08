@@ -7,8 +7,7 @@
 ### セットアップ
 
 ```bash
-mise install   # go / atlas / gcloud / node / portless を導入
-mise setup     # Go の依存関係を取得
+mise run bootstrap
 ```
 
 ### API サーバーの起動
@@ -16,11 +15,13 @@ mise setup     # Go の依存関係を取得
 各 API サーバーは mise のタスクから [portless](https://portless.sh/) 経由で起動する。
 ポート番号の代わりに固定の `.localhost` URL (HTTPS / HTTP2) でアクセスできる。
 
-| タスク | URL |
-| --- | --- |
-| `mise run academic-api` | https://academic-api.dotto.localhost |
-| `mise run user-api` | https://user-api.dotto.localhost |
-| `mise run announcement-api` | https://announcement-api.dotto.localhost |
+| タスク                          | URL                                      |
+| ------------------------------- | ---------------------------------------- |
+| `mise run run:academic-api`     | https://academic-api.dotto.localhost     |
+| `mise run run:admin-bff-api`    | https://admin-bff-api.dotto.localhost    |
+| `mise run run:announcement-api` | https://announcement-api.dotto.localhost |
+| `mise run run:app-bff-api`      | https://app-bff-api.dotto.localhost      |
+| `mise run run:user-api`         | https://user-api.dotto.localhost         |
 
 portless は 4000-4999 の空きポートを環境変数 `PORT` で子プロセスに渡し、
 そのポートへリバースプロキシする。サーバー側は `server.Addr()` が `PORT` を読むため、
@@ -28,11 +29,11 @@ portless は 4000-4999 の空きポートを環境変数 `PORT` で子プロセ�
 
 補助タスク:
 
-| タスク | 内容 |
-| --- | --- |
+| タスク                     | 内容                             |
+| -------------------------- | -------------------------------- |
 | `mise run portless:doctor` | プロキシ・DNS・CA 信頼状態の確認 |
-| `mise run portless:list` | 登録済みルートの一覧 |
-| `mise run portless:stop` | プロキシの停止 |
+| `mise run portless:list`   | 登録済みルートの一覧             |
+| `mise run portless:stop`   | プロキシの停止                   |
 
 ### 注意点
 
