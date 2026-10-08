@@ -289,3 +289,38 @@ func TestSortSubjects(t *testing.T) {
 		})
 	}
 }
+
+func TestSortTimetableItems(t *testing.T) {
+	slot := func(d domain.DayOfWeek, p domain.Period) *domain.TimetableSlot {
+		return &domain.TimetableSlot{DayOfWeek: d, Period: p}
+	}
+	item := func(id string, s *domain.TimetableSlot, cls domain.SubjectClassification, c domain.CourseType, g domain.Grade) domain.TimetableItem {
+		return domain.TimetableItem{ID: id, Slot: s, Subject: newSubject(id, cls, c, g)}
+	}
+	mon1 := slot(domain.DayOfWeekMonday, domain.PeriodPeriod1)
+	mon2 := slot(domain.DayOfWeekMonday, domain.PeriodPeriod2)
+
+	// リポジトリは 曜日 → 時限 の順で返す前提
+	items := []domain.TimetableItem{
+		item("mon1-cultural", mon1, domain.SubjectClassificationCultural, domain.CourseTypeComplexSystem, domain.GradeB2),
+		item("mon1-other", mon1, domain.SubjectClassificationSpecialized, domain.CourseTypeInformationSystem, domain.GradeB2),
+		item("mon1-mine", mon1, domain.SubjectClassificationSpecialized, domain.CourseTypeComplexSystem, domain.GradeB2),
+		item("mon2-other", mon2, domain.SubjectClassificationSpecialized, domain.CourseTypeInformationSystem, domain.GradeB1),
+		item("mon2-mine", mon2, domain.SubjectClassificationSpecialized, domain.CourseTypeComplexSystem, domain.GradeB2),
+		item("no-slot-cultural", nil, domain.SubjectClassificationCultural, domain.CourseTypeComplexSystem, domain.GradeB2),
+		item("no-slot-mine", nil, domain.SubjectClassificationSpecialized, domain.CourseTypeComplexSystem, domain.GradeB2),
+	}
+
+	sortTimetableItems(items, coursePtr(domain.CourseTypeComplexSystem), gradePtr(domain.GradeB2))
+
+	want := []string{"mon1-mine", "mon1-other", "mon1-cultural", "mon2-mine", "mon2-other", "no-slot-mine", "no-slot-cultural"}
+	for i, it := range items {
+		if it.ID != want[i] {
+			got := make([]string, len(items))
+			for j, x := range items {
+				got[j] = x.ID
+			}
+			t.Fatalf("sortTimetableItems() = %v, want %v", got, want)
+		}
+	}
+}

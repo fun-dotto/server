@@ -34,7 +34,7 @@ type roomService interface {
 }
 
 type timetableItemService interface {
-	List(ctx context.Context, filter domain.TimetableItemListFilter) ([]domain.TimetableItem, error)
+	List(ctx context.Context, filter domain.TimetableItemListFilter, sort *domain.SubjectListSort) ([]domain.TimetableItem, error)
 	Create(ctx context.Context, item domain.TimetableItem) (domain.TimetableItem, error)
 	Delete(ctx context.Context, id string) error
 }

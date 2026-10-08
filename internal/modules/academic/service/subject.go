@@ -128,14 +128,41 @@ func gradeRank(s domain.Subject, userGrade *domain.Grade) int {
 	return best
 }
 
+// compareSubjects は 科目区分 → コース → 学年 の順で比較する。
+func compareSubjects(a, b domain.Subject, userCourse *domain.CourseType, userGrade *domain.Grade) int {
+	if c := cmp.Compare(classificationRank(a), classificationRank(b)); c != 0 {
+		return c
+	}
+	if c := cmp.Compare(courseRank(a, userCourse), courseRank(b, userCourse)); c != 0 {
+		return c
+	}
+	return cmp.Compare(gradeRank(a, userGrade), gradeRank(b, userGrade))
+}
+
 func sortSubjects(subjects []domain.Subject, userCourse *domain.CourseType, userGrade *domain.Grade) {
 	slices.SortStableFunc(subjects, func(a, b domain.Subject) int {
-		if c := cmp.Compare(classificationRank(a), classificationRank(b)); c != 0 {
-			return c
-		}
-		if c := cmp.Compare(courseRank(a, userCourse), courseRank(b, userCourse)); c != 0 {
-			return c
-		}
-		return cmp.Compare(gradeRank(a, userGrade), gradeRank(b, userGrade))
+		return compareSubjects(a, b, userCourse, userGrade)
 	})
+}
+
+// sortTimetableItems は同じコマ（曜日・時限）内の科目だけをユーザー属性順に並び替える。
+// コマ同士の順序はリポジトリが返した順（曜日 → 時限）のまま維持する。
+func sortTimetableItems(items []domain.TimetableItem, userCourse *domain.CourseType, userGrade *domain.Grade) {
+	for start := 0; start < len(items); {
+		end := start + 1
+		for end < len(items) && sameSlot(items[start].Slot, items[end].Slot) {
+			end++
+		}
+		slices.SortStableFunc(items[start:end], func(a, b domain.TimetableItem) int {
+			return compareSubjects(a.Subject, b.Subject, userCourse, userGrade)
+		})
+		start = end
+	}
+}
+
+func sameSlot(a, b *domain.TimetableSlot) bool {
+	if a == nil || b == nil {
+		return a == nil && b == nil
+	}
+	return *a == *b
 }
