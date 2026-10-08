@@ -37,7 +37,8 @@ run = [
 description = "ビルドを実行する"
 run = [
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/academic-api ./cmd/academic-api",
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/admin-api ./cmd/admin-bff-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/admin-api ./cmd/admin-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/admin-bff-api ./cmd/admin-bff-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/announcement-api ./cmd/announcement-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/app-api ./cmd/app-bff-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/user-api ./cmd/user-api",
@@ -71,6 +72,10 @@ run = "go run ./cmd/migrate"
 [tasks."run:academic-api"]
 description = "academic-api を 起動する (https://academic-api.dotto.localhost)"
 run = "portless academic-api.dotto go run ./cmd/academic-api"
+
+[tasks."run:admin-api"]
+description = "admin-api を起動する (https://admin-api.dotto.localhost)"
+run = "portless admin-api.dotto go run ./cmd/admin-api"
 
 [tasks."run:admin-bff-api"]
 description = "admin-bff-api を起動する (https://admin-bff-api.dotto.localhost)"
