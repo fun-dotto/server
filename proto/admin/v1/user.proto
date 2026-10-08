@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "admin/v1/common.proto";
+import "google/protobuf/field_mask.proto";
+
+message User {
+  string id = 1;
+  string email = 2;
+  optional Grade grade = 3;
+  optional Course course = 4;
+  optional Class class = 5;
+}
+
+message ListUsersRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  string next_page_token = 2;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message CreateUserRequest {
+  string id = 1;
+  string email = 2;
+  optional Grade grade = 3;
+  optional Course course = 4;
+  optional Class class = 5;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  string email = 2;
+  optional Grade grade = 3;
+  optional Course course = 4;
+  optional Class class = 5;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateUserResponse {
+  User user = 1;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserResponse {}
+
+service UserService {
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+}

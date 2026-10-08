@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/type/money.proto";
+
+enum FareAttributeRiderCategory {
+  FARE_ATTRIBUTE_RIDER_CATEGORY_UNSPECIFIED = 0;
+  FARE_ATTRIBUTE_RIDER_CATEGORY_ADULT = 1;
+}
+
+message FareAttribute {
+  string fare_id = 1;
+  FareAttributeRiderCategory rider_category = 2;
+  google.type.Money price = 3;
+}
+
+message ListFareAttributesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListFareAttributesResponse {
+  repeated FareAttribute fare_attributes = 1;
+  string next_page_token = 2;
+}
+
+message GetFareAttributeRequest {
+  string fare_id = 1;
+}
+
+message GetFareAttributeResponse {
+  FareAttribute fare_attribute = 1;
+}
+
+message CreateFareAttributeRequest {
+  string fare_id = 1;
+  FareAttributeRiderCategory rider_category = 2;
+  google.type.Money price = 3;
+}
+
+message CreateFareAttributeResponse {
+  FareAttribute fare_attribute = 1;
+}
+
+message UpdateFareAttributeRequest {
+  string fare_id = 1;
+  FareAttributeRiderCategory rider_category = 2;
+  google.type.Money price = 3;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateFareAttributeResponse {
+  FareAttribute fare_attribute = 1;
+}
+
+message DeleteFareAttributeRequest {
+  string fare_id = 1;
+}
+
+message DeleteFareAttributeResponse {}
+
+service FareAttributeService {
+  rpc ListFareAttributes(ListFareAttributesRequest) returns (ListFareAttributesResponse);
+  rpc GetFareAttribute(GetFareAttributeRequest) returns (GetFareAttributeResponse);
+  rpc CreateFareAttribute(CreateFareAttributeRequest) returns (CreateFareAttributeResponse);
+  rpc UpdateFareAttribute(UpdateFareAttributeRequest) returns (UpdateFareAttributeResponse);
+  rpc DeleteFareAttribute(DeleteFareAttributeRequest) returns (DeleteFareAttributeResponse);
+}

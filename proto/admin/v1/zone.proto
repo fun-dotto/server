@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+
+message Zone {
+  string zone_id = 1;
+}
+
+message ListZonesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListZonesResponse {
+  repeated Zone zones = 1;
+  string next_page_token = 2;
+}
+
+message GetZoneRequest {
+  string zone_id = 1;
+}
+
+message GetZoneResponse {
+  Zone zone = 1;
+}
+
+message CreateZoneRequest {
+  string zone_id = 1;
+}
+
+message CreateZoneResponse {
+  Zone zone = 1;
+}
+
+message UpdateZoneRequest {
+  string zone_id = 1;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateZoneResponse {
+  Zone zone = 1;
+}
+
+message DeleteZoneRequest {
+  string zone_id = 1;
+}
+
+message DeleteZoneResponse {}
+
+service ZoneService {
+  rpc ListZones(ListZonesRequest) returns (ListZonesResponse);
+  rpc GetZone(GetZoneRequest) returns (GetZoneResponse);
+  rpc CreateZone(CreateZoneRequest) returns (CreateZoneResponse);
+  rpc UpdateZone(UpdateZoneRequest) returns (UpdateZoneResponse);
+  rpc DeleteZone(DeleteZoneRequest) returns (DeleteZoneResponse);
+}
