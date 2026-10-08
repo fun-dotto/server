@@ -938,6 +938,19 @@ paths:
             items:
               $ref: '#/components/schemas/DottoFoundationV1.CulturalSubjectCategory'
           explode: false
+        - name: userId
+          in: query
+          required: false
+          description: ユーザーID; 指定し、かつ xFlags で subject_sort_by_user_attributes=true の場合はユーザーのコース・学年に近い順にソートする
+          schema:
+            type: string
+          explode: false
+        - name: X-Flags
+          in: header
+          required: false
+          description: フィーチャーフラグ; `name=true,name2=false` のカンマ区切り
+          schema:
+            type: string
       responses:
         '200':
           description: 科目のリスト
@@ -1048,6 +1061,19 @@ paths:
             items:
               $ref: '#/components/schemas/DottoFoundationV1.CourseSemester'
           explode: false
+        - name: userId
+          in: query
+          required: false
+          description: ユーザーID; 指定し、かつ xFlags で subject_sort_by_user_attributes=true の場合はユーザーのコース・学年に近い順にソートする
+          schema:
+            type: string
+          explode: false
+        - name: X-Flags
+          in: header
+          required: false
+          description: フィーチャーフラグ; `name=true,name2=false` のカンマ区切り
+          schema:
+            type: string
       responses:
         '200':
           description: 時間割のリスト

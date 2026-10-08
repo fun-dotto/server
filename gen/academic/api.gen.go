@@ -821,8 +821,11 @@ type SubjectsV1ListParams struct {
 	// CulturalSubjectCategories 教養科目カテゴリ
 	CulturalSubjectCategories *[]DottoFoundationV1CulturalSubjectCategory `form:"culturalSubjectCategories,omitempty" json:"culturalSubjectCategories,omitempty"`
 
-	// UserId ユーザーID; 指定した場合はユーザーのコース・学年に近い順にソートする
+	// UserId ユーザーID; 指定し、かつ xFlags で subject_sort_by_user_attributes=true の場合はユーザーのコース・学年に近い順にソートする
 	UserId *string `form:"userId,omitempty" json:"userId,omitempty"`
+
+	// XFlags フィーチャーフラグ; `name=true,name2=false` のカンマ区切り
+	XFlags *string `json:"X-Flags,omitempty"`
 }
 
 // TimetableItemsV1ListParams defines parameters for TimetableItemsV1List.
@@ -832,6 +835,12 @@ type TimetableItemsV1ListParams struct {
 
 	// Semesters 開講時期; 指定された時期に開講される全ての科目が取得される
 	Semesters []DottoFoundationV1CourseSemester `form:"semesters" json:"semesters"`
+
+	// UserId ユーザーID; 指定し、かつ xFlags で subject_sort_by_user_attributes=true の場合はユーザーのコース・学年に近い順にソートする
+	UserId *string `form:"userId,omitempty" json:"userId,omitempty"`
+
+	// XFlags フィーチャーフラグ; `name=true,name2=false` のカンマ区切り
+	XFlags *string `json:"X-Flags,omitempty"`
 }
 
 // CancelledClassesV1CreateJSONRequestBody defines body for CancelledClassesV1Create for application/json ContentType.
@@ -3182,6 +3191,21 @@ func NewSubjectsV1ListRequest(server string, params *SubjectsV1ListParams) (*htt
 		return nil, err
 	}
 
+	if params != nil {
+
+		if params.XFlags != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Flags", *params.XFlags, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Flags", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
@@ -3339,6 +3363,18 @@ func NewTimetableItemsV1ListRequest(server string, params *TimetableItemsV1ListP
 
 		}
 
+		if params.UserId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", false, "userId", *params.UserId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -3348,6 +3384,21 @@ func NewTimetableItemsV1ListRequest(server string, params *TimetableItemsV1ListP
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+
+		if params.XFlags != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Flags", *params.XFlags, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: ""})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Flags", headerParam0)
+		}
+
 	}
 
 	return req, nil
@@ -6990,6 +7041,27 @@ func (siw *ServerInterfaceWrapper) SubjectsV1List(c *gin.Context) {
 		return
 	}
 
+	headers := c.Request.Header
+
+	// ------------- Optional header parameter "X-Flags" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Flags")]; found {
+		var XFlags string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandler(c, fmt.Errorf("Expected one value for X-Flags, got %d", n), http.StatusBadRequest)
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Flags", valueList[0], &XFlags, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter X-Flags: %w", err), http.StatusBadRequest)
+			return
+		}
+
+		params.XFlags = &XFlags
+
+	}
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -7098,6 +7170,35 @@ func (siw *ServerInterfaceWrapper) TimetableItemsV1List(c *gin.Context) {
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter semesters: %w", err), http.StatusBadRequest)
 		return
+	}
+
+	// ------------- Optional query parameter "userId" -------------
+
+	err = runtime.BindQueryParameterWithOptions("form", false, false, "userId", c.Request.URL.Query(), &params.UserId, runtime.BindQueryParameterOptions{Type: "string", Format: ""})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userId: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	headers := c.Request.Header
+
+	// ------------- Optional header parameter "X-Flags" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("X-Flags")]; found {
+		var XFlags string
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandler(c, fmt.Errorf("Expected one value for X-Flags, got %d", n), http.StatusBadRequest)
+			return
+		}
+
+		err = runtime.BindStyledParameterWithOptions("simple", "X-Flags", valueList[0], &XFlags, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""})
+		if err != nil {
+			siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter X-Flags: %w", err), http.StatusBadRequest)
+			return
+		}
+
+		params.XFlags = &XFlags
+
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
