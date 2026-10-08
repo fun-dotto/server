@@ -22,6 +22,8 @@ type Notification struct {
 
 	URL *string
 
-	NotifyAfter  time.Time `gorm:"not null;index"`
+	// TODO: AIP-140 に従い前置詞を含まない名前（例: notify_start_time）に改名する
+	NotifyAfter time.Time `gorm:"not null;index"`
+	// TODO: AIP-140 に従い前置詞を含まない名前（例: notify_end_time）に改名する
 	NotifyBefore time.Time `gorm:"not null;index"`
 }

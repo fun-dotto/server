@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+enum NotificationAndroidPriority {
+  NOTIFICATION_ANDROID_PRIORITY_UNSPECIFIED = 0;
+  NOTIFICATION_ANDROID_PRIORITY_NORMAL = 1;
+  NOTIFICATION_ANDROID_PRIORITY_HIGH = 2;
+}
+
+message Notification {
+  string id = 1;
+  string title = 2;
+  string body = 3;
+  optional string image_url = 4;
+  optional string analytics_label = 5;
+  optional int32 apns_badge = 6;
+  optional string apns_sound = 7;
+  optional bool apns_content_available = 8;
+  optional string android_channel_id = 9;
+  optional NotificationAndroidPriority android_priority = 10;
+  optional int32 android_ttl_seconds = 11;
+  optional string webpush_link = 12;
+  optional string url = 13;
+  google.protobuf.Timestamp notify_after = 14;
+  google.protobuf.Timestamp notify_before = 15;
+  google.protobuf.Timestamp created_at = 16;
+  google.protobuf.Timestamp updated_at = 17;
+}
+
+message ListNotificationsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListNotificationsResponse {
+  repeated Notification notifications = 1;
+  string next_page_token = 2;
+}
+
+message GetNotificationRequest {
+  string id = 1;
+}
+
+message GetNotificationResponse {
+  Notification notification = 1;
+}
+
+message CreateNotificationRequest {
+  string title = 1;
+  string body = 2;
+  optional string image_url = 3;
+  optional string analytics_label = 4;
+  optional int32 apns_badge = 5;
+  optional string apns_sound = 6;
+  optional bool apns_content_available = 7;
+  optional string android_channel_id = 8;
+  optional NotificationAndroidPriority android_priority = 9;
+  optional int32 android_ttl_seconds = 10;
+  optional string webpush_link = 11;
+  optional string url = 12;
+  google.protobuf.Timestamp notify_after = 13;
+  google.protobuf.Timestamp notify_before = 14;
+}
+
+message CreateNotificationResponse {
+  Notification notification = 1;
+}
+
+message UpdateNotificationRequest {
+  string id = 1;
+  string title = 2;
+  string body = 3;
+  optional string image_url = 4;
+  optional string analytics_label = 5;
+  optional int32 apns_badge = 6;
+  optional string apns_sound = 7;
+  optional bool apns_content_available = 8;
+  optional string android_channel_id = 9;
+  optional NotificationAndroidPriority android_priority = 10;
+  optional int32 android_ttl_seconds = 11;
+  optional string webpush_link = 12;
+  optional string url = 13;
+  google.protobuf.Timestamp notify_after = 14;
+  google.protobuf.Timestamp notify_before = 15;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateNotificationResponse {
+  Notification notification = 1;
+}
+
+message DeleteNotificationRequest {
+  string id = 1;
+}
+
+message DeleteNotificationResponse {}
+
+service NotificationService {
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+  rpc GetNotification(GetNotificationRequest) returns (GetNotificationResponse);
+  rpc CreateNotification(CreateNotificationRequest) returns (CreateNotificationResponse);
+  rpc UpdateNotification(UpdateNotificationRequest) returns (UpdateNotificationResponse);
+  rpc DeleteNotification(DeleteNotificationRequest) returns (DeleteNotificationResponse);
+}

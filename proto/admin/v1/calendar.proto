@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/type/date.proto";
+
+message Calendar {
+  string service_id = 1;
+  bool monday = 2;
+  bool tuesday = 3;
+  bool wednesday = 4;
+  bool thursday = 5;
+  bool friday = 6;
+  bool saturday = 7;
+  bool sunday = 8;
+  google.type.Date start_date = 9;
+  google.type.Date end_date = 10;
+}
+
+message ListCalendarsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListCalendarsResponse {
+  repeated Calendar calendars = 1;
+  string next_page_token = 2;
+}
+
+message GetCalendarRequest {
+  string service_id = 1;
+}
+
+message GetCalendarResponse {
+  Calendar calendar = 1;
+}
+
+message CreateCalendarRequest {
+  string service_id = 1;
+  bool monday = 2;
+  bool tuesday = 3;
+  bool wednesday = 4;
+  bool thursday = 5;
+  bool friday = 6;
+  bool saturday = 7;
+  bool sunday = 8;
+  google.type.Date start_date = 9;
+  google.type.Date end_date = 10;
+}
+
+message CreateCalendarResponse {
+  Calendar calendar = 1;
+}
+
+message UpdateCalendarRequest {
+  string service_id = 1;
+  bool monday = 2;
+  bool tuesday = 3;
+  bool wednesday = 4;
+  bool thursday = 5;
+  bool friday = 6;
+  bool saturday = 7;
+  bool sunday = 8;
+  google.type.Date start_date = 9;
+  google.type.Date end_date = 10;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateCalendarResponse {
+  Calendar calendar = 1;
+}
+
+message DeleteCalendarRequest {
+  string service_id = 1;
+}
+
+message DeleteCalendarResponse {}
+
+service CalendarService {
+  rpc ListCalendars(ListCalendarsRequest) returns (ListCalendarsResponse);
+  rpc GetCalendar(GetCalendarRequest) returns (GetCalendarResponse);
+  rpc CreateCalendar(CreateCalendarRequest) returns (CreateCalendarResponse);
+  rpc UpdateCalendar(UpdateCalendarRequest) returns (UpdateCalendarResponse);
+  rpc DeleteCalendar(DeleteCalendarRequest) returns (DeleteCalendarResponse);
+}

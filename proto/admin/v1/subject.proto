@@ -1,0 +1,142 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "admin/v1/common.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+enum SubjectSemester {
+  SUBJECT_SEMESTER_UNSPECIFIED = 0;
+  SUBJECT_SEMESTER_ALL_YEAR = 1;
+  SUBJECT_SEMESTER_H1 = 2;
+  SUBJECT_SEMESTER_H2 = 3;
+  SUBJECT_SEMESTER_Q1 = 4;
+  SUBJECT_SEMESTER_Q2 = 5;
+  SUBJECT_SEMESTER_Q3 = 6;
+  SUBJECT_SEMESTER_Q4 = 7;
+  SUBJECT_SEMESTER_SUMMER_INTENSIVE = 8;
+  SUBJECT_SEMESTER_WINTER_INTENSIVE = 9;
+}
+
+enum SubjectClassification {
+  SUBJECT_CLASSIFICATION_UNSPECIFIED = 0;
+  SUBJECT_CLASSIFICATION_SPECIALIZED = 1;
+  SUBJECT_CLASSIFICATION_CULTURAL = 2;
+  SUBJECT_CLASSIFICATION_RESEARCH_INSTRUCTION = 3;
+}
+
+enum SubjectCulturalSubjectCategory {
+  SUBJECT_CULTURAL_SUBJECT_CATEGORY_UNSPECIFIED = 0;
+  SUBJECT_CULTURAL_SUBJECT_CATEGORY_SOCIETY = 1;
+  SUBJECT_CULTURAL_SUBJECT_CATEGORY_HUMAN = 2;
+  SUBJECT_CULTURAL_SUBJECT_CATEGORY_SCIENCE = 3;
+  SUBJECT_CULTURAL_SUBJECT_CATEGORY_HEALTH = 4;
+  SUBJECT_CULTURAL_SUBJECT_CATEGORY_COMMUNICATION = 5;
+}
+
+enum SubjectRequirementType {
+  SUBJECT_REQUIREMENT_TYPE_UNSPECIFIED = 0;
+  SUBJECT_REQUIREMENT_TYPE_REQUIRED = 1;
+  SUBJECT_REQUIREMENT_TYPE_OPTIONAL = 2;
+  SUBJECT_REQUIREMENT_TYPE_OPTIONAL_REQUIRED = 3;
+}
+
+message SubjectFaculty {
+  string faculty_id = 1;
+  bool is_primary = 2;
+}
+
+message SubjectEligibleAttribute {
+  Grade grade = 1;
+  optional Class class = 2;
+}
+
+message SubjectRequirement {
+  Course course = 1;
+  SubjectRequirementType requirement_type = 2;
+}
+
+message Subject {
+  string id = 1;
+  string name = 2;
+  int32 year = 3;
+  SubjectSemester semester = 4;
+  int32 credit = 5;
+  SubjectClassification classification = 6;
+  SubjectCulturalSubjectCategory cultural_subject_category = 7;
+  string syllabus_id = 8;
+  repeated SubjectFaculty faculties = 9;
+  repeated SubjectEligibleAttribute eligible_attributes = 10;
+  repeated SubjectRequirement requirements = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+message ListSubjectsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListSubjectsResponse {
+  repeated Subject subjects = 1;
+  string next_page_token = 2;
+}
+
+message GetSubjectRequest {
+  string id = 1;
+}
+
+message GetSubjectResponse {
+  Subject subject = 1;
+}
+
+message CreateSubjectRequest {
+  string name = 1;
+  int32 year = 2;
+  SubjectSemester semester = 3;
+  int32 credit = 4;
+  SubjectClassification classification = 5;
+  SubjectCulturalSubjectCategory cultural_subject_category = 6;
+  string syllabus_id = 7;
+  repeated SubjectFaculty faculties = 8;
+  repeated SubjectEligibleAttribute eligible_attributes = 9;
+  repeated SubjectRequirement requirements = 10;
+}
+
+message CreateSubjectResponse {
+  Subject subject = 1;
+}
+
+message UpdateSubjectRequest {
+  string id = 1;
+  string name = 2;
+  int32 year = 3;
+  SubjectSemester semester = 4;
+  int32 credit = 5;
+  SubjectClassification classification = 6;
+  SubjectCulturalSubjectCategory cultural_subject_category = 7;
+  string syllabus_id = 8;
+  repeated SubjectFaculty faculties = 9;
+  repeated SubjectEligibleAttribute eligible_attributes = 10;
+  repeated SubjectRequirement requirements = 11;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateSubjectResponse {
+  Subject subject = 1;
+}
+
+message DeleteSubjectRequest {
+  string id = 1;
+}
+
+message DeleteSubjectResponse {}
+
+service SubjectService {
+  rpc ListSubjects(ListSubjectsRequest) returns (ListSubjectsResponse);
+  rpc GetSubject(GetSubjectRequest) returns (GetSubjectResponse);
+  rpc CreateSubject(CreateSubjectRequest) returns (CreateSubjectResponse);
+  rpc UpdateSubject(UpdateSubjectRequest) returns (UpdateSubjectResponse);
+  rpc DeleteSubject(DeleteSubjectRequest) returns (DeleteSubjectResponse);
+}

@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "admin/v1/common.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
+
+message RoomChange {
+  string id = 1;
+  string subject_id = 2;
+  google.type.Date date = 3;
+  Period period = 4;
+  string original_room_id = 5;
+  string new_room_id = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message ListRoomChangesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListRoomChangesResponse {
+  repeated RoomChange room_changes = 1;
+  string next_page_token = 2;
+}
+
+message GetRoomChangeRequest {
+  string id = 1;
+}
+
+message GetRoomChangeResponse {
+  RoomChange room_change = 1;
+}
+
+message CreateRoomChangeRequest {
+  string subject_id = 1;
+  google.type.Date date = 2;
+  Period period = 3;
+  string original_room_id = 4;
+  string new_room_id = 5;
+}
+
+message CreateRoomChangeResponse {
+  RoomChange room_change = 1;
+}
+
+message UpdateRoomChangeRequest {
+  string id = 1;
+  string subject_id = 2;
+  google.type.Date date = 3;
+  Period period = 4;
+  string original_room_id = 5;
+  string new_room_id = 6;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateRoomChangeResponse {
+  RoomChange room_change = 1;
+}
+
+message DeleteRoomChangeRequest {
+  string id = 1;
+}
+
+message DeleteRoomChangeResponse {}
+
+service RoomChangeService {
+  rpc ListRoomChanges(ListRoomChangesRequest) returns (ListRoomChangesResponse);
+  rpc GetRoomChange(GetRoomChangeRequest) returns (GetRoomChangeResponse);
+  rpc CreateRoomChange(CreateRoomChangeRequest) returns (CreateRoomChangeResponse);
+  rpc UpdateRoomChange(UpdateRoomChangeRequest) returns (UpdateRoomChangeResponse);
+  rpc DeleteRoomChange(DeleteRoomChangeRequest) returns (DeleteRoomChangeResponse);
+}

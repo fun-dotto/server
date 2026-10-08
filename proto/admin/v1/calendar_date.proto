@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/type/date.proto";
+
+enum CalendarDateExceptionType {
+  CALENDAR_DATE_EXCEPTION_TYPE_UNSPECIFIED = 0;
+  CALENDAR_DATE_EXCEPTION_TYPE_ADDED = 1;
+  CALENDAR_DATE_EXCEPTION_TYPE_REMOVED = 2;
+}
+
+message CalendarDate {
+  string service_id = 1;
+  google.type.Date date = 2;
+  CalendarDateExceptionType exception_type = 3;
+}
+
+message ListCalendarDatesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListCalendarDatesResponse {
+  repeated CalendarDate calendar_dates = 1;
+  string next_page_token = 2;
+}
+
+message GetCalendarDateRequest {
+  string service_id = 1;
+  google.type.Date date = 2;
+}
+
+message GetCalendarDateResponse {
+  CalendarDate calendar_date = 1;
+}
+
+message CreateCalendarDateRequest {
+  string service_id = 1;
+  google.type.Date date = 2;
+  CalendarDateExceptionType exception_type = 3;
+}
+
+message CreateCalendarDateResponse {
+  CalendarDate calendar_date = 1;
+}
+
+message UpdateCalendarDateRequest {
+  string service_id = 1;
+  google.type.Date date = 2;
+  CalendarDateExceptionType exception_type = 3;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateCalendarDateResponse {
+  CalendarDate calendar_date = 1;
+}
+
+message DeleteCalendarDateRequest {
+  string service_id = 1;
+  google.type.Date date = 2;
+}
+
+message DeleteCalendarDateResponse {}
+
+service CalendarDateService {
+  rpc ListCalendarDates(ListCalendarDatesRequest) returns (ListCalendarDatesResponse);
+  rpc GetCalendarDate(GetCalendarDateRequest) returns (GetCalendarDateResponse);
+  rpc CreateCalendarDate(CreateCalendarDateRequest) returns (CreateCalendarDateResponse);
+  rpc UpdateCalendarDate(UpdateCalendarDateRequest) returns (UpdateCalendarDateResponse);
+  rpc DeleteCalendarDate(DeleteCalendarDateRequest) returns (DeleteCalendarDateResponse);
+}
