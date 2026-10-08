@@ -1,0 +1,47 @@
+name: Release Proto
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - proto/**
+      - buf.yaml
+      - buf.gen.yaml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  # 各リポジトリの update-proto ワークフローを repository_dispatch で発火する。
+  dispatch:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        repository:
+          - app
+          - web
+          - admin-web
+    steps:
+      - name: Create GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ matrix.repository }}
+          permission-contents: write
+      - name: Dispatch update-proto
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository_owner }}/${{ matrix.repository }}
+        run: |
+          gh api --method POST "/repos/${REPOSITORY}/dispatches" \
+            -f event_type=update-proto \
+            -F "client_payload[sha]=${GITHUB_SHA}"
