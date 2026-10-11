@@ -2,6 +2,7 @@
 minimum_release_age = "7d"
 
 [tools]
+"go:github.com/googleapis/api-linter/v2/cmd/api-linter" = "2.4.0"
 atlas = "1.3.0"
 buf = "1.73.0"
 gcloud = "586.0.0"
@@ -51,7 +52,30 @@ run = [
   "go vet ./...",
   "go build -o ./bin/gormuuidlint ./cmd/gormuuidlint",
   "go vet -vettool=./bin/gormuuidlint ./...",
+  { task = "lint:proto" },
 ]
+
+[tasks."lint:proto"]
+description = "Protobuf 定義の静的解析を実行する"
+run = [
+  "go build -o ./bin/buf-plugin-dotto ./cmd/buf-plugin-dotto",
+  "buf lint",
+  "buf format --diff --exit-code",
+  { task = "lint:proto:api-linter" },
+]
+
+[tasks."lint:proto:api-linter"]
+description = "Google API Linter で Protobuf 定義を検査する"
+dir = "proto"
+run = '''
+descriptor_set="$(mktemp)"
+trap 'rm -f "$descriptor_set"' EXIT
+buf build -o "$descriptor_set"
+# CI では GitHub Actions のアノテーション形式で出力する
+output_format="${CI:+github}"
+api-linter --config ../api-linter.yaml --descriptor-set-in "$descriptor_set" --skip-compilation --set-exit-status \
+  --output-format "${output_format:-summary}" $(git ls-files '*.proto')
+'''
 
 [tasks.test]
 description = "テストを実行する"

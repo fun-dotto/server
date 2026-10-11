@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package admin.v1;
+
+message Foo {}
+
+service GadgetService {
+  rpc GetFoo(Foo) returns (Foo);
+}

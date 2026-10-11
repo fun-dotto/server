@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+option go_package = "example.com/widget";
+
+
+message ListWidgetsRequest {
+  int32 page_size = 1;
+}
+
+message ListWidgetsResponse {
+  repeated Widget widget = 1;
+  string next_page_token = 2;
+}
+
+message Widget {
+  int64 widget_id = 1;
+  string owner_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+  string name = 4;
+  string deleted_at = 5;
+  string owned_by = 6;
+}
+
+message Part {
+  string name = 1;
+}
+
+message GetWidgetRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message GetWidgetResponse {
+  Widget item = 1;
+}
+
+message CreateWidgetRequest {
+  string id = 1;
+  int32 name = 2;
+  google.protobuf.Timestamp created_at = 3;
+}
+
+message CreateWidgetResponse {
+  Widget widget = 1;
+}
+
+message UpdateWidgetRequest {
+  string name = 1;
+  google.protobuf.FieldMask update_mask = 3;
+}
+
+message UpdateWidgetResponse {
+  Widget widget = 1;
+}
+
+message DeleteWidgetRequest {
+  string id = 1;
+}
+
+message DeleteWidgetResponse {
+  string id = 1;
+}
+
+service WidgetService {
+  rpc ListWidgets(ListWidgetsRequest) returns (ListWidgetsResponse);
+  rpc GetWidget(GetWidgetRequest) returns (GetWidgetResponse);
+  rpc CreateWidget(CreateWidgetRequest) returns (CreateWidgetResponse);
+  rpc UpdateWidget(UpdateWidgetRequest) returns (UpdateWidgetResponse);
+  rpc DeleteWidget(DeleteWidgetRequest) returns (DeleteWidgetResponse);
+  rpc Frobnicate(DeleteWidgetRequest) returns (DeleteWidgetResponse);
+}

@@ -7,6 +7,34 @@ deps:
 lint:
   use:
     - STANDARD
+    # API デザインガイドライン (.rulesync/rules/api-design.md) の独自ルール (cmd/buf-plugin-dotto)
+    - DOTTO
+  # ガイドラインの「AIP からの逸脱」に記載したリソースのみ除外する (.rulesync/rules/admin-api-design.md)
+  ignore_only:
+    # GTFS 由来・複合キー・FcmToken は id 以外を識別子とする
+    DOTTO_RESOURCE_ID_FIRST:
+      - proto/admin/v1/calendar.proto
+      - proto/admin/v1/calendar_date.proto
+      - proto/admin/v1/course_registration.proto
+      - proto/admin/v1/faculty_room.proto
+      - proto/admin/v1/fare_attribute.proto
+      - proto/admin/v1/fcm_token.proto
+      - proto/admin/v1/notification_target_user.proto
+      - proto/admin/v1/route.proto
+      - proto/admin/v1/stop.proto
+      - proto/admin/v1/stop_time.proto
+      - proto/admin/v1/trip.proto
+      - proto/admin/v1/zone.proto
+    # 公開済みのフィールド名 (available_from、notify_after、notify_before) は互換性のため変更しない
+    DOTTO_FIELD_NO_PREPOSITIONS:
+      - proto/admin/v1/announcement.proto
+      - proto/admin/v1/notification.proto
+    # ID が外部由来のため Create の Request に識別子を含める
+    DOTTO_CREATE_REQUEST_NO_ID:
+      - proto/admin/v1/syllabus.proto
+      - proto/admin/v1/user.proto
 breaking:
   use:
     - FILE
+plugins:
+  - plugin: bin/buf-plugin-dotto
