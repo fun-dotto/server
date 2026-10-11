@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message FacultyRoom {
+  string faculty_id = 1;
+  string room_id = 2;
+  int32 year = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message ListFacultyRoomsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListFacultyRoomsResponse {
+  repeated FacultyRoom faculty_rooms = 1;
+  string next_page_token = 2;
+}
+
+message GetFacultyRoomRequest {
+  string faculty_id = 1;
+  string room_id = 2;
+  int32 year = 3;
+}
+
+message GetFacultyRoomResponse {
+  FacultyRoom faculty_room = 1;
+}
+
+message CreateFacultyRoomRequest {
+  string faculty_id = 1;
+  string room_id = 2;
+  int32 year = 3;
+}
+
+message CreateFacultyRoomResponse {
+  FacultyRoom faculty_room = 1;
+}
+
+message DeleteFacultyRoomRequest {
+  string faculty_id = 1;
+  string room_id = 2;
+  int32 year = 3;
+}
+
+message DeleteFacultyRoomResponse {}
+
+service FacultyRoomService {
+  rpc ListFacultyRooms(ListFacultyRoomsRequest) returns (ListFacultyRoomsResponse);
+  rpc GetFacultyRoom(GetFacultyRoomRequest) returns (GetFacultyRoomResponse);
+  rpc CreateFacultyRoom(CreateFacultyRoomRequest) returns (CreateFacultyRoomResponse);
+  rpc DeleteFacultyRoom(DeleteFacultyRoomRequest) returns (DeleteFacultyRoomResponse);
+}

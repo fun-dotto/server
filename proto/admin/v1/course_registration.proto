@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message CourseRegistration {
+  string user_id = 1;
+  string subject_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message ListCourseRegistrationsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListCourseRegistrationsResponse {
+  repeated CourseRegistration course_registrations = 1;
+  string next_page_token = 2;
+}
+
+message GetCourseRegistrationRequest {
+  string user_id = 1;
+  string subject_id = 2;
+}
+
+message GetCourseRegistrationResponse {
+  CourseRegistration course_registration = 1;
+}
+
+message CreateCourseRegistrationRequest {
+  string user_id = 1;
+  string subject_id = 2;
+}
+
+message CreateCourseRegistrationResponse {
+  CourseRegistration course_registration = 1;
+}
+
+message DeleteCourseRegistrationRequest {
+  string user_id = 1;
+  string subject_id = 2;
+}
+
+message DeleteCourseRegistrationResponse {}
+
+service CourseRegistrationService {
+  rpc ListCourseRegistrations(ListCourseRegistrationsRequest) returns (ListCourseRegistrationsResponse);
+  rpc GetCourseRegistration(GetCourseRegistrationRequest) returns (GetCourseRegistrationResponse);
+  rpc CreateCourseRegistration(CreateCourseRegistrationRequest) returns (CreateCourseRegistrationResponse);
+  rpc DeleteCourseRegistration(DeleteCourseRegistrationRequest) returns (DeleteCourseRegistrationResponse);
+}

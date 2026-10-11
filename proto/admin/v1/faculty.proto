@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+message Faculty {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message ListFacultiesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListFacultiesResponse {
+  repeated Faculty faculties = 1;
+  string next_page_token = 2;
+}
+
+message GetFacultyRequest {
+  string id = 1;
+}
+
+message GetFacultyResponse {
+  Faculty faculty = 1;
+}
+
+message CreateFacultyRequest {
+  string name = 1;
+  string email = 2;
+}
+
+message CreateFacultyResponse {
+  Faculty faculty = 1;
+}
+
+message UpdateFacultyRequest {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateFacultyResponse {
+  Faculty faculty = 1;
+}
+
+message DeleteFacultyRequest {
+  string id = 1;
+}
+
+message DeleteFacultyResponse {}
+
+service FacultyService {
+  rpc ListFaculties(ListFacultiesRequest) returns (ListFacultiesResponse);
+  rpc GetFaculty(GetFacultyRequest) returns (GetFacultyResponse);
+  rpc CreateFaculty(CreateFacultyRequest) returns (CreateFacultyResponse);
+  rpc UpdateFaculty(UpdateFacultyRequest) returns (UpdateFacultyResponse);
+  rpc DeleteFaculty(DeleteFacultyRequest) returns (DeleteFacultyResponse);
+}
