@@ -1,0 +1,71 @@
+# Google API Linter (https://linter.aip.dev/) の設定
+# 無効化するルールは API デザインガイドライン (.rulesync/rules/api-design.md, admin-api-design.md) の
+# 「AIP からの逸脱」に対応させる。パスは proto/ からの相対パス。
+
+# 全体: 本プロジェクトの方針として AIP と異なる方式を採るもの
+- included_paths:
+    - "**/*.proto"
+  disabled_rules:
+    # リソースの識別子は `name` ではなく `id` (逸脱: リソースの識別子)
+    - core::0122::name-suffix
+    - core::0123::resource-annotation
+    - core::0131::request-name-required
+    - core::0131::request-unknown-fields
+    - core::0133::request-id-field
+    - core::0133::request-parent-required
+    - core::0135::request-name-required
+    - core::0135::request-unknown-fields
+    # タイムスタンプは `<verb>_at` (逸脱: タイムスタンプのフィールド名)。前置詞の検査は DOTTO_FIELD_NO_PREPOSITIONS で `_at` を除いて行う
+    - core::0140::prepositions
+    - core::0142::time-field-names
+    # Response は `<Rpc>Response` で包む (逸脱: Get / Create / Update / Delete の Response)
+    - core::0131::response-message-name
+    - core::0133::response-message-name
+    - core::0134::response-message-name
+    - core::0135::response-message-name
+    # Create / Update の Request はリソースのフィールドを直接並べる (逸脱: Create / Update の Request)
+    - core::0133::request-resource-field
+    - core::0133::request-unknown-fields
+    - core::0134::request-resource-required
+    - core::0134::request-unknown-fields
+    # Connect で提供し、google.api の注釈を使わない (逸脱: google.api の注釈)
+    - core::0127::http-annotation
+    - core::0131::method-signature
+    - core::0133::method-signature
+    - core::0134::method-signature
+    - core::0135::method-signature
+    - core::0133::request-resource-behavior
+    - core::0134::update-mask-optional-behavior
+    - core::0203::field-behavior-required
+    # ファイル構成はガイドラインの順序に従う (逸脱: ファイル構成)
+    - core::0191::file-layout
+    # Java 向けオプションは記述しない (逸脱: 言語別のファイルオプション)
+    - core::0191::java-multiple-files
+    - core::0191::java-outer-classname
+    - core::0191::java-package
+    # コメントは必須にしない (逸脱: コメント)
+    - core::0192::has-comments
+
+# GTFS 由来のリソースは GTFS の列名・値の形式に合わせる (逸脱: GTFS 由来のリソース)
+- included_paths:
+    - "admin/v1/calendar_date.proto"
+    - "admin/v1/stop_time.proto"
+  disabled_rules:
+    - core::0142::time-field-type
+
+# FCM の設定値 (android_ttl_seconds) をそのまま公開する
+- included_paths:
+    - "admin/v1/notification.proto"
+  disabled_rules:
+    - core::0142::time-field-type
+
+# 公開済みのフィールド名・enum 値 (class、COURSE_INFORMATION_*) は互換性のため変更しない
+- included_paths:
+    - "admin/v1/common.proto"
+  disabled_rules:
+    - core::0140::abbreviations
+- included_paths:
+    - "admin/v1/subject.proto"
+    - "admin/v1/user.proto"
+  disabled_rules:
+    - core::0140::reserved-words
