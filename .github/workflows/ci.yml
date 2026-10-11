@@ -29,35 +29,35 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup mise
-        uses: jdx/mise-action@v4
+        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
         with:
           github_token: ${{ github.token }}
           cache: true
 
       - name: Setup
-        run: mise setup
+        run: mise run bootstrap
 
       - name: Run unit tests
-        run: go test ./...
+        run: mise run test
 
   build:
     name: Build
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup mise
-        uses: jdx/mise-action@v4
+        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
         with:
           github_token: ${{ github.token }}
           cache: true
 
       - name: Setup
-        run: mise setup
+        run: mise bootstrap
 
       - name: Build all binaries
         run: mise run build
@@ -67,16 +67,16 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup mise
-        uses: jdx/mise-action@v4
+        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
         with:
           github_token: ${{ github.token }}
           cache: true
 
       - name: Setup
-        run: mise setup
+        run: mise bootstrap
 
       - name: gofmt
         run: |
@@ -87,8 +87,5 @@ jobs:
             exit 1
           fi
 
-      - name: go vet
-        run: go vet ./...
-
-      - name: gormuuid
-        run: mise run lint:gormuuid
+      - name: Lint
+        run: mise run lint
