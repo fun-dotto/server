@@ -6,7 +6,14 @@ globs: ["**/*"]
 
 # API デザインガイドライン
 
-`proto/` 配下の Protobuf 定義は以下の規約に従う。`buf lint`（STANDARD）と `buf breaking`（FILE）を通過させること。
+`proto/` 配下の Protobuf 定義は以下の規約に従う。`buf lint`（STANDARD と独自の `DOTTO` カテゴリ）と `buf breaking`（FILE）を通過させること。
+
+機械的に検査できる規約は次の Linter で検査する。`mise run lint:proto` でまとめて実行できる。
+
+- [Google API Linter](https://linter.aip.dev/)（設定は `api-linter.yaml`）: AIP 準拠の検査
+- buf check プラグイン（`cmd/buf-plugin-dotto`、実装は `internal/tools/protolint`。`buf lint` の `DOTTO` カテゴリ）: 本ガイド固有の規約の検査
+
+「AIP からの逸脱」に記載した事項は、`api-linter.yaml` の `disabled_rules` と `buf.yaml` の `ignore_only` で該当ルールを除外する。逸脱を追加する場合は、ガイドラインと Linter の設定を同時に更新する。
 
 ## 基本方針
 
@@ -153,13 +160,17 @@ return nil, err
 
 既存定義との整合性、または `buf lint`（STANDARD）の規則を優先するため、以下は AIP と異なる方式を採る。ドメイン固有の逸脱は各ドメインのガイドライン（例: `admin-api-design.md`）に記載する。
 
-| 項目                              | AIP                                                                                                                                                    | 本プロジェクト                              | 理由                                                                       |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- | -------------------------------------------------------------------------- |
-| リソースの識別子                  | `name` にリソース名（`subjects/{subject}`）（[AIP-122](https://google.aip.dev/122)）                                                                   | `id` に ID 文字列                           | 既存 REST API・DB との整合性                                               |
-| タイムスタンプのフィールド名      | `create_time` / `update_time`（[AIP-148](https://google.aip.dev/148)）                                                                                 | `created_at` / `updated_at`                 | 既存 REST API・DB との整合性                                               |
-| Get / Create / Update の Response | リソース message をそのまま返す（[AIP-131](https://google.aip.dev/131)、[AIP-133](https://google.aip.dev/133)、[AIP-134](https://google.aip.dev/134)） | `<Rpc>Response` でリソースを包む            | `buf lint` の `RPC_RESPONSE_STANDARD_NAME` / `RPC_REQUEST_RESPONSE_UNIQUE` |
-| Delete の Response                | `google.protobuf.Empty`（[AIP-135](https://google.aip.dev/135)）                                                                                       | 空の `<Rpc>Response`                        | 同上。将来のフィールド追加にも対応できる                                   |
-| Create / Update の Request        | リソース message をフィールドとして持つ（[AIP-133](https://google.aip.dev/133)、[AIP-134](https://google.aip.dev/134)）                                | リソースのフィールドを Request に直接並べる | 既存定義との整合性                                                         |
+| 項目                              | AIP                                                                                                                                                                                                                                       | 本プロジェクト                              | 理由                                                                       |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------- |
+| リソースの識別子                  | `name` にリソース名（`subjects/{subject}`）（[AIP-122](https://google.aip.dev/122)）                                                                                                                                                      | `id` に ID 文字列                           | 既存 REST API・DB との整合性                                               |
+| タイムスタンプのフィールド名      | `create_time` / `update_time`（[AIP-148](https://google.aip.dev/148)）                                                                                                                                                                    | `created_at` / `updated_at`                 | 既存 REST API・DB との整合性                                               |
+| Get / Create / Update の Response | リソース message をそのまま返す（[AIP-131](https://google.aip.dev/131)、[AIP-133](https://google.aip.dev/133)、[AIP-134](https://google.aip.dev/134)）                                                                                    | `<Rpc>Response` でリソースを包む            | `buf lint` の `RPC_RESPONSE_STANDARD_NAME` / `RPC_REQUEST_RESPONSE_UNIQUE` |
+| Delete の Response                | `google.protobuf.Empty`（[AIP-135](https://google.aip.dev/135)）                                                                                                                                                                          | 空の `<Rpc>Response`                        | 同上。将来のフィールド追加にも対応できる                                   |
+| Create / Update の Request        | リソース message をフィールドとして持つ（[AIP-133](https://google.aip.dev/133)、[AIP-134](https://google.aip.dev/134)）                                                                                                                   | リソースのフィールドを Request に直接並べる | 既存定義との整合性                                                         |
+| google.api の注釈                 | `google.api.http`・`google.api.resource`・`google.api.method_signature`・`google.api.field_behavior` を付ける（[AIP-127](https://google.aip.dev/127)、[AIP-123](https://google.aip.dev/123)、[AIP-203](https://google.aip.dev/203) など） | 付けない                                    | Connect で提供し、HTTP のマッピングやクライアント生成に注釈を使わないため  |
+| ファイル構成                      | service → message → enum の順（[AIP-191](https://google.aip.dev/191)）                                                                                                                                                                    | 「ファイル構成」の順                        | 型の定義を利用箇所より先に読めるようにするため                             |
+| 言語別のファイルオプション        | `java_package` などを記述する（[AIP-191](https://google.aip.dev/191)）                                                                                                                                                                    | 記述しない                                  | `buf.gen.yaml` の managed mode で付与する                                  |
+| コメント                          | すべての要素にコメントを書く（[AIP-192](https://google.aip.dev/192)）                                                                                                                                                                     | 必須にしない                                | 名前から意味が明らかな要素が大半のため                                     |
 
 ## コード生成
 
