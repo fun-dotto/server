@@ -95,5 +95,23 @@ func downloadAndExtract(url string) error {
 		fmt.Println(file.Name)
 	}
 
+	models, err := loadGTFSModels(extractDir)
+	if err != nil {
+		return fmt.Errorf("convert GTFS files to models: %w", err)
+	}
+	fmt.Println("converted GTFS files to models (not stored):")
+	fmt.Printf(
+		"calendars=%d\ncalendar_dates=%d\nzones=%d\nfare_attributes=%d\nfare_rules=%d\nroutes=%d\nstops=%d\ntrips=%d\nstop_times=%d\n",
+		len(models.calendars),
+		len(models.calendarDates),
+		len(models.zones),
+		len(models.fareAttributes),
+		len(models.fareRules),
+		len(models.routes),
+		len(models.stops),
+		len(models.trips),
+		len(models.stopTimes),
+	)
+
 	return nil
 }
