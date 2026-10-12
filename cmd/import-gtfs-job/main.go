@@ -2,12 +2,16 @@ package main
 
 import (
 	"archive/zip"
+	"context"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/fun-dotto/server/internal/shared/db"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -99,7 +103,24 @@ func downloadAndExtract(url string) error {
 	if err != nil {
 		return fmt.Errorf("convert GTFS files to models: %w", err)
 	}
-	fmt.Println("converted GTFS files to models (not stored):")
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: .env file not found: %v", err)
+	}
+
+	conn, err := db.ConnectWithConnectorIAMAuthN()
+	if err != nil {
+		return fmt.Errorf("connect to database: %w", err)
+	}
+	defer func() {
+		if err := db.Close(conn); err != nil {
+			log.Printf("Failed to close database: %v", err)
+		}
+	}()
+
+	if err := storeGTFSModels(context.Background(), conn, models); err != nil {
+		return fmt.Errorf("store GTFS models: %w", err)
+	}
+	fmt.Println("stored GTFS models:")
 	fmt.Printf(
 		"calendars=%d\ncalendar_dates=%d\nzones=%d\nfare_attributes=%d\nfare_rules=%d\nroutes=%d\nstops=%d\ntrips=%d\nstop_times=%d\n",
 		len(models.calendars),
