@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 type gtfsModels struct {
@@ -313,4 +315,44 @@ func parseGTFSDate(value, filename, field string, line int) (time.Time, error) {
 		return time.Time{}, fmt.Errorf("%s line %d: invalid %s %q: %w", filename, line, field, value, err)
 	}
 	return date, nil
+}
+
+func storeGTFSModels(ctx context.Context, db *gorm.DB, models gtfsModels) error {
+	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := createGTFSBatch(tx, "calendars", models.calendars); err != nil {
+			return err
+		}
+		if err := createGTFSBatch(tx, "zones", models.zones); err != nil {
+			return err
+		}
+		if err := createGTFSBatch(tx, "fare_attributes", models.fareAttributes); err != nil {
+			return err
+		}
+		if err := createGTFSBatch(tx, "routes", models.routes); err != nil {
+			return err
+		}
+		if err := createGTFSBatch(tx, "stops", models.stops); err != nil {
+			return err
+		}
+		if err := createGTFSBatch(tx, "trips", models.trips); err != nil {
+			return err
+		}
+		if err := createGTFSBatch(tx, "calendar_dates", models.calendarDates); err != nil {
+			return err
+		}
+		if err := createGTFSBatch(tx, "fare_rules", models.fareRules); err != nil {
+			return err
+		}
+		return createGTFSBatch(tx, "stop_times", models.stopTimes)
+	})
+}
+
+func createGTFSBatch[T any](tx *gorm.DB, table string, rows []T) error {
+	if len(rows) == 0 {
+		return nil
+	}
+	if err := tx.CreateInBatches(&rows, 1000).Error; err != nil {
+		return fmt.Errorf("create %s: %w", table, err)
+	}
+	return nil
 }
