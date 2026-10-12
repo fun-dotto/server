@@ -319,6 +319,9 @@ func parseGTFSDate(value, filename, field string, line int) (time.Time, error) {
 
 func storeGTFSModels(ctx context.Context, db *gorm.DB, models gtfsModels) error {
 	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := clearGTFSData(tx); err != nil {
+			return err
+		}
 		if err := createGTFSBatch(tx, "calendars", models.calendars); err != nil {
 			return err
 		}
@@ -345,6 +348,27 @@ func storeGTFSModels(ctx context.Context, db *gorm.DB, models gtfsModels) error 
 		}
 		return createGTFSBatch(tx, "stop_times", models.stopTimes)
 	})
+}
+
+func clearGTFSData(tx *gorm.DB) error {
+	tables := []string{
+		"stop_times",
+		"calendar_dates",
+		"fare_rules",
+		"trips",
+		"stops",
+		"fare_attributes",
+		"routes",
+		"zones",
+		"calendars",
+	}
+	for _, table := range tables {
+		if err := tx.Exec("DELETE FROM " + table).Error; err != nil {
+			return fmt.Errorf("delete %s: %w", table, err)
+		}
+	}
+	fmt.Println("Deleted existing GTFS data")
+	return nil
 }
 
 func createGTFSBatch[T any](tx *gorm.DB, table string, rows []T) error {
