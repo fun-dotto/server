@@ -34,7 +34,8 @@
     - "core::0133::request-unknown-fields"
     - "core::0134::request-resource-required"
     - "core::0134::request-unknown-fields"
-    # 逸脱: Get / Create / Update / Delete の Response は <Rpc>Response
+    # 逸脱: Get / Create / Update / Delete の Response は <Rpc>Response で包む（Delete は空 message）
+    # buf lint の RPC_RESPONSE_STANDARD_NAME / RPC_REQUEST_RESPONSE_UNIQUE を優先するため
     - "core::0131::response-message-name"
     - "core::0133::response-message-name"
     - "core::0134::response-message-name"

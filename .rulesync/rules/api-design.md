@@ -17,8 +17,7 @@ globs: ["**/*"]
 
 ## ディレクトリ・パッケージ
 
-- 配置: `proto/<domain>/<version>/<resource>.proto`（例: `proto/admin/v1/subject.proto`）
-- 1 ファイル 1 リソース
+- 1 ファイル 1 リソースとし、ファイル名はリソース名にする（例: `proto/admin/v1/subject.proto`）
 - `go_package` は記述しない（`buf.gen.yaml` の managed mode で付与）
 
 ## ファイル構成
@@ -136,21 +135,18 @@ return nil, err
 
 [AIP-180](https://google.aip.dev/180) に従い、同一メジャーバージョン内では後方互換性を保つ。
 
-- 公開済みフィールドの番号・型・名前は変更しない
 - フィールドを削除する場合は `reserved` で番号と名前を予約する
 - 既存フィールドの意味やデフォルトの挙動を変えない
 - 互換性を壊す変更は新しいメジャーバージョン（`v2`）で行う（[AIP-185](https://google.aip.dev/185)）
 
 ## AIP からの逸脱
 
-既存定義との整合性、または `buf lint`（STANDARD）の規則を優先するため、以下は AIP と異なる方式を採る。ドメイン固有の逸脱は各ドメインのガイドライン（例: `admin-api-design.md`）に記載する。
+既存定義との整合性のため、以下は AIP と異なる方式を採る。ドメイン固有の逸脱は各ドメインのガイドライン（例: `admin-api-design.md`）に記載する。
 
 | 項目                              | AIP                                                                                                                                                    | 本プロジェクト                              | 理由                                                                       |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- | -------------------------------------------------------------------------- |
 | リソースの識別子                  | `name` にリソース名（`subjects/{subject}`）（[AIP-122](https://google.aip.dev/122)）                                                                   | `id` に ID 文字列                           | 既存 REST API・DB との整合性                                               |
 | タイムスタンプのフィールド名      | `create_time` / `update_time`（[AIP-148](https://google.aip.dev/148)）                                                                                 | `created_at` / `updated_at`                 | 既存 REST API・DB との整合性                                               |
-| Get / Create / Update の Response | リソース message をそのまま返す（[AIP-131](https://google.aip.dev/131)、[AIP-133](https://google.aip.dev/133)、[AIP-134](https://google.aip.dev/134)） | `<Rpc>Response` でリソースを包む            | `buf lint` の `RPC_RESPONSE_STANDARD_NAME` / `RPC_REQUEST_RESPONSE_UNIQUE` |
-| Delete の Response                | `google.protobuf.Empty`（[AIP-135](https://google.aip.dev/135)）                                                                                       | 空の `<Rpc>Response`                        | 同上。将来のフィールド追加にも対応できる                                   |
 | Create / Update の Request        | リソース message をフィールドとして持つ（[AIP-133](https://google.aip.dev/133)、[AIP-134](https://google.aip.dev/134)）                                | リソースのフィールドを Request に直接並べる | 既存定義との整合性                                                         |
 
 ## コード生成
