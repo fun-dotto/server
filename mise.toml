@@ -27,7 +27,6 @@ description = "API定義からコードを生成する"
 run = [
   "buf generate",
   "go tool oapi-codegen -config ./api/openapi/academic/config.yaml ./api/openapi/academic/openapi.yaml",
-  "go tool oapi-codegen -config ./api/openapi/admin/config.yaml ./api/openapi/admin/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/announcement/config.yaml ./api/openapi/announcement/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/app/config.yaml ./api/openapi/app/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/user/config.yaml ./api/openapi/user/openapi.yaml",
@@ -38,7 +37,6 @@ description = "ビルドを実行する"
 run = [
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/academic-api ./cmd/academic-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/admin-api ./cmd/admin-api",
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/admin-bff-api ./cmd/admin-bff-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/announcement-api ./cmd/announcement-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/app-api ./cmd/app-bff-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/user-api ./cmd/user-api",
@@ -76,10 +74,6 @@ run = "portless academic-api.dotto go run ./cmd/academic-api"
 [tasks."run:admin-api"]
 description = "admin-api を起動する (https://admin-api.dotto.localhost)"
 run = "portless admin-api.dotto go run ./cmd/admin-api"
-
-[tasks."run:admin-bff-api"]
-description = "admin-bff-api を起動する (https://admin-bff-api.dotto.localhost)"
-run = "portless admin-bff-api.dotto go run ./cmd/admin-bff-api"
 
 [tasks."run:announcement-api"]
 description = "announcement-api を 起動する (https://announcement-api.dotto.localhost)"
