@@ -1,26 +1,30 @@
 name: Set Environment
-description: Set environment, shared image tag, and the deploy matrix based on trigger context
+description: トリガーに応じて環境、共有イメージのタグ、デプロイ matrix を設定する
 inputs:
   ar_hostname:
-    description: Artifact Registry hostname
+    description: Artifact Registry のホスト名
     required: true
   project_id:
-    description: GCP project ID
+    description: GCP プロジェクト ID
     required: true
+  image_tag:
+    description: デプロイするイメージのタグ
+    required: false
+    default: ${{ github.sha }}
 outputs:
   environment:
-    description: Target environment (e.g. stg, prd)
+    description: デプロイ先の環境（stg, prd など）
     value: ${{ steps.set-env.outputs.environment }}
   service_suffix:
-    description: Suffix appended to each Cloud Run service/job name (empty for prd)
+    description: Cloud Run のサービス名・ジョブ名に付けるサフィックス（prd は空）
     value: ${{ steps.set-env.outputs.service_suffix }}
   image_tag:
-    description: Shared Docker image tag (one image for all cmd targets)
+    description: 共有 Docker イメージのタグ付き参照（全 cmd ターゲットで 1 イメージ）
     value: ${{ steps.set-env.outputs.image_tag }}
   matrix:
     description: |
-      JSON deploy matrix from the explicit DEPLOY_TARGETS list. Shape: {"include":[{"name","type"}]}.
-      type is "service" for *-api targets, otherwise "job".
+      DEPLOY_TARGETS の一覧から作るデプロイ matrix の JSON。形式: {"include":[{"name","type"}]}
+      type は *-api ターゲットなら "service"、それ以外は "job"。
     value: ${{ steps.set-matrix.outputs.matrix }}
 runs:
   using: composite
@@ -50,7 +54,7 @@ runs:
 
         export REPO_NAME=$(echo ${{ github.repository }} | awk -F '/' '{print $2}')
         # 全 cmd ターゲットで 1 つのイメージを共有するため、タグはサービス名を含めない。
-        export IMAGE_TAG=${{ inputs.ar_hostname }}/${{ inputs.project_id }}/github-actions/$REPO_NAME:${{ github.sha }}
+        export IMAGE_TAG=${{ inputs.ar_hostname }}/${{ inputs.project_id }}/github-actions/$REPO_NAME:${{ inputs.image_tag }}
 
         echo "Repository name: $REPO_NAME"
         echo "Service suffix: $SERVICE_NAME_SUFFIX"
