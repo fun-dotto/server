@@ -6,7 +6,7 @@ globs: ["**/*"]
 
 # API デザインガイドライン
 
-`proto/` 配下の Protobuf 定義は以下の規約に従う。`buf lint`（STANDARD）と `buf breaking`（FILE）を通過させること。
+`proto/` 配下の Protobuf 定義は以下の規約に従う。`mise run lint:proto`（`buf lint`（STANDARD）と [Google API Linter](https://linter.aip.dev/)）と `buf breaking`（FILE）を通過させること。Lint で検査できる規約は本ガイドには書かず、`buf.yaml` と `api-linter.yaml` で管理する。AIP からの逸脱に伴って Google API Linter のルールを無効化する場合は、`api-linter.yaml` に理由を書く。
 
 ## 基本方針
 
@@ -18,8 +18,7 @@ globs: ["**/*"]
 ## ディレクトリ・パッケージ
 
 - 配置: `proto/<domain>/<version>/<resource>.proto`（例: `proto/admin/v1/subject.proto`）
-- `package` はディレクトリと一致させ、メジャーバージョンを末尾に付ける（例: `package admin.v1;`）（[AIP-185](https://google.aip.dev/185)、[AIP-191](https://google.aip.dev/191)）
-- 1 ファイル 1 リソース。ファイル名は `lower_snake_case`（[AIP-191](https://google.aip.dev/191)）
+- 1 ファイル 1 リソース
 - `go_package` は記述しない（`buf.gen.yaml` の managed mode で付与）
 
 ## ファイル構成
@@ -38,18 +37,14 @@ globs: ["**/*"]
 
 [AIP-190](https://google.aip.dev/190)、[AIP-140](https://google.aip.dev/140) に従う。
 
-- message / service / enum: `PascalCase`
-- フィールド: `lower_snake_case`。前置詞を含めない
+- フィールドに前置詞を含めない（`created_at` / `updated_at` は「AIP からの逸脱」を参照）
 - `repeated` フィールドは複数形（[AIP-144](https://google.aip.dev/144)）
 - 補助 message はリソース名を接頭辞にする（例: `SubjectFaculty`）
-- service は `<Resource>Service`
 - RPC は `<Verb><Resource>`（List のみ複数形: `ListSubjects`）（[AIP-131](https://google.aip.dev/131)〜[AIP-135](https://google.aip.dev/135)）
-- Request / Response は RPC 名 + `Request` / `Response`。RPC 間で使い回さない
-- enum の値は `UPPER_SNAKE_CASE` で enum 名を接頭辞にし、0 番は `<ENUM>_UNSPECIFIED` にする（[AIP-126](https://google.aip.dev/126)）
 
 ## 型
 
-- 日時は `google.protobuf.Timestamp`、期間は `google.protobuf.Duration`（[AIP-142](https://google.aip.dev/142)）
+- 期間は `google.protobuf.Duration`（[AIP-142](https://google.aip.dev/142)）
 - ID は `string`
 - 未設定と既定値を区別する必要があるフィールドのみ `optional`（[AIP-149](https://google.aip.dev/149)）
 - 取りうる値が決まっている文字列は enum にする（[AIP-126](https://google.aip.dev/126)）
@@ -72,16 +67,13 @@ globs: ["**/*"]
 - `Update` の `update_mask` は `google.protobuf.FieldMask` で、フィールド番号 `99` に固定する（[AIP-134](https://google.aip.dev/134)、[AIP-161](https://google.aip.dev/161)）
   - `update_mask` が空の場合は、リクエストで値が入っているフィールドをすべて更新する
   - `update_mask` に存在しないフィールドが含まれる場合は `INVALID_ARGUMENT`
-- 空の Response も省略せず定義する（例: `message DeleteSubjectResponse {}`）
 - 標準メソッドで表せない操作はカスタムメソッドにする（[AIP-136](https://google.aip.dev/136)）
 
 ## ページネーション
 
 カーソル方式を採用する（[AIP-158](https://google.aip.dev/158)）。
 
-- List は最初からページネーションに対応させる。後から追加すると後方互換性を壊すため
-- Request は `int32 page_size = 1;` と `string page_token = 2;` を持つ
-- Response は `repeated <Resource>` を 1 番、`string next_page_token = 2;` を持つ
+- フィールド番号は Request が `page_size = 1` / `page_token = 2`、Response が `repeated <Resource>` = 1 / `next_page_token = 2` とする
 - `page_size` が 0 の場合はサーバー既定値（50）を使い、上限（1000）を超えた値は上限に丸める。負数は `INVALID_ARGUMENT`
 - 返す件数が `page_size` より少なくても、それだけでは最終ページを意味しない。最終ページの判定は `next_page_token` が空文字かどうかで行う
 - トークンは不透明な文字列とし、クライアントは中身を解釈・生成しない。サーバーはトークンの形式を予告なく変更してよい
