@@ -8,7 +8,7 @@ gcloud = "591.0.0"
 go = "1.27.3"
 node = "26.13.0"
 "npm:portless" = "0.15.12"
-"npm:rulesync" = "43.4.0"
+"npm:rulesync" = "43.4.1"
 
 [tasks.bootstrap]
 description = "依存関係をセットアップする"
