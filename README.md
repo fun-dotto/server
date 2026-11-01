@@ -18,7 +18,6 @@ mise run bootstrap
 | タスク                          | URL                                      |
 | ------------------------------- | ---------------------------------------- |
 | `mise run run:academic-api`     | https://academic-api.dotto.localhost     |
-| `mise run run:admin-bff-api`    | https://admin-bff-api.dotto.localhost    |
 | `mise run run:announcement-api` | https://announcement-api.dotto.localhost |
 | `mise run run:app-bff-api`      | https://app-bff-api.dotto.localhost      |
 | `mise run run:user-api`         | https://user-api.dotto.localhost         |
