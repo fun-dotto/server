@@ -1,0 +1,64 @@
+name: Build and Push Image
+description: 共有 Docker イメージをビルドし、コミット SHA のタグで Artifact Registry に push する
+inputs:
+  ar_hostname:
+    description: Artifact Registry のホスト名
+    required: true
+  project_id:
+    description: GCP プロジェクト ID
+    required: true
+  workload_identity_provider:
+    description: Workload Identity プロバイダ
+    required: true
+  service_account:
+    description: 借用するサービスアカウント
+    required: true
+  tag_latest:
+    description: latest タグも付与して push するか
+    required: false
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - id: set-image
+      shell: bash
+      run: |
+        REPO_NAME=$(echo ${{ github.repository }} | awk -F '/' '{print $2}')
+        # 全 cmd ターゲットで 1 つのイメージを共有するため、タグはサービス名を含めない。
+        echo "image_name=${{ inputs.ar_hostname }}/${{ inputs.project_id }}/github-actions/$REPO_NAME" >> "$GITHUB_OUTPUT"
+    - name: Build
+      shell: bash
+      run: |
+        docker build \
+        -t ${{ steps.set-image.outputs.image_name }}:${{ github.sha }} \
+        . \
+        -f Dockerfile \
+        --no-cache
+    - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+      with:
+        workload_identity_provider: ${{ inputs.workload_identity_provider }}
+        service_account: ${{ inputs.service_account }}
+    - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      with:
+        project_id: ${{ inputs.project_id }}
+    - name: Configure Docker
+      shell: bash
+      run: |
+        gcloud auth \
+        configure-docker \
+        ${{ inputs.ar_hostname }}
+    - name: Push
+      shell: bash
+      run: |
+        docker push \
+        ${{ steps.set-image.outputs.image_name }}:${{ github.sha }}
+    # SHA タグの push が成功した場合のみ latest を更新する。
+    - if: inputs.tag_latest == 'true'
+      name: Push latest
+      shell: bash
+      run: |
+        docker tag \
+        ${{ steps.set-image.outputs.image_name }}:${{ github.sha }} \
+        ${{ steps.set-image.outputs.image_name }}:latest
+        docker push \
+        ${{ steps.set-image.outputs.image_name }}:latest

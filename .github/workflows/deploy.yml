@@ -1,0 +1,108 @@
+name: Deploy
+
+# main への push: ビルドして latest を更新し、stg へデプロイする。
+# 手動実行: action で実行範囲を選択する。
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 実行内容
+        required: true
+        type: choice
+        default: build-push-deploy
+        options:
+          - build-push-deploy
+          - build-push
+          - deploy
+      environment_name:
+        description: デプロイ先の環境（build-push では無視、prd は deploy でのみ指定可）
+        required: true
+        type: choice
+        options:
+          - dev
+          - stg
+          - prd
+      image_tag:
+        description: デプロイするイメージのタグ（deploy でのみ使用、未指定の場合は latest）
+        required: false
+        type: string
+        default: latest
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.inputs.environment_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+      service_suffix: ${{ steps.set-env.outputs.service_suffix }}
+      image_tag: ${{ steps.set-env.outputs.image_tag }}
+      matrix: ${{ steps.set-env.outputs.matrix }}
+    steps:
+      # prd へは、検証済みのイメージタグを指定する deploy でのみデプロイする。
+      - if: inputs.action == 'build-push-deploy' && inputs.environment_name == 'prd'
+        name: Reject prd
+        run: |
+          echo "prd は action: deploy でのみ指定できます" >&2
+          exit 1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: set-env
+        uses: ./.github/actions/set-env
+        with:
+          ar_hostname: ${{ vars._AR_HOSTNAME }}
+          project_id: ${{ vars.PROJECT_ID }}
+          image_tag: ${{ inputs.action == 'deploy' && (inputs.image_tag || 'latest') || github.sha }}
+
+  # 全 cmd ターゲットを 1 つのイメージに同梱しているため、ビルド/プッシュは 1 回だけ実行する。
+  build-and-push:
+    if: inputs.action != 'deploy'
+    runs-on: ubuntu-latest
+    needs:
+      - set-env
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/build-push-image
+        with:
+          ar_hostname: ${{ vars._AR_HOSTNAME }}
+          project_id: ${{ vars.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.SERVICE_ACCOUNT }}
+          # latest は main への push でのみ更新する。
+          tag_latest: ${{ github.event_name == 'push' }}
+
+  # set-env が明示列挙した matrix で各ターゲットを並列デプロイする。対象の増減は set-env の DEPLOY_TARGETS を編集する。
+  deploy:
+    # build-and-push がスキップされた場合もデプロイするため、結果を明示的に判定する。
+    if: >-
+      !cancelled()
+      && inputs.action != 'build-push'
+      && needs.set-env.result == 'success'
+      && (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: ${{ needs.set-env.outputs.environment }}
+    needs:
+      - set-env
+      - build-and-push
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.set-env.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/deploy-cloud-run
+        with:
+          name: ${{ matrix.name }}${{ needs.set-env.outputs.service_suffix }}
+          type: ${{ matrix.type }}
+          image: ${{ needs.set-env.outputs.image_tag }}
+          region: ${{ vars._DEPLOY_REGION }}
+          project_id: ${{ vars.PROJECT_ID }}
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.SERVICE_ACCOUNT }}
