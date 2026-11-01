@@ -4,11 +4,13 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"connectrpc.com/connect"
 	"github.com/fun-dotto/server/gen/admin/v1/adminv1connect"
 	"github.com/fun-dotto/server/internal/modules/adminapi/handler"
+	"github.com/fun-dotto/server/internal/modules/adminapi/middleware"
 	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/server"
@@ -22,6 +24,12 @@ func main() {
 
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found: %v", err)
+	}
+
+	// Cloudflare Access を経由していないリクエストは拒否する。
+	cfAccess, err := middleware.NewCFAccessVerifier(os.Getenv("CF_ACCESS_ISSUER"), os.Getenv("CF_ACCESS_AUD"))
+	if err != nil {
+		log.Fatalf("Failed to initialize Cloudflare Access verifier: %v", err)
 	}
 
 	conn, err := db.ConnectWithConnectorIAMAuthN()
@@ -63,7 +71,7 @@ func main() {
 	mux.Handle(adminv1connect.NewUserServiceHandler(handler.NewUserHandler(conn), opts))
 	mux.Handle(adminv1connect.NewZoneServiceHandler(handler.NewZoneHandler(conn), opts))
 
-	if err := server.Run(logging.Middleware(mux), server.Addr()); err != nil {
+	if err := server.Run(logging.Middleware(cfAccess.Middleware(mux)), server.Addr()); err != nil {
 		log.Fatalf("Server exited with error: %v", err)
 	}
 }
