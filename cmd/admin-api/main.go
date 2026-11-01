@@ -27,7 +27,7 @@ func main() {
 	}
 
 	// Cloudflare Access を経由していないリクエストは拒否する。
-	cfAccess, err := middleware.NewCFAccessVerifier(os.Getenv("CF_ACCESS_TEAM_DOMAIN"), os.Getenv("CF_ACCESS_AUD"))
+	cfAccess, err := middleware.NewCFAccessVerifier(os.Getenv("CF_ACCESS_ISSUER"), os.Getenv("CF_ACCESS_AUD"))
 	if err != nil {
 		log.Fatalf("Failed to initialize Cloudflare Access verifier: %v", err)
 	}

@@ -41,18 +41,20 @@ type CFAccessVerifier struct {
 	fetchedAt time.Time
 }
 
-// NewCFAccessVerifier は teamDomain (例: "example.cloudflareaccess.com") と
+// NewCFAccessVerifier は issuer (例: "https://example.cloudflareaccess.com") と
 // Access アプリケーションの AUD タグから Verifier を作る。
-func NewCFAccessVerifier(teamDomain, audience string) (*CFAccessVerifier, error) {
-	teamDomain = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(teamDomain), "https://"), "/")
+func NewCFAccessVerifier(issuer, audience string) (*CFAccessVerifier, error) {
+	issuer = strings.TrimSuffix(strings.TrimSpace(issuer), "/")
 	audience = strings.TrimSpace(audience)
-	if teamDomain == "" {
-		return nil, errors.New("cloudflare access team domain is empty")
+	if issuer == "" {
+		return nil, errors.New("cloudflare access issuer is empty")
+	}
+	if !strings.HasPrefix(issuer, "https://") {
+		return nil, fmt.Errorf("cloudflare access issuer must start with https://: %q", issuer)
 	}
 	if audience == "" {
 		return nil, errors.New("cloudflare access audience is empty")
 	}
-	issuer := "https://" + teamDomain
 	return &CFAccessVerifier{
 		issuer:   issuer,
 		audience: audience,

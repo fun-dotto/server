@@ -94,9 +94,12 @@ func TestCFAccessMiddleware(t *testing.T) {
 
 func TestNewCFAccessVerifierRequiresConfig(t *testing.T) {
 	if _, err := NewCFAccessVerifier("", testAud); err == nil {
-		t.Error("expected error for empty team domain")
+		t.Error("expected error for empty issuer")
 	}
-	if _, err := NewCFAccessVerifier("team.cloudflareaccess.com", " "); err == nil {
+	if _, err := NewCFAccessVerifier("team.cloudflareaccess.com", testAud); err == nil {
+		t.Error("expected error for issuer without https://")
+	}
+	if _, err := NewCFAccessVerifier("https://team.cloudflareaccess.com", " "); err == nil {
 		t.Error("expected error for empty audience")
 	}
 	v, _ := NewCFAccessVerifier("https://team.cloudflareaccess.com/", testAud)
