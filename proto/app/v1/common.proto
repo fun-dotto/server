@@ -89,4 +89,3 @@ enum Period {
   // 6限。
   PERIOD_6 = 6;
 }
-
