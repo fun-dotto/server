@@ -2,138 +2,249 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
+// シラバスを管理する。
+service SyllabusService {
+  // シラバスの一覧を取得する。
+  rpc ListSyllabi(ListSyllabiRequest) returns (ListSyllabiResponse);
+  // シラバスを取得する。
+  rpc GetSyllabus(GetSyllabusRequest) returns (GetSyllabusResponse);
+  // シラバスを作成する。
+  rpc CreateSyllabus(CreateSyllabusRequest) returns (CreateSyllabusResponse);
+  // シラバスを更新する。
+  rpc UpdateSyllabus(UpdateSyllabusRequest) returns (UpdateSyllabusResponse);
+  // シラバスを削除する。
+  rpc DeleteSyllabus(DeleteSyllabusRequest) returns (DeleteSyllabusResponse);
+}
+
+// シラバス。
 message Syllabus {
-  string id = 1;
-  string name = 2;
-  string en_name = 3;
-  string grades = 4;
-  int32 credit = 5;
-  string faculty_names = 6;
-  string practical_home_faculty_category = 7;
-  string multiple_person_teaching_form = 8;
-  string teaching_form = 9;
-  string summary = 10;
-  string learning_outcomes = 11;
-  string assignments = 12;
-  string evaluation_method = 13;
-  string textbooks = 14;
-  string reference_books = 15;
-  string prerequisites = 16;
-  string pre_learning = 17;
-  string post_learning = 18;
-  string notes = 19;
-  string keywords = 20;
-  string target_courses = 21;
-  string target_areas = 22;
-  string classifications = 23;
-  string teaching_language = 24;
-  string contents_and_schedule = 25;
-  string teaching_and_exam_form = 26;
-  string dsop_subject = 27;
-  google.protobuf.Timestamp created_at = 28;
-  google.protobuf.Timestamp updated_at = 29;
+  // シラバスの ID（シラバスシステムの ID）。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 科目名。
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  // 英語の科目名。
+  string en_name = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 対象学年。
+  string grades = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 単位数。
+  int32 credit = 5 [(google.api.field_behavior) = REQUIRED];
+  // 担当教員名。
+  string faculty_names = 6 [(google.api.field_behavior) = OPTIONAL];
+  // 実務経験のある教員による授業科目の区分。
+  string practical_home_faculty_category = 7 [(google.api.field_behavior) = OPTIONAL];
+  // 複数人で担当する場合の授業形態。
+  string multiple_person_teaching_form = 8 [(google.api.field_behavior) = OPTIONAL];
+  // 授業形態。
+  string teaching_form = 9 [(google.api.field_behavior) = OPTIONAL];
+  // 授業の概要。
+  string summary = 10 [(google.api.field_behavior) = OPTIONAL];
+  // 到達目標。
+  string learning_outcomes = 11 [(google.api.field_behavior) = OPTIONAL];
+  // 課題。
+  string assignments = 12 [(google.api.field_behavior) = OPTIONAL];
+  // 成績の評価方法。
+  string evaluation_method = 13 [(google.api.field_behavior) = OPTIONAL];
+  // 教科書。
+  string textbooks = 14 [(google.api.field_behavior) = OPTIONAL];
+  // 参考書。
+  string reference_books = 15 [(google.api.field_behavior) = OPTIONAL];
+  // 履修条件。
+  string prerequisites = 16 [(google.api.field_behavior) = OPTIONAL];
+  // 事前学習。
+  string pre_learning = 17 [(google.api.field_behavior) = OPTIONAL];
+  // 事後学習。
+  string post_learning = 18 [(google.api.field_behavior) = OPTIONAL];
+  // 備考。
+  string notes = 19 [(google.api.field_behavior) = OPTIONAL];
+  // キーワード。
+  string keywords = 20 [(google.api.field_behavior) = OPTIONAL];
+  // 対象コース。
+  string target_courses = 21 [(google.api.field_behavior) = OPTIONAL];
+  // 対象領域。
+  string target_areas = 22 [(google.api.field_behavior) = OPTIONAL];
+  // 科目区分。
+  string classifications = 23 [(google.api.field_behavior) = OPTIONAL];
+  // 授業で使う言語。
+  string teaching_language = 24 [(google.api.field_behavior) = OPTIONAL];
+  // 授業内容と計画。
+  string contents_and_schedule = 25 [(google.api.field_behavior) = OPTIONAL];
+  // 授業・試験の実施形態。
+  string teaching_and_exam_form = 26 [(google.api.field_behavior) = OPTIONAL];
+  // 数理・データサイエンス・AI 教育プログラム（DSOP）の対象科目の区分。
+  string dsop_subject = 27 [(google.api.field_behavior) = OPTIONAL];
+  // 作成日時。
+  google.protobuf.Timestamp created_at = 28 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 更新日時。
+  google.protobuf.Timestamp updated_at = 29 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ListSyllabi の Request。
 message ListSyllabiRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListSyllabi の Response。
 message ListSyllabiResponse {
+  // シラバスの一覧。
   repeated Syllabus syllabi = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetSyllabus の Request。
 message GetSyllabusRequest {
-  string id = 1;
+  // 取得するシラバスの ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetSyllabus の Response。
 message GetSyllabusResponse {
+  // 取得したシラバス。
   Syllabus syllabus = 1;
 }
 
+// CreateSyllabus の Request。
 message CreateSyllabusRequest {
-  string id = 1;
-  string name = 2;
-  string en_name = 3;
-  string grades = 4;
-  int32 credit = 5;
-  string faculty_names = 6;
-  string practical_home_faculty_category = 7;
-  string multiple_person_teaching_form = 8;
-  string teaching_form = 9;
-  string summary = 10;
-  string learning_outcomes = 11;
-  string assignments = 12;
-  string evaluation_method = 13;
-  string textbooks = 14;
-  string reference_books = 15;
-  string prerequisites = 16;
-  string pre_learning = 17;
-  string post_learning = 18;
-  string notes = 19;
-  string keywords = 20;
-  string target_courses = 21;
-  string target_areas = 22;
-  string classifications = 23;
-  string teaching_language = 24;
-  string contents_and_schedule = 25;
-  string teaching_and_exam_form = 26;
-  string dsop_subject = 27;
+  // シラバスの ID（シラバスシステムの ID）。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 科目名。
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  // 英語の科目名。
+  string en_name = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 対象学年。
+  string grades = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 単位数。
+  int32 credit = 5 [(google.api.field_behavior) = REQUIRED];
+  // 担当教員名。
+  string faculty_names = 6 [(google.api.field_behavior) = OPTIONAL];
+  // 実務経験のある教員による授業科目の区分。
+  string practical_home_faculty_category = 7 [(google.api.field_behavior) = OPTIONAL];
+  // 複数人で担当する場合の授業形態。
+  string multiple_person_teaching_form = 8 [(google.api.field_behavior) = OPTIONAL];
+  // 授業形態。
+  string teaching_form = 9 [(google.api.field_behavior) = OPTIONAL];
+  // 授業の概要。
+  string summary = 10 [(google.api.field_behavior) = OPTIONAL];
+  // 到達目標。
+  string learning_outcomes = 11 [(google.api.field_behavior) = OPTIONAL];
+  // 課題。
+  string assignments = 12 [(google.api.field_behavior) = OPTIONAL];
+  // 成績の評価方法。
+  string evaluation_method = 13 [(google.api.field_behavior) = OPTIONAL];
+  // 教科書。
+  string textbooks = 14 [(google.api.field_behavior) = OPTIONAL];
+  // 参考書。
+  string reference_books = 15 [(google.api.field_behavior) = OPTIONAL];
+  // 履修条件。
+  string prerequisites = 16 [(google.api.field_behavior) = OPTIONAL];
+  // 事前学習。
+  string pre_learning = 17 [(google.api.field_behavior) = OPTIONAL];
+  // 事後学習。
+  string post_learning = 18 [(google.api.field_behavior) = OPTIONAL];
+  // 備考。
+  string notes = 19 [(google.api.field_behavior) = OPTIONAL];
+  // キーワード。
+  string keywords = 20 [(google.api.field_behavior) = OPTIONAL];
+  // 対象コース。
+  string target_courses = 21 [(google.api.field_behavior) = OPTIONAL];
+  // 対象領域。
+  string target_areas = 22 [(google.api.field_behavior) = OPTIONAL];
+  // 科目区分。
+  string classifications = 23 [(google.api.field_behavior) = OPTIONAL];
+  // 授業で使う言語。
+  string teaching_language = 24 [(google.api.field_behavior) = OPTIONAL];
+  // 授業内容と計画。
+  string contents_and_schedule = 25 [(google.api.field_behavior) = OPTIONAL];
+  // 授業・試験の実施形態。
+  string teaching_and_exam_form = 26 [(google.api.field_behavior) = OPTIONAL];
+  // 数理・データサイエンス・AI 教育プログラム（DSOP）の対象科目の区分。
+  string dsop_subject = 27 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// CreateSyllabus の Response。
 message CreateSyllabusResponse {
+  // 作成したシラバス。
   Syllabus syllabus = 1;
 }
 
+// UpdateSyllabus の Request。
 message UpdateSyllabusRequest {
-  string id = 1;
-  string name = 2;
-  string en_name = 3;
-  string grades = 4;
-  int32 credit = 5;
-  string faculty_names = 6;
-  string practical_home_faculty_category = 7;
-  string multiple_person_teaching_form = 8;
-  string teaching_form = 9;
-  string summary = 10;
-  string learning_outcomes = 11;
-  string assignments = 12;
-  string evaluation_method = 13;
-  string textbooks = 14;
-  string reference_books = 15;
-  string prerequisites = 16;
-  string pre_learning = 17;
-  string post_learning = 18;
-  string notes = 19;
-  string keywords = 20;
-  string target_courses = 21;
-  string target_areas = 22;
-  string classifications = 23;
-  string teaching_language = 24;
-  string contents_and_schedule = 25;
-  string teaching_and_exam_form = 26;
-  string dsop_subject = 27;
-  google.protobuf.FieldMask update_mask = 99;
+  // 更新するシラバスの ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 科目名。
+  string name = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 英語の科目名。
+  string en_name = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 対象学年。
+  string grades = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 単位数。
+  int32 credit = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 担当教員名。
+  string faculty_names = 6 [(google.api.field_behavior) = OPTIONAL];
+  // 実務経験のある教員による授業科目の区分。
+  string practical_home_faculty_category = 7 [(google.api.field_behavior) = OPTIONAL];
+  // 複数人で担当する場合の授業形態。
+  string multiple_person_teaching_form = 8 [(google.api.field_behavior) = OPTIONAL];
+  // 授業形態。
+  string teaching_form = 9 [(google.api.field_behavior) = OPTIONAL];
+  // 授業の概要。
+  string summary = 10 [(google.api.field_behavior) = OPTIONAL];
+  // 到達目標。
+  string learning_outcomes = 11 [(google.api.field_behavior) = OPTIONAL];
+  // 課題。
+  string assignments = 12 [(google.api.field_behavior) = OPTIONAL];
+  // 成績の評価方法。
+  string evaluation_method = 13 [(google.api.field_behavior) = OPTIONAL];
+  // 教科書。
+  string textbooks = 14 [(google.api.field_behavior) = OPTIONAL];
+  // 参考書。
+  string reference_books = 15 [(google.api.field_behavior) = OPTIONAL];
+  // 履修条件。
+  string prerequisites = 16 [(google.api.field_behavior) = OPTIONAL];
+  // 事前学習。
+  string pre_learning = 17 [(google.api.field_behavior) = OPTIONAL];
+  // 事後学習。
+  string post_learning = 18 [(google.api.field_behavior) = OPTIONAL];
+  // 備考。
+  string notes = 19 [(google.api.field_behavior) = OPTIONAL];
+  // キーワード。
+  string keywords = 20 [(google.api.field_behavior) = OPTIONAL];
+  // 対象コース。
+  string target_courses = 21 [(google.api.field_behavior) = OPTIONAL];
+  // 対象領域。
+  string target_areas = 22 [(google.api.field_behavior) = OPTIONAL];
+  // 科目区分。
+  string classifications = 23 [(google.api.field_behavior) = OPTIONAL];
+  // 授業で使う言語。
+  string teaching_language = 24 [(google.api.field_behavior) = OPTIONAL];
+  // 授業内容と計画。
+  string contents_and_schedule = 25 [(google.api.field_behavior) = OPTIONAL];
+  // 授業・試験の実施形態。
+  string teaching_and_exam_form = 26 [(google.api.field_behavior) = OPTIONAL];
+  // 数理・データサイエンス・AI 教育プログラム（DSOP）の対象科目の区分。
+  string dsop_subject = 27 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateSyllabus の Response。
 message UpdateSyllabusResponse {
+  // 更新したシラバス。
   Syllabus syllabus = 1;
 }
 
+// DeleteSyllabus の Request。
 message DeleteSyllabusRequest {
-  string id = 1;
+  // 削除するシラバスの ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteSyllabus の Response。
 message DeleteSyllabusResponse {}
-
-service SyllabusService {
-  rpc ListSyllabi(ListSyllabiRequest) returns (ListSyllabiResponse);
-  rpc GetSyllabus(GetSyllabusRequest) returns (GetSyllabusResponse);
-  rpc CreateSyllabus(CreateSyllabusRequest) returns (CreateSyllabusResponse);
-  rpc UpdateSyllabus(UpdateSyllabusRequest) returns (UpdateSyllabusResponse);
-  rpc DeleteSyllabus(DeleteSyllabusRequest) returns (DeleteSyllabusResponse);
-}

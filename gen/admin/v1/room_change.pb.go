@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	date "google.golang.org/genproto/googleapis/type/date"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -24,18 +25,27 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 教室変更。
 type RoomChange struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	SubjectId      string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	Date           *date.Date             `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
-	Period         Period                 `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
-	OriginalRoomId string                 `protobuf:"bytes,5,opt,name=original_room_id,json=originalRoomId,proto3" json:"original_room_id,omitempty"`
-	NewRoomId      string                 `protobuf:"bytes,6,opt,name=new_room_id,json=newRoomId,proto3" json:"new_room_id,omitempty"`
-	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 科目の ID。
+	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	// 教室を変更する日付。
+	Date *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
+	// 教室を変更する時限。
+	Period Period `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
+	// 変更前の教室の ID。
+	OriginalRoomId string `protobuf:"bytes,5,opt,name=original_room_id,json=originalRoomId,proto3" json:"original_room_id,omitempty"`
+	// 変更後の教室の ID。
+	NewRoomId string `protobuf:"bytes,6,opt,name=new_room_id,json=newRoomId,proto3" json:"new_room_id,omitempty"`
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RoomChange) Reset() {
@@ -124,10 +134,13 @@ func (x *RoomChange) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListRoomChanges の Request。
 type ListRoomChangesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -176,10 +189,13 @@ func (x *ListRoomChangesRequest) GetPageToken() string {
 	return ""
 }
 
+// ListRoomChanges の Response。
 type ListRoomChangesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RoomChanges   []*RoomChange          `protobuf:"bytes,1,rep,name=room_changes,json=roomChanges,proto3" json:"room_changes,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 教室変更の一覧。
+	RoomChanges []*RoomChange `protobuf:"bytes,1,rep,name=room_changes,json=roomChanges,proto3" json:"room_changes,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -228,9 +244,11 @@ func (x *ListRoomChangesResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetRoomChange の Request。
 type GetRoomChangeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得する教室変更の ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -272,9 +290,11 @@ func (x *GetRoomChangeRequest) GetId() string {
 	return ""
 }
 
+// GetRoomChange の Response。
 type GetRoomChangeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RoomChange    *RoomChange            `protobuf:"bytes,1,opt,name=room_change,json=roomChange,proto3" json:"room_change,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した教室変更。
+	RoomChange    *RoomChange `protobuf:"bytes,1,opt,name=room_change,json=roomChange,proto3" json:"room_change,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -316,15 +336,21 @@ func (x *GetRoomChangeResponse) GetRoomChange() *RoomChange {
 	return nil
 }
 
+// CreateRoomChange の Request。
 type CreateRoomChangeRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	SubjectId      string                 `protobuf:"bytes,1,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	Date           *date.Date             `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
-	Period         Period                 `protobuf:"varint,3,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
-	OriginalRoomId string                 `protobuf:"bytes,4,opt,name=original_room_id,json=originalRoomId,proto3" json:"original_room_id,omitempty"`
-	NewRoomId      string                 `protobuf:"bytes,5,opt,name=new_room_id,json=newRoomId,proto3" json:"new_room_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 科目の ID。
+	SubjectId string `protobuf:"bytes,1,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	// 教室を変更する日付。
+	Date *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	// 教室を変更する時限。
+	Period Period `protobuf:"varint,3,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
+	// 変更前の教室の ID。
+	OriginalRoomId string `protobuf:"bytes,4,opt,name=original_room_id,json=originalRoomId,proto3" json:"original_room_id,omitempty"`
+	// 変更後の教室の ID。
+	NewRoomId     string `protobuf:"bytes,5,opt,name=new_room_id,json=newRoomId,proto3" json:"new_room_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateRoomChangeRequest) Reset() {
@@ -392,9 +418,11 @@ func (x *CreateRoomChangeRequest) GetNewRoomId() string {
 	return ""
 }
 
+// CreateRoomChange の Response。
 type CreateRoomChangeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RoomChange    *RoomChange            `protobuf:"bytes,1,opt,name=room_change,json=roomChange,proto3" json:"room_change,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した教室変更。
+	RoomChange    *RoomChange `protobuf:"bytes,1,opt,name=room_change,json=roomChange,proto3" json:"room_change,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -436,17 +464,25 @@ func (x *CreateRoomChangeResponse) GetRoomChange() *RoomChange {
 	return nil
 }
 
+// UpdateRoomChange の Request。
 type UpdateRoomChangeRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	SubjectId      string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	Date           *date.Date             `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
-	Period         Period                 `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
-	OriginalRoomId string                 `protobuf:"bytes,5,opt,name=original_room_id,json=originalRoomId,proto3" json:"original_room_id,omitempty"`
-	NewRoomId      string                 `protobuf:"bytes,6,opt,name=new_room_id,json=newRoomId,proto3" json:"new_room_id,omitempty"`
-	UpdateMask     *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新する教室変更の ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 科目の ID。
+	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	// 教室を変更する日付。
+	Date *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
+	// 教室を変更する時限。
+	Period Period `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
+	// 変更前の教室の ID。
+	OriginalRoomId string `protobuf:"bytes,5,opt,name=original_room_id,json=originalRoomId,proto3" json:"original_room_id,omitempty"`
+	// 変更後の教室の ID。
+	NewRoomId string `protobuf:"bytes,6,opt,name=new_room_id,json=newRoomId,proto3" json:"new_room_id,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateRoomChangeRequest) Reset() {
@@ -528,9 +564,11 @@ func (x *UpdateRoomChangeRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateRoomChange の Response。
 type UpdateRoomChangeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RoomChange    *RoomChange            `protobuf:"bytes,1,opt,name=room_change,json=roomChange,proto3" json:"room_change,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した教室変更。
+	RoomChange    *RoomChange `protobuf:"bytes,1,opt,name=room_change,json=roomChange,proto3" json:"room_change,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -572,9 +610,11 @@ func (x *UpdateRoomChangeResponse) GetRoomChange() *RoomChange {
 	return nil
 }
 
+// DeleteRoomChange の Request。
 type DeleteRoomChangeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 削除する教室変更の ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -616,6 +656,7 @@ func (x *DeleteRoomChangeRequest) GetId() string {
 	return ""
 }
 
+// DeleteRoomChange の Response。
 type DeleteRoomChangeResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -656,57 +697,57 @@ var File_admin_v1_room_change_proto protoreflect.FileDescriptor
 
 const file_admin_v1_room_change_proto_rawDesc = "" +
 	"\n" +
-	"\x1aadmin/v1/room_change.proto\x12\badmin.v1\x1a\x15admin/v1/common.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16google/type/date.proto\"\xcc\x02\n" +
+	"\x1aadmin/v1/room_change.proto\x12\badmin.v1\x1a\x15admin/v1/common.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16google/type/date.proto\"\xf4\x02\n" +
 	"\n" +
-	"RoomChange\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"RoomChange\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x02 \x01(\tR\tsubjectId\x12%\n" +
-	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateR\x04date\x12(\n" +
-	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodR\x06period\x12(\n" +
-	"\x10original_room_id\x18\x05 \x01(\tR\x0eoriginalRoomId\x12\x1e\n" +
-	"\vnew_room_id\x18\x06 \x01(\tR\tnewRoomId\x129\n" +
+	"subject_id\x18\x02 \x01(\tB\x03\xe0A\x02R\tsubjectId\x12*\n" +
+	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\x12-\n" +
+	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodB\x03\xe0A\x02R\x06period\x12-\n" +
+	"\x10original_room_id\x18\x05 \x01(\tB\x03\xe0A\x02R\x0eoriginalRoomId\x12#\n" +
+	"\vnew_room_id\x18\x06 \x01(\tB\x03\xe0A\x02R\tnewRoomId\x12>\n" +
 	"\n" +
-	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"T\n" +
-	"\x16ListRoomChangesRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\"^\n" +
+	"\x16ListRoomChangesRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"z\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"z\n" +
 	"\x17ListRoomChangesResponse\x127\n" +
 	"\froom_changes\x18\x01 \x03(\v2\x14.admin.v1.RoomChangeR\vroomChanges\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"&\n" +
-	"\x14GetRoomChangeRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"N\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"+\n" +
+	"\x14GetRoomChangeRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"N\n" +
 	"\x15GetRoomChangeResponse\x125\n" +
 	"\vroom_change\x18\x01 \x01(\v2\x14.admin.v1.RoomChangeR\n" +
-	"roomChange\"\xd3\x01\n" +
-	"\x17CreateRoomChangeRequest\x12\x1d\n" +
+	"roomChange\"\xec\x01\n" +
+	"\x17CreateRoomChangeRequest\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x01 \x01(\tR\tsubjectId\x12%\n" +
-	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateR\x04date\x12(\n" +
-	"\x06period\x18\x03 \x01(\x0e2\x10.admin.v1.PeriodR\x06period\x12(\n" +
-	"\x10original_room_id\x18\x04 \x01(\tR\x0eoriginalRoomId\x12\x1e\n" +
-	"\vnew_room_id\x18\x05 \x01(\tR\tnewRoomId\"Q\n" +
+	"subject_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tsubjectId\x12*\n" +
+	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\x12-\n" +
+	"\x06period\x18\x03 \x01(\x0e2\x10.admin.v1.PeriodB\x03\xe0A\x02R\x06period\x12-\n" +
+	"\x10original_room_id\x18\x04 \x01(\tB\x03\xe0A\x02R\x0eoriginalRoomId\x12#\n" +
+	"\vnew_room_id\x18\x05 \x01(\tB\x03\xe0A\x02R\tnewRoomId\"Q\n" +
 	"\x18CreateRoomChangeResponse\x125\n" +
 	"\vroom_change\x18\x01 \x01(\v2\x14.admin.v1.RoomChangeR\n" +
-	"roomChange\"\xa0\x02\n" +
-	"\x17UpdateRoomChangeRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"roomChange\"\xc3\x02\n" +
+	"\x17UpdateRoomChangeRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x02 \x01(\tR\tsubjectId\x12%\n" +
-	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateR\x04date\x12(\n" +
-	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodR\x06period\x12(\n" +
-	"\x10original_room_id\x18\x05 \x01(\tR\x0eoriginalRoomId\x12\x1e\n" +
-	"\vnew_room_id\x18\x06 \x01(\tR\tnewRoomId\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"subject_id\x18\x02 \x01(\tB\x03\xe0A\x01R\tsubjectId\x12*\n" +
+	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01R\x04date\x12-\n" +
+	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodB\x03\xe0A\x01R\x06period\x12-\n" +
+	"\x10original_room_id\x18\x05 \x01(\tB\x03\xe0A\x01R\x0eoriginalRoomId\x12#\n" +
+	"\vnew_room_id\x18\x06 \x01(\tB\x03\xe0A\x01R\tnewRoomId\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"Q\n" +
 	"\x18UpdateRoomChangeResponse\x125\n" +
 	"\vroom_change\x18\x01 \x01(\v2\x14.admin.v1.RoomChangeR\n" +
-	"roomChange\")\n" +
-	"\x17DeleteRoomChangeRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x1a\n" +
+	"roomChange\".\n" +
+	"\x17DeleteRoomChangeRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x1a\n" +
 	"\x18DeleteRoomChangeResponse2\xce\x03\n" +
 	"\x11RoomChangeService\x12V\n" +
 	"\x0fListRoomChanges\x12 .admin.v1.ListRoomChangesRequest\x1a!.admin.v1.ListRoomChangesResponse\x12P\n" +

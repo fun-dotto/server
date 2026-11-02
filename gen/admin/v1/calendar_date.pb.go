@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	date "google.golang.org/genproto/googleapis/type/date"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -23,12 +24,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 運行カレンダーの例外の種類（GTFS の exception_type）。
 type CalendarDateExceptionType int32
 
 const (
+	// 未指定。
 	CalendarDateExceptionType_CALENDAR_DATE_EXCEPTION_TYPE_UNSPECIFIED CalendarDateExceptionType = 0
-	CalendarDateExceptionType_CALENDAR_DATE_EXCEPTION_TYPE_ADDED       CalendarDateExceptionType = 1
-	CalendarDateExceptionType_CALENDAR_DATE_EXCEPTION_TYPE_REMOVED     CalendarDateExceptionType = 2
+	// その日の運行を追加する。
+	CalendarDateExceptionType_CALENDAR_DATE_EXCEPTION_TYPE_ADDED CalendarDateExceptionType = 1
+	// その日の運行を取り消す。
+	CalendarDateExceptionType_CALENDAR_DATE_EXCEPTION_TYPE_REMOVED CalendarDateExceptionType = 2
 )
 
 // Enum value maps for CalendarDateExceptionType.
@@ -72,10 +77,14 @@ func (CalendarDateExceptionType) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_calendar_date_proto_rawDescGZIP(), []int{0}
 }
 
+// 運行カレンダーの例外日（GTFS の calendar_dates）。
 type CalendarDate struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	ServiceId     string                    `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	Date          *date.Date                `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行カレンダーの ID（GTFS の service_id）。
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// 例外日の日付。
+	Date *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	// 運行を追加するか取り消すか。
 	ExceptionType CalendarDateExceptionType `protobuf:"varint,3,opt,name=exception_type,json=exceptionType,proto3,enum=admin.v1.CalendarDateExceptionType" json:"exception_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -132,10 +141,13 @@ func (x *CalendarDate) GetExceptionType() CalendarDateExceptionType {
 	return CalendarDateExceptionType_CALENDAR_DATE_EXCEPTION_TYPE_UNSPECIFIED
 }
 
+// ListCalendarDates の Request。
 type ListCalendarDatesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -184,10 +196,13 @@ func (x *ListCalendarDatesRequest) GetPageToken() string {
 	return ""
 }
 
+// ListCalendarDates の Response。
 type ListCalendarDatesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CalendarDates []*CalendarDate        `protobuf:"bytes,1,rep,name=calendar_dates,json=calendarDates,proto3" json:"calendar_dates,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行カレンダーの例外日（GTFS の calendar_dates）の一覧。
+	CalendarDates []*CalendarDate `protobuf:"bytes,1,rep,name=calendar_dates,json=calendarDates,proto3" json:"calendar_dates,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -236,10 +251,13 @@ func (x *ListCalendarDatesResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetCalendarDate の Request。
 type GetCalendarDateRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServiceId     string                 `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	Date          *date.Date             `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行カレンダーの ID（GTFS の service_id）。
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// 例外日の日付。
+	Date          *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -288,9 +306,11 @@ func (x *GetCalendarDateRequest) GetDate() *date.Date {
 	return nil
 }
 
+// GetCalendarDate の Response。
 type GetCalendarDateResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CalendarDate  *CalendarDate          `protobuf:"bytes,1,opt,name=calendar_date,json=calendarDate,proto3" json:"calendar_date,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した運行カレンダーの例外日（GTFS の calendar_dates）。
+	CalendarDate  *CalendarDate `protobuf:"bytes,1,opt,name=calendar_date,json=calendarDate,proto3" json:"calendar_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -332,10 +352,14 @@ func (x *GetCalendarDateResponse) GetCalendarDate() *CalendarDate {
 	return nil
 }
 
+// CreateCalendarDate の Request。
 type CreateCalendarDateRequest struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	ServiceId     string                    `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	Date          *date.Date                `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行カレンダーの ID（GTFS の service_id）。
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// 例外日の日付。
+	Date *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	// 運行を追加するか取り消すか。
 	ExceptionType CalendarDateExceptionType `protobuf:"varint,3,opt,name=exception_type,json=exceptionType,proto3,enum=admin.v1.CalendarDateExceptionType" json:"exception_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -392,9 +416,11 @@ func (x *CreateCalendarDateRequest) GetExceptionType() CalendarDateExceptionType
 	return CalendarDateExceptionType_CALENDAR_DATE_EXCEPTION_TYPE_UNSPECIFIED
 }
 
+// CreateCalendarDate の Response。
 type CreateCalendarDateResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CalendarDate  *CalendarDate          `protobuf:"bytes,1,opt,name=calendar_date,json=calendarDate,proto3" json:"calendar_date,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した運行カレンダーの例外日（GTFS の calendar_dates）。
+	CalendarDate  *CalendarDate `protobuf:"bytes,1,opt,name=calendar_date,json=calendarDate,proto3" json:"calendar_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -436,12 +462,17 @@ func (x *CreateCalendarDateResponse) GetCalendarDate() *CalendarDate {
 	return nil
 }
 
+// UpdateCalendarDate の Request。
 type UpdateCalendarDateRequest struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	ServiceId     string                    `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	Date          *date.Date                `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行カレンダーの ID（GTFS の service_id）。
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// 例外日の日付。
+	Date *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	// 運行を追加するか取り消すか。
 	ExceptionType CalendarDateExceptionType `protobuf:"varint,3,opt,name=exception_type,json=exceptionType,proto3,enum=admin.v1.CalendarDateExceptionType" json:"exception_type,omitempty"`
-	UpdateMask    *fieldmaskpb.FieldMask    `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -504,9 +535,11 @@ func (x *UpdateCalendarDateRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateCalendarDate の Response。
 type UpdateCalendarDateResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CalendarDate  *CalendarDate          `protobuf:"bytes,1,opt,name=calendar_date,json=calendarDate,proto3" json:"calendar_date,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した運行カレンダーの例外日（GTFS の calendar_dates）。
+	CalendarDate  *CalendarDate `protobuf:"bytes,1,opt,name=calendar_date,json=calendarDate,proto3" json:"calendar_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -548,10 +581,13 @@ func (x *UpdateCalendarDateResponse) GetCalendarDate() *CalendarDate {
 	return nil
 }
 
+// DeleteCalendarDate の Request。
 type DeleteCalendarDateRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServiceId     string                 `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	Date          *date.Date             `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行カレンダーの ID（GTFS の service_id）。
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// 例外日の日付。
+	Date          *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -600,6 +636,7 @@ func (x *DeleteCalendarDateRequest) GetDate() *date.Date {
 	return nil
 }
 
+// DeleteCalendarDate の Response。
 type DeleteCalendarDateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -640,45 +677,45 @@ var File_admin_v1_calendar_date_proto protoreflect.FileDescriptor
 
 const file_admin_v1_calendar_date_proto_rawDesc = "" +
 	"\n" +
-	"\x1cadmin/v1/calendar_date.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\x1a\x16google/type/date.proto\"\xa0\x01\n" +
-	"\fCalendarDate\x12\x1d\n" +
+	"\x1cadmin/v1/calendar_date.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x16google/type/date.proto\"\xaf\x01\n" +
+	"\fCalendarDate\x12\"\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tR\tserviceId\x12%\n" +
-	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateR\x04date\x12J\n" +
-	"\x0eexception_type\x18\x03 \x01(\x0e2#.admin.v1.CalendarDateExceptionTypeR\rexceptionType\"V\n" +
-	"\x18ListCalendarDatesRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"service_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tserviceId\x12*\n" +
+	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\x12O\n" +
+	"\x0eexception_type\x18\x03 \x01(\x0e2#.admin.v1.CalendarDateExceptionTypeB\x03\xe0A\x02R\rexceptionType\"`\n" +
+	"\x18ListCalendarDatesRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"\x82\x01\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"\x82\x01\n" +
 	"\x19ListCalendarDatesResponse\x12=\n" +
 	"\x0ecalendar_dates\x18\x01 \x03(\v2\x16.admin.v1.CalendarDateR\rcalendarDates\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"^\n" +
-	"\x16GetCalendarDateRequest\x12\x1d\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"h\n" +
+	"\x16GetCalendarDateRequest\x12\"\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tR\tserviceId\x12%\n" +
-	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateR\x04date\"V\n" +
+	"service_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tserviceId\x12*\n" +
+	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\"V\n" +
 	"\x17GetCalendarDateResponse\x12;\n" +
-	"\rcalendar_date\x18\x01 \x01(\v2\x16.admin.v1.CalendarDateR\fcalendarDate\"\xad\x01\n" +
-	"\x19CreateCalendarDateRequest\x12\x1d\n" +
+	"\rcalendar_date\x18\x01 \x01(\v2\x16.admin.v1.CalendarDateR\fcalendarDate\"\xbc\x01\n" +
+	"\x19CreateCalendarDateRequest\x12\"\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tR\tserviceId\x12%\n" +
-	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateR\x04date\x12J\n" +
-	"\x0eexception_type\x18\x03 \x01(\x0e2#.admin.v1.CalendarDateExceptionTypeR\rexceptionType\"Y\n" +
+	"service_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tserviceId\x12*\n" +
+	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\x12O\n" +
+	"\x0eexception_type\x18\x03 \x01(\x0e2#.admin.v1.CalendarDateExceptionTypeB\x03\xe0A\x02R\rexceptionType\"Y\n" +
 	"\x1aCreateCalendarDateResponse\x12;\n" +
-	"\rcalendar_date\x18\x01 \x01(\v2\x16.admin.v1.CalendarDateR\fcalendarDate\"\xea\x01\n" +
-	"\x19UpdateCalendarDateRequest\x12\x1d\n" +
+	"\rcalendar_date\x18\x01 \x01(\v2\x16.admin.v1.CalendarDateR\fcalendarDate\"\xfe\x01\n" +
+	"\x19UpdateCalendarDateRequest\x12\"\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tR\tserviceId\x12%\n" +
-	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateR\x04date\x12J\n" +
-	"\x0eexception_type\x18\x03 \x01(\x0e2#.admin.v1.CalendarDateExceptionTypeR\rexceptionType\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"service_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tserviceId\x12*\n" +
+	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\x12O\n" +
+	"\x0eexception_type\x18\x03 \x01(\x0e2#.admin.v1.CalendarDateExceptionTypeB\x03\xe0A\x01R\rexceptionType\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"Y\n" +
 	"\x1aUpdateCalendarDateResponse\x12;\n" +
-	"\rcalendar_date\x18\x01 \x01(\v2\x16.admin.v1.CalendarDateR\fcalendarDate\"a\n" +
-	"\x19DeleteCalendarDateRequest\x12\x1d\n" +
+	"\rcalendar_date\x18\x01 \x01(\v2\x16.admin.v1.CalendarDateR\fcalendarDate\"k\n" +
+	"\x19DeleteCalendarDateRequest\x12\"\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tR\tserviceId\x12%\n" +
-	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateR\x04date\"\x1c\n" +
+	"service_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tserviceId\x12*\n" +
+	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\"\x1c\n" +
 	"\x1aDeleteCalendarDateResponse*\x9b\x01\n" +
 	"\x19CalendarDateExceptionType\x12,\n" +
 	"(CALENDAR_DATE_EXCEPTION_TYPE_UNSPECIFIED\x10\x00\x12&\n" +

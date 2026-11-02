@@ -52,10 +52,15 @@ const (
 
 // MakeupClassServiceClient is a client for the admin.v1.MakeupClassService service.
 type MakeupClassServiceClient interface {
+	// 補講の一覧を取得する。
 	ListMakeupClasses(context.Context, *connect.Request[v1.ListMakeupClassesRequest]) (*connect.Response[v1.ListMakeupClassesResponse], error)
+	// 補講を取得する。
 	GetMakeupClass(context.Context, *connect.Request[v1.GetMakeupClassRequest]) (*connect.Response[v1.GetMakeupClassResponse], error)
+	// 補講を作成する。
 	CreateMakeupClass(context.Context, *connect.Request[v1.CreateMakeupClassRequest]) (*connect.Response[v1.CreateMakeupClassResponse], error)
+	// 補講を更新する。
 	UpdateMakeupClass(context.Context, *connect.Request[v1.UpdateMakeupClassRequest]) (*connect.Response[v1.UpdateMakeupClassResponse], error)
+	// 補講を削除する。
 	DeleteMakeupClass(context.Context, *connect.Request[v1.DeleteMakeupClassRequest]) (*connect.Response[v1.DeleteMakeupClassResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *makeupClassServiceClient) DeleteMakeupClass(ctx context.Context, req *c
 
 // MakeupClassServiceHandler is an implementation of the admin.v1.MakeupClassService service.
 type MakeupClassServiceHandler interface {
+	// 補講の一覧を取得する。
 	ListMakeupClasses(context.Context, *connect.Request[v1.ListMakeupClassesRequest]) (*connect.Response[v1.ListMakeupClassesResponse], error)
+	// 補講を取得する。
 	GetMakeupClass(context.Context, *connect.Request[v1.GetMakeupClassRequest]) (*connect.Response[v1.GetMakeupClassResponse], error)
+	// 補講を作成する。
 	CreateMakeupClass(context.Context, *connect.Request[v1.CreateMakeupClassRequest]) (*connect.Response[v1.CreateMakeupClassResponse], error)
+	// 補講を更新する。
 	UpdateMakeupClass(context.Context, *connect.Request[v1.UpdateMakeupClassRequest]) (*connect.Response[v1.UpdateMakeupClassResponse], error)
+	// 補講を削除する。
 	DeleteMakeupClass(context.Context, *connect.Request[v1.DeleteMakeupClassRequest]) (*connect.Response[v1.DeleteMakeupClassResponse], error)
 }
 

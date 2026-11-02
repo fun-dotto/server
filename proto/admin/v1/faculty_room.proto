@@ -2,57 +2,92 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
+// 教員の居室を管理する。
+service FacultyRoomService {
+  // 教員の居室の一覧を取得する。
+  rpc ListFacultyRooms(ListFacultyRoomsRequest) returns (ListFacultyRoomsResponse);
+  // 教員の居室を取得する。
+  rpc GetFacultyRoom(GetFacultyRoomRequest) returns (GetFacultyRoomResponse);
+  // 教員の居室を作成する。
+  rpc CreateFacultyRoom(CreateFacultyRoomRequest) returns (CreateFacultyRoomResponse);
+  // 教員の居室を削除する。
+  rpc DeleteFacultyRoom(DeleteFacultyRoomRequest) returns (DeleteFacultyRoomResponse);
+}
+
+// 教員の居室。
 message FacultyRoom {
-  string faculty_id = 1;
-  string room_id = 2;
-  int32 year = 3;
-  google.protobuf.Timestamp created_at = 4;
-  google.protobuf.Timestamp updated_at = 5;
+  // 教員の ID。
+  string faculty_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 教室の ID。
+  string room_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 居室を使う年度。
+  int32 year = 3 [(google.api.field_behavior) = REQUIRED];
+  // 作成日時。
+  google.protobuf.Timestamp created_at = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 更新日時。
+  google.protobuf.Timestamp updated_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ListFacultyRooms の Request。
 message ListFacultyRoomsRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListFacultyRooms の Response。
 message ListFacultyRoomsResponse {
+  // 教員の居室の一覧。
   repeated FacultyRoom faculty_rooms = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetFacultyRoom の Request。
 message GetFacultyRoomRequest {
-  string faculty_id = 1;
-  string room_id = 2;
-  int32 year = 3;
+  // 教員の ID。
+  string faculty_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 教室の ID。
+  string room_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 居室を使う年度。
+  int32 year = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetFacultyRoom の Response。
 message GetFacultyRoomResponse {
+  // 取得した教員の居室。
   FacultyRoom faculty_room = 1;
 }
 
+// CreateFacultyRoom の Request。
 message CreateFacultyRoomRequest {
-  string faculty_id = 1;
-  string room_id = 2;
-  int32 year = 3;
+  // 教員の ID。
+  string faculty_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 教室の ID。
+  string room_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 居室を使う年度。
+  int32 year = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
+// CreateFacultyRoom の Response。
 message CreateFacultyRoomResponse {
+  // 作成した教員の居室。
   FacultyRoom faculty_room = 1;
 }
 
+// DeleteFacultyRoom の Request。
 message DeleteFacultyRoomRequest {
-  string faculty_id = 1;
-  string room_id = 2;
-  int32 year = 3;
+  // 教員の ID。
+  string faculty_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 教室の ID。
+  string room_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 居室を使う年度。
+  int32 year = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteFacultyRoom の Response。
 message DeleteFacultyRoomResponse {}
-
-service FacultyRoomService {
-  rpc ListFacultyRooms(ListFacultyRoomsRequest) returns (ListFacultyRoomsResponse);
-  rpc GetFacultyRoom(GetFacultyRoomRequest) returns (GetFacultyRoomResponse);
-  rpc CreateFacultyRoom(CreateFacultyRoomRequest) returns (CreateFacultyRoomResponse);
-  rpc DeleteFacultyRoom(DeleteFacultyRoomRequest) returns (DeleteFacultyRoomResponse);
-}

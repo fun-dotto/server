@@ -2,85 +2,143 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/type/date.proto";
 
+// 運行カレンダー（GTFS の calendar）を管理する。
+service CalendarService {
+  // 運行カレンダー（GTFS の calendar）の一覧を取得する。
+  rpc ListCalendars(ListCalendarsRequest) returns (ListCalendarsResponse);
+  // 運行カレンダー（GTFS の calendar）を取得する。
+  rpc GetCalendar(GetCalendarRequest) returns (GetCalendarResponse);
+  // 運行カレンダー（GTFS の calendar）を作成する。
+  rpc CreateCalendar(CreateCalendarRequest) returns (CreateCalendarResponse);
+  // 運行カレンダー（GTFS の calendar）を更新する。
+  rpc UpdateCalendar(UpdateCalendarRequest) returns (UpdateCalendarResponse);
+  // 運行カレンダー（GTFS の calendar）を削除する。
+  rpc DeleteCalendar(DeleteCalendarRequest) returns (DeleteCalendarResponse);
+}
+
+// 運行カレンダー（GTFS の calendar）。
 message Calendar {
-  string service_id = 1;
-  bool monday = 2;
-  bool tuesday = 3;
-  bool wednesday = 4;
-  bool thursday = 5;
-  bool friday = 6;
-  bool saturday = 7;
-  bool sunday = 8;
-  google.type.Date start_date = 9;
-  google.type.Date end_date = 10;
+  // 運行カレンダーの ID（GTFS の service_id）。
+  string service_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 月曜日に運行するか。
+  bool monday = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 火曜日に運行するか。
+  bool tuesday = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 水曜日に運行するか。
+  bool wednesday = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 木曜日に運行するか。
+  bool thursday = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 金曜日に運行するか。
+  bool friday = 6 [(google.api.field_behavior) = OPTIONAL];
+  // 土曜日に運行するか。
+  bool saturday = 7 [(google.api.field_behavior) = OPTIONAL];
+  // 日曜日に運行するか。
+  bool sunday = 8 [(google.api.field_behavior) = OPTIONAL];
+  // 運行期間の開始日。
+  google.type.Date start_date = 9 [(google.api.field_behavior) = REQUIRED];
+  // 運行期間の終了日。
+  google.type.Date end_date = 10 [(google.api.field_behavior) = REQUIRED];
 }
 
+// ListCalendars の Request。
 message ListCalendarsRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListCalendars の Response。
 message ListCalendarsResponse {
+  // 運行カレンダー（GTFS の calendar）の一覧。
   repeated Calendar calendars = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetCalendar の Request。
 message GetCalendarRequest {
-  string service_id = 1;
+  // 運行カレンダーの ID（GTFS の service_id）。
+  string service_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetCalendar の Response。
 message GetCalendarResponse {
+  // 取得した運行カレンダー（GTFS の calendar）。
   Calendar calendar = 1;
 }
 
+// CreateCalendar の Request。
 message CreateCalendarRequest {
-  string service_id = 1;
-  bool monday = 2;
-  bool tuesday = 3;
-  bool wednesday = 4;
-  bool thursday = 5;
-  bool friday = 6;
-  bool saturday = 7;
-  bool sunday = 8;
-  google.type.Date start_date = 9;
-  google.type.Date end_date = 10;
+  // 運行カレンダーの ID（GTFS の service_id）。
+  string service_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 月曜日に運行するか。
+  bool monday = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 火曜日に運行するか。
+  bool tuesday = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 水曜日に運行するか。
+  bool wednesday = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 木曜日に運行するか。
+  bool thursday = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 金曜日に運行するか。
+  bool friday = 6 [(google.api.field_behavior) = OPTIONAL];
+  // 土曜日に運行するか。
+  bool saturday = 7 [(google.api.field_behavior) = OPTIONAL];
+  // 日曜日に運行するか。
+  bool sunday = 8 [(google.api.field_behavior) = OPTIONAL];
+  // 運行期間の開始日。
+  google.type.Date start_date = 9 [(google.api.field_behavior) = REQUIRED];
+  // 運行期間の終了日。
+  google.type.Date end_date = 10 [(google.api.field_behavior) = REQUIRED];
 }
 
+// CreateCalendar の Response。
 message CreateCalendarResponse {
+  // 作成した運行カレンダー（GTFS の calendar）。
   Calendar calendar = 1;
 }
 
+// UpdateCalendar の Request。
 message UpdateCalendarRequest {
-  string service_id = 1;
-  bool monday = 2;
-  bool tuesday = 3;
-  bool wednesday = 4;
-  bool thursday = 5;
-  bool friday = 6;
-  bool saturday = 7;
-  bool sunday = 8;
-  google.type.Date start_date = 9;
-  google.type.Date end_date = 10;
-  google.protobuf.FieldMask update_mask = 99;
+  // 運行カレンダーの ID（GTFS の service_id）。
+  string service_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 月曜日に運行するか。
+  bool monday = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 火曜日に運行するか。
+  bool tuesday = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 水曜日に運行するか。
+  bool wednesday = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 木曜日に運行するか。
+  bool thursday = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 金曜日に運行するか。
+  bool friday = 6 [(google.api.field_behavior) = OPTIONAL];
+  // 土曜日に運行するか。
+  bool saturday = 7 [(google.api.field_behavior) = OPTIONAL];
+  // 日曜日に運行するか。
+  bool sunday = 8 [(google.api.field_behavior) = OPTIONAL];
+  // 運行期間の開始日。
+  google.type.Date start_date = 9 [(google.api.field_behavior) = OPTIONAL];
+  // 運行期間の終了日。
+  google.type.Date end_date = 10 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateCalendar の Response。
 message UpdateCalendarResponse {
+  // 更新した運行カレンダー（GTFS の calendar）。
   Calendar calendar = 1;
 }
 
+// DeleteCalendar の Request。
 message DeleteCalendarRequest {
-  string service_id = 1;
+  // 運行カレンダーの ID（GTFS の service_id）。
+  string service_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteCalendar の Response。
 message DeleteCalendarResponse {}
-
-service CalendarService {
-  rpc ListCalendars(ListCalendarsRequest) returns (ListCalendarsResponse);
-  rpc GetCalendar(GetCalendarRequest) returns (GetCalendarResponse);
-  rpc CreateCalendar(CreateCalendarRequest) returns (CreateCalendarResponse);
-  rpc UpdateCalendar(UpdateCalendarRequest) returns (UpdateCalendarResponse);
-  rpc DeleteCalendar(DeleteCalendarRequest) returns (DeleteCalendarResponse);
-}

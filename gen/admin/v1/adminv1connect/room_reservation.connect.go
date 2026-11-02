@@ -52,10 +52,15 @@ const (
 
 // RoomReservationServiceClient is a client for the admin.v1.RoomReservationService service.
 type RoomReservationServiceClient interface {
+	// 教室の予約の一覧を取得する。
 	ListRoomReservations(context.Context, *connect.Request[v1.ListRoomReservationsRequest]) (*connect.Response[v1.ListRoomReservationsResponse], error)
+	// 教室の予約を取得する。
 	GetRoomReservation(context.Context, *connect.Request[v1.GetRoomReservationRequest]) (*connect.Response[v1.GetRoomReservationResponse], error)
+	// 教室の予約を作成する。
 	CreateRoomReservation(context.Context, *connect.Request[v1.CreateRoomReservationRequest]) (*connect.Response[v1.CreateRoomReservationResponse], error)
+	// 教室の予約を更新する。
 	UpdateRoomReservation(context.Context, *connect.Request[v1.UpdateRoomReservationRequest]) (*connect.Response[v1.UpdateRoomReservationResponse], error)
+	// 教室の予約を削除する。
 	DeleteRoomReservation(context.Context, *connect.Request[v1.DeleteRoomReservationRequest]) (*connect.Response[v1.DeleteRoomReservationResponse], error)
 }
 
@@ -140,10 +145,15 @@ func (c *roomReservationServiceClient) DeleteRoomReservation(ctx context.Context
 // RoomReservationServiceHandler is an implementation of the admin.v1.RoomReservationService
 // service.
 type RoomReservationServiceHandler interface {
+	// 教室の予約の一覧を取得する。
 	ListRoomReservations(context.Context, *connect.Request[v1.ListRoomReservationsRequest]) (*connect.Response[v1.ListRoomReservationsResponse], error)
+	// 教室の予約を取得する。
 	GetRoomReservation(context.Context, *connect.Request[v1.GetRoomReservationRequest]) (*connect.Response[v1.GetRoomReservationResponse], error)
+	// 教室の予約を作成する。
 	CreateRoomReservation(context.Context, *connect.Request[v1.CreateRoomReservationRequest]) (*connect.Response[v1.CreateRoomReservationResponse], error)
+	// 教室の予約を更新する。
 	UpdateRoomReservation(context.Context, *connect.Request[v1.UpdateRoomReservationRequest]) (*connect.Response[v1.UpdateRoomReservationResponse], error)
+	// 教室の予約を削除する。
 	DeleteRoomReservation(context.Context, *connect.Request[v1.DeleteRoomReservationRequest]) (*connect.Response[v1.DeleteRoomReservationResponse], error)
 }
 

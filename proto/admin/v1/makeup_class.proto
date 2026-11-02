@@ -3,72 +3,116 @@ syntax = "proto3";
 package admin.v1;
 
 import "admin/v1/common.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 import "google/type/date.proto";
 
+// 補講を管理する。
+service MakeupClassService {
+  // 補講の一覧を取得する。
+  rpc ListMakeupClasses(ListMakeupClassesRequest) returns (ListMakeupClassesResponse);
+  // 補講を取得する。
+  rpc GetMakeupClass(GetMakeupClassRequest) returns (GetMakeupClassResponse);
+  // 補講を作成する。
+  rpc CreateMakeupClass(CreateMakeupClassRequest) returns (CreateMakeupClassResponse);
+  // 補講を更新する。
+  rpc UpdateMakeupClass(UpdateMakeupClassRequest) returns (UpdateMakeupClassResponse);
+  // 補講を削除する。
+  rpc DeleteMakeupClass(DeleteMakeupClassRequest) returns (DeleteMakeupClassResponse);
+}
+
+// 補講。
 message MakeupClass {
-  string id = 1;
-  string subject_id = 2;
-  google.type.Date date = 3;
-  Period period = 4;
-  optional string comment = 5;
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp updated_at = 7;
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 科目の ID。
+  string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 補講する日付。
+  google.type.Date date = 3 [(google.api.field_behavior) = REQUIRED];
+  // 補講する時限。
+  Period period = 4 [(google.api.field_behavior) = REQUIRED];
+  // 補足のコメント。
+  optional string comment = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 作成日時。
+  google.protobuf.Timestamp created_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 更新日時。
+  google.protobuf.Timestamp updated_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ListMakeupClasses の Request。
 message ListMakeupClassesRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListMakeupClasses の Response。
 message ListMakeupClassesResponse {
+  // 補講の一覧。
   repeated MakeupClass makeup_classes = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetMakeupClass の Request。
 message GetMakeupClassRequest {
-  string id = 1;
+  // 取得する補講の ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetMakeupClass の Response。
 message GetMakeupClassResponse {
+  // 取得した補講。
   MakeupClass makeup_class = 1;
 }
 
+// CreateMakeupClass の Request。
 message CreateMakeupClassRequest {
-  string subject_id = 1;
-  google.type.Date date = 2;
-  Period period = 3;
-  optional string comment = 4;
+  // 科目の ID。
+  string subject_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 補講する日付。
+  google.type.Date date = 2 [(google.api.field_behavior) = REQUIRED];
+  // 補講する時限。
+  Period period = 3 [(google.api.field_behavior) = REQUIRED];
+  // 補足のコメント。
+  optional string comment = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// CreateMakeupClass の Response。
 message CreateMakeupClassResponse {
+  // 作成した補講。
   MakeupClass makeup_class = 1;
 }
 
+// UpdateMakeupClass の Request。
 message UpdateMakeupClassRequest {
-  string id = 1;
-  string subject_id = 2;
-  google.type.Date date = 3;
-  Period period = 4;
-  optional string comment = 5;
-  google.protobuf.FieldMask update_mask = 99;
+  // 更新する補講の ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 科目の ID。
+  string subject_id = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 補講する日付。
+  google.type.Date date = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 補講する時限。
+  Period period = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 補足のコメント。
+  optional string comment = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateMakeupClass の Response。
 message UpdateMakeupClassResponse {
+  // 更新した補講。
   MakeupClass makeup_class = 1;
 }
 
+// DeleteMakeupClass の Request。
 message DeleteMakeupClassRequest {
-  string id = 1;
+  // 削除する補講の ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteMakeupClass の Response。
 message DeleteMakeupClassResponse {}
-
-service MakeupClassService {
-  rpc ListMakeupClasses(ListMakeupClassesRequest) returns (ListMakeupClassesResponse);
-  rpc GetMakeupClass(GetMakeupClassRequest) returns (GetMakeupClassResponse);
-  rpc CreateMakeupClass(CreateMakeupClassRequest) returns (CreateMakeupClassResponse);
-  rpc UpdateMakeupClass(UpdateMakeupClassRequest) returns (UpdateMakeupClassResponse);
-  rpc DeleteMakeupClass(DeleteMakeupClassRequest) returns (DeleteMakeupClassResponse);
-}

@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	date "google.golang.org/genproto/googleapis/type/date"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -24,14 +25,22 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 補講。
 type MakeupClass struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	SubjectId     string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	Date          *date.Date             `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
-	Period        Period                 `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
-	Comment       *string                `protobuf:"bytes,5,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 科目の ID。
+	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	// 補講する日付。
+	Date *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
+	// 補講する時限。
+	Period Period `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
+	// 補足のコメント。
+	Comment *string `protobuf:"bytes,5,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -116,10 +125,13 @@ func (x *MakeupClass) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListMakeupClasses の Request。
 type ListMakeupClassesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -168,10 +180,13 @@ func (x *ListMakeupClassesRequest) GetPageToken() string {
 	return ""
 }
 
+// ListMakeupClasses の Response。
 type ListMakeupClassesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MakeupClasses []*MakeupClass         `protobuf:"bytes,1,rep,name=makeup_classes,json=makeupClasses,proto3" json:"makeup_classes,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 補講の一覧。
+	MakeupClasses []*MakeupClass `protobuf:"bytes,1,rep,name=makeup_classes,json=makeupClasses,proto3" json:"makeup_classes,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -220,9 +235,11 @@ func (x *ListMakeupClassesResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetMakeupClass の Request。
 type GetMakeupClassRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得する補講の ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -264,9 +281,11 @@ func (x *GetMakeupClassRequest) GetId() string {
 	return ""
 }
 
+// GetMakeupClass の Response。
 type GetMakeupClassResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MakeupClass   *MakeupClass           `protobuf:"bytes,1,opt,name=makeup_class,json=makeupClass,proto3" json:"makeup_class,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した補講。
+	MakeupClass   *MakeupClass `protobuf:"bytes,1,opt,name=makeup_class,json=makeupClass,proto3" json:"makeup_class,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -308,12 +327,17 @@ func (x *GetMakeupClassResponse) GetMakeupClass() *MakeupClass {
 	return nil
 }
 
+// CreateMakeupClass の Request。
 type CreateMakeupClassRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SubjectId     string                 `protobuf:"bytes,1,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	Date          *date.Date             `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
-	Period        Period                 `protobuf:"varint,3,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
-	Comment       *string                `protobuf:"bytes,4,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 科目の ID。
+	SubjectId string `protobuf:"bytes,1,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	// 補講する日付。
+	Date *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
+	// 補講する時限。
+	Period Period `protobuf:"varint,3,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
+	// 補足のコメント。
+	Comment       *string `protobuf:"bytes,4,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -376,9 +400,11 @@ func (x *CreateMakeupClassRequest) GetComment() string {
 	return ""
 }
 
+// CreateMakeupClass の Response。
 type CreateMakeupClassResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MakeupClass   *MakeupClass           `protobuf:"bytes,1,opt,name=makeup_class,json=makeupClass,proto3" json:"makeup_class,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した補講。
+	MakeupClass   *MakeupClass `protobuf:"bytes,1,opt,name=makeup_class,json=makeupClass,proto3" json:"makeup_class,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -420,13 +446,20 @@ func (x *CreateMakeupClassResponse) GetMakeupClass() *MakeupClass {
 	return nil
 }
 
+// UpdateMakeupClass の Request。
 type UpdateMakeupClassRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	SubjectId     string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	Date          *date.Date             `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
-	Period        Period                 `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
-	Comment       *string                `protobuf:"bytes,5,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新する補講の ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 科目の ID。
+	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	// 補講する日付。
+	Date *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
+	// 補講する時限。
+	Period Period `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
+	// 補足のコメント。
+	Comment *string `protobuf:"bytes,5,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -504,9 +537,11 @@ func (x *UpdateMakeupClassRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateMakeupClass の Response。
 type UpdateMakeupClassResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MakeupClass   *MakeupClass           `protobuf:"bytes,1,opt,name=makeup_class,json=makeupClass,proto3" json:"makeup_class,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した補講。
+	MakeupClass   *MakeupClass `protobuf:"bytes,1,opt,name=makeup_class,json=makeupClass,proto3" json:"makeup_class,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -548,9 +583,11 @@ func (x *UpdateMakeupClassResponse) GetMakeupClass() *MakeupClass {
 	return nil
 }
 
+// DeleteMakeupClass の Request。
 type DeleteMakeupClassRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 削除する補講の ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -592,6 +629,7 @@ func (x *DeleteMakeupClassRequest) GetId() string {
 	return ""
 }
 
+// DeleteMakeupClass の Response。
 type DeleteMakeupClassResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -632,56 +670,56 @@ var File_admin_v1_makeup_class_proto protoreflect.FileDescriptor
 
 const file_admin_v1_makeup_class_proto_rawDesc = "" +
 	"\n" +
-	"\x1badmin/v1/makeup_class.proto\x12\badmin.v1\x1a\x15admin/v1/common.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16google/type/date.proto\"\xae\x02\n" +
-	"\vMakeupClass\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x1badmin/v1/makeup_class.proto\x12\badmin.v1\x1a\x15admin/v1/common.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16google/type/date.proto\"\xd1\x02\n" +
+	"\vMakeupClass\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x02 \x01(\tR\tsubjectId\x12%\n" +
-	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateR\x04date\x12(\n" +
-	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodR\x06period\x12\x1d\n" +
-	"\acomment\x18\x05 \x01(\tH\x00R\acomment\x88\x01\x01\x129\n" +
+	"subject_id\x18\x02 \x01(\tB\x03\xe0A\x02R\tsubjectId\x12*\n" +
+	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\x12-\n" +
+	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodB\x03\xe0A\x02R\x06period\x12\"\n" +
+	"\acomment\x18\x05 \x01(\tB\x03\xe0A\x01H\x00R\acomment\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAtB\n" +
 	"\n" +
-	"\b_comment\"V\n" +
-	"\x18ListMakeupClassesRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\b_comment\"`\n" +
+	"\x18ListMakeupClassesRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"\x81\x01\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"\x81\x01\n" +
 	"\x19ListMakeupClassesResponse\x12<\n" +
 	"\x0emakeup_classes\x18\x01 \x03(\v2\x15.admin.v1.MakeupClassR\rmakeupClasses\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"'\n" +
-	"\x15GetMakeupClassRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"R\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\",\n" +
+	"\x15GetMakeupClassRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"R\n" +
 	"\x16GetMakeupClassResponse\x128\n" +
-	"\fmakeup_class\x18\x01 \x01(\v2\x15.admin.v1.MakeupClassR\vmakeupClass\"\xb5\x01\n" +
-	"\x18CreateMakeupClassRequest\x12\x1d\n" +
+	"\fmakeup_class\x18\x01 \x01(\v2\x15.admin.v1.MakeupClassR\vmakeupClass\"\xc9\x01\n" +
+	"\x18CreateMakeupClassRequest\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x01 \x01(\tR\tsubjectId\x12%\n" +
-	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateR\x04date\x12(\n" +
-	"\x06period\x18\x03 \x01(\x0e2\x10.admin.v1.PeriodR\x06period\x12\x1d\n" +
-	"\acomment\x18\x04 \x01(\tH\x00R\acomment\x88\x01\x01B\n" +
+	"subject_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tsubjectId\x12*\n" +
+	"\x04date\x18\x02 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\x12-\n" +
+	"\x06period\x18\x03 \x01(\x0e2\x10.admin.v1.PeriodB\x03\xe0A\x02R\x06period\x12\"\n" +
+	"\acomment\x18\x04 \x01(\tB\x03\xe0A\x01H\x00R\acomment\x88\x01\x01B\n" +
 	"\n" +
 	"\b_comment\"U\n" +
 	"\x19CreateMakeupClassResponse\x128\n" +
-	"\fmakeup_class\x18\x01 \x01(\v2\x15.admin.v1.MakeupClassR\vmakeupClass\"\x82\x02\n" +
-	"\x18UpdateMakeupClassRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\fmakeup_class\x18\x01 \x01(\v2\x15.admin.v1.MakeupClassR\vmakeupClass\"\xa0\x02\n" +
+	"\x18UpdateMakeupClassRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x02 \x01(\tR\tsubjectId\x12%\n" +
-	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateR\x04date\x12(\n" +
-	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodR\x06period\x12\x1d\n" +
-	"\acomment\x18\x05 \x01(\tH\x00R\acomment\x88\x01\x01\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"subject_id\x18\x02 \x01(\tB\x03\xe0A\x01R\tsubjectId\x12*\n" +
+	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01R\x04date\x12-\n" +
+	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodB\x03\xe0A\x01R\x06period\x12\"\n" +
+	"\acomment\x18\x05 \x01(\tB\x03\xe0A\x01H\x00R\acomment\x88\x01\x01\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMaskB\n" +
 	"\n" +
 	"\b_comment\"U\n" +
 	"\x19UpdateMakeupClassResponse\x128\n" +
-	"\fmakeup_class\x18\x01 \x01(\v2\x15.admin.v1.MakeupClassR\vmakeupClass\"*\n" +
-	"\x18DeleteMakeupClassRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x1b\n" +
+	"\fmakeup_class\x18\x01 \x01(\v2\x15.admin.v1.MakeupClassR\vmakeupClass\"/\n" +
+	"\x18DeleteMakeupClassRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x1b\n" +
 	"\x19DeleteMakeupClassResponse2\xe1\x03\n" +
 	"\x12MakeupClassService\x12\\\n" +
 	"\x11ListMakeupClasses\x12\".admin.v1.ListMakeupClassesRequest\x1a#.admin.v1.ListMakeupClassesResponse\x12S\n" +

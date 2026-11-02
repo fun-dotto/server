@@ -52,10 +52,15 @@ const (
 
 // SubjectServiceClient is a client for the admin.v1.SubjectService service.
 type SubjectServiceClient interface {
+	// 科目の一覧を取得する。
 	ListSubjects(context.Context, *connect.Request[v1.ListSubjectsRequest]) (*connect.Response[v1.ListSubjectsResponse], error)
+	// 科目を取得する。
 	GetSubject(context.Context, *connect.Request[v1.GetSubjectRequest]) (*connect.Response[v1.GetSubjectResponse], error)
+	// 科目を作成する。
 	CreateSubject(context.Context, *connect.Request[v1.CreateSubjectRequest]) (*connect.Response[v1.CreateSubjectResponse], error)
+	// 科目を更新する。
 	UpdateSubject(context.Context, *connect.Request[v1.UpdateSubjectRequest]) (*connect.Response[v1.UpdateSubjectResponse], error)
+	// 科目を削除する。
 	DeleteSubject(context.Context, *connect.Request[v1.DeleteSubjectRequest]) (*connect.Response[v1.DeleteSubjectResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *subjectServiceClient) DeleteSubject(ctx context.Context, req *connect.R
 
 // SubjectServiceHandler is an implementation of the admin.v1.SubjectService service.
 type SubjectServiceHandler interface {
+	// 科目の一覧を取得する。
 	ListSubjects(context.Context, *connect.Request[v1.ListSubjectsRequest]) (*connect.Response[v1.ListSubjectsResponse], error)
+	// 科目を取得する。
 	GetSubject(context.Context, *connect.Request[v1.GetSubjectRequest]) (*connect.Response[v1.GetSubjectResponse], error)
+	// 科目を作成する。
 	CreateSubject(context.Context, *connect.Request[v1.CreateSubjectRequest]) (*connect.Response[v1.CreateSubjectResponse], error)
+	// 科目を更新する。
 	UpdateSubject(context.Context, *connect.Request[v1.UpdateSubjectRequest]) (*connect.Response[v1.UpdateSubjectResponse], error)
+	// 科目を削除する。
 	DeleteSubject(context.Context, *connect.Request[v1.DeleteSubjectRequest]) (*connect.Response[v1.DeleteSubjectResponse], error)
 }
 

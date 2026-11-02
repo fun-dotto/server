@@ -2,50 +2,90 @@ syntax = "proto3";
 
 package admin.v1;
 
+// 学年。
 enum Grade {
+  // 未指定。
   GRADE_UNSPECIFIED = 0;
+  // 学部 1 年。
   GRADE_B1 = 1;
+  // 学部 2 年。
   GRADE_B2 = 2;
+  // 学部 3 年。
   GRADE_B3 = 3;
+  // 学部 4 年。
   GRADE_B4 = 4;
+  // 修士 1 年。
   GRADE_M1 = 5;
+  // 修士 2 年。
   GRADE_M2 = 6;
+  // 博士 1 年。
   GRADE_D1 = 7;
+  // 博士 2 年。
   GRADE_D2 = 8;
+  // 博士 3 年。
   GRADE_D3 = 9;
 }
 
+// コース。
 enum Course {
+  // 未指定。
   COURSE_UNSPECIFIED = 0;
+  // 情報システムコース。
   COURSE_INFORMATION_SYSTEM = 1;
+  // 情報デザインコース。
   COURSE_INFORMATION_DESIGN = 2;
+  // 高度 ICT コース。
   COURSE_ADVANCED_ICT = 3;
+  // 複雑系コース。
   COURSE_COMPLEX_SYSTEM = 4;
+  // 知能システムコース。
   COURSE_INTELLIGENT_SYSTEM = 5;
 }
 
+// クラス。
 enum Class {
+  // 未指定。
   CLASS_UNSPECIFIED = 0;
+  // A クラス。
   CLASS_A = 1;
+  // B クラス。
   CLASS_B = 2;
+  // C クラス。
   CLASS_C = 3;
+  // D クラス。
   CLASS_D = 4;
+  // E クラス。
   CLASS_E = 5;
+  // F クラス。
   CLASS_F = 6;
+  // G クラス。
   CLASS_G = 7;
+  // H クラス。
   CLASS_H = 8;
+  // I クラス。
   CLASS_I = 9;
+  // J クラス。
   CLASS_J = 10;
+  // K クラス。
   CLASS_K = 11;
+  // L クラス。
   CLASS_L = 12;
 }
 
+// 時限。
 enum Period {
+  // 未指定。
   PERIOD_UNSPECIFIED = 0;
+  // 1 限。
   PERIOD_1 = 1;
+  // 2 限。
   PERIOD_2 = 2;
+  // 3 限。
   PERIOD_3 = 3;
+  // 4 限。
   PERIOD_4 = 4;
+  // 5 限。
   PERIOD_5 = 5;
+  // 6 限。
   PERIOD_6 = 6;
 }

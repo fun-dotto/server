@@ -2,71 +2,115 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
+// お知らせを管理する。
+service AnnouncementService {
+  // お知らせの一覧を取得する。
+  rpc ListAnnouncements(ListAnnouncementsRequest) returns (ListAnnouncementsResponse);
+  // お知らせを取得する。
+  rpc GetAnnouncement(GetAnnouncementRequest) returns (GetAnnouncementResponse);
+  // お知らせを作成する。
+  rpc CreateAnnouncement(CreateAnnouncementRequest) returns (CreateAnnouncementResponse);
+  // お知らせを更新する。
+  rpc UpdateAnnouncement(UpdateAnnouncementRequest) returns (UpdateAnnouncementResponse);
+  // お知らせを削除する。
+  rpc DeleteAnnouncement(DeleteAnnouncementRequest) returns (DeleteAnnouncementResponse);
+}
+
+// お知らせ。
 message Announcement {
-  string id = 1;
-  string title = 2;
-  string url = 3;
-  google.protobuf.Timestamp available_from = 4;
-  optional google.protobuf.Timestamp available_until = 5;
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp updated_at = 7;
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // タイトル。
+  string title = 2 [(google.api.field_behavior) = REQUIRED];
+  // リンク先の URL。
+  string url = 3 [(google.api.field_behavior) = REQUIRED];
+  // 公開を開始する日時。
+  google.protobuf.Timestamp available_from = 4 [(google.api.field_behavior) = REQUIRED];
+  // 公開を終了する日時。未設定の場合は終了しない。
+  optional google.protobuf.Timestamp available_until = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 作成日時。
+  google.protobuf.Timestamp created_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 更新日時。
+  google.protobuf.Timestamp updated_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ListAnnouncements の Request。
 message ListAnnouncementsRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListAnnouncements の Response。
 message ListAnnouncementsResponse {
+  // お知らせの一覧。
   repeated Announcement announcements = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetAnnouncement の Request。
 message GetAnnouncementRequest {
-  string id = 1;
+  // 取得するお知らせの ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetAnnouncement の Response。
 message GetAnnouncementResponse {
+  // 取得したお知らせ。
   Announcement announcement = 1;
 }
 
+// CreateAnnouncement の Request。
 message CreateAnnouncementRequest {
-  string title = 1;
-  string url = 2;
-  google.protobuf.Timestamp available_from = 3;
-  optional google.protobuf.Timestamp available_until = 4;
+  // タイトル。
+  string title = 1 [(google.api.field_behavior) = REQUIRED];
+  // リンク先の URL。
+  string url = 2 [(google.api.field_behavior) = REQUIRED];
+  // 公開を開始する日時。
+  google.protobuf.Timestamp available_from = 3 [(google.api.field_behavior) = REQUIRED];
+  // 公開を終了する日時。未設定の場合は終了しない。
+  optional google.protobuf.Timestamp available_until = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// CreateAnnouncement の Response。
 message CreateAnnouncementResponse {
+  // 作成したお知らせ。
   Announcement announcement = 1;
 }
 
+// UpdateAnnouncement の Request。
 message UpdateAnnouncementRequest {
-  string id = 1;
-  string title = 2;
-  string url = 3;
-  google.protobuf.Timestamp available_from = 4;
-  optional google.protobuf.Timestamp available_until = 5;
-  google.protobuf.FieldMask update_mask = 99;
+  // 更新するお知らせの ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // タイトル。
+  string title = 2 [(google.api.field_behavior) = OPTIONAL];
+  // リンク先の URL。
+  string url = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 公開を開始する日時。
+  google.protobuf.Timestamp available_from = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 公開を終了する日時。未設定の場合は終了しない。
+  optional google.protobuf.Timestamp available_until = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateAnnouncement の Response。
 message UpdateAnnouncementResponse {
+  // 更新したお知らせ。
   Announcement announcement = 1;
 }
 
+// DeleteAnnouncement の Request。
 message DeleteAnnouncementRequest {
-  string id = 1;
+  // 削除するお知らせの ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteAnnouncement の Response。
 message DeleteAnnouncementResponse {}
-
-service AnnouncementService {
-  rpc ListAnnouncements(ListAnnouncementsRequest) returns (ListAnnouncementsResponse);
-  rpc GetAnnouncement(GetAnnouncementRequest) returns (GetAnnouncementResponse);
-  rpc CreateAnnouncement(CreateAnnouncementRequest) returns (CreateAnnouncementResponse);
-  rpc UpdateAnnouncement(UpdateAnnouncementRequest) returns (UpdateAnnouncementResponse);
-  rpc DeleteAnnouncement(DeleteAnnouncementRequest) returns (DeleteAnnouncementResponse);
-}

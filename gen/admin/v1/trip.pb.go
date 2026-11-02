@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -22,12 +23,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 便の運行方向（GTFS の direction_id）。
 type TripDirection int32
 
 const (
+	// 未指定。
 	TripDirection_TRIP_DIRECTION_UNSPECIFIED TripDirection = 0
-	TripDirection_TRIP_DIRECTION_OUTBOUND    TripDirection = 1
-	TripDirection_TRIP_DIRECTION_INBOUND     TripDirection = 2
+	// 往路（direction_id = 0）。
+	TripDirection_TRIP_DIRECTION_OUTBOUND TripDirection = 1
+	// 復路（direction_id = 1）。
+	TripDirection_TRIP_DIRECTION_INBOUND TripDirection = 2
 )
 
 // Enum value maps for TripDirection.
@@ -71,12 +76,17 @@ func (TripDirection) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_trip_proto_rawDescGZIP(), []int{0}
 }
 
+// バスの便（GTFS の trips）。
 type Trip struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TripId        string                 `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
-	RouteId       string                 `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
-	ServiceId     string                 `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	Direction     *TripDirection         `protobuf:"varint,4,opt,name=direction,proto3,enum=admin.v1.TripDirection,oneof" json:"direction,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 便の ID（GTFS の trip_id）。
+	TripId string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
+	// 路線の ID（GTFS の route_id）。
+	RouteId string `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
+	// 運行カレンダーの ID（GTFS の service_id）。
+	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// 運行方向（GTFS の direction_id）。
+	Direction     *TripDirection `protobuf:"varint,4,opt,name=direction,proto3,enum=admin.v1.TripDirection,oneof" json:"direction,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -139,10 +149,13 @@ func (x *Trip) GetDirection() TripDirection {
 	return TripDirection_TRIP_DIRECTION_UNSPECIFIED
 }
 
+// ListTrips の Request。
 type ListTripsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -191,10 +204,13 @@ func (x *ListTripsRequest) GetPageToken() string {
 	return ""
 }
 
+// ListTrips の Response。
 type ListTripsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Trips         []*Trip                `protobuf:"bytes,1,rep,name=trips,proto3" json:"trips,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// バスの便（GTFS の trips）の一覧。
+	Trips []*Trip `protobuf:"bytes,1,rep,name=trips,proto3" json:"trips,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -243,9 +259,11 @@ func (x *ListTripsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetTrip の Request。
 type GetTripRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TripId        string                 `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 便の ID（GTFS の trip_id）。
+	TripId        string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -287,9 +305,11 @@ func (x *GetTripRequest) GetTripId() string {
 	return ""
 }
 
+// GetTrip の Response。
 type GetTripResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Trip          *Trip                  `protobuf:"bytes,1,opt,name=trip,proto3" json:"trip,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得したバスの便（GTFS の trips）。
+	Trip          *Trip `protobuf:"bytes,1,opt,name=trip,proto3" json:"trip,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -331,12 +351,17 @@ func (x *GetTripResponse) GetTrip() *Trip {
 	return nil
 }
 
+// CreateTrip の Request。
 type CreateTripRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TripId        string                 `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
-	RouteId       string                 `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
-	ServiceId     string                 `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	Direction     *TripDirection         `protobuf:"varint,4,opt,name=direction,proto3,enum=admin.v1.TripDirection,oneof" json:"direction,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 便の ID（GTFS の trip_id）。
+	TripId string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
+	// 路線の ID（GTFS の route_id）。
+	RouteId string `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
+	// 運行カレンダーの ID（GTFS の service_id）。
+	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// 運行方向（GTFS の direction_id）。
+	Direction     *TripDirection `protobuf:"varint,4,opt,name=direction,proto3,enum=admin.v1.TripDirection,oneof" json:"direction,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -399,9 +424,11 @@ func (x *CreateTripRequest) GetDirection() TripDirection {
 	return TripDirection_TRIP_DIRECTION_UNSPECIFIED
 }
 
+// CreateTrip の Response。
 type CreateTripResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Trip          *Trip                  `protobuf:"bytes,1,opt,name=trip,proto3" json:"trip,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成したバスの便（GTFS の trips）。
+	Trip          *Trip `protobuf:"bytes,1,opt,name=trip,proto3" json:"trip,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -443,12 +470,18 @@ func (x *CreateTripResponse) GetTrip() *Trip {
 	return nil
 }
 
+// UpdateTrip の Request。
 type UpdateTripRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TripId        string                 `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
-	RouteId       string                 `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
-	ServiceId     string                 `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	Direction     *TripDirection         `protobuf:"varint,4,opt,name=direction,proto3,enum=admin.v1.TripDirection,oneof" json:"direction,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 便の ID（GTFS の trip_id）。
+	TripId string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
+	// 路線の ID（GTFS の route_id）。
+	RouteId string `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
+	// 運行カレンダーの ID（GTFS の service_id）。
+	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// 運行方向（GTFS の direction_id）。
+	Direction *TripDirection `protobuf:"varint,4,opt,name=direction,proto3,enum=admin.v1.TripDirection,oneof" json:"direction,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -519,9 +552,11 @@ func (x *UpdateTripRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateTrip の Response。
 type UpdateTripResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Trip          *Trip                  `protobuf:"bytes,1,opt,name=trip,proto3" json:"trip,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新したバスの便（GTFS の trips）。
+	Trip          *Trip `protobuf:"bytes,1,opt,name=trip,proto3" json:"trip,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -563,9 +598,11 @@ func (x *UpdateTripResponse) GetTrip() *Trip {
 	return nil
 }
 
+// DeleteTrip の Request。
 type DeleteTripRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TripId        string                 `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 便の ID（GTFS の trip_id）。
+	TripId        string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -607,6 +644,7 @@ func (x *DeleteTripRequest) GetTripId() string {
 	return ""
 }
 
+// DeleteTrip の Response。
 type DeleteTripResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -647,50 +685,50 @@ var File_admin_v1_trip_proto protoreflect.FileDescriptor
 
 const file_admin_v1_trip_proto_rawDesc = "" +
 	"\n" +
-	"\x13admin/v1/trip.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\"\xa3\x01\n" +
-	"\x04Trip\x12\x17\n" +
-	"\atrip_id\x18\x01 \x01(\tR\x06tripId\x12\x19\n" +
-	"\broute_id\x18\x02 \x01(\tR\arouteId\x12\x1d\n" +
+	"\x13admin/v1/trip.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\"\xb7\x01\n" +
+	"\x04Trip\x12\x1c\n" +
+	"\atrip_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06tripId\x12\x1e\n" +
+	"\broute_id\x18\x02 \x01(\tB\x03\xe0A\x02R\arouteId\x12\"\n" +
 	"\n" +
-	"service_id\x18\x03 \x01(\tR\tserviceId\x12:\n" +
-	"\tdirection\x18\x04 \x01(\x0e2\x17.admin.v1.TripDirectionH\x00R\tdirection\x88\x01\x01B\f\n" +
+	"service_id\x18\x03 \x01(\tB\x03\xe0A\x02R\tserviceId\x12?\n" +
+	"\tdirection\x18\x04 \x01(\x0e2\x17.admin.v1.TripDirectionB\x03\xe0A\x01H\x00R\tdirection\x88\x01\x01B\f\n" +
 	"\n" +
-	"_direction\"N\n" +
-	"\x10ListTripsRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"_direction\"X\n" +
+	"\x10ListTripsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"a\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"a\n" +
 	"\x11ListTripsResponse\x12$\n" +
 	"\x05trips\x18\x01 \x03(\v2\x0e.admin.v1.TripR\x05trips\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\")\n" +
-	"\x0eGetTripRequest\x12\x17\n" +
-	"\atrip_id\x18\x01 \x01(\tR\x06tripId\"5\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\".\n" +
+	"\x0eGetTripRequest\x12\x1c\n" +
+	"\atrip_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06tripId\"5\n" +
 	"\x0fGetTripResponse\x12\"\n" +
-	"\x04trip\x18\x01 \x01(\v2\x0e.admin.v1.TripR\x04trip\"\xb0\x01\n" +
-	"\x11CreateTripRequest\x12\x17\n" +
-	"\atrip_id\x18\x01 \x01(\tR\x06tripId\x12\x19\n" +
-	"\broute_id\x18\x02 \x01(\tR\arouteId\x12\x1d\n" +
+	"\x04trip\x18\x01 \x01(\v2\x0e.admin.v1.TripR\x04trip\"\xc4\x01\n" +
+	"\x11CreateTripRequest\x12\x1c\n" +
+	"\atrip_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06tripId\x12\x1e\n" +
+	"\broute_id\x18\x02 \x01(\tB\x03\xe0A\x02R\arouteId\x12\"\n" +
 	"\n" +
-	"service_id\x18\x03 \x01(\tR\tserviceId\x12:\n" +
-	"\tdirection\x18\x04 \x01(\x0e2\x17.admin.v1.TripDirectionH\x00R\tdirection\x88\x01\x01B\f\n" +
+	"service_id\x18\x03 \x01(\tB\x03\xe0A\x02R\tserviceId\x12?\n" +
+	"\tdirection\x18\x04 \x01(\x0e2\x17.admin.v1.TripDirectionB\x03\xe0A\x01H\x00R\tdirection\x88\x01\x01B\f\n" +
 	"\n" +
 	"_direction\"8\n" +
 	"\x12CreateTripResponse\x12\"\n" +
-	"\x04trip\x18\x01 \x01(\v2\x0e.admin.v1.TripR\x04trip\"\xed\x01\n" +
-	"\x11UpdateTripRequest\x12\x17\n" +
-	"\atrip_id\x18\x01 \x01(\tR\x06tripId\x12\x19\n" +
-	"\broute_id\x18\x02 \x01(\tR\arouteId\x12\x1d\n" +
+	"\x04trip\x18\x01 \x01(\v2\x0e.admin.v1.TripR\x04trip\"\x86\x02\n" +
+	"\x11UpdateTripRequest\x12\x1c\n" +
+	"\atrip_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06tripId\x12\x1e\n" +
+	"\broute_id\x18\x02 \x01(\tB\x03\xe0A\x01R\arouteId\x12\"\n" +
 	"\n" +
-	"service_id\x18\x03 \x01(\tR\tserviceId\x12:\n" +
-	"\tdirection\x18\x04 \x01(\x0e2\x17.admin.v1.TripDirectionH\x00R\tdirection\x88\x01\x01\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"service_id\x18\x03 \x01(\tB\x03\xe0A\x01R\tserviceId\x12?\n" +
+	"\tdirection\x18\x04 \x01(\x0e2\x17.admin.v1.TripDirectionB\x03\xe0A\x01H\x00R\tdirection\x88\x01\x01\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMaskB\f\n" +
 	"\n" +
 	"_direction\"8\n" +
 	"\x12UpdateTripResponse\x12\"\n" +
-	"\x04trip\x18\x01 \x01(\v2\x0e.admin.v1.TripR\x04trip\",\n" +
-	"\x11DeleteTripRequest\x12\x17\n" +
-	"\atrip_id\x18\x01 \x01(\tR\x06tripId\"\x14\n" +
+	"\x04trip\x18\x01 \x01(\v2\x0e.admin.v1.TripR\x04trip\"1\n" +
+	"\x11DeleteTripRequest\x12\x1c\n" +
+	"\atrip_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06tripId\"\x14\n" +
 	"\x12DeleteTripResponse*h\n" +
 	"\rTripDirection\x12\x1e\n" +
 	"\x1aTRIP_DIRECTION_UNSPECIFIED\x10\x00\x12\x1b\n" +

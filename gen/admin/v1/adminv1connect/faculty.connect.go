@@ -52,10 +52,15 @@ const (
 
 // FacultyServiceClient is a client for the admin.v1.FacultyService service.
 type FacultyServiceClient interface {
+	// 教員の一覧を取得する。
 	ListFaculties(context.Context, *connect.Request[v1.ListFacultiesRequest]) (*connect.Response[v1.ListFacultiesResponse], error)
+	// 教員を取得する。
 	GetFaculty(context.Context, *connect.Request[v1.GetFacultyRequest]) (*connect.Response[v1.GetFacultyResponse], error)
+	// 教員を作成する。
 	CreateFaculty(context.Context, *connect.Request[v1.CreateFacultyRequest]) (*connect.Response[v1.CreateFacultyResponse], error)
+	// 教員を更新する。
 	UpdateFaculty(context.Context, *connect.Request[v1.UpdateFacultyRequest]) (*connect.Response[v1.UpdateFacultyResponse], error)
+	// 教員を削除する。
 	DeleteFaculty(context.Context, *connect.Request[v1.DeleteFacultyRequest]) (*connect.Response[v1.DeleteFacultyResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *facultyServiceClient) DeleteFaculty(ctx context.Context, req *connect.R
 
 // FacultyServiceHandler is an implementation of the admin.v1.FacultyService service.
 type FacultyServiceHandler interface {
+	// 教員の一覧を取得する。
 	ListFaculties(context.Context, *connect.Request[v1.ListFacultiesRequest]) (*connect.Response[v1.ListFacultiesResponse], error)
+	// 教員を取得する。
 	GetFaculty(context.Context, *connect.Request[v1.GetFacultyRequest]) (*connect.Response[v1.GetFacultyResponse], error)
+	// 教員を作成する。
 	CreateFaculty(context.Context, *connect.Request[v1.CreateFacultyRequest]) (*connect.Response[v1.CreateFacultyResponse], error)
+	// 教員を更新する。
 	UpdateFaculty(context.Context, *connect.Request[v1.UpdateFacultyRequest]) (*connect.Response[v1.UpdateFacultyResponse], error)
+	// 教員を削除する。
 	DeleteFaculty(context.Context, *connect.Request[v1.DeleteFacultyRequest]) (*connect.Response[v1.DeleteFacultyResponse], error)
 }
 

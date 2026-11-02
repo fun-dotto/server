@@ -27,10 +27,11 @@ globs: ["**/*"]
 1. `syntax = "proto3";`
 2. `package`
 3. `import`（アルファベット順）
-4. 補助 message（リソースに従属する型）
-5. リソース message
-6. RPC ごとの Request / Response message（List → Get → Create → Update → Delete の順）
-7. `service`
+4. `service`
+5. 補助 message（リソースに従属する型）
+6. リソース message
+7. RPC ごとの Request / Response message（List → Get → Create → Update → Delete の順）
+8. `enum`
 
 ## 命名
 

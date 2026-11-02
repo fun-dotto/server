@@ -2,107 +2,185 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
-enum NotificationAndroidPriority {
-  NOTIFICATION_ANDROID_PRIORITY_UNSPECIFIED = 0;
-  NOTIFICATION_ANDROID_PRIORITY_NORMAL = 1;
-  NOTIFICATION_ANDROID_PRIORITY_HIGH = 2;
+// プッシュ通知を管理する。
+service NotificationService {
+  // プッシュ通知の一覧を取得する。
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+  // プッシュ通知を取得する。
+  rpc GetNotification(GetNotificationRequest) returns (GetNotificationResponse);
+  // プッシュ通知を作成する。
+  rpc CreateNotification(CreateNotificationRequest) returns (CreateNotificationResponse);
+  // プッシュ通知を更新する。
+  rpc UpdateNotification(UpdateNotificationRequest) returns (UpdateNotificationResponse);
+  // プッシュ通知を削除する。
+  rpc DeleteNotification(DeleteNotificationRequest) returns (DeleteNotificationResponse);
 }
 
+// プッシュ通知。
 message Notification {
-  string id = 1;
-  string title = 2;
-  string body = 3;
-  optional string image_url = 4;
-  optional string analytics_label = 5;
-  optional int32 apns_badge = 6;
-  optional string apns_sound = 7;
-  optional bool apns_content_available = 8;
-  optional string android_channel_id = 9;
-  optional NotificationAndroidPriority android_priority = 10;
-  optional int32 android_ttl_seconds = 11;
-  optional string webpush_link = 12;
-  optional string url = 13;
-  google.protobuf.Timestamp notify_after = 14;
-  google.protobuf.Timestamp notify_before = 15;
-  google.protobuf.Timestamp created_at = 16;
-  google.protobuf.Timestamp updated_at = 17;
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 通知のタイトル。
+  string title = 2 [(google.api.field_behavior) = REQUIRED];
+  // 通知の本文。
+  string body = 3 [(google.api.field_behavior) = REQUIRED];
+  // 通知に表示する画像の URL。
+  optional string image_url = 4 [(google.api.field_behavior) = OPTIONAL];
+  // FCM の分析用ラベル。
+  optional string analytics_label = 5 [(google.api.field_behavior) = OPTIONAL];
+  // APNs のバッジ数。
+  optional int32 apns_badge = 6 [(google.api.field_behavior) = OPTIONAL];
+  // APNs の通知音。
+  optional string apns_sound = 7 [(google.api.field_behavior) = OPTIONAL];
+  // APNs の content-available（バックグラウンド更新）を有効にするか。
+  optional bool apns_content_available = 8 [(google.api.field_behavior) = OPTIONAL];
+  // Android の通知チャンネル ID。
+  optional string android_channel_id = 9 [(google.api.field_behavior) = OPTIONAL];
+  // Android の配信優先度。
+  optional NotificationAndroidPriority android_priority = 10 [(google.api.field_behavior) = OPTIONAL];
+  // Android の通知の有効期間（秒）。
+  optional int32 android_ttl_seconds = 11 [(google.api.field_behavior) = OPTIONAL];
+  // Web Push の通知を開いたときのリンク。
+  optional string webpush_link = 12 [(google.api.field_behavior) = OPTIONAL];
+  // 通知を開いたときに表示する URL。
+  optional string url = 13 [(google.api.field_behavior) = OPTIONAL];
+  // この日時以降に配信する。
+  google.protobuf.Timestamp notify_after = 14 [(google.api.field_behavior) = REQUIRED];
+  // この日時までに配信する。
+  google.protobuf.Timestamp notify_before = 15 [(google.api.field_behavior) = REQUIRED];
+  // 作成日時。
+  google.protobuf.Timestamp created_at = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 更新日時。
+  google.protobuf.Timestamp updated_at = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ListNotifications の Request。
 message ListNotificationsRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListNotifications の Response。
 message ListNotificationsResponse {
+  // プッシュ通知の一覧。
   repeated Notification notifications = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetNotification の Request。
 message GetNotificationRequest {
-  string id = 1;
+  // 取得するプッシュ通知の ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetNotification の Response。
 message GetNotificationResponse {
+  // 取得したプッシュ通知。
   Notification notification = 1;
 }
 
+// CreateNotification の Request。
 message CreateNotificationRequest {
-  string title = 1;
-  string body = 2;
-  optional string image_url = 3;
-  optional string analytics_label = 4;
-  optional int32 apns_badge = 5;
-  optional string apns_sound = 6;
-  optional bool apns_content_available = 7;
-  optional string android_channel_id = 8;
-  optional NotificationAndroidPriority android_priority = 9;
-  optional int32 android_ttl_seconds = 10;
-  optional string webpush_link = 11;
-  optional string url = 12;
-  google.protobuf.Timestamp notify_after = 13;
-  google.protobuf.Timestamp notify_before = 14;
+  // 通知のタイトル。
+  string title = 1 [(google.api.field_behavior) = REQUIRED];
+  // 通知の本文。
+  string body = 2 [(google.api.field_behavior) = REQUIRED];
+  // 通知に表示する画像の URL。
+  optional string image_url = 3 [(google.api.field_behavior) = OPTIONAL];
+  // FCM の分析用ラベル。
+  optional string analytics_label = 4 [(google.api.field_behavior) = OPTIONAL];
+  // APNs のバッジ数。
+  optional int32 apns_badge = 5 [(google.api.field_behavior) = OPTIONAL];
+  // APNs の通知音。
+  optional string apns_sound = 6 [(google.api.field_behavior) = OPTIONAL];
+  // APNs の content-available（バックグラウンド更新）を有効にするか。
+  optional bool apns_content_available = 7 [(google.api.field_behavior) = OPTIONAL];
+  // Android の通知チャンネル ID。
+  optional string android_channel_id = 8 [(google.api.field_behavior) = OPTIONAL];
+  // Android の配信優先度。
+  optional NotificationAndroidPriority android_priority = 9 [(google.api.field_behavior) = OPTIONAL];
+  // Android の通知の有効期間（秒）。
+  optional int32 android_ttl_seconds = 10 [(google.api.field_behavior) = OPTIONAL];
+  // Web Push の通知を開いたときのリンク。
+  optional string webpush_link = 11 [(google.api.field_behavior) = OPTIONAL];
+  // 通知を開いたときに表示する URL。
+  optional string url = 12 [(google.api.field_behavior) = OPTIONAL];
+  // この日時以降に配信する。
+  google.protobuf.Timestamp notify_after = 13 [(google.api.field_behavior) = REQUIRED];
+  // この日時までに配信する。
+  google.protobuf.Timestamp notify_before = 14 [(google.api.field_behavior) = REQUIRED];
 }
 
+// CreateNotification の Response。
 message CreateNotificationResponse {
+  // 作成したプッシュ通知。
   Notification notification = 1;
 }
 
+// UpdateNotification の Request。
 message UpdateNotificationRequest {
-  string id = 1;
-  string title = 2;
-  string body = 3;
-  optional string image_url = 4;
-  optional string analytics_label = 5;
-  optional int32 apns_badge = 6;
-  optional string apns_sound = 7;
-  optional bool apns_content_available = 8;
-  optional string android_channel_id = 9;
-  optional NotificationAndroidPriority android_priority = 10;
-  optional int32 android_ttl_seconds = 11;
-  optional string webpush_link = 12;
-  optional string url = 13;
-  google.protobuf.Timestamp notify_after = 14;
-  google.protobuf.Timestamp notify_before = 15;
-  google.protobuf.FieldMask update_mask = 99;
+  // 更新するプッシュ通知の ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 通知のタイトル。
+  string title = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 通知の本文。
+  string body = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 通知に表示する画像の URL。
+  optional string image_url = 4 [(google.api.field_behavior) = OPTIONAL];
+  // FCM の分析用ラベル。
+  optional string analytics_label = 5 [(google.api.field_behavior) = OPTIONAL];
+  // APNs のバッジ数。
+  optional int32 apns_badge = 6 [(google.api.field_behavior) = OPTIONAL];
+  // APNs の通知音。
+  optional string apns_sound = 7 [(google.api.field_behavior) = OPTIONAL];
+  // APNs の content-available（バックグラウンド更新）を有効にするか。
+  optional bool apns_content_available = 8 [(google.api.field_behavior) = OPTIONAL];
+  // Android の通知チャンネル ID。
+  optional string android_channel_id = 9 [(google.api.field_behavior) = OPTIONAL];
+  // Android の配信優先度。
+  optional NotificationAndroidPriority android_priority = 10 [(google.api.field_behavior) = OPTIONAL];
+  // Android の通知の有効期間（秒）。
+  optional int32 android_ttl_seconds = 11 [(google.api.field_behavior) = OPTIONAL];
+  // Web Push の通知を開いたときのリンク。
+  optional string webpush_link = 12 [(google.api.field_behavior) = OPTIONAL];
+  // 通知を開いたときに表示する URL。
+  optional string url = 13 [(google.api.field_behavior) = OPTIONAL];
+  // この日時以降に配信する。
+  google.protobuf.Timestamp notify_after = 14 [(google.api.field_behavior) = OPTIONAL];
+  // この日時までに配信する。
+  google.protobuf.Timestamp notify_before = 15 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateNotification の Response。
 message UpdateNotificationResponse {
+  // 更新したプッシュ通知。
   Notification notification = 1;
 }
 
+// DeleteNotification の Request。
 message DeleteNotificationRequest {
-  string id = 1;
+  // 削除するプッシュ通知の ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteNotification の Response。
 message DeleteNotificationResponse {}
 
-service NotificationService {
-  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
-  rpc GetNotification(GetNotificationRequest) returns (GetNotificationResponse);
-  rpc CreateNotification(CreateNotificationRequest) returns (CreateNotificationResponse);
-  rpc UpdateNotification(UpdateNotificationRequest) returns (UpdateNotificationResponse);
-  rpc DeleteNotification(DeleteNotificationRequest) returns (DeleteNotificationResponse);
+// Android の配信優先度。
+enum NotificationAndroidPriority {
+  // 未指定。
+  NOTIFICATION_ANDROID_PRIORITY_UNSPECIFIED = 0;
+  // 通常。
+  NOTIFICATION_ANDROID_PRIORITY_NORMAL = 1;
+  // 高。
+  NOTIFICATION_ANDROID_PRIORITY_HIGH = 2;
 }

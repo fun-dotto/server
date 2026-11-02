@@ -47,10 +47,15 @@ const (
 
 // TripServiceClient is a client for the admin.v1.TripService service.
 type TripServiceClient interface {
+	// バスの便（GTFS の trips）の一覧を取得する。
 	ListTrips(context.Context, *connect.Request[v1.ListTripsRequest]) (*connect.Response[v1.ListTripsResponse], error)
+	// バスの便（GTFS の trips）を取得する。
 	GetTrip(context.Context, *connect.Request[v1.GetTripRequest]) (*connect.Response[v1.GetTripResponse], error)
+	// バスの便（GTFS の trips）を作成する。
 	CreateTrip(context.Context, *connect.Request[v1.CreateTripRequest]) (*connect.Response[v1.CreateTripResponse], error)
+	// バスの便（GTFS の trips）を更新する。
 	UpdateTrip(context.Context, *connect.Request[v1.UpdateTripRequest]) (*connect.Response[v1.UpdateTripResponse], error)
+	// バスの便（GTFS の trips）を削除する。
 	DeleteTrip(context.Context, *connect.Request[v1.DeleteTripRequest]) (*connect.Response[v1.DeleteTripResponse], error)
 }
 
@@ -134,10 +139,15 @@ func (c *tripServiceClient) DeleteTrip(ctx context.Context, req *connect.Request
 
 // TripServiceHandler is an implementation of the admin.v1.TripService service.
 type TripServiceHandler interface {
+	// バスの便（GTFS の trips）の一覧を取得する。
 	ListTrips(context.Context, *connect.Request[v1.ListTripsRequest]) (*connect.Response[v1.ListTripsResponse], error)
+	// バスの便（GTFS の trips）を取得する。
 	GetTrip(context.Context, *connect.Request[v1.GetTripRequest]) (*connect.Response[v1.GetTripResponse], error)
+	// バスの便（GTFS の trips）を作成する。
 	CreateTrip(context.Context, *connect.Request[v1.CreateTripRequest]) (*connect.Response[v1.CreateTripResponse], error)
+	// バスの便（GTFS の trips）を更新する。
 	UpdateTrip(context.Context, *connect.Request[v1.UpdateTripRequest]) (*connect.Response[v1.UpdateTripResponse], error)
+	// バスの便（GTFS の trips）を削除する。
 	DeleteTrip(context.Context, *connect.Request[v1.DeleteTripRequest]) (*connect.Response[v1.DeleteTripResponse], error)
 }
 

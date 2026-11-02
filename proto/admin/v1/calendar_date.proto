@@ -2,72 +2,115 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/type/date.proto";
 
-enum CalendarDateExceptionType {
-  CALENDAR_DATE_EXCEPTION_TYPE_UNSPECIFIED = 0;
-  CALENDAR_DATE_EXCEPTION_TYPE_ADDED = 1;
-  CALENDAR_DATE_EXCEPTION_TYPE_REMOVED = 2;
+// 運行カレンダーの例外日（GTFS の calendar_dates）を管理する。
+service CalendarDateService {
+  // 運行カレンダーの例外日（GTFS の calendar_dates）の一覧を取得する。
+  rpc ListCalendarDates(ListCalendarDatesRequest) returns (ListCalendarDatesResponse);
+  // 運行カレンダーの例外日（GTFS の calendar_dates）を取得する。
+  rpc GetCalendarDate(GetCalendarDateRequest) returns (GetCalendarDateResponse);
+  // 運行カレンダーの例外日（GTFS の calendar_dates）を作成する。
+  rpc CreateCalendarDate(CreateCalendarDateRequest) returns (CreateCalendarDateResponse);
+  // 運行カレンダーの例外日（GTFS の calendar_dates）を更新する。
+  rpc UpdateCalendarDate(UpdateCalendarDateRequest) returns (UpdateCalendarDateResponse);
+  // 運行カレンダーの例外日（GTFS の calendar_dates）を削除する。
+  rpc DeleteCalendarDate(DeleteCalendarDateRequest) returns (DeleteCalendarDateResponse);
 }
 
+// 運行カレンダーの例外日（GTFS の calendar_dates）。
 message CalendarDate {
-  string service_id = 1;
-  google.type.Date date = 2;
-  CalendarDateExceptionType exception_type = 3;
+  // 運行カレンダーの ID（GTFS の service_id）。
+  string service_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 例外日の日付。
+  google.type.Date date = 2 [(google.api.field_behavior) = REQUIRED];
+  // 運行を追加するか取り消すか。
+  CalendarDateExceptionType exception_type = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
+// ListCalendarDates の Request。
 message ListCalendarDatesRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListCalendarDates の Response。
 message ListCalendarDatesResponse {
+  // 運行カレンダーの例外日（GTFS の calendar_dates）の一覧。
   repeated CalendarDate calendar_dates = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetCalendarDate の Request。
 message GetCalendarDateRequest {
-  string service_id = 1;
-  google.type.Date date = 2;
+  // 運行カレンダーの ID（GTFS の service_id）。
+  string service_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 例外日の日付。
+  google.type.Date date = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetCalendarDate の Response。
 message GetCalendarDateResponse {
+  // 取得した運行カレンダーの例外日（GTFS の calendar_dates）。
   CalendarDate calendar_date = 1;
 }
 
+// CreateCalendarDate の Request。
 message CreateCalendarDateRequest {
-  string service_id = 1;
-  google.type.Date date = 2;
-  CalendarDateExceptionType exception_type = 3;
+  // 運行カレンダーの ID（GTFS の service_id）。
+  string service_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 例外日の日付。
+  google.type.Date date = 2 [(google.api.field_behavior) = REQUIRED];
+  // 運行を追加するか取り消すか。
+  CalendarDateExceptionType exception_type = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
+// CreateCalendarDate の Response。
 message CreateCalendarDateResponse {
+  // 作成した運行カレンダーの例外日（GTFS の calendar_dates）。
   CalendarDate calendar_date = 1;
 }
 
+// UpdateCalendarDate の Request。
 message UpdateCalendarDateRequest {
-  string service_id = 1;
-  google.type.Date date = 2;
-  CalendarDateExceptionType exception_type = 3;
-  google.protobuf.FieldMask update_mask = 99;
+  // 運行カレンダーの ID（GTFS の service_id）。
+  string service_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 例外日の日付。
+  google.type.Date date = 2 [(google.api.field_behavior) = REQUIRED];
+  // 運行を追加するか取り消すか。
+  CalendarDateExceptionType exception_type = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateCalendarDate の Response。
 message UpdateCalendarDateResponse {
+  // 更新した運行カレンダーの例外日（GTFS の calendar_dates）。
   CalendarDate calendar_date = 1;
 }
 
+// DeleteCalendarDate の Request。
 message DeleteCalendarDateRequest {
-  string service_id = 1;
-  google.type.Date date = 2;
+  // 運行カレンダーの ID（GTFS の service_id）。
+  string service_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 例外日の日付。
+  google.type.Date date = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteCalendarDate の Response。
 message DeleteCalendarDateResponse {}
 
-service CalendarDateService {
-  rpc ListCalendarDates(ListCalendarDatesRequest) returns (ListCalendarDatesResponse);
-  rpc GetCalendarDate(GetCalendarDateRequest) returns (GetCalendarDateResponse);
-  rpc CreateCalendarDate(CreateCalendarDateRequest) returns (CreateCalendarDateResponse);
-  rpc UpdateCalendarDate(UpdateCalendarDateRequest) returns (UpdateCalendarDateResponse);
-  rpc DeleteCalendarDate(DeleteCalendarDateRequest) returns (DeleteCalendarDateResponse);
+// 運行カレンダーの例外の種類（GTFS の exception_type）。
+enum CalendarDateExceptionType {
+  // 未指定。
+  CALENDAR_DATE_EXCEPTION_TYPE_UNSPECIFIED = 0;
+  // その日の運行を追加する。
+  CALENDAR_DATE_EXCEPTION_TYPE_ADDED = 1;
+  // その日の運行を取り消す。
+  CALENDAR_DATE_EXCEPTION_TYPE_REMOVED = 2;
 }

@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -23,14 +24,22 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 教室の予約。
 type RoomReservation struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	RoomId        string                 `protobuf:"bytes,3,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 予約のタイトル。
+	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	// 教室の ID。
+	RoomId string `protobuf:"bytes,3,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	// 予約の開始日時。
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// 予約の終了日時。
+	EndTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -115,10 +124,13 @@ func (x *RoomReservation) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListRoomReservations の Request。
 type ListRoomReservationsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -167,12 +179,15 @@ func (x *ListRoomReservationsRequest) GetPageToken() string {
 	return ""
 }
 
+// ListRoomReservations の Response。
 type ListRoomReservationsResponse struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	RoomReservations []*RoomReservation     `protobuf:"bytes,1,rep,name=room_reservations,json=roomReservations,proto3" json:"room_reservations,omitempty"`
-	NextPageToken    string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 教室の予約の一覧。
+	RoomReservations []*RoomReservation `protobuf:"bytes,1,rep,name=room_reservations,json=roomReservations,proto3" json:"room_reservations,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListRoomReservationsResponse) Reset() {
@@ -219,9 +234,11 @@ func (x *ListRoomReservationsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetRoomReservation の Request。
 type GetRoomReservationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得する教室の予約の ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -263,9 +280,11 @@ func (x *GetRoomReservationRequest) GetId() string {
 	return ""
 }
 
+// GetRoomReservation の Response。
 type GetRoomReservationResponse struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	RoomReservation *RoomReservation       `protobuf:"bytes,1,opt,name=room_reservation,json=roomReservation,proto3" json:"room_reservation,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した教室の予約。
+	RoomReservation *RoomReservation `protobuf:"bytes,1,opt,name=room_reservation,json=roomReservation,proto3" json:"room_reservation,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -307,11 +326,16 @@ func (x *GetRoomReservationResponse) GetRoomReservation() *RoomReservation {
 	return nil
 }
 
+// CreateRoomReservation の Request。
 type CreateRoomReservationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 予約のタイトル。
+	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	// 教室の ID。
+	RoomId string `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	// 予約の開始日時。
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// 予約の終了日時。
 	EndTime       *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -375,9 +399,11 @@ func (x *CreateRoomReservationRequest) GetEndTime() *timestamppb.Timestamp {
 	return nil
 }
 
+// CreateRoomReservation の Response。
 type CreateRoomReservationResponse struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	RoomReservation *RoomReservation       `protobuf:"bytes,1,opt,name=room_reservation,json=roomReservation,proto3" json:"room_reservation,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した教室の予約。
+	RoomReservation *RoomReservation `protobuf:"bytes,1,opt,name=room_reservation,json=roomReservation,proto3" json:"room_reservation,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -419,13 +445,20 @@ func (x *CreateRoomReservationResponse) GetRoomReservation() *RoomReservation {
 	return nil
 }
 
+// UpdateRoomReservation の Request。
 type UpdateRoomReservationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	RoomId        string                 `protobuf:"bytes,3,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新する教室の予約の ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 予約のタイトル。
+	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	// 教室の ID。
+	RoomId string `protobuf:"bytes,3,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	// 予約の開始日時。
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// 予約の終了日時。
+	EndTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -503,9 +536,11 @@ func (x *UpdateRoomReservationRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateRoomReservation の Response。
 type UpdateRoomReservationResponse struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	RoomReservation *RoomReservation       `protobuf:"bytes,1,opt,name=room_reservation,json=roomReservation,proto3" json:"room_reservation,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した教室の予約。
+	RoomReservation *RoomReservation `protobuf:"bytes,1,opt,name=room_reservation,json=roomReservation,proto3" json:"room_reservation,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -547,9 +582,11 @@ func (x *UpdateRoomReservationResponse) GetRoomReservation() *RoomReservation {
 	return nil
 }
 
+// DeleteRoomReservation の Request。
 type DeleteRoomReservationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 削除する教室の予約の ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -591,6 +628,7 @@ func (x *DeleteRoomReservationRequest) GetId() string {
 	return ""
 }
 
+// DeleteRoomReservation の Response。
 type DeleteRoomReservationResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -631,50 +669,50 @@ var File_admin_v1_room_reservation_proto protoreflect.FileDescriptor
 
 const file_admin_v1_room_reservation_proto_rawDesc = "" +
 	"\n" +
-	"\x1fadmin/v1/room_reservation.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb8\x02\n" +
-	"\x0fRoomReservation\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12\x17\n" +
-	"\aroom_id\x18\x03 \x01(\tR\x06roomId\x129\n" +
+	"\x1fadmin/v1/room_reservation.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xdb\x02\n" +
+	"\x0fRoomReservation\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x19\n" +
+	"\x05title\x18\x02 \x01(\tB\x03\xe0A\x02R\x05title\x12\x1c\n" +
+	"\aroom_id\x18\x03 \x01(\tB\x03\xe0A\x02R\x06roomId\x12>\n" +
 	"\n" +
-	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x129\n" +
+	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x02R\tstartTime\x12:\n" +
+	"\bend_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x02R\aendTime\x12>\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"Y\n" +
-	"\x1bListRoomReservationsRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\"c\n" +
+	"\x1bListRoomReservationsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"\x8e\x01\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"\x8e\x01\n" +
 	"\x1cListRoomReservationsResponse\x12F\n" +
 	"\x11room_reservations\x18\x01 \x03(\v2\x19.admin.v1.RoomReservationR\x10roomReservations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"+\n" +
-	"\x19GetRoomReservationRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"b\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"0\n" +
+	"\x19GetRoomReservationRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"b\n" +
 	"\x1aGetRoomReservationResponse\x12D\n" +
-	"\x10room_reservation\x18\x01 \x01(\v2\x19.admin.v1.RoomReservationR\x0froomReservation\"\xbf\x01\n" +
-	"\x1cCreateRoomReservationRequest\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12\x17\n" +
-	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x129\n" +
+	"\x10room_reservation\x18\x01 \x01(\v2\x19.admin.v1.RoomReservationR\x0froomReservation\"\xd3\x01\n" +
+	"\x1cCreateRoomReservationRequest\x12\x19\n" +
+	"\x05title\x18\x01 \x01(\tB\x03\xe0A\x02R\x05title\x12\x1c\n" +
+	"\aroom_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06roomId\x12>\n" +
 	"\n" +
-	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\"e\n" +
+	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x02R\tstartTime\x12:\n" +
+	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x02R\aendTime\"e\n" +
 	"\x1dCreateRoomReservationResponse\x12D\n" +
-	"\x10room_reservation\x18\x01 \x01(\v2\x19.admin.v1.RoomReservationR\x0froomReservation\"\x8c\x02\n" +
-	"\x1cUpdateRoomReservationRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12\x17\n" +
-	"\aroom_id\x18\x03 \x01(\tR\x06roomId\x129\n" +
+	"\x10room_reservation\x18\x01 \x01(\v2\x19.admin.v1.RoomReservationR\x0froomReservation\"\xaa\x02\n" +
+	"\x1cUpdateRoomReservationRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\x19\n" +
+	"\x05title\x18\x02 \x01(\tB\x03\xe0A\x01R\x05title\x12\x1c\n" +
+	"\aroom_id\x18\x03 \x01(\tB\x03\xe0A\x01R\x06roomId\x12>\n" +
 	"\n" +
-	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01R\tstartTime\x12:\n" +
+	"\bend_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01R\aendTime\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"e\n" +
 	"\x1dUpdateRoomReservationResponse\x12D\n" +
-	"\x10room_reservation\x18\x01 \x01(\v2\x19.admin.v1.RoomReservationR\x0froomReservation\".\n" +
-	"\x1cDeleteRoomReservationRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x1f\n" +
+	"\x10room_reservation\x18\x01 \x01(\v2\x19.admin.v1.RoomReservationR\x0froomReservation\"3\n" +
+	"\x1cDeleteRoomReservationRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x1f\n" +
 	"\x1dDeleteRoomReservationResponse2\x9e\x04\n" +
 	"\x16RoomReservationService\x12e\n" +
 	"\x14ListRoomReservations\x12%.admin.v1.ListRoomReservationsRequest\x1a&.admin.v1.ListRoomReservationsResponse\x12_\n" +

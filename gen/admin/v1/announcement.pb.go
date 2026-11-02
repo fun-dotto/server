@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -23,17 +24,25 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// お知らせ。
 type Announcement struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title          string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Url            string                 `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
-	AvailableFrom  *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=available_from,json=availableFrom,proto3" json:"available_from,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// タイトル。
+	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	// リンク先の URL。
+	Url string `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
+	// 公開を開始する日時。
+	AvailableFrom *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=available_from,json=availableFrom,proto3" json:"available_from,omitempty"`
+	// 公開を終了する日時。未設定の場合は終了しない。
 	AvailableUntil *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=available_until,json=availableUntil,proto3,oneof" json:"available_until,omitempty"`
-	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Announcement) Reset() {
@@ -115,10 +124,13 @@ func (x *Announcement) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListAnnouncements の Request。
 type ListAnnouncementsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -167,10 +179,13 @@ func (x *ListAnnouncementsRequest) GetPageToken() string {
 	return ""
 }
 
+// ListAnnouncements の Response。
 type ListAnnouncementsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Announcements []*Announcement        `protobuf:"bytes,1,rep,name=announcements,proto3" json:"announcements,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// お知らせの一覧。
+	Announcements []*Announcement `protobuf:"bytes,1,rep,name=announcements,proto3" json:"announcements,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -219,9 +234,11 @@ func (x *ListAnnouncementsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetAnnouncement の Request。
 type GetAnnouncementRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得するお知らせの ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -263,9 +280,11 @@ func (x *GetAnnouncementRequest) GetId() string {
 	return ""
 }
 
+// GetAnnouncement の Response。
 type GetAnnouncementResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Announcement  *Announcement          `protobuf:"bytes,1,opt,name=announcement,proto3" json:"announcement,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得したお知らせ。
+	Announcement  *Announcement `protobuf:"bytes,1,opt,name=announcement,proto3" json:"announcement,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -307,11 +326,16 @@ func (x *GetAnnouncementResponse) GetAnnouncement() *Announcement {
 	return nil
 }
 
+// CreateAnnouncement の Request。
 type CreateAnnouncementRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Title          string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Url            string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
-	AvailableFrom  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=available_from,json=availableFrom,proto3" json:"available_from,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// タイトル。
+	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	// リンク先の URL。
+	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	// 公開を開始する日時。
+	AvailableFrom *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=available_from,json=availableFrom,proto3" json:"available_from,omitempty"`
+	// 公開を終了する日時。未設定の場合は終了しない。
 	AvailableUntil *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=available_until,json=availableUntil,proto3,oneof" json:"available_until,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -375,9 +399,11 @@ func (x *CreateAnnouncementRequest) GetAvailableUntil() *timestamppb.Timestamp {
 	return nil
 }
 
+// CreateAnnouncement の Response。
 type CreateAnnouncementResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Announcement  *Announcement          `protobuf:"bytes,1,opt,name=announcement,proto3" json:"announcement,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成したお知らせ。
+	Announcement  *Announcement `protobuf:"bytes,1,opt,name=announcement,proto3" json:"announcement,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -419,16 +445,23 @@ func (x *CreateAnnouncementResponse) GetAnnouncement() *Announcement {
 	return nil
 }
 
+// UpdateAnnouncement の Request。
 type UpdateAnnouncementRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title          string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Url            string                 `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
-	AvailableFrom  *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=available_from,json=availableFrom,proto3" json:"available_from,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新するお知らせの ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// タイトル。
+	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	// リンク先の URL。
+	Url string `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
+	// 公開を開始する日時。
+	AvailableFrom *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=available_from,json=availableFrom,proto3" json:"available_from,omitempty"`
+	// 公開を終了する日時。未設定の場合は終了しない。
 	AvailableUntil *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=available_until,json=availableUntil,proto3,oneof" json:"available_until,omitempty"`
-	UpdateMask     *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateAnnouncementRequest) Reset() {
@@ -503,9 +536,11 @@ func (x *UpdateAnnouncementRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateAnnouncement の Response。
 type UpdateAnnouncementResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Announcement  *Announcement          `protobuf:"bytes,1,opt,name=announcement,proto3" json:"announcement,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新したお知らせ。
+	Announcement  *Announcement `protobuf:"bytes,1,opt,name=announcement,proto3" json:"announcement,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -547,9 +582,11 @@ func (x *UpdateAnnouncementResponse) GetAnnouncement() *Announcement {
 	return nil
 }
 
+// DeleteAnnouncement の Request。
 type DeleteAnnouncementRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 削除するお知らせの ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -591,6 +628,7 @@ func (x *DeleteAnnouncementRequest) GetId() string {
 	return ""
 }
 
+// DeleteAnnouncement の Response。
 type DeleteAnnouncementResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -631,50 +669,50 @@ var File_admin_v1_announcement_proto protoreflect.FileDescriptor
 
 const file_admin_v1_announcement_proto_rawDesc = "" +
 	"\n" +
-	"\x1badmin/v1/announcement.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xdd\x02\n" +
-	"\fAnnouncement\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12\x10\n" +
-	"\x03url\x18\x03 \x01(\tR\x03url\x12A\n" +
-	"\x0eavailable_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\ravailableFrom\x12H\n" +
-	"\x0favailable_until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x0eavailableUntil\x88\x01\x01\x129\n" +
+	"\x1badmin/v1/announcement.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x80\x03\n" +
+	"\fAnnouncement\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x19\n" +
+	"\x05title\x18\x02 \x01(\tB\x03\xe0A\x02R\x05title\x12\x15\n" +
+	"\x03url\x18\x03 \x01(\tB\x03\xe0A\x02R\x03url\x12F\n" +
+	"\x0eavailable_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x02R\ravailableFrom\x12M\n" +
+	"\x0favailable_until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x00R\x0eavailableUntil\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x12\n" +
-	"\x10_available_until\"V\n" +
-	"\x18ListAnnouncementsRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAtB\x12\n" +
+	"\x10_available_until\"`\n" +
+	"\x18ListAnnouncementsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"\x81\x01\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"\x81\x01\n" +
 	"\x19ListAnnouncementsResponse\x12<\n" +
 	"\rannouncements\x18\x01 \x03(\v2\x16.admin.v1.AnnouncementR\rannouncements\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"(\n" +
-	"\x16GetAnnouncementRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"U\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"-\n" +
+	"\x16GetAnnouncementRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"U\n" +
 	"\x17GetAnnouncementResponse\x12:\n" +
-	"\fannouncement\x18\x01 \x01(\v2\x16.admin.v1.AnnouncementR\fannouncement\"\xe4\x01\n" +
-	"\x19CreateAnnouncementRequest\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12\x10\n" +
-	"\x03url\x18\x02 \x01(\tR\x03url\x12A\n" +
-	"\x0eavailable_from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\ravailableFrom\x12H\n" +
-	"\x0favailable_until\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x0eavailableUntil\x88\x01\x01B\x12\n" +
+	"\fannouncement\x18\x01 \x01(\v2\x16.admin.v1.AnnouncementR\fannouncement\"\xf8\x01\n" +
+	"\x19CreateAnnouncementRequest\x12\x19\n" +
+	"\x05title\x18\x01 \x01(\tB\x03\xe0A\x02R\x05title\x12\x15\n" +
+	"\x03url\x18\x02 \x01(\tB\x03\xe0A\x02R\x03url\x12F\n" +
+	"\x0eavailable_from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x02R\ravailableFrom\x12M\n" +
+	"\x0favailable_until\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x00R\x0eavailableUntil\x88\x01\x01B\x12\n" +
 	"\x10_available_until\"X\n" +
 	"\x1aCreateAnnouncementResponse\x12:\n" +
-	"\fannouncement\x18\x01 \x01(\v2\x16.admin.v1.AnnouncementR\fannouncement\"\xb1\x02\n" +
-	"\x19UpdateAnnouncementRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12\x10\n" +
-	"\x03url\x18\x03 \x01(\tR\x03url\x12A\n" +
-	"\x0eavailable_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\ravailableFrom\x12H\n" +
-	"\x0favailable_until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x0eavailableUntil\x88\x01\x01\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"\fannouncement\x18\x01 \x01(\v2\x16.admin.v1.AnnouncementR\fannouncement\"\xcf\x02\n" +
+	"\x19UpdateAnnouncementRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\x19\n" +
+	"\x05title\x18\x02 \x01(\tB\x03\xe0A\x01R\x05title\x12\x15\n" +
+	"\x03url\x18\x03 \x01(\tB\x03\xe0A\x01R\x03url\x12F\n" +
+	"\x0eavailable_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01R\ravailableFrom\x12M\n" +
+	"\x0favailable_until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x00R\x0eavailableUntil\x88\x01\x01\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMaskB\x12\n" +
 	"\x10_available_until\"X\n" +
 	"\x1aUpdateAnnouncementResponse\x12:\n" +
-	"\fannouncement\x18\x01 \x01(\v2\x16.admin.v1.AnnouncementR\fannouncement\"+\n" +
-	"\x19DeleteAnnouncementRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x1c\n" +
+	"\fannouncement\x18\x01 \x01(\v2\x16.admin.v1.AnnouncementR\fannouncement\"0\n" +
+	"\x19DeleteAnnouncementRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x1c\n" +
 	"\x1aDeleteAnnouncementResponse2\xee\x03\n" +
 	"\x13AnnouncementService\x12\\\n" +
 	"\x11ListAnnouncements\x12\".admin.v1.ListAnnouncementsRequest\x1a#.admin.v1.ListAnnouncementsResponse\x12V\n" +

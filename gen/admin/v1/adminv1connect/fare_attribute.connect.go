@@ -52,10 +52,15 @@ const (
 
 // FareAttributeServiceClient is a client for the admin.v1.FareAttributeService service.
 type FareAttributeServiceClient interface {
+	// 運賃（GTFS の fare_attributes）の一覧を取得する。
 	ListFareAttributes(context.Context, *connect.Request[v1.ListFareAttributesRequest]) (*connect.Response[v1.ListFareAttributesResponse], error)
+	// 運賃（GTFS の fare_attributes）を取得する。
 	GetFareAttribute(context.Context, *connect.Request[v1.GetFareAttributeRequest]) (*connect.Response[v1.GetFareAttributeResponse], error)
+	// 運賃（GTFS の fare_attributes）を作成する。
 	CreateFareAttribute(context.Context, *connect.Request[v1.CreateFareAttributeRequest]) (*connect.Response[v1.CreateFareAttributeResponse], error)
+	// 運賃（GTFS の fare_attributes）を更新する。
 	UpdateFareAttribute(context.Context, *connect.Request[v1.UpdateFareAttributeRequest]) (*connect.Response[v1.UpdateFareAttributeResponse], error)
+	// 運賃（GTFS の fare_attributes）を削除する。
 	DeleteFareAttribute(context.Context, *connect.Request[v1.DeleteFareAttributeRequest]) (*connect.Response[v1.DeleteFareAttributeResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *fareAttributeServiceClient) DeleteFareAttribute(ctx context.Context, re
 
 // FareAttributeServiceHandler is an implementation of the admin.v1.FareAttributeService service.
 type FareAttributeServiceHandler interface {
+	// 運賃（GTFS の fare_attributes）の一覧を取得する。
 	ListFareAttributes(context.Context, *connect.Request[v1.ListFareAttributesRequest]) (*connect.Response[v1.ListFareAttributesResponse], error)
+	// 運賃（GTFS の fare_attributes）を取得する。
 	GetFareAttribute(context.Context, *connect.Request[v1.GetFareAttributeRequest]) (*connect.Response[v1.GetFareAttributeResponse], error)
+	// 運賃（GTFS の fare_attributes）を作成する。
 	CreateFareAttribute(context.Context, *connect.Request[v1.CreateFareAttributeRequest]) (*connect.Response[v1.CreateFareAttributeResponse], error)
+	// 運賃（GTFS の fare_attributes）を更新する。
 	UpdateFareAttribute(context.Context, *connect.Request[v1.UpdateFareAttributeRequest]) (*connect.Response[v1.UpdateFareAttributeResponse], error)
+	// 運賃（GTFS の fare_attributes）を削除する。
 	DeleteFareAttribute(context.Context, *connect.Request[v1.DeleteFareAttributeRequest]) (*connect.Response[v1.DeleteFareAttributeResponse], error)
 }
 

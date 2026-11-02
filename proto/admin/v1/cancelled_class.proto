@@ -3,72 +3,116 @@ syntax = "proto3";
 package admin.v1;
 
 import "admin/v1/common.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 import "google/type/date.proto";
 
+// 休講を管理する。
+service CancelledClassService {
+  // 休講の一覧を取得する。
+  rpc ListCancelledClasses(ListCancelledClassesRequest) returns (ListCancelledClassesResponse);
+  // 休講を取得する。
+  rpc GetCancelledClass(GetCancelledClassRequest) returns (GetCancelledClassResponse);
+  // 休講を作成する。
+  rpc CreateCancelledClass(CreateCancelledClassRequest) returns (CreateCancelledClassResponse);
+  // 休講を更新する。
+  rpc UpdateCancelledClass(UpdateCancelledClassRequest) returns (UpdateCancelledClassResponse);
+  // 休講を削除する。
+  rpc DeleteCancelledClass(DeleteCancelledClassRequest) returns (DeleteCancelledClassResponse);
+}
+
+// 休講。
 message CancelledClass {
-  string id = 1;
-  string subject_id = 2;
-  google.type.Date date = 3;
-  Period period = 4;
-  optional string comment = 5;
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp updated_at = 7;
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 科目の ID。
+  string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 休講する日付。
+  google.type.Date date = 3 [(google.api.field_behavior) = REQUIRED];
+  // 休講する時限。
+  Period period = 4 [(google.api.field_behavior) = REQUIRED];
+  // 補足のコメント。
+  optional string comment = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 作成日時。
+  google.protobuf.Timestamp created_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 更新日時。
+  google.protobuf.Timestamp updated_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ListCancelledClasses の Request。
 message ListCancelledClassesRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListCancelledClasses の Response。
 message ListCancelledClassesResponse {
+  // 休講の一覧。
   repeated CancelledClass cancelled_classes = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetCancelledClass の Request。
 message GetCancelledClassRequest {
-  string id = 1;
+  // 取得する休講の ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetCancelledClass の Response。
 message GetCancelledClassResponse {
+  // 取得した休講。
   CancelledClass cancelled_class = 1;
 }
 
+// CreateCancelledClass の Request。
 message CreateCancelledClassRequest {
-  string subject_id = 1;
-  google.type.Date date = 2;
-  Period period = 3;
-  optional string comment = 4;
+  // 科目の ID。
+  string subject_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 休講する日付。
+  google.type.Date date = 2 [(google.api.field_behavior) = REQUIRED];
+  // 休講する時限。
+  Period period = 3 [(google.api.field_behavior) = REQUIRED];
+  // 補足のコメント。
+  optional string comment = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// CreateCancelledClass の Response。
 message CreateCancelledClassResponse {
+  // 作成した休講。
   CancelledClass cancelled_class = 1;
 }
 
+// UpdateCancelledClass の Request。
 message UpdateCancelledClassRequest {
-  string id = 1;
-  string subject_id = 2;
-  google.type.Date date = 3;
-  Period period = 4;
-  optional string comment = 5;
-  google.protobuf.FieldMask update_mask = 99;
+  // 更新する休講の ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 科目の ID。
+  string subject_id = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 休講する日付。
+  google.type.Date date = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 休講する時限。
+  Period period = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 補足のコメント。
+  optional string comment = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateCancelledClass の Response。
 message UpdateCancelledClassResponse {
+  // 更新した休講。
   CancelledClass cancelled_class = 1;
 }
 
+// DeleteCancelledClass の Request。
 message DeleteCancelledClassRequest {
-  string id = 1;
+  // 削除する休講の ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteCancelledClass の Response。
 message DeleteCancelledClassResponse {}
-
-service CancelledClassService {
-  rpc ListCancelledClasses(ListCancelledClassesRequest) returns (ListCancelledClassesResponse);
-  rpc GetCancelledClass(GetCancelledClassRequest) returns (GetCancelledClassResponse);
-  rpc CreateCancelledClass(CreateCancelledClassRequest) returns (CreateCancelledClassResponse);
-  rpc UpdateCancelledClass(UpdateCancelledClassRequest) returns (UpdateCancelledClassResponse);
-  rpc DeleteCancelledClass(DeleteCancelledClassRequest) returns (DeleteCancelledClassResponse);
-}

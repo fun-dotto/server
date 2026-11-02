@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -22,9 +23,11 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 運賃ゾーン（GTFS の zone_id）。
 type Zone struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ZoneId        string                 `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃ゾーンの ID（GTFS の zone_id）。
+	ZoneId        string `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -66,10 +69,13 @@ func (x *Zone) GetZoneId() string {
 	return ""
 }
 
+// ListZones の Request。
 type ListZonesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -118,10 +124,13 @@ func (x *ListZonesRequest) GetPageToken() string {
 	return ""
 }
 
+// ListZones の Response。
 type ListZonesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Zones         []*Zone                `protobuf:"bytes,1,rep,name=zones,proto3" json:"zones,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃ゾーン（GTFS の zone_id）の一覧。
+	Zones []*Zone `protobuf:"bytes,1,rep,name=zones,proto3" json:"zones,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -170,9 +179,11 @@ func (x *ListZonesResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetZone の Request。
 type GetZoneRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ZoneId        string                 `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃ゾーンの ID（GTFS の zone_id）。
+	ZoneId        string `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -214,9 +225,11 @@ func (x *GetZoneRequest) GetZoneId() string {
 	return ""
 }
 
+// GetZone の Response。
 type GetZoneResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Zone          *Zone                  `protobuf:"bytes,1,opt,name=zone,proto3" json:"zone,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した運賃ゾーン（GTFS の zone_id）。
+	Zone          *Zone `protobuf:"bytes,1,opt,name=zone,proto3" json:"zone,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -258,9 +271,11 @@ func (x *GetZoneResponse) GetZone() *Zone {
 	return nil
 }
 
+// CreateZone の Request。
 type CreateZoneRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ZoneId        string                 `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃ゾーンの ID（GTFS の zone_id）。
+	ZoneId        string `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -302,9 +317,11 @@ func (x *CreateZoneRequest) GetZoneId() string {
 	return ""
 }
 
+// CreateZone の Response。
 type CreateZoneResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Zone          *Zone                  `protobuf:"bytes,1,opt,name=zone,proto3" json:"zone,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した運賃ゾーン（GTFS の zone_id）。
+	Zone          *Zone `protobuf:"bytes,1,opt,name=zone,proto3" json:"zone,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -346,9 +363,12 @@ func (x *CreateZoneResponse) GetZone() *Zone {
 	return nil
 }
 
+// UpdateZone の Request。
 type UpdateZoneRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ZoneId        string                 `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃ゾーンの ID（GTFS の zone_id）。
+	ZoneId string `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -398,9 +418,11 @@ func (x *UpdateZoneRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateZone の Response。
 type UpdateZoneResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Zone          *Zone                  `protobuf:"bytes,1,opt,name=zone,proto3" json:"zone,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した運賃ゾーン（GTFS の zone_id）。
+	Zone          *Zone `protobuf:"bytes,1,opt,name=zone,proto3" json:"zone,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -442,9 +464,11 @@ func (x *UpdateZoneResponse) GetZone() *Zone {
 	return nil
 }
 
+// DeleteZone の Request。
 type DeleteZoneRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ZoneId        string                 `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃ゾーンの ID（GTFS の zone_id）。
+	ZoneId        string `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -486,6 +510,7 @@ func (x *DeleteZoneRequest) GetZoneId() string {
 	return ""
 }
 
+// DeleteZone の Response。
 type DeleteZoneResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -526,32 +551,32 @@ var File_admin_v1_zone_proto protoreflect.FileDescriptor
 
 const file_admin_v1_zone_proto_rawDesc = "" +
 	"\n" +
-	"\x13admin/v1/zone.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\"\x1f\n" +
-	"\x04Zone\x12\x17\n" +
-	"\azone_id\x18\x01 \x01(\tR\x06zoneId\"N\n" +
-	"\x10ListZonesRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\x13admin/v1/zone.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\"$\n" +
+	"\x04Zone\x12\x1c\n" +
+	"\azone_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06zoneId\"X\n" +
+	"\x10ListZonesRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"a\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"a\n" +
 	"\x11ListZonesResponse\x12$\n" +
 	"\x05zones\x18\x01 \x03(\v2\x0e.admin.v1.ZoneR\x05zones\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\")\n" +
-	"\x0eGetZoneRequest\x12\x17\n" +
-	"\azone_id\x18\x01 \x01(\tR\x06zoneId\"5\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\".\n" +
+	"\x0eGetZoneRequest\x12\x1c\n" +
+	"\azone_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06zoneId\"5\n" +
 	"\x0fGetZoneResponse\x12\"\n" +
-	"\x04zone\x18\x01 \x01(\v2\x0e.admin.v1.ZoneR\x04zone\",\n" +
-	"\x11CreateZoneRequest\x12\x17\n" +
-	"\azone_id\x18\x01 \x01(\tR\x06zoneId\"8\n" +
+	"\x04zone\x18\x01 \x01(\v2\x0e.admin.v1.ZoneR\x04zone\"1\n" +
+	"\x11CreateZoneRequest\x12\x1c\n" +
+	"\azone_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06zoneId\"8\n" +
 	"\x12CreateZoneResponse\x12\"\n" +
-	"\x04zone\x18\x01 \x01(\v2\x0e.admin.v1.ZoneR\x04zone\"i\n" +
-	"\x11UpdateZoneRequest\x12\x17\n" +
-	"\azone_id\x18\x01 \x01(\tR\x06zoneId\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"\x04zone\x18\x01 \x01(\v2\x0e.admin.v1.ZoneR\x04zone\"s\n" +
+	"\x11UpdateZoneRequest\x12\x1c\n" +
+	"\azone_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06zoneId\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"8\n" +
 	"\x12UpdateZoneResponse\x12\"\n" +
-	"\x04zone\x18\x01 \x01(\v2\x0e.admin.v1.ZoneR\x04zone\",\n" +
-	"\x11DeleteZoneRequest\x12\x17\n" +
-	"\azone_id\x18\x01 \x01(\tR\x06zoneId\"\x14\n" +
+	"\x04zone\x18\x01 \x01(\v2\x0e.admin.v1.ZoneR\x04zone\"1\n" +
+	"\x11DeleteZoneRequest\x12\x1c\n" +
+	"\azone_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06zoneId\"\x14\n" +
 	"\x12DeleteZoneResponse2\xee\x02\n" +
 	"\vZoneService\x12D\n" +
 	"\tListZones\x12\x1a.admin.v1.ListZonesRequest\x1a\x1b.admin.v1.ListZonesResponse\x12>\n" +

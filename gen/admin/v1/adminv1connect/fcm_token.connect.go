@@ -52,10 +52,15 @@ const (
 
 // FcmTokenServiceClient is a client for the admin.v1.FcmTokenService service.
 type FcmTokenServiceClient interface {
+	// FCM トークンの一覧を取得する。
 	ListFcmTokens(context.Context, *connect.Request[v1.ListFcmTokensRequest]) (*connect.Response[v1.ListFcmTokensResponse], error)
+	// FCM トークンを取得する。
 	GetFcmToken(context.Context, *connect.Request[v1.GetFcmTokenRequest]) (*connect.Response[v1.GetFcmTokenResponse], error)
+	// FCM トークンを作成する。
 	CreateFcmToken(context.Context, *connect.Request[v1.CreateFcmTokenRequest]) (*connect.Response[v1.CreateFcmTokenResponse], error)
+	// FCM トークンを更新する。
 	UpdateFcmToken(context.Context, *connect.Request[v1.UpdateFcmTokenRequest]) (*connect.Response[v1.UpdateFcmTokenResponse], error)
+	// FCM トークンを削除する。
 	DeleteFcmToken(context.Context, *connect.Request[v1.DeleteFcmTokenRequest]) (*connect.Response[v1.DeleteFcmTokenResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *fcmTokenServiceClient) DeleteFcmToken(ctx context.Context, req *connect
 
 // FcmTokenServiceHandler is an implementation of the admin.v1.FcmTokenService service.
 type FcmTokenServiceHandler interface {
+	// FCM トークンの一覧を取得する。
 	ListFcmTokens(context.Context, *connect.Request[v1.ListFcmTokensRequest]) (*connect.Response[v1.ListFcmTokensResponse], error)
+	// FCM トークンを取得する。
 	GetFcmToken(context.Context, *connect.Request[v1.GetFcmTokenRequest]) (*connect.Response[v1.GetFcmTokenResponse], error)
+	// FCM トークンを作成する。
 	CreateFcmToken(context.Context, *connect.Request[v1.CreateFcmTokenRequest]) (*connect.Response[v1.CreateFcmTokenResponse], error)
+	// FCM トークンを更新する。
 	UpdateFcmToken(context.Context, *connect.Request[v1.UpdateFcmTokenRequest]) (*connect.Response[v1.UpdateFcmTokenResponse], error)
+	// FCM トークンを削除する。
 	DeleteFcmToken(context.Context, *connect.Request[v1.DeleteFcmTokenRequest]) (*connect.Response[v1.DeleteFcmTokenResponse], error)
 }
 

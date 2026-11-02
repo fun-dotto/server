@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -22,13 +23,19 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 運賃の適用ルール（GTFS の fare_rules）。
 type FareRule struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	FareId        string                 `protobuf:"bytes,2,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
-	RouteId       *string                `protobuf:"bytes,3,opt,name=route_id,json=routeId,proto3,oneof" json:"route_id,omitempty"`
-	OriginId      *string                `protobuf:"bytes,4,opt,name=origin_id,json=originId,proto3,oneof" json:"origin_id,omitempty"`
-	DestinationId *string                `protobuf:"bytes,5,opt,name=destination_id,json=destinationId,proto3,oneof" json:"destination_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 運賃の ID（GTFS の fare_id）。
+	FareId string `protobuf:"bytes,2,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
+	// 適用する路線の ID（GTFS の route_id）。未設定の場合はすべての路線。
+	RouteId *string `protobuf:"bytes,3,opt,name=route_id,json=routeId,proto3,oneof" json:"route_id,omitempty"`
+	// 乗車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	OriginId *string `protobuf:"bytes,4,opt,name=origin_id,json=originId,proto3,oneof" json:"origin_id,omitempty"`
+	// 降車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	DestinationId *string `protobuf:"bytes,5,opt,name=destination_id,json=destinationId,proto3,oneof" json:"destination_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -98,10 +105,13 @@ func (x *FareRule) GetDestinationId() string {
 	return ""
 }
 
+// ListFareRules の Request。
 type ListFareRulesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -150,10 +160,13 @@ func (x *ListFareRulesRequest) GetPageToken() string {
 	return ""
 }
 
+// ListFareRules の Response。
 type ListFareRulesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FareRules     []*FareRule            `protobuf:"bytes,1,rep,name=fare_rules,json=fareRules,proto3" json:"fare_rules,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃の適用ルール（GTFS の fare_rules）の一覧。
+	FareRules []*FareRule `protobuf:"bytes,1,rep,name=fare_rules,json=fareRules,proto3" json:"fare_rules,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -202,9 +215,11 @@ func (x *ListFareRulesResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetFareRule の Request。
 type GetFareRuleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得する運賃の適用ルール（GTFS の fare_rules）の ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -246,9 +261,11 @@ func (x *GetFareRuleRequest) GetId() string {
 	return ""
 }
 
+// GetFareRule の Response。
 type GetFareRuleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FareRule      *FareRule              `protobuf:"bytes,1,opt,name=fare_rule,json=fareRule,proto3" json:"fare_rule,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した運賃の適用ルール（GTFS の fare_rules）。
+	FareRule      *FareRule `protobuf:"bytes,1,opt,name=fare_rule,json=fareRule,proto3" json:"fare_rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -290,12 +307,17 @@ func (x *GetFareRuleResponse) GetFareRule() *FareRule {
 	return nil
 }
 
+// CreateFareRule の Request。
 type CreateFareRuleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FareId        string                 `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
-	RouteId       *string                `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3,oneof" json:"route_id,omitempty"`
-	OriginId      *string                `protobuf:"bytes,3,opt,name=origin_id,json=originId,proto3,oneof" json:"origin_id,omitempty"`
-	DestinationId *string                `protobuf:"bytes,4,opt,name=destination_id,json=destinationId,proto3,oneof" json:"destination_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃の ID（GTFS の fare_id）。
+	FareId string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
+	// 適用する路線の ID（GTFS の route_id）。未設定の場合はすべての路線。
+	RouteId *string `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3,oneof" json:"route_id,omitempty"`
+	// 乗車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	OriginId *string `protobuf:"bytes,3,opt,name=origin_id,json=originId,proto3,oneof" json:"origin_id,omitempty"`
+	// 降車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	DestinationId *string `protobuf:"bytes,4,opt,name=destination_id,json=destinationId,proto3,oneof" json:"destination_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -358,9 +380,11 @@ func (x *CreateFareRuleRequest) GetDestinationId() string {
 	return ""
 }
 
+// CreateFareRule の Response。
 type CreateFareRuleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FareRule      *FareRule              `protobuf:"bytes,1,opt,name=fare_rule,json=fareRule,proto3" json:"fare_rule,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した運賃の適用ルール（GTFS の fare_rules）。
+	FareRule      *FareRule `protobuf:"bytes,1,opt,name=fare_rule,json=fareRule,proto3" json:"fare_rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -402,13 +426,20 @@ func (x *CreateFareRuleResponse) GetFareRule() *FareRule {
 	return nil
 }
 
+// UpdateFareRule の Request。
 type UpdateFareRuleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	FareId        string                 `protobuf:"bytes,2,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
-	RouteId       *string                `protobuf:"bytes,3,opt,name=route_id,json=routeId,proto3,oneof" json:"route_id,omitempty"`
-	OriginId      *string                `protobuf:"bytes,4,opt,name=origin_id,json=originId,proto3,oneof" json:"origin_id,omitempty"`
-	DestinationId *string                `protobuf:"bytes,5,opt,name=destination_id,json=destinationId,proto3,oneof" json:"destination_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新する運賃の適用ルール（GTFS の fare_rules）の ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 運賃の ID（GTFS の fare_id）。
+	FareId string `protobuf:"bytes,2,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
+	// 適用する路線の ID（GTFS の route_id）。未設定の場合はすべての路線。
+	RouteId *string `protobuf:"bytes,3,opt,name=route_id,json=routeId,proto3,oneof" json:"route_id,omitempty"`
+	// 乗車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	OriginId *string `protobuf:"bytes,4,opt,name=origin_id,json=originId,proto3,oneof" json:"origin_id,omitempty"`
+	// 降車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	DestinationId *string `protobuf:"bytes,5,opt,name=destination_id,json=destinationId,proto3,oneof" json:"destination_id,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -486,9 +517,11 @@ func (x *UpdateFareRuleRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateFareRule の Response。
 type UpdateFareRuleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FareRule      *FareRule              `protobuf:"bytes,1,opt,name=fare_rule,json=fareRule,proto3" json:"fare_rule,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した運賃の適用ルール（GTFS の fare_rules）。
+	FareRule      *FareRule `protobuf:"bytes,1,opt,name=fare_rule,json=fareRule,proto3" json:"fare_rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -530,9 +563,11 @@ func (x *UpdateFareRuleResponse) GetFareRule() *FareRule {
 	return nil
 }
 
+// DeleteFareRule の Request。
 type DeleteFareRuleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 削除する運賃の適用ルール（GTFS の fare_rules）の ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -574,6 +609,7 @@ func (x *DeleteFareRuleRequest) GetId() string {
 	return ""
 }
 
+// DeleteFareRule の Response。
 type DeleteFareRuleResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -614,56 +650,56 @@ var File_admin_v1_fare_rule_proto protoreflect.FileDescriptor
 
 const file_admin_v1_fare_rule_proto_rawDesc = "" +
 	"\n" +
-	"\x18admin/v1/fare_rule.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\"\xcf\x01\n" +
-	"\bFareRule\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\afare_id\x18\x02 \x01(\tR\x06fareId\x12\x1e\n" +
-	"\broute_id\x18\x03 \x01(\tH\x00R\arouteId\x88\x01\x01\x12 \n" +
-	"\torigin_id\x18\x04 \x01(\tH\x01R\boriginId\x88\x01\x01\x12*\n" +
-	"\x0edestination_id\x18\x05 \x01(\tH\x02R\rdestinationId\x88\x01\x01B\v\n" +
+	"\x18admin/v1/fare_rule.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\"\xe8\x01\n" +
+	"\bFareRule\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x1c\n" +
+	"\afare_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06fareId\x12#\n" +
+	"\broute_id\x18\x03 \x01(\tB\x03\xe0A\x01H\x00R\arouteId\x88\x01\x01\x12%\n" +
+	"\torigin_id\x18\x04 \x01(\tB\x03\xe0A\x01H\x01R\boriginId\x88\x01\x01\x12/\n" +
+	"\x0edestination_id\x18\x05 \x01(\tB\x03\xe0A\x01H\x02R\rdestinationId\x88\x01\x01B\v\n" +
 	"\t_route_idB\f\n" +
 	"\n" +
 	"_origin_idB\x11\n" +
-	"\x0f_destination_id\"R\n" +
-	"\x14ListFareRulesRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\x0f_destination_id\"\\\n" +
+	"\x14ListFareRulesRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"r\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"r\n" +
 	"\x15ListFareRulesResponse\x121\n" +
 	"\n" +
 	"fare_rules\x18\x01 \x03(\v2\x12.admin.v1.FareRuleR\tfareRules\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"$\n" +
-	"\x12GetFareRuleRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"F\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\")\n" +
+	"\x12GetFareRuleRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"F\n" +
 	"\x13GetFareRuleResponse\x12/\n" +
-	"\tfare_rule\x18\x01 \x01(\v2\x12.admin.v1.FareRuleR\bfareRule\"\xcc\x01\n" +
-	"\x15CreateFareRuleRequest\x12\x17\n" +
-	"\afare_id\x18\x01 \x01(\tR\x06fareId\x12\x1e\n" +
-	"\broute_id\x18\x02 \x01(\tH\x00R\arouteId\x88\x01\x01\x12 \n" +
-	"\torigin_id\x18\x03 \x01(\tH\x01R\boriginId\x88\x01\x01\x12*\n" +
-	"\x0edestination_id\x18\x04 \x01(\tH\x02R\rdestinationId\x88\x01\x01B\v\n" +
+	"\tfare_rule\x18\x01 \x01(\v2\x12.admin.v1.FareRuleR\bfareRule\"\xe0\x01\n" +
+	"\x15CreateFareRuleRequest\x12\x1c\n" +
+	"\afare_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06fareId\x12#\n" +
+	"\broute_id\x18\x02 \x01(\tB\x03\xe0A\x01H\x00R\arouteId\x88\x01\x01\x12%\n" +
+	"\torigin_id\x18\x03 \x01(\tB\x03\xe0A\x01H\x01R\boriginId\x88\x01\x01\x12/\n" +
+	"\x0edestination_id\x18\x04 \x01(\tB\x03\xe0A\x01H\x02R\rdestinationId\x88\x01\x01B\v\n" +
 	"\t_route_idB\f\n" +
 	"\n" +
 	"_origin_idB\x11\n" +
 	"\x0f_destination_id\"I\n" +
 	"\x16CreateFareRuleResponse\x12/\n" +
-	"\tfare_rule\x18\x01 \x01(\v2\x12.admin.v1.FareRuleR\bfareRule\"\x99\x02\n" +
-	"\x15UpdateFareRuleRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\afare_id\x18\x02 \x01(\tR\x06fareId\x12\x1e\n" +
-	"\broute_id\x18\x03 \x01(\tH\x00R\arouteId\x88\x01\x01\x12 \n" +
-	"\torigin_id\x18\x04 \x01(\tH\x01R\boriginId\x88\x01\x01\x12*\n" +
-	"\x0edestination_id\x18\x05 \x01(\tH\x02R\rdestinationId\x88\x01\x01\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"\tfare_rule\x18\x01 \x01(\v2\x12.admin.v1.FareRuleR\bfareRule\"\xb7\x02\n" +
+	"\x15UpdateFareRuleRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\x1c\n" +
+	"\afare_id\x18\x02 \x01(\tB\x03\xe0A\x01R\x06fareId\x12#\n" +
+	"\broute_id\x18\x03 \x01(\tB\x03\xe0A\x01H\x00R\arouteId\x88\x01\x01\x12%\n" +
+	"\torigin_id\x18\x04 \x01(\tB\x03\xe0A\x01H\x01R\boriginId\x88\x01\x01\x12/\n" +
+	"\x0edestination_id\x18\x05 \x01(\tB\x03\xe0A\x01H\x02R\rdestinationId\x88\x01\x01\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMaskB\v\n" +
 	"\t_route_idB\f\n" +
 	"\n" +
 	"_origin_idB\x11\n" +
 	"\x0f_destination_id\"I\n" +
 	"\x16UpdateFareRuleResponse\x12/\n" +
-	"\tfare_rule\x18\x01 \x01(\v2\x12.admin.v1.FareRuleR\bfareRule\"'\n" +
-	"\x15DeleteFareRuleRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x18\n" +
+	"\tfare_rule\x18\x01 \x01(\v2\x12.admin.v1.FareRuleR\bfareRule\",\n" +
+	"\x15DeleteFareRuleRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x18\n" +
 	"\x16DeleteFareRuleResponse2\xae\x03\n" +
 	"\x0fFareRuleService\x12P\n" +
 	"\rListFareRules\x12\x1e.admin.v1.ListFareRulesRequest\x1a\x1f.admin.v1.ListFareRulesResponse\x12J\n" +
