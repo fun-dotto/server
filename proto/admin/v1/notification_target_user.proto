@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+message NotificationTargetUser {
+  string notification_id = 1;
+  string user_id = 2;
+  optional google.protobuf.Timestamp notified_at = 3;
+}
+
+message ListNotificationTargetUsersRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListNotificationTargetUsersResponse {
+  repeated NotificationTargetUser notification_target_users = 1;
+  string next_page_token = 2;
+}
+
+message GetNotificationTargetUserRequest {
+  string notification_id = 1;
+  string user_id = 2;
+}
+
+message GetNotificationTargetUserResponse {
+  NotificationTargetUser notification_target_user = 1;
+}
+
+message CreateNotificationTargetUserRequest {
+  string notification_id = 1;
+  string user_id = 2;
+  optional google.protobuf.Timestamp notified_at = 3;
+}
+
+message CreateNotificationTargetUserResponse {
+  NotificationTargetUser notification_target_user = 1;
+}
+
+message UpdateNotificationTargetUserRequest {
+  string notification_id = 1;
+  string user_id = 2;
+  optional google.protobuf.Timestamp notified_at = 3;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateNotificationTargetUserResponse {
+  NotificationTargetUser notification_target_user = 1;
+}
+
+message DeleteNotificationTargetUserRequest {
+  string notification_id = 1;
+  string user_id = 2;
+}
+
+message DeleteNotificationTargetUserResponse {}
+
+service NotificationTargetUserService {
+  rpc ListNotificationTargetUsers(ListNotificationTargetUsersRequest) returns (ListNotificationTargetUsersResponse);
+  rpc GetNotificationTargetUser(GetNotificationTargetUserRequest) returns (GetNotificationTargetUserResponse);
+  rpc CreateNotificationTargetUser(CreateNotificationTargetUserRequest) returns (CreateNotificationTargetUserResponse);
+  rpc UpdateNotificationTargetUser(UpdateNotificationTargetUserRequest) returns (UpdateNotificationTargetUserResponse);
+  rpc DeleteNotificationTargetUser(DeleteNotificationTargetUserRequest) returns (DeleteNotificationTargetUserResponse);
+}

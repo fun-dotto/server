@@ -55,7 +55,7 @@ func (r *MakeupClassRepository) List(ctx context.Context, filter domain.MakeupCl
 
 func (r *MakeupClassRepository) GetByID(ctx context.Context, id string) (domain.MakeupClass, error) {
 	var record model.MakeupClass
-	if err := r.makeupClassPreload(r.db.WithContext(ctx)).First(&record, "id = ?", parseUUIDOrNil(id)).Error; err != nil {
+	if err := r.makeupClassPreload(r.db.WithContext(ctx)).First(&record, "id = ?", parseUUIDOrNil(id).String()).Error; err != nil {
 		return domain.MakeupClass{}, err
 	}
 	return makeupClassToDomain(record), nil
@@ -73,14 +73,14 @@ func (r *MakeupClassRepository) Delete(ctx context.Context, id string) error {
 	uid := parseUUIDOrNil(id)
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var record model.MakeupClass
-		if err := tx.Where("id = ?", uid).First(&record).Error; err != nil {
+		if err := tx.Where("id = ?", uid.String()).First(&record).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
 			return err
 		}
 
-		result := tx.Where("id = ?", uid).Delete(&model.MakeupClass{})
+		result := tx.Where("id = ?", uid.String()).Delete(&model.MakeupClass{})
 		if result.Error != nil {
 			return result.Error
 		}

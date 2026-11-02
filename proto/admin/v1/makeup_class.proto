@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "admin/v1/common.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
+
+message MakeupClass {
+  string id = 1;
+  string subject_id = 2;
+  google.type.Date date = 3;
+  Period period = 4;
+  optional string comment = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message ListMakeupClassesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListMakeupClassesResponse {
+  repeated MakeupClass makeup_classes = 1;
+  string next_page_token = 2;
+}
+
+message GetMakeupClassRequest {
+  string id = 1;
+}
+
+message GetMakeupClassResponse {
+  MakeupClass makeup_class = 1;
+}
+
+message CreateMakeupClassRequest {
+  string subject_id = 1;
+  google.type.Date date = 2;
+  Period period = 3;
+  optional string comment = 4;
+}
+
+message CreateMakeupClassResponse {
+  MakeupClass makeup_class = 1;
+}
+
+message UpdateMakeupClassRequest {
+  string id = 1;
+  string subject_id = 2;
+  google.type.Date date = 3;
+  Period period = 4;
+  optional string comment = 5;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateMakeupClassResponse {
+  MakeupClass makeup_class = 1;
+}
+
+message DeleteMakeupClassRequest {
+  string id = 1;
+}
+
+message DeleteMakeupClassResponse {}
+
+service MakeupClassService {
+  rpc ListMakeupClasses(ListMakeupClassesRequest) returns (ListMakeupClassesResponse);
+  rpc GetMakeupClass(GetMakeupClassRequest) returns (GetMakeupClassResponse);
+  rpc CreateMakeupClass(CreateMakeupClassRequest) returns (CreateMakeupClassResponse);
+  rpc UpdateMakeupClass(UpdateMakeupClassRequest) returns (UpdateMakeupClassResponse);
+  rpc DeleteMakeupClass(DeleteMakeupClassRequest) returns (DeleteMakeupClassResponse);
+}

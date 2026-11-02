@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "admin/v1/common.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
+
+message CancelledClass {
+  string id = 1;
+  string subject_id = 2;
+  google.type.Date date = 3;
+  Period period = 4;
+  optional string comment = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message ListCancelledClassesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListCancelledClassesResponse {
+  repeated CancelledClass cancelled_classes = 1;
+  string next_page_token = 2;
+}
+
+message GetCancelledClassRequest {
+  string id = 1;
+}
+
+message GetCancelledClassResponse {
+  CancelledClass cancelled_class = 1;
+}
+
+message CreateCancelledClassRequest {
+  string subject_id = 1;
+  google.type.Date date = 2;
+  Period period = 3;
+  optional string comment = 4;
+}
+
+message CreateCancelledClassResponse {
+  CancelledClass cancelled_class = 1;
+}
+
+message UpdateCancelledClassRequest {
+  string id = 1;
+  string subject_id = 2;
+  google.type.Date date = 3;
+  Period period = 4;
+  optional string comment = 5;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateCancelledClassResponse {
+  CancelledClass cancelled_class = 1;
+}
+
+message DeleteCancelledClassRequest {
+  string id = 1;
+}
+
+message DeleteCancelledClassResponse {}
+
+service CancelledClassService {
+  rpc ListCancelledClasses(ListCancelledClassesRequest) returns (ListCancelledClassesResponse);
+  rpc GetCancelledClass(GetCancelledClassRequest) returns (GetCancelledClassResponse);
+  rpc CreateCancelledClass(CreateCancelledClassRequest) returns (CreateCancelledClassResponse);
+  rpc UpdateCancelledClass(UpdateCancelledClassRequest) returns (UpdateCancelledClassResponse);
+  rpc DeleteCancelledClass(DeleteCancelledClassRequest) returns (DeleteCancelledClassResponse);
+}

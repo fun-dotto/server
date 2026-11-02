@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+message RoomReservation {
+  string id = 1;
+  string title = 2;
+  string room_id = 3;
+  google.protobuf.Timestamp start_time = 4;
+  google.protobuf.Timestamp end_time = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message ListRoomReservationsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListRoomReservationsResponse {
+  repeated RoomReservation room_reservations = 1;
+  string next_page_token = 2;
+}
+
+message GetRoomReservationRequest {
+  string id = 1;
+}
+
+message GetRoomReservationResponse {
+  RoomReservation room_reservation = 1;
+}
+
+message CreateRoomReservationRequest {
+  string title = 1;
+  string room_id = 2;
+  google.protobuf.Timestamp start_time = 3;
+  google.protobuf.Timestamp end_time = 4;
+}
+
+message CreateRoomReservationResponse {
+  RoomReservation room_reservation = 1;
+}
+
+message UpdateRoomReservationRequest {
+  string id = 1;
+  string title = 2;
+  string room_id = 3;
+  google.protobuf.Timestamp start_time = 4;
+  google.protobuf.Timestamp end_time = 5;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateRoomReservationResponse {
+  RoomReservation room_reservation = 1;
+}
+
+message DeleteRoomReservationRequest {
+  string id = 1;
+}
+
+message DeleteRoomReservationResponse {}
+
+service RoomReservationService {
+  rpc ListRoomReservations(ListRoomReservationsRequest) returns (ListRoomReservationsResponse);
+  rpc GetRoomReservation(GetRoomReservationRequest) returns (GetRoomReservationResponse);
+  rpc CreateRoomReservation(CreateRoomReservationRequest) returns (CreateRoomReservationResponse);
+  rpc UpdateRoomReservation(UpdateRoomReservationRequest) returns (UpdateRoomReservationResponse);
+  rpc DeleteRoomReservation(DeleteRoomReservationRequest) returns (DeleteRoomReservationResponse);
+}

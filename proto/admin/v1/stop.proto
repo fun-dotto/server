@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/type/latlng.proto";
+
+message Stop {
+  string stop_id = 1;
+  string stop_name = 2;
+  google.type.LatLng stop_location = 3;
+  optional string zone_id = 4;
+}
+
+message ListStopsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListStopsResponse {
+  repeated Stop stops = 1;
+  string next_page_token = 2;
+}
+
+message GetStopRequest {
+  string stop_id = 1;
+}
+
+message GetStopResponse {
+  Stop stop = 1;
+}
+
+message CreateStopRequest {
+  string stop_id = 1;
+  string stop_name = 2;
+  google.type.LatLng stop_location = 3;
+  optional string zone_id = 4;
+}
+
+message CreateStopResponse {
+  Stop stop = 1;
+}
+
+message UpdateStopRequest {
+  string stop_id = 1;
+  string stop_name = 2;
+  google.type.LatLng stop_location = 3;
+  optional string zone_id = 4;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateStopResponse {
+  Stop stop = 1;
+}
+
+message DeleteStopRequest {
+  string stop_id = 1;
+}
+
+message DeleteStopResponse {}
+
+service StopService {
+  rpc ListStops(ListStopsRequest) returns (ListStopsResponse);
+  rpc GetStop(GetStopRequest) returns (GetStopResponse);
+  rpc CreateStop(CreateStopRequest) returns (CreateStopResponse);
+  rpc UpdateStop(UpdateStopRequest) returns (UpdateStopResponse);
+  rpc DeleteStop(DeleteStopRequest) returns (DeleteStopResponse);
+}

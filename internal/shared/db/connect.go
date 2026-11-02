@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/cloudsqlconn"
+	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
 	"gorm.io/driver/postgres"
@@ -68,7 +69,9 @@ func ConnectWithConnectorIAMAuthN() (*gorm.DB, error) {
 
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: sqlDB,
-	}), &gorm.Config{})
+	}), &gorm.Config{
+		Logger: logging.GormLogger(),
+	})
 	if err != nil {
 		sqlDB.Close()
 		return nil, fmt.Errorf("gorm.Open: %w", err)

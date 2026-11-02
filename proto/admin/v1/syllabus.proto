@@ -1,0 +1,139 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+message Syllabus {
+  string id = 1;
+  string name = 2;
+  string en_name = 3;
+  string grades = 4;
+  int32 credit = 5;
+  string faculty_names = 6;
+  string practical_home_faculty_category = 7;
+  string multiple_person_teaching_form = 8;
+  string teaching_form = 9;
+  string summary = 10;
+  string learning_outcomes = 11;
+  string assignments = 12;
+  string evaluation_method = 13;
+  string textbooks = 14;
+  string reference_books = 15;
+  string prerequisites = 16;
+  string pre_learning = 17;
+  string post_learning = 18;
+  string notes = 19;
+  string keywords = 20;
+  string target_courses = 21;
+  string target_areas = 22;
+  string classifications = 23;
+  string teaching_language = 24;
+  string contents_and_schedule = 25;
+  string teaching_and_exam_form = 26;
+  string dsop_subject = 27;
+  google.protobuf.Timestamp created_at = 28;
+  google.protobuf.Timestamp updated_at = 29;
+}
+
+message ListSyllabiRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListSyllabiResponse {
+  repeated Syllabus syllabi = 1;
+  string next_page_token = 2;
+}
+
+message GetSyllabusRequest {
+  string id = 1;
+}
+
+message GetSyllabusResponse {
+  Syllabus syllabus = 1;
+}
+
+message CreateSyllabusRequest {
+  string id = 1;
+  string name = 2;
+  string en_name = 3;
+  string grades = 4;
+  int32 credit = 5;
+  string faculty_names = 6;
+  string practical_home_faculty_category = 7;
+  string multiple_person_teaching_form = 8;
+  string teaching_form = 9;
+  string summary = 10;
+  string learning_outcomes = 11;
+  string assignments = 12;
+  string evaluation_method = 13;
+  string textbooks = 14;
+  string reference_books = 15;
+  string prerequisites = 16;
+  string pre_learning = 17;
+  string post_learning = 18;
+  string notes = 19;
+  string keywords = 20;
+  string target_courses = 21;
+  string target_areas = 22;
+  string classifications = 23;
+  string teaching_language = 24;
+  string contents_and_schedule = 25;
+  string teaching_and_exam_form = 26;
+  string dsop_subject = 27;
+}
+
+message CreateSyllabusResponse {
+  Syllabus syllabus = 1;
+}
+
+message UpdateSyllabusRequest {
+  string id = 1;
+  string name = 2;
+  string en_name = 3;
+  string grades = 4;
+  int32 credit = 5;
+  string faculty_names = 6;
+  string practical_home_faculty_category = 7;
+  string multiple_person_teaching_form = 8;
+  string teaching_form = 9;
+  string summary = 10;
+  string learning_outcomes = 11;
+  string assignments = 12;
+  string evaluation_method = 13;
+  string textbooks = 14;
+  string reference_books = 15;
+  string prerequisites = 16;
+  string pre_learning = 17;
+  string post_learning = 18;
+  string notes = 19;
+  string keywords = 20;
+  string target_courses = 21;
+  string target_areas = 22;
+  string classifications = 23;
+  string teaching_language = 24;
+  string contents_and_schedule = 25;
+  string teaching_and_exam_form = 26;
+  string dsop_subject = 27;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateSyllabusResponse {
+  Syllabus syllabus = 1;
+}
+
+message DeleteSyllabusRequest {
+  string id = 1;
+}
+
+message DeleteSyllabusResponse {}
+
+service SyllabusService {
+  rpc ListSyllabi(ListSyllabiRequest) returns (ListSyllabiResponse);
+  rpc GetSyllabus(GetSyllabusRequest) returns (GetSyllabusResponse);
+  rpc CreateSyllabus(CreateSyllabusRequest) returns (CreateSyllabusResponse);
+  rpc UpdateSyllabus(UpdateSyllabusRequest) returns (UpdateSyllabusResponse);
+  rpc DeleteSyllabus(DeleteSyllabusRequest) returns (DeleteSyllabusResponse);
+}

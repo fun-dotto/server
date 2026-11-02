@@ -52,7 +52,7 @@ func (r *announcementRepository) GetAnnouncements(ctx context.Context, query dom
 
 func (r *announcementRepository) GetAnnouncementByID(ctx context.Context, id string) (domain.Announcement, error) {
 	var record model.Announcement
-	if err := r.db.WithContext(ctx).First(&record, "id = ?", parseUUIDOrNil(id)).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&record, "id = ?", parseUUIDOrNil(id).String()).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return domain.Announcement{}, domain.ErrNotFound
 		}
@@ -71,7 +71,7 @@ func (r *announcementRepository) CreateAnnouncement(ctx context.Context, announc
 
 func (r *announcementRepository) UpdateAnnouncement(ctx context.Context, announcement domain.Announcement) (domain.Announcement, error) {
 	record := fromDomainAnnouncement(announcement)
-	result := r.db.WithContext(ctx).Model(&model.Announcement{}).Where("id = ?", parseUUIDOrNil(announcement.ID)).Updates(map[string]any{
+	result := r.db.WithContext(ctx).Model(&model.Announcement{}).Where("id = ?", parseUUIDOrNil(announcement.ID).String()).Updates(map[string]any{
 		"title":           record.Title,
 		"url":             record.URL,
 		"available_from":  record.AvailableFrom,
@@ -87,7 +87,7 @@ func (r *announcementRepository) UpdateAnnouncement(ctx context.Context, announc
 }
 
 func (r *announcementRepository) DeleteAnnouncement(ctx context.Context, id string) error {
-	result := r.db.WithContext(ctx).Where("id = ?", parseUUIDOrNil(id)).Delete(&model.Announcement{})
+	result := r.db.WithContext(ctx).Where("id = ?", parseUUIDOrNil(id).String()).Delete(&model.Announcement{})
 	if result.Error != nil {
 		return result.Error
 	}

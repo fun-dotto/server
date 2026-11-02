@@ -1,0 +1,19 @@
+version: v2
+# TODO: OpenAPI廃止後に有効化
+# clean: true
+plugins:
+  - remote: buf.build/connectrpc/go:v1.21.0
+    out: gen
+    opt:
+      - paths=source_relative
+  - remote: buf.build/protocolbuffers/go:v1.36.12
+    out: gen
+    opt:
+      - paths=source_relative
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/fun-dotto/server/gen
+  disable:
+    - module: buf.build/googleapis/googleapis

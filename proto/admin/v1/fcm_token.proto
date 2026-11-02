@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+message FcmToken {
+  string token = 1;
+  string user_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message ListFcmTokensRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListFcmTokensResponse {
+  repeated FcmToken fcm_tokens = 1;
+  string next_page_token = 2;
+}
+
+message GetFcmTokenRequest {
+  string token = 1;
+}
+
+message GetFcmTokenResponse {
+  FcmToken fcm_token = 1;
+}
+
+message CreateFcmTokenRequest {
+  string token = 1;
+  string user_id = 2;
+}
+
+message CreateFcmTokenResponse {
+  FcmToken fcm_token = 1;
+}
+
+message UpdateFcmTokenRequest {
+  string token = 1;
+  string user_id = 2;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateFcmTokenResponse {
+  FcmToken fcm_token = 1;
+}
+
+message DeleteFcmTokenRequest {
+  string token = 1;
+}
+
+message DeleteFcmTokenResponse {}
+
+service FcmTokenService {
+  rpc ListFcmTokens(ListFcmTokensRequest) returns (ListFcmTokensResponse);
+  rpc GetFcmToken(GetFcmTokenRequest) returns (GetFcmTokenResponse);
+  rpc CreateFcmToken(CreateFcmTokenRequest) returns (CreateFcmTokenResponse);
+  rpc UpdateFcmToken(UpdateFcmTokenRequest) returns (UpdateFcmTokenResponse);
+  rpc DeleteFcmToken(DeleteFcmTokenRequest) returns (DeleteFcmTokenResponse);
+}

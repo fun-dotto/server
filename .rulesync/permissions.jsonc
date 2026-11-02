@@ -1,0 +1,126 @@
+{
+  "permission": {
+    "bash": {
+      "mise setup": "allow",
+      "rm *": "ask",
+      "bash *": "deny",
+      "brew install *": "deny",
+      "chmod *": "deny",
+      "chown *": "deny",
+      "curl *": "deny",
+      "env *": "deny",
+      "eval *": "deny",
+      "export *": "deny",
+      "firebase *": "deny",
+      "gcloud *": "deny",
+      "git push * --delete *": "deny",
+      "git push * --force *": "deny",
+      "git push * -d *": "deny",
+      "git push * -f *": "deny",
+      "history:*": "deny",
+      "rm -rf *": "deny",
+      "sh *": "deny",
+      "source:*": "deny",
+      "sudo:*": "deny",
+      "telnet:*": "deny",
+      "wget *": "deny",
+      "zsh *": "deny"
+    },
+    "edit": {
+      "*": "allow",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/.envrc": "deny",
+      "**/.claude/settings.json": "deny",
+      "**/.claude/settings.local.json": "deny",
+      "**/.codex/config.toml": "deny"
+    },
+    "read": {
+      "*": "allow",
+      "**/*.cer": "deny",
+      "**/*.cert": "deny",
+      "**/*.jks": "deny",
+      "**/*.key": "deny",
+      "**/*.keystore": "deny",
+      "**/*.p8": "deny",
+      "**/*.p12": "deny",
+      "**/*.pem": "deny",
+      "**/*.pfx": "deny",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/.envrc": "deny"
+    },
+    "write": {
+      "*": "allow"
+    },
+    "webfetch": {
+      "domain:github.com": "allow",
+      "domain:api.github.com": "allow",
+      "domain:raw.githubusercontent.com": "allow",
+      "domain:gist.github.com": "allow",
+      "domain:gist.githubusercontent.com": "allow",
+      "domain:objects.githubusercontent.com": "allow"
+    },
+    "mcp__dotto-notion__notion-fetch": {
+      "*": "allow"
+    },
+    "mcp__dotto-notion__notion-get-comments": {
+      "*": "allow"
+    },
+    "mcp__dotto-notion__notion-get-teams": {
+      "*": "allow"
+    },
+    "mcp__dotto-notion__notion-get-users": {
+      "*": "allow"
+    },
+    "mcp__dotto-notion__notion-search": {
+      "*": "allow"
+    },
+    "mcp__plugin_context7_context7__resolve-library-id": {
+      "*": "allow"
+    },
+    "mcp__plugin_context7_context7__query-docs": {
+      "*": "allow"
+    },
+    "mcp__dotto-notion__notion-create-comment": {
+      "*": "ask"
+    },
+    "mcp__dotto-notion__notion-create-database": {
+      "*": "ask"
+    },
+    "mcp__dotto-notion__notion-create-pages": {
+      "*": "ask"
+    },
+    "mcp__dotto-notion__notion-create-view": {
+      "*": "ask"
+    },
+    "mcp__dotto-notion__notion-duplicate-page": {
+      "*": "ask"
+    },
+    "mcp__dotto-notion__notion-move-pages": {
+      "*": "ask"
+    },
+    "mcp__dotto-notion__notion-update-data-source": {
+      "*": "ask"
+    },
+    "mcp__dotto-notion__notion-update-page": {
+      "*": "ask"
+    },
+    "mcp__dotto-notion__notion-update-view": {
+      "*": "ask"
+    }
+  },
+  "claudecode": {
+    "defaultMode": "default",
+    "enabledMcpjsonServers": [
+      "dotto-notion"
+    ],
+    "enabledPlugins": {
+      "code-review@claude-plugins-official": true,
+      "codex@openai-codex": true,
+      "context7@claude-plugins-official": true,
+      "gopls-lsp@claude-plugins-official": true,
+      "pr-review-toolkit@claude-plugins-official": true
+    }
+  }
+}

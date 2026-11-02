@@ -2,9 +2,9 @@ package handler
 
 import (
 	"context"
+	"uuid"
 
 	api "github.com/fun-dotto/server/gen/academic"
-	"github.com/google/uuid"
 )
 
 func (h *Handler) FacultiesV1Create(ctx context.Context, request api.FacultiesV1CreateRequestObject) (api.FacultiesV1CreateResponseObject, error) {

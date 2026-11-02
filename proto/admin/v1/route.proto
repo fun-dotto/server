@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+
+message Route {
+  string route_id = 1;
+  string route_short_name = 2;
+}
+
+message ListRoutesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListRoutesResponse {
+  repeated Route routes = 1;
+  string next_page_token = 2;
+}
+
+message GetRouteRequest {
+  string route_id = 1;
+}
+
+message GetRouteResponse {
+  Route route = 1;
+}
+
+message CreateRouteRequest {
+  string route_id = 1;
+  string route_short_name = 2;
+}
+
+message CreateRouteResponse {
+  Route route = 1;
+}
+
+message UpdateRouteRequest {
+  string route_id = 1;
+  string route_short_name = 2;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateRouteResponse {
+  Route route = 1;
+}
+
+message DeleteRouteRequest {
+  string route_id = 1;
+}
+
+message DeleteRouteResponse {}
+
+service RouteService {
+  rpc ListRoutes(ListRoutesRequest) returns (ListRoutesResponse);
+  rpc GetRoute(GetRouteRequest) returns (GetRouteResponse);
+  rpc CreateRoute(CreateRouteRequest) returns (CreateRouteResponse);
+  rpc UpdateRoute(UpdateRouteRequest) returns (UpdateRouteResponse);
+  rpc DeleteRoute(DeleteRouteRequest) returns (DeleteRouteResponse);
+}

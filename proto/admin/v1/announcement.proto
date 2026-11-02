@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+message Announcement {
+  string id = 1;
+  string title = 2;
+  string url = 3;
+  google.protobuf.Timestamp available_from = 4;
+  optional google.protobuf.Timestamp available_until = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message ListAnnouncementsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListAnnouncementsResponse {
+  repeated Announcement announcements = 1;
+  string next_page_token = 2;
+}
+
+message GetAnnouncementRequest {
+  string id = 1;
+}
+
+message GetAnnouncementResponse {
+  Announcement announcement = 1;
+}
+
+message CreateAnnouncementRequest {
+  string title = 1;
+  string url = 2;
+  google.protobuf.Timestamp available_from = 3;
+  optional google.protobuf.Timestamp available_until = 4;
+}
+
+message CreateAnnouncementResponse {
+  Announcement announcement = 1;
+}
+
+message UpdateAnnouncementRequest {
+  string id = 1;
+  string title = 2;
+  string url = 3;
+  google.protobuf.Timestamp available_from = 4;
+  optional google.protobuf.Timestamp available_until = 5;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateAnnouncementResponse {
+  Announcement announcement = 1;
+}
+
+message DeleteAnnouncementRequest {
+  string id = 1;
+}
+
+message DeleteAnnouncementResponse {}
+
+service AnnouncementService {
+  rpc ListAnnouncements(ListAnnouncementsRequest) returns (ListAnnouncementsResponse);
+  rpc GetAnnouncement(GetAnnouncementRequest) returns (GetAnnouncementResponse);
+  rpc CreateAnnouncement(CreateAnnouncementRequest) returns (CreateAnnouncementResponse);
+  rpc UpdateAnnouncement(UpdateAnnouncementRequest) returns (UpdateAnnouncementResponse);
+  rpc DeleteAnnouncement(DeleteAnnouncementRequest) returns (DeleteAnnouncementResponse);
+}

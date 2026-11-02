@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package admin.v1;
+
+enum Grade {
+  GRADE_UNSPECIFIED = 0;
+  GRADE_B1 = 1;
+  GRADE_B2 = 2;
+  GRADE_B3 = 3;
+  GRADE_B4 = 4;
+  GRADE_M1 = 5;
+  GRADE_M2 = 6;
+  GRADE_D1 = 7;
+  GRADE_D2 = 8;
+  GRADE_D3 = 9;
+}
+
+enum Course {
+  COURSE_UNSPECIFIED = 0;
+  COURSE_INFORMATION_SYSTEM = 1;
+  COURSE_INFORMATION_DESIGN = 2;
+  COURSE_ADVANCED_ICT = 3;
+  COURSE_COMPLEX_SYSTEM = 4;
+  COURSE_INTELLIGENT_SYSTEM = 5;
+}
+
+enum Class {
+  CLASS_UNSPECIFIED = 0;
+  CLASS_A = 1;
+  CLASS_B = 2;
+  CLASS_C = 3;
+  CLASS_D = 4;
+  CLASS_E = 5;
+  CLASS_F = 6;
+  CLASS_G = 7;
+  CLASS_H = 8;
+  CLASS_I = 9;
+  CLASS_J = 10;
+  CLASS_K = 11;
+  CLASS_L = 12;
+}
+
+enum Period {
+  PERIOD_UNSPECIFIED = 0;
+  PERIOD_1 = 1;
+  PERIOD_2 = 2;
+  PERIOD_3 = 3;
+  PERIOD_4 = 4;
+  PERIOD_5 = 5;
+  PERIOD_6 = 6;
+}

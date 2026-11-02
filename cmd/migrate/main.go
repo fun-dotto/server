@@ -11,10 +11,13 @@ import (
 
 	"github.com/fun-dotto/server/internal/migrate"
 	"github.com/fun-dotto/server/internal/shared/db"
+	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+	logging.Setup()
+
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found: %v", err)
 	}

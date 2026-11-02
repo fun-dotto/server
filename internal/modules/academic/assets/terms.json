@@ -1,0 +1,62 @@
+[
+  {
+    "year": 2026,
+    "semester": "AllYear",
+    "start": "2026-04-06",
+    "end": "2026-08-03"
+  },
+  {
+    "year": 2026,
+    "semester": "H1",
+    "start": "2026-04-06",
+    "end": "2026-08-03"
+  },
+  {
+    "year": 2026,
+    "semester": "Q1",
+    "start": "2026-04-06",
+    "end": "2026-06-04"
+  },
+  {
+    "year": 2026,
+    "semester": "Q2",
+    "start": "2026-06-05",
+    "end": "2026-08-03"
+  },
+  {
+    "year": 2026,
+    "semester": "SummerIntensive",
+    "start": "2026-08-17",
+    "end": "2026-08-28"
+  },
+  {
+    "year": 2026,
+    "semester": "AllYear",
+    "start": "2026-09-24",
+    "end": "2027-01-29"
+  },
+  {
+    "year": 2026,
+    "semester": "H2",
+    "start": "2026-09-24",
+    "end": "2027-01-29"
+  },
+  {
+    "year": 2026,
+    "semester": "Q3",
+    "start": "2026-09-24",
+    "end": "2026-11-20"
+  },
+  {
+    "year": 2026,
+    "semester": "Q4",
+    "start": "2026-11-24",
+    "end": "2027-01-29"
+  },
+  {
+    "year": 2026,
+    "semester": "WinterIntensive",
+    "start": "2027-02-01",
+    "end": "2027-02-04"
+  }
+]

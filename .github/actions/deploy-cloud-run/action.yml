@@ -1,0 +1,52 @@
+name: Deploy to Cloud Run
+description: 共有 Docker イメージを Cloud Run のサービスまたはジョブとしてデプロイする
+inputs:
+  name:
+    description: Cloud Run のサービス名・ジョブ名
+    required: true
+  type:
+    description: デプロイ種別（service または job）
+    required: true
+  image:
+    description: タグ付きの Docker イメージ参照
+    required: true
+  region:
+    description: デプロイ先のリージョン
+    required: true
+  project_id:
+    description: GCP プロジェクト ID
+    required: true
+  workload_identity_provider:
+    description: Workload Identity プロバイダ
+    required: true
+  service_account:
+    description: 借用するサービスアカウント
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+      with:
+        workload_identity_provider: ${{ inputs.workload_identity_provider }}
+        service_account: ${{ inputs.service_account }}
+
+    # *-api: Cloud Run Service としてデプロイ。共有イメージの起動コマンドを /bin/<name> に切り替える。
+    - if: inputs.type == 'service'
+      uses: google-github-actions/deploy-cloudrun@2028e2d7d30a78c6910e0632e48dd561b064884d # v3.0.1
+      with:
+        service: ${{ inputs.name }}
+        image: ${{ inputs.image }}
+        region: ${{ inputs.region }}
+
+    # それ以外: Cloud Run Job として作成/更新する（実行はしない）。
+    - if: inputs.type == 'job'
+      uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      with:
+        project_id: ${{ inputs.project_id }}
+    - if: inputs.type == 'job'
+      name: Deploy Cloud Run Job
+      shell: bash
+      run: |
+        gcloud run jobs deploy "${{ inputs.name }}" \
+          --image "${{ inputs.image }}" \
+          --region "${{ inputs.region }}"

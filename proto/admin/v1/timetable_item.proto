@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "admin/v1/common.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/dayofweek.proto";
+
+message TimetableItem {
+  string id = 1;
+  string subject_id = 2;
+  optional google.type.DayOfWeek day_of_week = 3;
+  optional Period period = 4;
+  repeated string room_ids = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message ListTimetableItemsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListTimetableItemsResponse {
+  repeated TimetableItem timetable_items = 1;
+  string next_page_token = 2;
+}
+
+message GetTimetableItemRequest {
+  string id = 1;
+}
+
+message GetTimetableItemResponse {
+  TimetableItem timetable_item = 1;
+}
+
+message CreateTimetableItemRequest {
+  string subject_id = 1;
+  optional google.type.DayOfWeek day_of_week = 2;
+  optional Period period = 3;
+  repeated string room_ids = 4;
+}
+
+message CreateTimetableItemResponse {
+  TimetableItem timetable_item = 1;
+}
+
+message UpdateTimetableItemRequest {
+  string id = 1;
+  string subject_id = 2;
+  optional google.type.DayOfWeek day_of_week = 3;
+  optional Period period = 4;
+  repeated string room_ids = 5;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateTimetableItemResponse {
+  TimetableItem timetable_item = 1;
+}
+
+message DeleteTimetableItemRequest {
+  string id = 1;
+}
+
+message DeleteTimetableItemResponse {}
+
+service TimetableItemService {
+  rpc ListTimetableItems(ListTimetableItemsRequest) returns (ListTimetableItemsResponse);
+  rpc GetTimetableItem(GetTimetableItemRequest) returns (GetTimetableItemResponse);
+  rpc CreateTimetableItem(CreateTimetableItemRequest) returns (CreateTimetableItemResponse);
+  rpc UpdateTimetableItem(UpdateTimetableItemRequest) returns (UpdateTimetableItemResponse);
+  rpc DeleteTimetableItem(DeleteTimetableItemRequest) returns (DeleteTimetableItemResponse);
+}

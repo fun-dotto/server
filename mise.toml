@@ -1,62 +1,100 @@
 [settings]
-minimum_release_age = "7d"
+minimum_release_age = "24h"
 
 [tools]
-atlas = "1.2.0"
-gcloud = "575.0.0"
-go = "1.25.7"
+atlas = "1.3.0"
+buf = "1.75.0"
+gcloud = "591.0.0"
+go = "1.27.3"
+node = "26.13.0"
+"npm:portless" = "0.15.12"
+"npm:rulesync" = "43.4.1"
 
-[tasks.setup]
-description = "Install pinned tools and download Go module dependencies"
+[tasks.bootstrap]
+description = "依存関係をセットアップする"
 run = [
+  { task = "rulesync" },
   "go get -tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest",
   "go mod tidy",
 ]
 
-[tasks."generate:openapi"]
-description = "Generate code from OpenAPI spec"
+[tasks.rulesync]
+description = "rulesyncの設定を生成する"
+run = "rulesync generate"
+
+[tasks."generate"]
+description = "API定義からコードを生成する"
 run = [
-  "rm -rf ./gen",
-  "mkdir -p ./gen",
+  "buf generate",
   "go tool oapi-codegen -config ./api/openapi/academic/config.yaml ./api/openapi/academic/openapi.yaml",
-  "go tool oapi-codegen -config ./api/openapi/admin/config.yaml ./api/openapi/admin/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/announcement/config.yaml ./api/openapi/announcement/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/app/config.yaml ./api/openapi/app/openapi.yaml",
-  "go tool oapi-codegen -config ./api/openapi/funch/config.yaml ./api/openapi/funch/openapi.yaml",
   "go tool oapi-codegen -config ./api/openapi/user/config.yaml ./api/openapi/user/openapi.yaml",
 ]
 
 [tasks.build]
-description = "Build all binaries under cmd/"
+description = "ビルドを実行する"
 run = [
-  "rm -rf ./bin",
-  "mkdir -p ./bin",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/academic-api ./cmd/academic-api",
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/migrate ./cmd/migrate",
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/apply-table-privileges ./cmd/apply-table-privileges",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/admin-api ./cmd/admin-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/announcement-api ./cmd/announcement-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/app-api ./cmd/app-bff-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/user-api ./cmd/user-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/build-class-change-notifications-job ./cmd/build-class-change-notifications-job",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/dispatch-notifications-job ./cmd/dispatch-notifications-job",
 ]
 
+[tasks."lint"]
+description = "静的解析を実行する"
+run = [
+  "go vet ./...",
+  "go build -o ./bin/gormuuidlint ./cmd/gormuuidlint",
+  "go vet -vettool=./bin/gormuuidlint ./...",
+]
+
+[tasks.test]
+description = "テストを実行する"
+run = "go test -v ./..."
+
 [tasks."migrate:diff"]
-description = "GORM モデルから desired state を生成し、versioned SQL の差分を migrations/ に書き出す (atlas CLI / env=local)"
+description = "マイグレーションスキーマを生成する"
 usage = '''
 arg "name" help="生成するマイグレーション名 (省略可、例: add_users_table)" default=""
 '''
 run = 'atlas migrate diff {{arg(name="name")}} --env gorm'
 
 [tasks."migrate:apply"]
-description = "cmd/migrate を起動し、cloudsqlconn (IAM 認証) で接続した DB に migrations/ を適用する"
+description = "マイグレーションを実行する"
 run = "go run ./cmd/migrate"
 
-[tasks.academic-api]
-description = "cmd/academic-api を起動する"
-run = "go run ./cmd/academic-api"
+[tasks."run:academic-api"]
+description = "academic-api を 起動する (https://academic-api.dotto.localhost)"
+run = "portless academic-api.dotto go run ./cmd/academic-api"
 
-[tasks.test]
-description = "Run all unit tests"
-run = "go test -v ./..."
+[tasks."run:admin-api"]
+description = "admin-api を起動する (https://admin-api.dotto.localhost)"
+run = "portless admin-api.dotto go run ./cmd/admin-api"
 
-[tasks.clean]
-description = "Clean build artifacts"
-run = "rm -rf ./bin"
+[tasks."run:announcement-api"]
+description = "announcement-api を 起動する (https://announcement-api.dotto.localhost)"
+run = "portless announcement-api.dotto go run ./cmd/announcement-api"
+
+[tasks."run:app-bff-api"]
+description = "app-bff-api を起動する (https://app-bff-api.dotto.localhost)"
+run = "portless app-bff-api.dotto go run ./cmd/app-bff-api"
+
+[tasks."run:user-api"]
+description = "user-api を 起動する (https://user-api.dotto.localhost)"
+run = "portless user-api.dotto go run ./cmd/user-api"
+
+[tasks."portless:doctor"]
+description = "portless のプロキシ・DNS・CA 信頼状態を確認する"
+run = "portless doctor"
+
+[tasks."portless:list"]
+description = "portless に登録されているルートを一覧する"
+run = "portless list"
+
+[tasks."portless:stop"]
+description = "portless のプロキシを停止する"
+run = "portless proxy stop"
