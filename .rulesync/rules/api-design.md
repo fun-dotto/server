@@ -37,7 +37,6 @@ globs: ["**/*"]
 
 [AIP-190](https://google.aip.dev/190)、[AIP-140](https://google.aip.dev/140) に従う。
 
-- フィールドに前置詞を含めない（`created_at` / `updated_at` は「AIP からの逸脱」を参照）
 - `repeated` フィールドは複数形（[AIP-144](https://google.aip.dev/144)）
 - 補助 message はリソース名を接頭辞にする（例: `SubjectFaculty`）
 - RPC は `<Verb><Resource>`（List のみ複数形: `ListSubjects`）（[AIP-131](https://google.aip.dev/131)〜[AIP-135](https://google.aip.dev/135)）
@@ -56,13 +55,13 @@ globs: ["**/*"]
 
 ## 標準メソッド
 
-| RPC      | AIP                                   | Request                                   | Response                                 |
-| -------- | ------------------------------------- | ----------------------------------------- | ---------------------------------------- |
-| `List`   | [AIP-132](https://google.aip.dev/132) | `page_size`, `page_token`                 | `repeated <Resource>`, `next_page_token` |
-| `Get`    | [AIP-131](https://google.aip.dev/131) | `id`                                      | `<Resource>`                             |
-| `Create` | [AIP-133](https://google.aip.dev/133) | `id` とタイムスタンプを除くフィールド     | `<Resource>`                             |
-| `Update` | [AIP-134](https://google.aip.dev/134) | `id` + 更新対象フィールド + `update_mask` | `<Resource>`                             |
-| `Delete` | [AIP-135](https://google.aip.dev/135) | `id`                                      | 空 message                               |
+| RPC      | AIP                                   | Request                                   | Response                                                              |
+| -------- | ------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------- |
+| `List`   | [AIP-132](https://google.aip.dev/132) | `page_size`, `page_token`                 | `List<Resources>Response`（`repeated <Resource>`, `next_page_token`） |
+| `Get`    | [AIP-131](https://google.aip.dev/131) | `id`                                      | `Get<Resource>Response`（`<Resource>`）                               |
+| `Create` | [AIP-133](https://google.aip.dev/133) | `id` とタイムスタンプを除くフィールド     | `Create<Resource>Response`（`<Resource>`）                            |
+| `Update` | [AIP-134](https://google.aip.dev/134) | `id` + 更新対象フィールド + `update_mask` | `Update<Resource>Response`（`<Resource>`）                            |
+| `Delete` | [AIP-135](https://google.aip.dev/135) | `id`                                      | `Delete<Resource>Response`（空 message）                              |
 
 - `Update` の `update_mask` は `google.protobuf.FieldMask` で、フィールド番号 `99` に固定する（[AIP-134](https://google.aip.dev/134)、[AIP-161](https://google.aip.dev/161)）
   - `update_mask` が空の場合は、リクエストで値が入っているフィールドをすべて更新する
@@ -144,11 +143,12 @@ return nil, err
 
 既存定義との整合性のため、以下は AIP と異なる方式を採る。ドメイン固有の逸脱は各ドメインのガイドライン（例: `admin-api-design.md`）に記載する。
 
-| 項目                              | AIP                                                                                                                                                    | 本プロジェクト                              | 理由                                                                       |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- | -------------------------------------------------------------------------- |
-| リソースの識別子                  | `name` にリソース名（`subjects/{subject}`）（[AIP-122](https://google.aip.dev/122)）                                                                   | `id` に ID 文字列                           | 既存 REST API・DB との整合性                                               |
-| タイムスタンプのフィールド名      | `create_time` / `update_time`（[AIP-148](https://google.aip.dev/148)）                                                                                 | `created_at` / `updated_at`                 | 既存 REST API・DB との整合性                                               |
-| Create / Update の Request        | リソース message をフィールドとして持つ（[AIP-133](https://google.aip.dev/133)、[AIP-134](https://google.aip.dev/134)）                                | リソースのフィールドを Request に直接並べる | 既存定義との整合性                                                         |
+| 項目                                       | AIP                                                                                                                               | 本プロジェクト                                | 理由                                                                                               |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| リソースの識別子                           | `name` にリソース名（`subjects/{subject}`）（[AIP-122](https://google.aip.dev/122)）                                              | `id` に ID 文字列                             | 既存 REST API・DB との整合性                                                                       |
+| タイムスタンプのフィールド名               | `create_time` / `update_time`（[AIP-148](https://google.aip.dev/148)）                                                            | `created_at` / `updated_at`                   | 既存 REST API・DB との整合性                                                                       |
+| Create / Update の Request                 | リソース message をフィールドとして持つ（[AIP-133](https://google.aip.dev/133)、[AIP-134](https://google.aip.dev/134)）           | リソースのフィールドを Request に直接並べる   | 既存定義との整合性                                                                                 |
+| Get / Create / Update / Delete の Response | リソース自体（Delete は `google.protobuf.Empty`）（[AIP-131](https://google.aip.dev/131)〜[AIP-135](https://google.aip.dev/135)） | `<Rpc>Response` で包む（Delete は空 message） | `buf lint`（STANDARD）の `RPC_RESPONSE_STANDARD_NAME` / `RPC_REQUEST_RESPONSE_UNIQUE` を満たすため |
 
 ## コード生成
 
