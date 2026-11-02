@@ -219,7 +219,7 @@ func (x *ListFacultiesResponse) GetNextPageToken() string {
 // GetFaculty の Request。
 type GetFacultyRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得する教員の ID。
+	// 取得する教員ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -412,7 +412,7 @@ func (x *CreateFacultyResponse) GetFaculty() *Faculty {
 // UpdateFaculty の Request。
 type UpdateFacultyRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新する教員の ID。
+	// 更新する教員ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// 名前。
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -531,7 +531,7 @@ func (x *UpdateFacultyResponse) GetFaculty() *Faculty {
 // DeleteFaculty の Request。
 type DeleteFacultyRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除する教員の ID。
+	// 削除する教員ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

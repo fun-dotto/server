@@ -47,15 +47,15 @@ const (
 
 // StopServiceClient is a client for the admin.v1.StopService service.
 type StopServiceClient interface {
-	// バス停（GTFS の stops）の一覧を取得する。
+	// 停留所・標柱情報（GTFS の stops）の一覧を取得する。
 	ListStops(context.Context, *connect.Request[v1.ListStopsRequest]) (*connect.Response[v1.ListStopsResponse], error)
-	// バス停（GTFS の stops）を取得する。
+	// 停留所・標柱情報（GTFS の stops）を取得する。
 	GetStop(context.Context, *connect.Request[v1.GetStopRequest]) (*connect.Response[v1.GetStopResponse], error)
-	// バス停（GTFS の stops）を作成する。
+	// 停留所・標柱情報（GTFS の stops）を作成する。
 	CreateStop(context.Context, *connect.Request[v1.CreateStopRequest]) (*connect.Response[v1.CreateStopResponse], error)
-	// バス停（GTFS の stops）を更新する。
+	// 停留所・標柱情報（GTFS の stops）を更新する。
 	UpdateStop(context.Context, *connect.Request[v1.UpdateStopRequest]) (*connect.Response[v1.UpdateStopResponse], error)
-	// バス停（GTFS の stops）を削除する。
+	// 停留所・標柱情報（GTFS の stops）を削除する。
 	DeleteStop(context.Context, *connect.Request[v1.DeleteStopRequest]) (*connect.Response[v1.DeleteStopResponse], error)
 }
 
@@ -139,15 +139,15 @@ func (c *stopServiceClient) DeleteStop(ctx context.Context, req *connect.Request
 
 // StopServiceHandler is an implementation of the admin.v1.StopService service.
 type StopServiceHandler interface {
-	// バス停（GTFS の stops）の一覧を取得する。
+	// 停留所・標柱情報（GTFS の stops）の一覧を取得する。
 	ListStops(context.Context, *connect.Request[v1.ListStopsRequest]) (*connect.Response[v1.ListStopsResponse], error)
-	// バス停（GTFS の stops）を取得する。
+	// 停留所・標柱情報（GTFS の stops）を取得する。
 	GetStop(context.Context, *connect.Request[v1.GetStopRequest]) (*connect.Response[v1.GetStopResponse], error)
-	// バス停（GTFS の stops）を作成する。
+	// 停留所・標柱情報（GTFS の stops）を作成する。
 	CreateStop(context.Context, *connect.Request[v1.CreateStopRequest]) (*connect.Response[v1.CreateStopResponse], error)
-	// バス停（GTFS の stops）を更新する。
+	// 停留所・標柱情報（GTFS の stops）を更新する。
 	UpdateStop(context.Context, *connect.Request[v1.UpdateStopRequest]) (*connect.Response[v1.UpdateStopResponse], error)
-	// バス停（GTFS の stops）を削除する。
+	// 停留所・標柱情報（GTFS の stops）を削除する。
 	DeleteStop(context.Context, *connect.Request[v1.DeleteStopRequest]) (*connect.Response[v1.DeleteStopResponse], error)
 }
 

@@ -27,33 +27,33 @@ const (
 // シラバス。
 type Syllabus struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// シラバスの ID（シラバスシステムの ID）。
+	// 教務システムのシラバスID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 科目名。
+	// 授業名。
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// 英語の科目名。
+	// 授業名（英語）。
 	EnName string `protobuf:"bytes,3,opt,name=en_name,json=enName,proto3" json:"en_name,omitempty"`
-	// 対象学年。
+	// 配当年次。
 	Grades string `protobuf:"bytes,4,opt,name=grades,proto3" json:"grades,omitempty"`
 	// 単位数。
 	Credit int32 `protobuf:"varint,5,opt,name=credit,proto3" json:"credit,omitempty"`
 	// 担当教員名。
 	FacultyNames string `protobuf:"bytes,6,opt,name=faculty_names,json=facultyNames,proto3" json:"faculty_names,omitempty"`
-	// 実務経験のある教員による授業科目の区分。
+	// 実務家教員区分。
 	PracticalHomeFacultyCategory string `protobuf:"bytes,7,opt,name=practical_home_faculty_category,json=practicalHomeFacultyCategory,proto3" json:"practical_home_faculty_category,omitempty"`
-	// 複数人で担当する場合の授業形態。
+	// 複数人担当形式。
 	MultiplePersonTeachingForm string `protobuf:"bytes,8,opt,name=multiple_person_teaching_form,json=multiplePersonTeachingForm,proto3" json:"multiple_person_teaching_form,omitempty"`
 	// 授業形態。
 	TeachingForm string `protobuf:"bytes,9,opt,name=teaching_form,json=teachingForm,proto3" json:"teaching_form,omitempty"`
 	// 授業の概要。
 	Summary string `protobuf:"bytes,10,opt,name=summary,proto3" json:"summary,omitempty"`
-	// 到達目標。
+	// 授業の到達目標。
 	LearningOutcomes string `protobuf:"bytes,11,opt,name=learning_outcomes,json=learningOutcomes,proto3" json:"learning_outcomes,omitempty"`
-	// 課題。
+	// 提出課題等。
 	Assignments string `protobuf:"bytes,12,opt,name=assignments,proto3" json:"assignments,omitempty"`
-	// 成績の評価方法。
+	// 成績の評価方法・基準。
 	EvaluationMethod string `protobuf:"bytes,13,opt,name=evaluation_method,json=evaluationMethod,proto3" json:"evaluation_method,omitempty"`
-	// 教科書。
+	// テキスト。
 	Textbooks string `protobuf:"bytes,14,opt,name=textbooks,proto3" json:"textbooks,omitempty"`
 	// 参考書。
 	ReferenceBooks string `protobuf:"bytes,15,opt,name=reference_books,json=referenceBooks,proto3" json:"reference_books,omitempty"`
@@ -63,23 +63,23 @@ type Syllabus struct {
 	PreLearning string `protobuf:"bytes,17,opt,name=pre_learning,json=preLearning,proto3" json:"pre_learning,omitempty"`
 	// 事後学習。
 	PostLearning string `protobuf:"bytes,18,opt,name=post_learning,json=postLearning,proto3" json:"post_learning,omitempty"`
-	// 備考。
+	// 履修上の留意点。
 	Notes string `protobuf:"bytes,19,opt,name=notes,proto3" json:"notes,omitempty"`
 	// キーワード。
 	Keywords string `protobuf:"bytes,20,opt,name=keywords,proto3" json:"keywords,omitempty"`
-	// 対象コース。
+	// 対象コース・領域。
 	TargetCourses string `protobuf:"bytes,21,opt,name=target_courses,json=targetCourses,proto3" json:"target_courses,omitempty"`
 	// 対象領域。
 	TargetAreas string `protobuf:"bytes,22,opt,name=target_areas,json=targetAreas,proto3" json:"target_areas,omitempty"`
-	// 科目区分。
+	// 科目群・科目区分。
 	Classifications string `protobuf:"bytes,23,opt,name=classifications,proto3" json:"classifications,omitempty"`
-	// 授業で使う言語。
+	// 教授言語。
 	TeachingLanguage string `protobuf:"bytes,24,opt,name=teaching_language,json=teachingLanguage,proto3" json:"teaching_language,omitempty"`
-	// 授業内容と計画。
+	// 授業内容とスケジュール。
 	ContentsAndSchedule string `protobuf:"bytes,25,opt,name=contents_and_schedule,json=contentsAndSchedule,proto3" json:"contents_and_schedule,omitempty"`
-	// 授業・試験の実施形態。
+	// 授業・試験の形式。
 	TeachingAndExamForm string `protobuf:"bytes,26,opt,name=teaching_and_exam_form,json=teachingAndExamForm,proto3" json:"teaching_and_exam_form,omitempty"`
-	// 数理・データサイエンス・AI 教育プログラム（DSOP）の対象科目の区分。
+	// DSOP対象科目。
 	DsopSubject string `protobuf:"bytes,27,opt,name=dsop_subject,json=dsopSubject,proto3" json:"dsop_subject,omitempty"`
 	// 作成日時。
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,28,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -435,7 +435,7 @@ func (x *ListSyllabiResponse) GetNextPageToken() string {
 // GetSyllabus の Request。
 type GetSyllabusRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得するシラバスの ID。
+	// 取得するシラバスID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -527,33 +527,33 @@ func (x *GetSyllabusResponse) GetSyllabus() *Syllabus {
 // CreateSyllabus の Request。
 type CreateSyllabusRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// シラバスの ID（シラバスシステムの ID）。
+	// 教務システムのシラバスID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 科目名。
+	// 授業名。
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// 英語の科目名。
+	// 授業名（英語）。
 	EnName string `protobuf:"bytes,3,opt,name=en_name,json=enName,proto3" json:"en_name,omitempty"`
-	// 対象学年。
+	// 配当年次。
 	Grades string `protobuf:"bytes,4,opt,name=grades,proto3" json:"grades,omitempty"`
 	// 単位数。
 	Credit int32 `protobuf:"varint,5,opt,name=credit,proto3" json:"credit,omitempty"`
 	// 担当教員名。
 	FacultyNames string `protobuf:"bytes,6,opt,name=faculty_names,json=facultyNames,proto3" json:"faculty_names,omitempty"`
-	// 実務経験のある教員による授業科目の区分。
+	// 実務家教員区分。
 	PracticalHomeFacultyCategory string `protobuf:"bytes,7,opt,name=practical_home_faculty_category,json=practicalHomeFacultyCategory,proto3" json:"practical_home_faculty_category,omitempty"`
-	// 複数人で担当する場合の授業形態。
+	// 複数人担当形式。
 	MultiplePersonTeachingForm string `protobuf:"bytes,8,opt,name=multiple_person_teaching_form,json=multiplePersonTeachingForm,proto3" json:"multiple_person_teaching_form,omitempty"`
 	// 授業形態。
 	TeachingForm string `protobuf:"bytes,9,opt,name=teaching_form,json=teachingForm,proto3" json:"teaching_form,omitempty"`
 	// 授業の概要。
 	Summary string `protobuf:"bytes,10,opt,name=summary,proto3" json:"summary,omitempty"`
-	// 到達目標。
+	// 授業の到達目標。
 	LearningOutcomes string `protobuf:"bytes,11,opt,name=learning_outcomes,json=learningOutcomes,proto3" json:"learning_outcomes,omitempty"`
-	// 課題。
+	// 提出課題等。
 	Assignments string `protobuf:"bytes,12,opt,name=assignments,proto3" json:"assignments,omitempty"`
-	// 成績の評価方法。
+	// 成績の評価方法・基準。
 	EvaluationMethod string `protobuf:"bytes,13,opt,name=evaluation_method,json=evaluationMethod,proto3" json:"evaluation_method,omitempty"`
-	// 教科書。
+	// テキスト。
 	Textbooks string `protobuf:"bytes,14,opt,name=textbooks,proto3" json:"textbooks,omitempty"`
 	// 参考書。
 	ReferenceBooks string `protobuf:"bytes,15,opt,name=reference_books,json=referenceBooks,proto3" json:"reference_books,omitempty"`
@@ -563,23 +563,23 @@ type CreateSyllabusRequest struct {
 	PreLearning string `protobuf:"bytes,17,opt,name=pre_learning,json=preLearning,proto3" json:"pre_learning,omitempty"`
 	// 事後学習。
 	PostLearning string `protobuf:"bytes,18,opt,name=post_learning,json=postLearning,proto3" json:"post_learning,omitempty"`
-	// 備考。
+	// 履修上の留意点。
 	Notes string `protobuf:"bytes,19,opt,name=notes,proto3" json:"notes,omitempty"`
 	// キーワード。
 	Keywords string `protobuf:"bytes,20,opt,name=keywords,proto3" json:"keywords,omitempty"`
-	// 対象コース。
+	// 対象コース・領域。
 	TargetCourses string `protobuf:"bytes,21,opt,name=target_courses,json=targetCourses,proto3" json:"target_courses,omitempty"`
 	// 対象領域。
 	TargetAreas string `protobuf:"bytes,22,opt,name=target_areas,json=targetAreas,proto3" json:"target_areas,omitempty"`
-	// 科目区分。
+	// 科目群・科目区分。
 	Classifications string `protobuf:"bytes,23,opt,name=classifications,proto3" json:"classifications,omitempty"`
-	// 授業で使う言語。
+	// 教授言語。
 	TeachingLanguage string `protobuf:"bytes,24,opt,name=teaching_language,json=teachingLanguage,proto3" json:"teaching_language,omitempty"`
-	// 授業内容と計画。
+	// 授業内容とスケジュール。
 	ContentsAndSchedule string `protobuf:"bytes,25,opt,name=contents_and_schedule,json=contentsAndSchedule,proto3" json:"contents_and_schedule,omitempty"`
-	// 授業・試験の実施形態。
+	// 授業・試験の形式。
 	TeachingAndExamForm string `protobuf:"bytes,26,opt,name=teaching_and_exam_form,json=teachingAndExamForm,proto3" json:"teaching_and_exam_form,omitempty"`
-	// 数理・データサイエンス・AI 教育プログラム（DSOP）の対象科目の区分。
+	// DSOP対象科目。
 	DsopSubject   string `protobuf:"bytes,27,opt,name=dsop_subject,json=dsopSubject,proto3" json:"dsop_subject,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -853,33 +853,33 @@ func (x *CreateSyllabusResponse) GetSyllabus() *Syllabus {
 // UpdateSyllabus の Request。
 type UpdateSyllabusRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新するシラバスの ID。
+	// 更新するシラバスID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 科目名。
+	// 授業名。
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// 英語の科目名。
+	// 授業名（英語）。
 	EnName string `protobuf:"bytes,3,opt,name=en_name,json=enName,proto3" json:"en_name,omitempty"`
-	// 対象学年。
+	// 配当年次。
 	Grades string `protobuf:"bytes,4,opt,name=grades,proto3" json:"grades,omitempty"`
 	// 単位数。
 	Credit int32 `protobuf:"varint,5,opt,name=credit,proto3" json:"credit,omitempty"`
 	// 担当教員名。
 	FacultyNames string `protobuf:"bytes,6,opt,name=faculty_names,json=facultyNames,proto3" json:"faculty_names,omitempty"`
-	// 実務経験のある教員による授業科目の区分。
+	// 実務家教員区分。
 	PracticalHomeFacultyCategory string `protobuf:"bytes,7,opt,name=practical_home_faculty_category,json=practicalHomeFacultyCategory,proto3" json:"practical_home_faculty_category,omitempty"`
-	// 複数人で担当する場合の授業形態。
+	// 複数人担当形式。
 	MultiplePersonTeachingForm string `protobuf:"bytes,8,opt,name=multiple_person_teaching_form,json=multiplePersonTeachingForm,proto3" json:"multiple_person_teaching_form,omitempty"`
 	// 授業形態。
 	TeachingForm string `protobuf:"bytes,9,opt,name=teaching_form,json=teachingForm,proto3" json:"teaching_form,omitempty"`
 	// 授業の概要。
 	Summary string `protobuf:"bytes,10,opt,name=summary,proto3" json:"summary,omitempty"`
-	// 到達目標。
+	// 授業の到達目標。
 	LearningOutcomes string `protobuf:"bytes,11,opt,name=learning_outcomes,json=learningOutcomes,proto3" json:"learning_outcomes,omitempty"`
-	// 課題。
+	// 提出課題等。
 	Assignments string `protobuf:"bytes,12,opt,name=assignments,proto3" json:"assignments,omitempty"`
-	// 成績の評価方法。
+	// 成績の評価方法・基準。
 	EvaluationMethod string `protobuf:"bytes,13,opt,name=evaluation_method,json=evaluationMethod,proto3" json:"evaluation_method,omitempty"`
-	// 教科書。
+	// テキスト。
 	Textbooks string `protobuf:"bytes,14,opt,name=textbooks,proto3" json:"textbooks,omitempty"`
 	// 参考書。
 	ReferenceBooks string `protobuf:"bytes,15,opt,name=reference_books,json=referenceBooks,proto3" json:"reference_books,omitempty"`
@@ -889,23 +889,23 @@ type UpdateSyllabusRequest struct {
 	PreLearning string `protobuf:"bytes,17,opt,name=pre_learning,json=preLearning,proto3" json:"pre_learning,omitempty"`
 	// 事後学習。
 	PostLearning string `protobuf:"bytes,18,opt,name=post_learning,json=postLearning,proto3" json:"post_learning,omitempty"`
-	// 備考。
+	// 履修上の留意点。
 	Notes string `protobuf:"bytes,19,opt,name=notes,proto3" json:"notes,omitempty"`
 	// キーワード。
 	Keywords string `protobuf:"bytes,20,opt,name=keywords,proto3" json:"keywords,omitempty"`
-	// 対象コース。
+	// 対象コース・領域。
 	TargetCourses string `protobuf:"bytes,21,opt,name=target_courses,json=targetCourses,proto3" json:"target_courses,omitempty"`
 	// 対象領域。
 	TargetAreas string `protobuf:"bytes,22,opt,name=target_areas,json=targetAreas,proto3" json:"target_areas,omitempty"`
-	// 科目区分。
+	// 科目群・科目区分。
 	Classifications string `protobuf:"bytes,23,opt,name=classifications,proto3" json:"classifications,omitempty"`
-	// 授業で使う言語。
+	// 教授言語。
 	TeachingLanguage string `protobuf:"bytes,24,opt,name=teaching_language,json=teachingLanguage,proto3" json:"teaching_language,omitempty"`
-	// 授業内容と計画。
+	// 授業内容とスケジュール。
 	ContentsAndSchedule string `protobuf:"bytes,25,opt,name=contents_and_schedule,json=contentsAndSchedule,proto3" json:"contents_and_schedule,omitempty"`
-	// 授業・試験の実施形態。
+	// 授業・試験の形式。
 	TeachingAndExamForm string `protobuf:"bytes,26,opt,name=teaching_and_exam_form,json=teachingAndExamForm,proto3" json:"teaching_and_exam_form,omitempty"`
-	// 数理・データサイエンス・AI 教育プログラム（DSOP）の対象科目の区分。
+	// DSOP対象科目。
 	DsopSubject string `protobuf:"bytes,27,opt,name=dsop_subject,json=dsopSubject,proto3" json:"dsop_subject,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -1188,7 +1188,7 @@ func (x *UpdateSyllabusResponse) GetSyllabus() *Syllabus {
 // DeleteSyllabus の Request。
 type DeleteSyllabusRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除するシラバスの ID。
+	// 削除するシラバスID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

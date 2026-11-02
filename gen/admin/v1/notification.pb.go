@@ -24,7 +24,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Android の配信優先度。
+// Android の通知優先度。
 type NotificationAndroidPriority int32
 
 const (
@@ -77,38 +77,38 @@ func (NotificationAndroidPriority) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_notification_proto_rawDescGZIP(), []int{0}
 }
 
-// プッシュ通知。
+// 通知。
 type Notification struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 通知のタイトル。
+	// 通知タイトル。
 	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	// 通知の本文。
+	// 通知本文。
 	Body string `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
-	// 通知に表示する画像の URL。
+	// 通知に表示する画像のURL。
 	ImageUrl *string `protobuf:"bytes,4,opt,name=image_url,json=imageUrl,proto3,oneof" json:"image_url,omitempty"`
-	// FCM の分析用ラベル。
+	// Firebase Analytics に記録する分析ラベル。通知の開封率計測などに利用する。
 	AnalyticsLabel *string `protobuf:"bytes,5,opt,name=analytics_label,json=analyticsLabel,proto3,oneof" json:"analytics_label,omitempty"`
-	// APNs のバッジ数。
+	// APNs のバッジ数。アプリアイコンに表示される数値。0 でバッジを消去する。
 	ApnsBadge *int32 `protobuf:"varint,6,opt,name=apns_badge,json=apnsBadge,proto3,oneof" json:"apns_badge,omitempty"`
 	// APNs の通知音。
 	ApnsSound *string `protobuf:"bytes,7,opt,name=apns_sound,json=apnsSound,proto3,oneof" json:"apns_sound,omitempty"`
-	// APNs の content-available（バックグラウンド更新）を有効にするか。
+	// APNs の content-available フラグ。true でサイレントプッシュ（バックグラウンド更新）になる。
 	ApnsContentAvailable *bool `protobuf:"varint,8,opt,name=apns_content_available,json=apnsContentAvailable,proto3,oneof" json:"apns_content_available,omitempty"`
-	// Android の通知チャンネル ID。
+	// Android の通知チャンネルID。Android 8.0 以降、通知はチャンネル単位で管理される。
 	AndroidChannelId *string `protobuf:"bytes,9,opt,name=android_channel_id,json=androidChannelId,proto3,oneof" json:"android_channel_id,omitempty"`
-	// Android の配信優先度。
+	// Android の通知優先度。
 	AndroidPriority *NotificationAndroidPriority `protobuf:"varint,10,opt,name=android_priority,json=androidPriority,proto3,enum=admin.v1.NotificationAndroidPriority,oneof" json:"android_priority,omitempty"`
-	// Android の通知の有効期間（秒）。
+	// Android の通知TTL（秒）。FCM がメッセージを保持する最大時間で、期限切れで破棄される。
 	AndroidTtlSeconds *int32 `protobuf:"varint,11,opt,name=android_ttl_seconds,json=androidTtlSeconds,proto3,oneof" json:"android_ttl_seconds,omitempty"`
-	// Web Push の通知を開いたときのリンク。
+	// Web Push 通知をクリックした際に開くURL。
 	WebpushLink *string `protobuf:"bytes,12,opt,name=webpush_link,json=webpushLink,proto3,oneof" json:"webpush_link,omitempty"`
-	// 通知を開いたときに表示する URL。
+	// 通知をタップした時に開くURL。アプリを開くのみの場合は未設定。
 	Url *string `protobuf:"bytes,13,opt,name=url,proto3,oneof" json:"url,omitempty"`
-	// この日時以降に配信する。
+	// 通知送信可能になる日時（この時刻以降に送信対象となる）。
 	NotifyAfter *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=notify_after,json=notifyAfter,proto3" json:"notify_after,omitempty"`
-	// この日時までに配信する。
+	// 通知送信期限日時（この時刻を過ぎた場合は送信しない）。
 	NotifyBefore *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=notify_before,json=notifyBefore,proto3" json:"notify_before,omitempty"`
 	// 作成日時。
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -325,7 +325,7 @@ func (x *ListNotificationsRequest) GetPageToken() string {
 // ListNotifications の Response。
 type ListNotificationsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// プッシュ通知の一覧。
+	// 通知の一覧。
 	Notifications []*Notification `protobuf:"bytes,1,rep,name=notifications,proto3" json:"notifications,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -380,7 +380,7 @@ func (x *ListNotificationsResponse) GetNextPageToken() string {
 // GetNotification の Request。
 type GetNotificationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得するプッシュ通知の ID。
+	// 取得する通知ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -426,7 +426,7 @@ func (x *GetNotificationRequest) GetId() string {
 // GetNotification の Response。
 type GetNotificationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得したプッシュ通知。
+	// 取得した通知。
 	Notification  *Notification `protobuf:"bytes,1,opt,name=notification,proto3" json:"notification,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -472,33 +472,33 @@ func (x *GetNotificationResponse) GetNotification() *Notification {
 // CreateNotification の Request。
 type CreateNotificationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 通知のタイトル。
+	// 通知タイトル。
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	// 通知の本文。
+	// 通知本文。
 	Body string `protobuf:"bytes,2,opt,name=body,proto3" json:"body,omitempty"`
-	// 通知に表示する画像の URL。
+	// 通知に表示する画像のURL。
 	ImageUrl *string `protobuf:"bytes,3,opt,name=image_url,json=imageUrl,proto3,oneof" json:"image_url,omitempty"`
-	// FCM の分析用ラベル。
+	// Firebase Analytics に記録する分析ラベル。通知の開封率計測などに利用する。
 	AnalyticsLabel *string `protobuf:"bytes,4,opt,name=analytics_label,json=analyticsLabel,proto3,oneof" json:"analytics_label,omitempty"`
-	// APNs のバッジ数。
+	// APNs のバッジ数。アプリアイコンに表示される数値。0 でバッジを消去する。
 	ApnsBadge *int32 `protobuf:"varint,5,opt,name=apns_badge,json=apnsBadge,proto3,oneof" json:"apns_badge,omitempty"`
 	// APNs の通知音。
 	ApnsSound *string `protobuf:"bytes,6,opt,name=apns_sound,json=apnsSound,proto3,oneof" json:"apns_sound,omitempty"`
-	// APNs の content-available（バックグラウンド更新）を有効にするか。
+	// APNs の content-available フラグ。true でサイレントプッシュ（バックグラウンド更新）になる。
 	ApnsContentAvailable *bool `protobuf:"varint,7,opt,name=apns_content_available,json=apnsContentAvailable,proto3,oneof" json:"apns_content_available,omitempty"`
-	// Android の通知チャンネル ID。
+	// Android の通知チャンネルID。Android 8.0 以降、通知はチャンネル単位で管理される。
 	AndroidChannelId *string `protobuf:"bytes,8,opt,name=android_channel_id,json=androidChannelId,proto3,oneof" json:"android_channel_id,omitempty"`
-	// Android の配信優先度。
+	// Android の通知優先度。
 	AndroidPriority *NotificationAndroidPriority `protobuf:"varint,9,opt,name=android_priority,json=androidPriority,proto3,enum=admin.v1.NotificationAndroidPriority,oneof" json:"android_priority,omitempty"`
-	// Android の通知の有効期間（秒）。
+	// Android の通知TTL（秒）。FCM がメッセージを保持する最大時間で、期限切れで破棄される。
 	AndroidTtlSeconds *int32 `protobuf:"varint,10,opt,name=android_ttl_seconds,json=androidTtlSeconds,proto3,oneof" json:"android_ttl_seconds,omitempty"`
-	// Web Push の通知を開いたときのリンク。
+	// Web Push 通知をクリックした際に開くURL。
 	WebpushLink *string `protobuf:"bytes,11,opt,name=webpush_link,json=webpushLink,proto3,oneof" json:"webpush_link,omitempty"`
-	// 通知を開いたときに表示する URL。
+	// 通知をタップした時に開くURL。アプリを開くのみの場合は未設定。
 	Url *string `protobuf:"bytes,12,opt,name=url,proto3,oneof" json:"url,omitempty"`
-	// この日時以降に配信する。
+	// 通知送信可能になる日時（この時刻以降に送信対象となる）。
 	NotifyAfter *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=notify_after,json=notifyAfter,proto3" json:"notify_after,omitempty"`
-	// この日時までに配信する。
+	// 通知送信期限日時（この時刻を過ぎた場合は送信しない）。
 	NotifyBefore  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=notify_before,json=notifyBefore,proto3" json:"notify_before,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -635,7 +635,7 @@ func (x *CreateNotificationRequest) GetNotifyBefore() *timestamppb.Timestamp {
 // CreateNotification の Response。
 type CreateNotificationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成したプッシュ通知。
+	// 作成した通知。
 	Notification  *Notification `protobuf:"bytes,1,opt,name=notification,proto3" json:"notification,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -681,35 +681,35 @@ func (x *CreateNotificationResponse) GetNotification() *Notification {
 // UpdateNotification の Request。
 type UpdateNotificationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新するプッシュ通知の ID。
+	// 更新する通知ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 通知のタイトル。
+	// 通知タイトル。
 	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	// 通知の本文。
+	// 通知本文。
 	Body string `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
-	// 通知に表示する画像の URL。
+	// 通知に表示する画像のURL。
 	ImageUrl *string `protobuf:"bytes,4,opt,name=image_url,json=imageUrl,proto3,oneof" json:"image_url,omitempty"`
-	// FCM の分析用ラベル。
+	// Firebase Analytics に記録する分析ラベル。通知の開封率計測などに利用する。
 	AnalyticsLabel *string `protobuf:"bytes,5,opt,name=analytics_label,json=analyticsLabel,proto3,oneof" json:"analytics_label,omitempty"`
-	// APNs のバッジ数。
+	// APNs のバッジ数。アプリアイコンに表示される数値。0 でバッジを消去する。
 	ApnsBadge *int32 `protobuf:"varint,6,opt,name=apns_badge,json=apnsBadge,proto3,oneof" json:"apns_badge,omitempty"`
 	// APNs の通知音。
 	ApnsSound *string `protobuf:"bytes,7,opt,name=apns_sound,json=apnsSound,proto3,oneof" json:"apns_sound,omitempty"`
-	// APNs の content-available（バックグラウンド更新）を有効にするか。
+	// APNs の content-available フラグ。true でサイレントプッシュ（バックグラウンド更新）になる。
 	ApnsContentAvailable *bool `protobuf:"varint,8,opt,name=apns_content_available,json=apnsContentAvailable,proto3,oneof" json:"apns_content_available,omitempty"`
-	// Android の通知チャンネル ID。
+	// Android の通知チャンネルID。Android 8.0 以降、通知はチャンネル単位で管理される。
 	AndroidChannelId *string `protobuf:"bytes,9,opt,name=android_channel_id,json=androidChannelId,proto3,oneof" json:"android_channel_id,omitempty"`
-	// Android の配信優先度。
+	// Android の通知優先度。
 	AndroidPriority *NotificationAndroidPriority `protobuf:"varint,10,opt,name=android_priority,json=androidPriority,proto3,enum=admin.v1.NotificationAndroidPriority,oneof" json:"android_priority,omitempty"`
-	// Android の通知の有効期間（秒）。
+	// Android の通知TTL（秒）。FCM がメッセージを保持する最大時間で、期限切れで破棄される。
 	AndroidTtlSeconds *int32 `protobuf:"varint,11,opt,name=android_ttl_seconds,json=androidTtlSeconds,proto3,oneof" json:"android_ttl_seconds,omitempty"`
-	// Web Push の通知を開いたときのリンク。
+	// Web Push 通知をクリックした際に開くURL。
 	WebpushLink *string `protobuf:"bytes,12,opt,name=webpush_link,json=webpushLink,proto3,oneof" json:"webpush_link,omitempty"`
-	// 通知を開いたときに表示する URL。
+	// 通知をタップした時に開くURL。アプリを開くのみの場合は未設定。
 	Url *string `protobuf:"bytes,13,opt,name=url,proto3,oneof" json:"url,omitempty"`
-	// この日時以降に配信する。
+	// 通知送信可能になる日時（この時刻以降に送信対象となる）。
 	NotifyAfter *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=notify_after,json=notifyAfter,proto3" json:"notify_after,omitempty"`
-	// この日時までに配信する。
+	// 通知送信期限日時（この時刻を過ぎた場合は送信しない）。
 	NotifyBefore *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=notify_before,json=notifyBefore,proto3" json:"notify_before,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -862,7 +862,7 @@ func (x *UpdateNotificationRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateNotification の Response。
 type UpdateNotificationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新したプッシュ通知。
+	// 更新した通知。
 	Notification  *Notification `protobuf:"bytes,1,opt,name=notification,proto3" json:"notification,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -908,7 +908,7 @@ func (x *UpdateNotificationResponse) GetNotification() *Notification {
 // DeleteNotification の Request。
 type DeleteNotificationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除するプッシュ通知の ID。
+	// 削除する通知ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

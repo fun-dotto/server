@@ -6,27 +6,27 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
-// プッシュ通知の配信対象ユーザーを管理する。
+// 通知の対象ユーザーを管理する。
 service NotificationTargetUserService {
-  // プッシュ通知の配信対象ユーザーの一覧を取得する。
+  // 通知の対象ユーザーの一覧を取得する。
   rpc ListNotificationTargetUsers(ListNotificationTargetUsersRequest) returns (ListNotificationTargetUsersResponse);
-  // プッシュ通知の配信対象ユーザーを取得する。
+  // 通知の対象ユーザーを取得する。
   rpc GetNotificationTargetUser(GetNotificationTargetUserRequest) returns (GetNotificationTargetUserResponse);
-  // プッシュ通知の配信対象ユーザーを作成する。
+  // 通知の対象ユーザーを作成する。
   rpc CreateNotificationTargetUser(CreateNotificationTargetUserRequest) returns (CreateNotificationTargetUserResponse);
-  // プッシュ通知の配信対象ユーザーを更新する。
+  // 通知の対象ユーザーを更新する。
   rpc UpdateNotificationTargetUser(UpdateNotificationTargetUserRequest) returns (UpdateNotificationTargetUserResponse);
-  // プッシュ通知の配信対象ユーザーを削除する。
+  // 通知の対象ユーザーを削除する。
   rpc DeleteNotificationTargetUser(DeleteNotificationTargetUserRequest) returns (DeleteNotificationTargetUserResponse);
 }
 
-// プッシュ通知の配信対象ユーザー。
+// 通知の対象ユーザー。
 message NotificationTargetUser {
-  // プッシュ通知の ID。
+  // 通知ID。
   string notification_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // ユーザーの ID。
+  // ユーザーID。
   string user_id = 2 [(google.api.field_behavior) = REQUIRED];
-  // 配信した日時。未配信の場合は未設定。
+  // 通知送信日時。送信前は未設定。
   optional google.protobuf.Timestamp notified_at = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
@@ -40,7 +40,7 @@ message ListNotificationTargetUsersRequest {
 
 // ListNotificationTargetUsers の Response。
 message ListNotificationTargetUsersResponse {
-  // プッシュ通知の配信対象ユーザーの一覧。
+  // 通知の対象ユーザーの一覧。
   repeated NotificationTargetUser notification_target_users = 1;
   // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
@@ -48,41 +48,41 @@ message ListNotificationTargetUsersResponse {
 
 // GetNotificationTargetUser の Request。
 message GetNotificationTargetUserRequest {
-  // プッシュ通知の ID。
+  // 通知ID。
   string notification_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // ユーザーの ID。
+  // ユーザーID。
   string user_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetNotificationTargetUser の Response。
 message GetNotificationTargetUserResponse {
-  // 取得したプッシュ通知の配信対象ユーザー。
+  // 取得した通知の対象ユーザー。
   NotificationTargetUser notification_target_user = 1;
 }
 
 // CreateNotificationTargetUser の Request。
 message CreateNotificationTargetUserRequest {
-  // プッシュ通知の ID。
+  // 通知ID。
   string notification_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // ユーザーの ID。
+  // ユーザーID。
   string user_id = 2 [(google.api.field_behavior) = REQUIRED];
-  // 配信した日時。未配信の場合は未設定。
+  // 通知送信日時。送信前は未設定。
   optional google.protobuf.Timestamp notified_at = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // CreateNotificationTargetUser の Response。
 message CreateNotificationTargetUserResponse {
-  // 作成したプッシュ通知の配信対象ユーザー。
+  // 作成した通知の対象ユーザー。
   NotificationTargetUser notification_target_user = 1;
 }
 
 // UpdateNotificationTargetUser の Request。
 message UpdateNotificationTargetUserRequest {
-  // プッシュ通知の ID。
+  // 通知ID。
   string notification_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // ユーザーの ID。
+  // ユーザーID。
   string user_id = 2 [(google.api.field_behavior) = REQUIRED];
-  // 配信した日時。未配信の場合は未設定。
+  // 通知送信日時。送信前は未設定。
   optional google.protobuf.Timestamp notified_at = 3 [(google.api.field_behavior) = OPTIONAL];
   // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
   google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
@@ -90,15 +90,15 @@ message UpdateNotificationTargetUserRequest {
 
 // UpdateNotificationTargetUser の Response。
 message UpdateNotificationTargetUserResponse {
-  // 更新したプッシュ通知の配信対象ユーザー。
+  // 更新した通知の対象ユーザー。
   NotificationTargetUser notification_target_user = 1;
 }
 
 // DeleteNotificationTargetUser の Request。
 message DeleteNotificationTargetUserRequest {
-  // プッシュ通知の ID。
+  // 通知ID。
   string notification_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // ユーザーの ID。
+  // ユーザーID。
   string user_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 

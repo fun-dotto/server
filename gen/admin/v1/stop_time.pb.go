@@ -23,20 +23,20 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 便ごとのバス停の発着時刻（GTFS の stop_times）。
+// 通過時刻情報（GTFS の stop_times）。
 type StopTime struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 便の ID（GTFS の trip_id）。
+	// 便ID（GTFS の trip_id）。
 	TripId string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
-	// 便の中での停車順（GTFS の stop_sequence）。
+	// 通過順位（GTFS の stop_sequence）。
 	StopSequence int32 `protobuf:"varint,2,opt,name=stop_sequence,json=stopSequence,proto3" json:"stop_sequence,omitempty"`
-	// バス停の ID（GTFS の stop_id）。
+	// 停留所・標柱ID（GTFS の stop_id）。
 	StopId string `protobuf:"bytes,3,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
 	// 到着時刻（GTFS の arrival_time）。HH:MM:SS 形式で、24 時以降も表せる。
 	ArrivalTime string `protobuf:"bytes,4,opt,name=arrival_time,json=arrivalTime,proto3" json:"arrival_time,omitempty"`
 	// 出発時刻（GTFS の departure_time）。HH:MM:SS 形式で、24 時以降も表せる。
 	DepartureTime string `protobuf:"bytes,5,opt,name=departure_time,json=departureTime,proto3" json:"departure_time,omitempty"`
-	// このバス停での行先表示（GTFS の stop_headsign）。
+	// 停留所行先（GTFS の stop_headsign）。
 	StopHeadsign  *string `protobuf:"bytes,6,opt,name=stop_headsign,json=stopHeadsign,proto3,oneof" json:"stop_headsign,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -172,7 +172,7 @@ func (x *ListStopTimesRequest) GetPageToken() string {
 // ListStopTimes の Response。
 type ListStopTimesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 便ごとのバス停の発着時刻（GTFS の stop_times）の一覧。
+	// 通過時刻情報（GTFS の stop_times）の一覧。
 	StopTimes []*StopTime `protobuf:"bytes,1,rep,name=stop_times,json=stopTimes,proto3" json:"stop_times,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -227,9 +227,9 @@ func (x *ListStopTimesResponse) GetNextPageToken() string {
 // GetStopTime の Request。
 type GetStopTimeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 便の ID（GTFS の trip_id）。
+	// 便ID（GTFS の trip_id）。
 	TripId string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
-	// 便の中での停車順（GTFS の stop_sequence）。
+	// 通過順位（GTFS の stop_sequence）。
 	StopSequence  int32 `protobuf:"varint,2,opt,name=stop_sequence,json=stopSequence,proto3" json:"stop_sequence,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -282,7 +282,7 @@ func (x *GetStopTimeRequest) GetStopSequence() int32 {
 // GetStopTime の Response。
 type GetStopTimeResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得した便ごとのバス停の発着時刻（GTFS の stop_times）。
+	// 取得した通過時刻情報（GTFS の stop_times）。
 	StopTime      *StopTime `protobuf:"bytes,1,opt,name=stop_time,json=stopTime,proto3" json:"stop_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -328,17 +328,17 @@ func (x *GetStopTimeResponse) GetStopTime() *StopTime {
 // CreateStopTime の Request。
 type CreateStopTimeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 便の ID（GTFS の trip_id）。
+	// 便ID（GTFS の trip_id）。
 	TripId string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
-	// 便の中での停車順（GTFS の stop_sequence）。
+	// 通過順位（GTFS の stop_sequence）。
 	StopSequence int32 `protobuf:"varint,2,opt,name=stop_sequence,json=stopSequence,proto3" json:"stop_sequence,omitempty"`
-	// バス停の ID（GTFS の stop_id）。
+	// 停留所・標柱ID（GTFS の stop_id）。
 	StopId string `protobuf:"bytes,3,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
 	// 到着時刻（GTFS の arrival_time）。HH:MM:SS 形式で、24 時以降も表せる。
 	ArrivalTime string `protobuf:"bytes,4,opt,name=arrival_time,json=arrivalTime,proto3" json:"arrival_time,omitempty"`
 	// 出発時刻（GTFS の departure_time）。HH:MM:SS 形式で、24 時以降も表せる。
 	DepartureTime string `protobuf:"bytes,5,opt,name=departure_time,json=departureTime,proto3" json:"departure_time,omitempty"`
-	// このバス停での行先表示（GTFS の stop_headsign）。
+	// 停留所行先（GTFS の stop_headsign）。
 	StopHeadsign  *string `protobuf:"bytes,6,opt,name=stop_headsign,json=stopHeadsign,proto3,oneof" json:"stop_headsign,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -419,7 +419,7 @@ func (x *CreateStopTimeRequest) GetStopHeadsign() string {
 // CreateStopTime の Response。
 type CreateStopTimeResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成した便ごとのバス停の発着時刻（GTFS の stop_times）。
+	// 作成した通過時刻情報（GTFS の stop_times）。
 	StopTime      *StopTime `protobuf:"bytes,1,opt,name=stop_time,json=stopTime,proto3" json:"stop_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -465,17 +465,17 @@ func (x *CreateStopTimeResponse) GetStopTime() *StopTime {
 // UpdateStopTime の Request。
 type UpdateStopTimeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 便の ID（GTFS の trip_id）。
+	// 便ID（GTFS の trip_id）。
 	TripId string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
-	// 便の中での停車順（GTFS の stop_sequence）。
+	// 通過順位（GTFS の stop_sequence）。
 	StopSequence int32 `protobuf:"varint,2,opt,name=stop_sequence,json=stopSequence,proto3" json:"stop_sequence,omitempty"`
-	// バス停の ID（GTFS の stop_id）。
+	// 停留所・標柱ID（GTFS の stop_id）。
 	StopId string `protobuf:"bytes,3,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
 	// 到着時刻（GTFS の arrival_time）。HH:MM:SS 形式で、24 時以降も表せる。
 	ArrivalTime string `protobuf:"bytes,4,opt,name=arrival_time,json=arrivalTime,proto3" json:"arrival_time,omitempty"`
 	// 出発時刻（GTFS の departure_time）。HH:MM:SS 形式で、24 時以降も表せる。
 	DepartureTime string `protobuf:"bytes,5,opt,name=departure_time,json=departureTime,proto3" json:"departure_time,omitempty"`
-	// このバス停での行先表示（GTFS の stop_headsign）。
+	// 停留所行先（GTFS の stop_headsign）。
 	StopHeadsign *string `protobuf:"bytes,6,opt,name=stop_headsign,json=stopHeadsign,proto3,oneof" json:"stop_headsign,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -565,7 +565,7 @@ func (x *UpdateStopTimeRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateStopTime の Response。
 type UpdateStopTimeResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新した便ごとのバス停の発着時刻（GTFS の stop_times）。
+	// 更新した通過時刻情報（GTFS の stop_times）。
 	StopTime      *StopTime `protobuf:"bytes,1,opt,name=stop_time,json=stopTime,proto3" json:"stop_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -611,9 +611,9 @@ func (x *UpdateStopTimeResponse) GetStopTime() *StopTime {
 // DeleteStopTime の Request。
 type DeleteStopTimeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 便の ID（GTFS の trip_id）。
+	// 便ID（GTFS の trip_id）。
 	TripId string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
-	// 便の中での停車順（GTFS の stop_sequence）。
+	// 通過順位（GTFS の stop_sequence）。
 	StopSequence  int32 `protobuf:"varint,2,opt,name=stop_sequence,json=stopSequence,proto3" json:"stop_sequence,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

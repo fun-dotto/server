@@ -5,23 +5,23 @@ package admin.v1;
 import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 
-// 運賃ゾーン（GTFS の zone_id）を管理する。
+// 運賃エリア（GTFS の zone_id）を管理する。
 service ZoneService {
-  // 運賃ゾーン（GTFS の zone_id）の一覧を取得する。
+  // 運賃エリア（GTFS の zone_id）の一覧を取得する。
   rpc ListZones(ListZonesRequest) returns (ListZonesResponse);
-  // 運賃ゾーン（GTFS の zone_id）を取得する。
+  // 運賃エリア（GTFS の zone_id）を取得する。
   rpc GetZone(GetZoneRequest) returns (GetZoneResponse);
-  // 運賃ゾーン（GTFS の zone_id）を作成する。
+  // 運賃エリア（GTFS の zone_id）を作成する。
   rpc CreateZone(CreateZoneRequest) returns (CreateZoneResponse);
-  // 運賃ゾーン（GTFS の zone_id）を更新する。
+  // 運賃エリア（GTFS の zone_id）を更新する。
   rpc UpdateZone(UpdateZoneRequest) returns (UpdateZoneResponse);
-  // 運賃ゾーン（GTFS の zone_id）を削除する。
+  // 運賃エリア（GTFS の zone_id）を削除する。
   rpc DeleteZone(DeleteZoneRequest) returns (DeleteZoneResponse);
 }
 
-// 運賃ゾーン（GTFS の zone_id）。
+// 運賃エリア（GTFS の zone_id）。
 message Zone {
-  // 運賃ゾーンの ID（GTFS の zone_id）。
+  // 運賃エリアID（GTFS の zone_id）。
   string zone_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
@@ -35,7 +35,7 @@ message ListZonesRequest {
 
 // ListZones の Response。
 message ListZonesResponse {
-  // 運賃ゾーン（GTFS の zone_id）の一覧。
+  // 運賃エリア（GTFS の zone_id）の一覧。
   repeated Zone zones = 1;
   // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
@@ -43,31 +43,31 @@ message ListZonesResponse {
 
 // GetZone の Request。
 message GetZoneRequest {
-  // 運賃ゾーンの ID（GTFS の zone_id）。
+  // 運賃エリアID（GTFS の zone_id）。
   string zone_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetZone の Response。
 message GetZoneResponse {
-  // 取得した運賃ゾーン（GTFS の zone_id）。
+  // 取得した運賃エリア（GTFS の zone_id）。
   Zone zone = 1;
 }
 
 // CreateZone の Request。
 message CreateZoneRequest {
-  // 運賃ゾーンの ID（GTFS の zone_id）。
+  // 運賃エリアID（GTFS の zone_id）。
   string zone_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // CreateZone の Response。
 message CreateZoneResponse {
-  // 作成した運賃ゾーン（GTFS の zone_id）。
+  // 作成した運賃エリア（GTFS の zone_id）。
   Zone zone = 1;
 }
 
 // UpdateZone の Request。
 message UpdateZoneRequest {
-  // 運賃ゾーンの ID（GTFS の zone_id）。
+  // 運賃エリアID（GTFS の zone_id）。
   string zone_id = 1 [(google.api.field_behavior) = REQUIRED];
   // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
   google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
@@ -75,13 +75,13 @@ message UpdateZoneRequest {
 
 // UpdateZone の Response。
 message UpdateZoneResponse {
-  // 更新した運賃ゾーン（GTFS の zone_id）。
+  // 更新した運賃エリア（GTFS の zone_id）。
   Zone zone = 1;
 }
 
 // DeleteZone の Request。
 message DeleteZoneRequest {
-  // 運賃ゾーンの ID（GTFS の zone_id）。
+  // 運賃エリアID（GTFS の zone_id）。
   string zone_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 

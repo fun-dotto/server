@@ -24,14 +24,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// プッシュ通知の配信対象ユーザー。
+// 通知の対象ユーザー。
 type NotificationTargetUser struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// プッシュ通知の ID。
+	// 通知ID。
 	NotificationId string `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// 配信した日時。未配信の場合は未設定。
+	// 通知送信日時。送信前は未設定。
 	NotifiedAt    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=notified_at,json=notifiedAt,proto3,oneof" json:"notified_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -146,7 +146,7 @@ func (x *ListNotificationTargetUsersRequest) GetPageToken() string {
 // ListNotificationTargetUsers の Response。
 type ListNotificationTargetUsersResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// プッシュ通知の配信対象ユーザーの一覧。
+	// 通知の対象ユーザーの一覧。
 	NotificationTargetUsers []*NotificationTargetUser `protobuf:"bytes,1,rep,name=notification_target_users,json=notificationTargetUsers,proto3" json:"notification_target_users,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -201,9 +201,9 @@ func (x *ListNotificationTargetUsersResponse) GetNextPageToken() string {
 // GetNotificationTargetUser の Request。
 type GetNotificationTargetUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// プッシュ通知の ID。
+	// 通知ID。
 	NotificationId string `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId        string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -256,7 +256,7 @@ func (x *GetNotificationTargetUserRequest) GetUserId() string {
 // GetNotificationTargetUser の Response。
 type GetNotificationTargetUserResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得したプッシュ通知の配信対象ユーザー。
+	// 取得した通知の対象ユーザー。
 	NotificationTargetUser *NotificationTargetUser `protobuf:"bytes,1,opt,name=notification_target_user,json=notificationTargetUser,proto3" json:"notification_target_user,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -302,11 +302,11 @@ func (x *GetNotificationTargetUserResponse) GetNotificationTargetUser() *Notific
 // CreateNotificationTargetUser の Request。
 type CreateNotificationTargetUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// プッシュ通知の ID。
+	// 通知ID。
 	NotificationId string `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// 配信した日時。未配信の場合は未設定。
+	// 通知送信日時。送信前は未設定。
 	NotifiedAt    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=notified_at,json=notifiedAt,proto3,oneof" json:"notified_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -366,7 +366,7 @@ func (x *CreateNotificationTargetUserRequest) GetNotifiedAt() *timestamppb.Times
 // CreateNotificationTargetUser の Response。
 type CreateNotificationTargetUserResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成したプッシュ通知の配信対象ユーザー。
+	// 作成した通知の対象ユーザー。
 	NotificationTargetUser *NotificationTargetUser `protobuf:"bytes,1,opt,name=notification_target_user,json=notificationTargetUser,proto3" json:"notification_target_user,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -412,11 +412,11 @@ func (x *CreateNotificationTargetUserResponse) GetNotificationTargetUser() *Noti
 // UpdateNotificationTargetUser の Request。
 type UpdateNotificationTargetUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// プッシュ通知の ID。
+	// 通知ID。
 	NotificationId string `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// 配信した日時。未配信の場合は未設定。
+	// 通知送信日時。送信前は未設定。
 	NotifiedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=notified_at,json=notifiedAt,proto3,oneof" json:"notified_at,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -485,7 +485,7 @@ func (x *UpdateNotificationTargetUserRequest) GetUpdateMask() *fieldmaskpb.Field
 // UpdateNotificationTargetUser の Response。
 type UpdateNotificationTargetUserResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新したプッシュ通知の配信対象ユーザー。
+	// 更新した通知の対象ユーザー。
 	NotificationTargetUser *NotificationTargetUser `protobuf:"bytes,1,opt,name=notification_target_user,json=notificationTargetUser,proto3" json:"notification_target_user,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -531,9 +531,9 @@ func (x *UpdateNotificationTargetUserResponse) GetNotificationTargetUser() *Noti
 // DeleteNotificationTargetUser の Request。
 type DeleteNotificationTargetUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// プッシュ通知の ID。
+	// 通知ID。
 	NotificationId string `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId        string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

@@ -6,27 +6,27 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/type/money.proto";
 
-// 運賃（GTFS の fare_attributes）を管理する。
+// 運賃属性情報（GTFS の fare_attributes）を管理する。
 service FareAttributeService {
-  // 運賃（GTFS の fare_attributes）の一覧を取得する。
+  // 運賃属性情報（GTFS の fare_attributes）の一覧を取得する。
   rpc ListFareAttributes(ListFareAttributesRequest) returns (ListFareAttributesResponse);
-  // 運賃（GTFS の fare_attributes）を取得する。
+  // 運賃属性情報（GTFS の fare_attributes）を取得する。
   rpc GetFareAttribute(GetFareAttributeRequest) returns (GetFareAttributeResponse);
-  // 運賃（GTFS の fare_attributes）を作成する。
+  // 運賃属性情報（GTFS の fare_attributes）を作成する。
   rpc CreateFareAttribute(CreateFareAttributeRequest) returns (CreateFareAttributeResponse);
-  // 運賃（GTFS の fare_attributes）を更新する。
+  // 運賃属性情報（GTFS の fare_attributes）を更新する。
   rpc UpdateFareAttribute(UpdateFareAttributeRequest) returns (UpdateFareAttributeResponse);
-  // 運賃（GTFS の fare_attributes）を削除する。
+  // 運賃属性情報（GTFS の fare_attributes）を削除する。
   rpc DeleteFareAttribute(DeleteFareAttributeRequest) returns (DeleteFareAttributeResponse);
 }
 
-// 運賃（GTFS の fare_attributes）。
+// 運賃属性情報（GTFS の fare_attributes）。
 message FareAttribute {
-  // 運賃の ID（GTFS の fare_id）。
+  // 運賃ID（GTFS の fare_id）。
   string fare_id = 1 [(google.api.field_behavior) = REQUIRED];
   // 乗客の区分。
   FareAttributeRiderCategory rider_category = 2 [(google.api.field_behavior) = REQUIRED];
-  // 運賃（JPY）。
+  // 運賃（GTFS の price）。通貨は日本円（JPY）。
   google.type.Money price = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
@@ -40,7 +40,7 @@ message ListFareAttributesRequest {
 
 // ListFareAttributes の Response。
 message ListFareAttributesResponse {
-  // 運賃（GTFS の fare_attributes）の一覧。
+  // 運賃属性情報（GTFS の fare_attributes）の一覧。
   repeated FareAttribute fare_attributes = 1;
   // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
@@ -48,39 +48,39 @@ message ListFareAttributesResponse {
 
 // GetFareAttribute の Request。
 message GetFareAttributeRequest {
-  // 運賃の ID（GTFS の fare_id）。
+  // 運賃ID（GTFS の fare_id）。
   string fare_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetFareAttribute の Response。
 message GetFareAttributeResponse {
-  // 取得した運賃（GTFS の fare_attributes）。
+  // 取得した運賃属性情報（GTFS の fare_attributes）。
   FareAttribute fare_attribute = 1;
 }
 
 // CreateFareAttribute の Request。
 message CreateFareAttributeRequest {
-  // 運賃の ID（GTFS の fare_id）。
+  // 運賃ID（GTFS の fare_id）。
   string fare_id = 1 [(google.api.field_behavior) = REQUIRED];
   // 乗客の区分。
   FareAttributeRiderCategory rider_category = 2 [(google.api.field_behavior) = REQUIRED];
-  // 運賃（JPY）。
+  // 運賃（GTFS の price）。通貨は日本円（JPY）。
   google.type.Money price = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
 // CreateFareAttribute の Response。
 message CreateFareAttributeResponse {
-  // 作成した運賃（GTFS の fare_attributes）。
+  // 作成した運賃属性情報（GTFS の fare_attributes）。
   FareAttribute fare_attribute = 1;
 }
 
 // UpdateFareAttribute の Request。
 message UpdateFareAttributeRequest {
-  // 運賃の ID（GTFS の fare_id）。
+  // 運賃ID（GTFS の fare_id）。
   string fare_id = 1 [(google.api.field_behavior) = REQUIRED];
   // 乗客の区分。
   FareAttributeRiderCategory rider_category = 2 [(google.api.field_behavior) = OPTIONAL];
-  // 運賃（JPY）。
+  // 運賃（GTFS の price）。通貨は日本円（JPY）。
   google.type.Money price = 3 [(google.api.field_behavior) = OPTIONAL];
   // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
   google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
@@ -88,13 +88,13 @@ message UpdateFareAttributeRequest {
 
 // UpdateFareAttribute の Response。
 message UpdateFareAttributeResponse {
-  // 更新した運賃（GTFS の fare_attributes）。
+  // 更新した運賃属性情報（GTFS の fare_attributes）。
   FareAttribute fare_attribute = 1;
 }
 
 // DeleteFareAttribute の Request。
 message DeleteFareAttributeRequest {
-  // 運賃の ID（GTFS の fare_id）。
+  // 運賃ID（GTFS の fare_id）。
   string fare_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 

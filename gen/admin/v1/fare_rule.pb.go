@@ -23,18 +23,18 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 運賃の適用ルール（GTFS の fare_rules）。
+// 運賃定義情報（GTFS の fare_rules）。
 type FareRule struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 運賃の ID（GTFS の fare_id）。
+	// 運賃ID（GTFS の fare_id）。
 	FareId string `protobuf:"bytes,2,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
-	// 適用する路線の ID（GTFS の route_id）。未設定の場合はすべての路線。
+	// 経路ID（GTFS の route_id）。未設定の場合はすべての経路。
 	RouteId *string `protobuf:"bytes,3,opt,name=route_id,json=routeId,proto3,oneof" json:"route_id,omitempty"`
-	// 乗車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	// 乗車地ゾーン（GTFS の origin_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
 	OriginId *string `protobuf:"bytes,4,opt,name=origin_id,json=originId,proto3,oneof" json:"origin_id,omitempty"`
-	// 降車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	// 降車地ゾーン（GTFS の destination_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
 	DestinationId *string `protobuf:"bytes,5,opt,name=destination_id,json=destinationId,proto3,oneof" json:"destination_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -163,7 +163,7 @@ func (x *ListFareRulesRequest) GetPageToken() string {
 // ListFareRules の Response。
 type ListFareRulesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃の適用ルール（GTFS の fare_rules）の一覧。
+	// 運賃定義情報（GTFS の fare_rules）の一覧。
 	FareRules []*FareRule `protobuf:"bytes,1,rep,name=fare_rules,json=fareRules,proto3" json:"fare_rules,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -218,7 +218,7 @@ func (x *ListFareRulesResponse) GetNextPageToken() string {
 // GetFareRule の Request。
 type GetFareRuleRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得する運賃の適用ルール（GTFS の fare_rules）の ID。
+	// 取得する運賃定義情報（GTFS の fare_rules）のID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -264,7 +264,7 @@ func (x *GetFareRuleRequest) GetId() string {
 // GetFareRule の Response。
 type GetFareRuleResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得した運賃の適用ルール（GTFS の fare_rules）。
+	// 取得した運賃定義情報（GTFS の fare_rules）。
 	FareRule      *FareRule `protobuf:"bytes,1,opt,name=fare_rule,json=fareRule,proto3" json:"fare_rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -310,13 +310,13 @@ func (x *GetFareRuleResponse) GetFareRule() *FareRule {
 // CreateFareRule の Request。
 type CreateFareRuleRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃の ID（GTFS の fare_id）。
+	// 運賃ID（GTFS の fare_id）。
 	FareId string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
-	// 適用する路線の ID（GTFS の route_id）。未設定の場合はすべての路線。
+	// 経路ID（GTFS の route_id）。未設定の場合はすべての経路。
 	RouteId *string `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3,oneof" json:"route_id,omitempty"`
-	// 乗車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	// 乗車地ゾーン（GTFS の origin_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
 	OriginId *string `protobuf:"bytes,3,opt,name=origin_id,json=originId,proto3,oneof" json:"origin_id,omitempty"`
-	// 降車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	// 降車地ゾーン（GTFS の destination_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
 	DestinationId *string `protobuf:"bytes,4,opt,name=destination_id,json=destinationId,proto3,oneof" json:"destination_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -383,7 +383,7 @@ func (x *CreateFareRuleRequest) GetDestinationId() string {
 // CreateFareRule の Response。
 type CreateFareRuleResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成した運賃の適用ルール（GTFS の fare_rules）。
+	// 作成した運賃定義情報（GTFS の fare_rules）。
 	FareRule      *FareRule `protobuf:"bytes,1,opt,name=fare_rule,json=fareRule,proto3" json:"fare_rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -429,15 +429,15 @@ func (x *CreateFareRuleResponse) GetFareRule() *FareRule {
 // UpdateFareRule の Request。
 type UpdateFareRuleRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新する運賃の適用ルール（GTFS の fare_rules）の ID。
+	// 更新する運賃定義情報（GTFS の fare_rules）のID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 運賃の ID（GTFS の fare_id）。
+	// 運賃ID（GTFS の fare_id）。
 	FareId string `protobuf:"bytes,2,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
-	// 適用する路線の ID（GTFS の route_id）。未設定の場合はすべての路線。
+	// 経路ID（GTFS の route_id）。未設定の場合はすべての経路。
 	RouteId *string `protobuf:"bytes,3,opt,name=route_id,json=routeId,proto3,oneof" json:"route_id,omitempty"`
-	// 乗車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	// 乗車地ゾーン（GTFS の origin_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
 	OriginId *string `protobuf:"bytes,4,opt,name=origin_id,json=originId,proto3,oneof" json:"origin_id,omitempty"`
-	// 降車するゾーンの ID（GTFS の zone_id）。未設定の場合はすべてのゾーン。
+	// 降車地ゾーン（GTFS の destination_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
 	DestinationId *string `protobuf:"bytes,5,opt,name=destination_id,json=destinationId,proto3,oneof" json:"destination_id,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -520,7 +520,7 @@ func (x *UpdateFareRuleRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateFareRule の Response。
 type UpdateFareRuleResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新した運賃の適用ルール（GTFS の fare_rules）。
+	// 更新した運賃定義情報（GTFS の fare_rules）。
 	FareRule      *FareRule `protobuf:"bytes,1,opt,name=fare_rule,json=fareRule,proto3" json:"fare_rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -566,7 +566,7 @@ func (x *UpdateFareRuleResponse) GetFareRule() *FareRule {
 // DeleteFareRule の Request。
 type DeleteFareRuleRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除する運賃の適用ルール（GTFS の fare_rules）の ID。
+	// 削除する運賃定義情報（GTFS の fare_rules）のID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

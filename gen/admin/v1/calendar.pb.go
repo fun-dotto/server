@@ -24,10 +24,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 運行カレンダー（GTFS の calendar）。
+// 運行区分情報（GTFS の calendar）。
 type Calendar struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// 月曜日に運行するか。
 	Monday bool `protobuf:"varint,2,opt,name=monday,proto3" json:"monday,omitempty"`
@@ -43,9 +43,9 @@ type Calendar struct {
 	Saturday bool `protobuf:"varint,7,opt,name=saturday,proto3" json:"saturday,omitempty"`
 	// 日曜日に運行するか。
 	Sunday bool `protobuf:"varint,8,opt,name=sunday,proto3" json:"sunday,omitempty"`
-	// 運行期間の開始日。
+	// 適用開始日（GTFS の start_date）。
 	StartDate *date.Date `protobuf:"bytes,9,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
-	// 運行期間の終了日。
+	// 適用終了日（GTFS の end_date）。
 	EndDate       *date.Date `protobuf:"bytes,10,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -209,7 +209,7 @@ func (x *ListCalendarsRequest) GetPageToken() string {
 // ListCalendars の Response。
 type ListCalendarsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダー（GTFS の calendar）の一覧。
+	// 運行区分情報（GTFS の calendar）の一覧。
 	Calendars []*Calendar `protobuf:"bytes,1,rep,name=calendars,proto3" json:"calendars,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -264,7 +264,7 @@ func (x *ListCalendarsResponse) GetNextPageToken() string {
 // GetCalendar の Request。
 type GetCalendarRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId     string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -310,7 +310,7 @@ func (x *GetCalendarRequest) GetServiceId() string {
 // GetCalendar の Response。
 type GetCalendarResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得した運行カレンダー（GTFS の calendar）。
+	// 取得した運行区分情報（GTFS の calendar）。
 	Calendar      *Calendar `protobuf:"bytes,1,opt,name=calendar,proto3" json:"calendar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -356,7 +356,7 @@ func (x *GetCalendarResponse) GetCalendar() *Calendar {
 // CreateCalendar の Request。
 type CreateCalendarRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// 月曜日に運行するか。
 	Monday bool `protobuf:"varint,2,opt,name=monday,proto3" json:"monday,omitempty"`
@@ -372,9 +372,9 @@ type CreateCalendarRequest struct {
 	Saturday bool `protobuf:"varint,7,opt,name=saturday,proto3" json:"saturday,omitempty"`
 	// 日曜日に運行するか。
 	Sunday bool `protobuf:"varint,8,opt,name=sunday,proto3" json:"sunday,omitempty"`
-	// 運行期間の開始日。
+	// 適用開始日（GTFS の start_date）。
 	StartDate *date.Date `protobuf:"bytes,9,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
-	// 運行期間の終了日。
+	// 適用終了日（GTFS の end_date）。
 	EndDate       *date.Date `protobuf:"bytes,10,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -483,7 +483,7 @@ func (x *CreateCalendarRequest) GetEndDate() *date.Date {
 // CreateCalendar の Response。
 type CreateCalendarResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成した運行カレンダー（GTFS の calendar）。
+	// 作成した運行区分情報（GTFS の calendar）。
 	Calendar      *Calendar `protobuf:"bytes,1,opt,name=calendar,proto3" json:"calendar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -529,7 +529,7 @@ func (x *CreateCalendarResponse) GetCalendar() *Calendar {
 // UpdateCalendar の Request。
 type UpdateCalendarRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// 月曜日に運行するか。
 	Monday bool `protobuf:"varint,2,opt,name=monday,proto3" json:"monday,omitempty"`
@@ -545,9 +545,9 @@ type UpdateCalendarRequest struct {
 	Saturday bool `protobuf:"varint,7,opt,name=saturday,proto3" json:"saturday,omitempty"`
 	// 日曜日に運行するか。
 	Sunday bool `protobuf:"varint,8,opt,name=sunday,proto3" json:"sunday,omitempty"`
-	// 運行期間の開始日。
+	// 適用開始日（GTFS の start_date）。
 	StartDate *date.Date `protobuf:"bytes,9,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
-	// 運行期間の終了日。
+	// 適用終了日（GTFS の end_date）。
 	EndDate *date.Date `protobuf:"bytes,10,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -665,7 +665,7 @@ func (x *UpdateCalendarRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateCalendar の Response。
 type UpdateCalendarResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新した運行カレンダー（GTFS の calendar）。
+	// 更新した運行区分情報（GTFS の calendar）。
 	Calendar      *Calendar `protobuf:"bytes,1,opt,name=calendar,proto3" json:"calendar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -711,7 +711,7 @@ func (x *UpdateCalendarResponse) GetCalendar() *Calendar {
 // DeleteCalendar の Request。
 type DeleteCalendarRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId     string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

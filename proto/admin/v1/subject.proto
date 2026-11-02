@@ -23,25 +23,25 @@ service SubjectService {
 
 // 科目の担当教員。
 message SubjectFaculty {
-  // 教員の ID。
+  // 教員ID。
   string faculty_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 主担当の教員か。
+  // 主担当かどうか。
   bool is_primary = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// 科目を履修できる学年・クラス。
+// 対象学年・クラス。
 message SubjectEligibleAttribute {
   // 学年。
   Grade grade = 1 [(google.api.field_behavior) = REQUIRED];
-  // クラス。未設定の場合は学年内のすべてのクラス。
+  // クラス。修士課程・博士課程対象の場合は未設定。
   optional Class class = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// コースごとの科目の必修・選択の区分。
+// コースごとの必修・選択。
 message SubjectRequirement {
   // コース。
   Course course = 1 [(google.api.field_behavior) = REQUIRED];
-  // 必修・選択の区分。
+  // 必修・選択・選択必修。
   SubjectRequirementType requirement_type = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
@@ -57,17 +57,17 @@ message Subject {
   SubjectSemester semester = 4 [(google.api.field_behavior) = REQUIRED];
   // 単位数。
   int32 credit = 5 [(google.api.field_behavior) = REQUIRED];
-  // 科目区分。
+  // 科目カテゴリ。
   SubjectClassification classification = 6 [(google.api.field_behavior) = REQUIRED];
-  // 教養科目の分野。教養科目以外では UNSPECIFIED。
+  // 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
   SubjectCulturalSubjectCategory cultural_subject_category = 7 [(google.api.field_behavior) = OPTIONAL];
-  // シラバスの ID。
+  // シラバスID。
   string syllabus_id = 8 [(google.api.field_behavior) = REQUIRED];
   // 担当教員。
   repeated SubjectFaculty faculties = 9 [(google.api.field_behavior) = OPTIONAL];
-  // 履修できる学年・クラス。
+  // 対象学年・クラス。授業名末尾の `学年-クラス` をもとに決定する。
   repeated SubjectEligibleAttribute eligible_attributes = 10 [(google.api.field_behavior) = OPTIONAL];
-  // コースごとの必修・選択の区分。
+  // コースごとの必修・選択。科目群・科目区分をもとに決定する。
   repeated SubjectRequirement requirements = 11 [(google.api.field_behavior) = OPTIONAL];
   // 作成日時。
   google.protobuf.Timestamp created_at = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -93,7 +93,7 @@ message ListSubjectsResponse {
 
 // GetSubject の Request。
 message GetSubjectRequest {
-  // 取得する科目の ID。
+  // 取得する科目ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
@@ -113,17 +113,17 @@ message CreateSubjectRequest {
   SubjectSemester semester = 3 [(google.api.field_behavior) = REQUIRED];
   // 単位数。
   int32 credit = 4 [(google.api.field_behavior) = REQUIRED];
-  // 科目区分。
+  // 科目カテゴリ。
   SubjectClassification classification = 5 [(google.api.field_behavior) = REQUIRED];
-  // 教養科目の分野。教養科目以外では UNSPECIFIED。
+  // 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
   SubjectCulturalSubjectCategory cultural_subject_category = 6 [(google.api.field_behavior) = OPTIONAL];
-  // シラバスの ID。
+  // シラバスID。
   string syllabus_id = 7 [(google.api.field_behavior) = REQUIRED];
   // 担当教員。
   repeated SubjectFaculty faculties = 8 [(google.api.field_behavior) = OPTIONAL];
-  // 履修できる学年・クラス。
+  // 対象学年・クラス。授業名末尾の `学年-クラス` をもとに決定する。
   repeated SubjectEligibleAttribute eligible_attributes = 9 [(google.api.field_behavior) = OPTIONAL];
-  // コースごとの必修・選択の区分。
+  // コースごとの必修・選択。科目群・科目区分をもとに決定する。
   repeated SubjectRequirement requirements = 10 [(google.api.field_behavior) = OPTIONAL];
 }
 
@@ -135,7 +135,7 @@ message CreateSubjectResponse {
 
 // UpdateSubject の Request。
 message UpdateSubjectRequest {
-  // 更新する科目の ID。
+  // 更新する科目ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
   // 科目名。
   string name = 2 [(google.api.field_behavior) = OPTIONAL];
@@ -145,17 +145,17 @@ message UpdateSubjectRequest {
   SubjectSemester semester = 4 [(google.api.field_behavior) = OPTIONAL];
   // 単位数。
   int32 credit = 5 [(google.api.field_behavior) = OPTIONAL];
-  // 科目区分。
+  // 科目カテゴリ。
   SubjectClassification classification = 6 [(google.api.field_behavior) = OPTIONAL];
-  // 教養科目の分野。教養科目以外では UNSPECIFIED。
+  // 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
   SubjectCulturalSubjectCategory cultural_subject_category = 7 [(google.api.field_behavior) = OPTIONAL];
-  // シラバスの ID。
+  // シラバスID。
   string syllabus_id = 8 [(google.api.field_behavior) = OPTIONAL];
   // 担当教員。
   repeated SubjectFaculty faculties = 9 [(google.api.field_behavior) = OPTIONAL];
-  // 履修できる学年・クラス。
+  // 対象学年・クラス。授業名末尾の `学年-クラス` をもとに決定する。
   repeated SubjectEligibleAttribute eligible_attributes = 10 [(google.api.field_behavior) = OPTIONAL];
-  // コースごとの必修・選択の区分。
+  // コースごとの必修・選択。科目群・科目区分をもとに決定する。
   repeated SubjectRequirement requirements = 11 [(google.api.field_behavior) = OPTIONAL];
   // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
   google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
@@ -169,7 +169,7 @@ message UpdateSubjectResponse {
 
 // DeleteSubject の Request。
 message DeleteSubjectRequest {
-  // 削除する科目の ID。
+  // 削除する科目ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
@@ -186,21 +186,21 @@ enum SubjectSemester {
   SUBJECT_SEMESTER_H1 = 2;
   // 後期。
   SUBJECT_SEMESTER_H2 = 3;
-  // 第 1 クォーター。
+  // 第1クオーター。
   SUBJECT_SEMESTER_Q1 = 4;
-  // 第 2 クォーター。
+  // 第2クオーター。
   SUBJECT_SEMESTER_Q2 = 5;
-  // 第 3 クォーター。
+  // 第3クオーター。
   SUBJECT_SEMESTER_Q3 = 6;
-  // 第 4 クォーター。
+  // 第4クオーター。
   SUBJECT_SEMESTER_Q4 = 7;
-  // 夏季集中。
+  // 夏期集中。
   SUBJECT_SEMESTER_SUMMER_INTENSIVE = 8;
-  // 冬季集中。
+  // 冬期集中。
   SUBJECT_SEMESTER_WINTER_INTENSIVE = 9;
 }
 
-// 科目区分。
+// 科目カテゴリ。
 enum SubjectClassification {
   // 未指定。
   SUBJECT_CLASSIFICATION_UNSPECIFIED = 0;
@@ -212,7 +212,7 @@ enum SubjectClassification {
   SUBJECT_CLASSIFICATION_RESEARCH_INSTRUCTION = 3;
 }
 
-// 教養科目の分野。
+// 教養科目カテゴリ。
 enum SubjectCulturalSubjectCategory {
   // 未指定。
   SUBJECT_CULTURAL_SUBJECT_CATEGORY_UNSPECIFIED = 0;
@@ -228,7 +228,7 @@ enum SubjectCulturalSubjectCategory {
   SUBJECT_CULTURAL_SUBJECT_CATEGORY_COMMUNICATION = 5;
 }
 
-// 科目の必修・選択の区分。
+// 必修・選択。
 enum SubjectRequirementType {
   // 未指定。
   SUBJECT_REQUIREMENT_TYPE_UNSPECIFIED = 0;

@@ -50,13 +50,13 @@ const (
 
 // CourseRegistrationServiceClient is a client for the admin.v1.CourseRegistrationService service.
 type CourseRegistrationServiceClient interface {
-	// 履修登録の一覧を取得する。
+	// 履修情報の一覧を取得する。
 	ListCourseRegistrations(context.Context, *connect.Request[v1.ListCourseRegistrationsRequest]) (*connect.Response[v1.ListCourseRegistrationsResponse], error)
-	// 履修登録を取得する。
+	// 履修情報を取得する。
 	GetCourseRegistration(context.Context, *connect.Request[v1.GetCourseRegistrationRequest]) (*connect.Response[v1.GetCourseRegistrationResponse], error)
-	// 履修登録を作成する。
+	// 履修情報を作成する。
 	CreateCourseRegistration(context.Context, *connect.Request[v1.CreateCourseRegistrationRequest]) (*connect.Response[v1.CreateCourseRegistrationResponse], error)
-	// 履修登録を削除する。
+	// 履修情報を削除する。
 	DeleteCourseRegistration(context.Context, *connect.Request[v1.DeleteCourseRegistrationRequest]) (*connect.Response[v1.DeleteCourseRegistrationResponse], error)
 }
 
@@ -129,13 +129,13 @@ func (c *courseRegistrationServiceClient) DeleteCourseRegistration(ctx context.C
 // CourseRegistrationServiceHandler is an implementation of the admin.v1.CourseRegistrationService
 // service.
 type CourseRegistrationServiceHandler interface {
-	// 履修登録の一覧を取得する。
+	// 履修情報の一覧を取得する。
 	ListCourseRegistrations(context.Context, *connect.Request[v1.ListCourseRegistrationsRequest]) (*connect.Response[v1.ListCourseRegistrationsResponse], error)
-	// 履修登録を取得する。
+	// 履修情報を取得する。
 	GetCourseRegistration(context.Context, *connect.Request[v1.GetCourseRegistrationRequest]) (*connect.Response[v1.GetCourseRegistrationResponse], error)
-	// 履修登録を作成する。
+	// 履修情報を作成する。
 	CreateCourseRegistration(context.Context, *connect.Request[v1.CreateCourseRegistrationRequest]) (*connect.Response[v1.CreateCourseRegistrationResponse], error)
-	// 履修登録を削除する。
+	// 履修情報を削除する。
 	DeleteCourseRegistration(context.Context, *connect.Request[v1.DeleteCourseRegistrationRequest]) (*connect.Response[v1.DeleteCourseRegistrationResponse], error)
 }
 

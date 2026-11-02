@@ -22,9 +22,9 @@ service UserService {
 
 // ユーザー。
 message User {
-  // ユーザーの ID（認証基盤のユーザー ID）。
+  // ユーザーID。Firebase Authentication の UID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
-  // メールアドレス。
+  // メールアドレス。Firebase Authentication のメールアドレス。
   string email = 2 [(google.api.field_behavior) = REQUIRED];
   // 学年。
   optional Grade grade = 3 [(google.api.field_behavior) = OPTIONAL];
@@ -52,7 +52,7 @@ message ListUsersResponse {
 
 // GetUser の Request。
 message GetUserRequest {
-  // 取得するユーザーの ID。
+  // 取得するユーザーID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
@@ -64,9 +64,9 @@ message GetUserResponse {
 
 // CreateUser の Request。
 message CreateUserRequest {
-  // ユーザーの ID（認証基盤のユーザー ID）。
+  // ユーザーID。Firebase Authentication の UID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
-  // メールアドレス。
+  // メールアドレス。Firebase Authentication のメールアドレス。
   string email = 2 [(google.api.field_behavior) = REQUIRED];
   // 学年。
   optional Grade grade = 3 [(google.api.field_behavior) = OPTIONAL];
@@ -84,9 +84,9 @@ message CreateUserResponse {
 
 // UpdateUser の Request。
 message UpdateUserRequest {
-  // 更新するユーザーの ID。
+  // 更新するユーザーID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
-  // メールアドレス。
+  // メールアドレス。Firebase Authentication のメールアドレス。
   string email = 2 [(google.api.field_behavior) = OPTIONAL];
   // 学年。
   optional Grade grade = 3 [(google.api.field_behavior) = OPTIONAL];
@@ -106,7 +106,7 @@ message UpdateUserResponse {
 
 // DeleteUser の Request。
 message DeleteUserRequest {
-  // 削除するユーザーの ID。
+  // 削除するユーザーID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 

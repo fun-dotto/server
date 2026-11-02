@@ -23,14 +23,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 教員の居室。
+// 教員室。
 type FacultyRoom struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 教員の ID。
+	// 教員ID。
 	FacultyId string `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
-	// 教室の ID。
+	// 教室ID。
 	RoomId string `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	// 居室を使う年度。
+	// 年度。
 	Year int32 `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
 	// 作成日時。
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -163,7 +163,7 @@ func (x *ListFacultyRoomsRequest) GetPageToken() string {
 // ListFacultyRooms の Response。
 type ListFacultyRoomsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 教員の居室の一覧。
+	// 教員室の一覧。
 	FacultyRooms []*FacultyRoom `protobuf:"bytes,1,rep,name=faculty_rooms,json=facultyRooms,proto3" json:"faculty_rooms,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -218,11 +218,11 @@ func (x *ListFacultyRoomsResponse) GetNextPageToken() string {
 // GetFacultyRoom の Request。
 type GetFacultyRoomRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 教員の ID。
+	// 教員ID。
 	FacultyId string `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
-	// 教室の ID。
+	// 教室ID。
 	RoomId string `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	// 居室を使う年度。
+	// 年度。
 	Year          int32 `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -282,7 +282,7 @@ func (x *GetFacultyRoomRequest) GetYear() int32 {
 // GetFacultyRoom の Response。
 type GetFacultyRoomResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得した教員の居室。
+	// 取得した教員室。
 	FacultyRoom   *FacultyRoom `protobuf:"bytes,1,opt,name=faculty_room,json=facultyRoom,proto3" json:"faculty_room,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -328,11 +328,11 @@ func (x *GetFacultyRoomResponse) GetFacultyRoom() *FacultyRoom {
 // CreateFacultyRoom の Request。
 type CreateFacultyRoomRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 教員の ID。
+	// 教員ID。
 	FacultyId string `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
-	// 教室の ID。
+	// 教室ID。
 	RoomId string `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	// 居室を使う年度。
+	// 年度。
 	Year          int32 `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -392,7 +392,7 @@ func (x *CreateFacultyRoomRequest) GetYear() int32 {
 // CreateFacultyRoom の Response。
 type CreateFacultyRoomResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成した教員の居室。
+	// 作成した教員室。
 	FacultyRoom   *FacultyRoom `protobuf:"bytes,1,opt,name=faculty_room,json=facultyRoom,proto3" json:"faculty_room,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -438,11 +438,11 @@ func (x *CreateFacultyRoomResponse) GetFacultyRoom() *FacultyRoom {
 // DeleteFacultyRoom の Request。
 type DeleteFacultyRoomRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 教員の ID。
+	// 教員ID。
 	FacultyId string `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
-	// 教室の ID。
+	// 教室ID。
 	RoomId string `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	// 居室を使う年度。
+	// 年度。
 	Year          int32 `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

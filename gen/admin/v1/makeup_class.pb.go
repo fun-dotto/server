@@ -30,7 +30,7 @@ type MakeupClass struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	// 補講する日付。
 	Date *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
@@ -238,7 +238,7 @@ func (x *ListMakeupClassesResponse) GetNextPageToken() string {
 // GetMakeupClass の Request。
 type GetMakeupClassRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得する補講の ID。
+	// 取得する補講ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -330,7 +330,7 @@ func (x *GetMakeupClassResponse) GetMakeupClass() *MakeupClass {
 // CreateMakeupClass の Request。
 type CreateMakeupClassRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,1,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	// 補講する日付。
 	Date *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
@@ -449,9 +449,9 @@ func (x *CreateMakeupClassResponse) GetMakeupClass() *MakeupClass {
 // UpdateMakeupClass の Request。
 type UpdateMakeupClassRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新する補講の ID。
+	// 更新する補講ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	// 補講する日付。
 	Date *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
@@ -586,7 +586,7 @@ func (x *UpdateMakeupClassResponse) GetMakeupClass() *MakeupClass {
 // DeleteMakeupClass の Request。
 type DeleteMakeupClassRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除する補講の ID。
+	// 削除する補講ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

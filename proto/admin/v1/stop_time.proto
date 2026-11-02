@@ -5,33 +5,33 @@ package admin.v1;
 import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 
-// 便ごとのバス停の発着時刻（GTFS の stop_times）を管理する。
+// 通過時刻情報（GTFS の stop_times）を管理する。
 service StopTimeService {
-  // 便ごとのバス停の発着時刻（GTFS の stop_times）の一覧を取得する。
+  // 通過時刻情報（GTFS の stop_times）の一覧を取得する。
   rpc ListStopTimes(ListStopTimesRequest) returns (ListStopTimesResponse);
-  // 便ごとのバス停の発着時刻（GTFS の stop_times）を取得する。
+  // 通過時刻情報（GTFS の stop_times）を取得する。
   rpc GetStopTime(GetStopTimeRequest) returns (GetStopTimeResponse);
-  // 便ごとのバス停の発着時刻（GTFS の stop_times）を作成する。
+  // 通過時刻情報（GTFS の stop_times）を作成する。
   rpc CreateStopTime(CreateStopTimeRequest) returns (CreateStopTimeResponse);
-  // 便ごとのバス停の発着時刻（GTFS の stop_times）を更新する。
+  // 通過時刻情報（GTFS の stop_times）を更新する。
   rpc UpdateStopTime(UpdateStopTimeRequest) returns (UpdateStopTimeResponse);
-  // 便ごとのバス停の発着時刻（GTFS の stop_times）を削除する。
+  // 通過時刻情報（GTFS の stop_times）を削除する。
   rpc DeleteStopTime(DeleteStopTimeRequest) returns (DeleteStopTimeResponse);
 }
 
-// 便ごとのバス停の発着時刻（GTFS の stop_times）。
+// 通過時刻情報（GTFS の stop_times）。
 message StopTime {
-  // 便の ID（GTFS の trip_id）。
+  // 便ID（GTFS の trip_id）。
   string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 便の中での停車順（GTFS の stop_sequence）。
+  // 通過順位（GTFS の stop_sequence）。
   int32 stop_sequence = 2 [(google.api.field_behavior) = REQUIRED];
-  // バス停の ID（GTFS の stop_id）。
+  // 停留所・標柱ID（GTFS の stop_id）。
   string stop_id = 3 [(google.api.field_behavior) = REQUIRED];
   // 到着時刻（GTFS の arrival_time）。HH:MM:SS 形式で、24 時以降も表せる。
   string arrival_time = 4 [(google.api.field_behavior) = REQUIRED];
   // 出発時刻（GTFS の departure_time）。HH:MM:SS 形式で、24 時以降も表せる。
   string departure_time = 5 [(google.api.field_behavior) = REQUIRED];
-  // このバス停での行先表示（GTFS の stop_headsign）。
+  // 停留所行先（GTFS の stop_headsign）。
   optional string stop_headsign = 6 [(google.api.field_behavior) = OPTIONAL];
 }
 
@@ -45,7 +45,7 @@ message ListStopTimesRequest {
 
 // ListStopTimes の Response。
 message ListStopTimesResponse {
-  // 便ごとのバス停の発着時刻（GTFS の stop_times）の一覧。
+  // 通過時刻情報（GTFS の stop_times）の一覧。
   repeated StopTime stop_times = 1;
   // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
@@ -53,53 +53,53 @@ message ListStopTimesResponse {
 
 // GetStopTime の Request。
 message GetStopTimeRequest {
-  // 便の ID（GTFS の trip_id）。
+  // 便ID（GTFS の trip_id）。
   string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 便の中での停車順（GTFS の stop_sequence）。
+  // 通過順位（GTFS の stop_sequence）。
   int32 stop_sequence = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetStopTime の Response。
 message GetStopTimeResponse {
-  // 取得した便ごとのバス停の発着時刻（GTFS の stop_times）。
+  // 取得した通過時刻情報（GTFS の stop_times）。
   StopTime stop_time = 1;
 }
 
 // CreateStopTime の Request。
 message CreateStopTimeRequest {
-  // 便の ID（GTFS の trip_id）。
+  // 便ID（GTFS の trip_id）。
   string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 便の中での停車順（GTFS の stop_sequence）。
+  // 通過順位（GTFS の stop_sequence）。
   int32 stop_sequence = 2 [(google.api.field_behavior) = REQUIRED];
-  // バス停の ID（GTFS の stop_id）。
+  // 停留所・標柱ID（GTFS の stop_id）。
   string stop_id = 3 [(google.api.field_behavior) = REQUIRED];
   // 到着時刻（GTFS の arrival_time）。HH:MM:SS 形式で、24 時以降も表せる。
   string arrival_time = 4 [(google.api.field_behavior) = REQUIRED];
   // 出発時刻（GTFS の departure_time）。HH:MM:SS 形式で、24 時以降も表せる。
   string departure_time = 5 [(google.api.field_behavior) = REQUIRED];
-  // このバス停での行先表示（GTFS の stop_headsign）。
+  // 停留所行先（GTFS の stop_headsign）。
   optional string stop_headsign = 6 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // CreateStopTime の Response。
 message CreateStopTimeResponse {
-  // 作成した便ごとのバス停の発着時刻（GTFS の stop_times）。
+  // 作成した通過時刻情報（GTFS の stop_times）。
   StopTime stop_time = 1;
 }
 
 // UpdateStopTime の Request。
 message UpdateStopTimeRequest {
-  // 便の ID（GTFS の trip_id）。
+  // 便ID（GTFS の trip_id）。
   string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 便の中での停車順（GTFS の stop_sequence）。
+  // 通過順位（GTFS の stop_sequence）。
   int32 stop_sequence = 2 [(google.api.field_behavior) = REQUIRED];
-  // バス停の ID（GTFS の stop_id）。
+  // 停留所・標柱ID（GTFS の stop_id）。
   string stop_id = 3 [(google.api.field_behavior) = OPTIONAL];
   // 到着時刻（GTFS の arrival_time）。HH:MM:SS 形式で、24 時以降も表せる。
   string arrival_time = 4 [(google.api.field_behavior) = OPTIONAL];
   // 出発時刻（GTFS の departure_time）。HH:MM:SS 形式で、24 時以降も表せる。
   string departure_time = 5 [(google.api.field_behavior) = OPTIONAL];
-  // このバス停での行先表示（GTFS の stop_headsign）。
+  // 停留所行先（GTFS の stop_headsign）。
   optional string stop_headsign = 6 [(google.api.field_behavior) = OPTIONAL];
   // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
   google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
@@ -107,15 +107,15 @@ message UpdateStopTimeRequest {
 
 // UpdateStopTime の Response。
 message UpdateStopTimeResponse {
-  // 更新した便ごとのバス停の発着時刻（GTFS の stop_times）。
+  // 更新した通過時刻情報（GTFS の stop_times）。
   StopTime stop_time = 1;
 }
 
 // DeleteStopTime の Request。
 message DeleteStopTimeRequest {
-  // 便の ID（GTFS の trip_id）。
+  // 便ID（GTFS の trip_id）。
   string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 便の中での停車順（GTFS の stop_sequence）。
+  // 通過順位（GTFS の stop_sequence）。
   int32 stop_sequence = 2 [(google.api.field_behavior) = REQUIRED];
 }
 

@@ -8,31 +8,31 @@ import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 import "google/type/dayofweek.proto";
 
-// 時間割の項目を管理する。
+// 時間割を管理する。
 service TimetableItemService {
-  // 時間割の項目の一覧を取得する。
+  // 時間割の一覧を取得する。
   rpc ListTimetableItems(ListTimetableItemsRequest) returns (ListTimetableItemsResponse);
-  // 時間割の項目を取得する。
+  // 時間割を取得する。
   rpc GetTimetableItem(GetTimetableItemRequest) returns (GetTimetableItemResponse);
-  // 時間割の項目を作成する。
+  // 時間割を作成する。
   rpc CreateTimetableItem(CreateTimetableItemRequest) returns (CreateTimetableItemResponse);
-  // 時間割の項目を更新する。
+  // 時間割を更新する。
   rpc UpdateTimetableItem(UpdateTimetableItemRequest) returns (UpdateTimetableItemResponse);
-  // 時間割の項目を削除する。
+  // 時間割を削除する。
   rpc DeleteTimetableItem(DeleteTimetableItemRequest) returns (DeleteTimetableItemResponse);
 }
 
-// 時間割の項目。
+// 時間割。
 message TimetableItem {
   // ID。
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // 科目の ID。
+  // 科目ID。
   string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
-  // 曜日。集中講義など曜日がない場合は未設定。
+  // 曜日。集中講義など、時間割に含まれていない場合は未設定。
   optional google.type.DayOfWeek day_of_week = 3 [(google.api.field_behavior) = OPTIONAL];
-  // 時限。集中講義など時限がない場合は未設定。
+  // 時限。集中講義など、時間割に含まれていない場合は未設定。
   optional Period period = 4 [(google.api.field_behavior) = OPTIONAL];
-  // 使う教室の ID。
+  // 使う教室ID。
   repeated string room_ids = 5 [(google.api.field_behavior) = OPTIONAL];
   // 作成日時。
   google.protobuf.Timestamp created_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -50,7 +50,7 @@ message ListTimetableItemsRequest {
 
 // ListTimetableItems の Response。
 message ListTimetableItemsResponse {
-  // 時間割の項目の一覧。
+  // 時間割の一覧。
   repeated TimetableItem timetable_items = 1;
   // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
@@ -58,45 +58,45 @@ message ListTimetableItemsResponse {
 
 // GetTimetableItem の Request。
 message GetTimetableItemRequest {
-  // 取得する時間割の項目の ID。
+  // 取得する時間割ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetTimetableItem の Response。
 message GetTimetableItemResponse {
-  // 取得した時間割の項目。
+  // 取得した時間割。
   TimetableItem timetable_item = 1;
 }
 
 // CreateTimetableItem の Request。
 message CreateTimetableItemRequest {
-  // 科目の ID。
+  // 科目ID。
   string subject_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 曜日。集中講義など曜日がない場合は未設定。
+  // 曜日。集中講義など、時間割に含まれていない場合は未設定。
   optional google.type.DayOfWeek day_of_week = 2 [(google.api.field_behavior) = OPTIONAL];
-  // 時限。集中講義など時限がない場合は未設定。
+  // 時限。集中講義など、時間割に含まれていない場合は未設定。
   optional Period period = 3 [(google.api.field_behavior) = OPTIONAL];
-  // 使う教室の ID。
+  // 使う教室ID。
   repeated string room_ids = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // CreateTimetableItem の Response。
 message CreateTimetableItemResponse {
-  // 作成した時間割の項目。
+  // 作成した時間割。
   TimetableItem timetable_item = 1;
 }
 
 // UpdateTimetableItem の Request。
 message UpdateTimetableItemRequest {
-  // 更新する時間割の項目の ID。
+  // 更新する時間割ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 科目の ID。
+  // 科目ID。
   string subject_id = 2 [(google.api.field_behavior) = OPTIONAL];
-  // 曜日。集中講義など曜日がない場合は未設定。
+  // 曜日。集中講義など、時間割に含まれていない場合は未設定。
   optional google.type.DayOfWeek day_of_week = 3 [(google.api.field_behavior) = OPTIONAL];
-  // 時限。集中講義など時限がない場合は未設定。
+  // 時限。集中講義など、時間割に含まれていない場合は未設定。
   optional Period period = 4 [(google.api.field_behavior) = OPTIONAL];
-  // 使う教室の ID。
+  // 使う教室ID。
   repeated string room_ids = 5 [(google.api.field_behavior) = OPTIONAL];
   // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
   google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
@@ -104,13 +104,13 @@ message UpdateTimetableItemRequest {
 
 // UpdateTimetableItem の Response。
 message UpdateTimetableItemResponse {
-  // 更新した時間割の項目。
+  // 更新した時間割。
   TimetableItem timetable_item = 1;
 }
 
 // DeleteTimetableItem の Request。
 message DeleteTimetableItemRequest {
-  // 削除する時間割の項目の ID。
+  // 削除する時間割ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 

@@ -6,51 +6,51 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
-// プッシュ通知を管理する。
+// 通知を管理する。
 service NotificationService {
-  // プッシュ通知の一覧を取得する。
+  // 通知の一覧を取得する。
   rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
-  // プッシュ通知を取得する。
+  // 通知を取得する。
   rpc GetNotification(GetNotificationRequest) returns (GetNotificationResponse);
-  // プッシュ通知を作成する。
+  // 通知を作成する。
   rpc CreateNotification(CreateNotificationRequest) returns (CreateNotificationResponse);
-  // プッシュ通知を更新する。
+  // 通知を更新する。
   rpc UpdateNotification(UpdateNotificationRequest) returns (UpdateNotificationResponse);
-  // プッシュ通知を削除する。
+  // 通知を削除する。
   rpc DeleteNotification(DeleteNotificationRequest) returns (DeleteNotificationResponse);
 }
 
-// プッシュ通知。
+// 通知。
 message Notification {
   // ID。
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // 通知のタイトル。
+  // 通知タイトル。
   string title = 2 [(google.api.field_behavior) = REQUIRED];
-  // 通知の本文。
+  // 通知本文。
   string body = 3 [(google.api.field_behavior) = REQUIRED];
-  // 通知に表示する画像の URL。
+  // 通知に表示する画像のURL。
   optional string image_url = 4 [(google.api.field_behavior) = OPTIONAL];
-  // FCM の分析用ラベル。
+  // Firebase Analytics に記録する分析ラベル。通知の開封率計測などに利用する。
   optional string analytics_label = 5 [(google.api.field_behavior) = OPTIONAL];
-  // APNs のバッジ数。
+  // APNs のバッジ数。アプリアイコンに表示される数値。0 でバッジを消去する。
   optional int32 apns_badge = 6 [(google.api.field_behavior) = OPTIONAL];
   // APNs の通知音。
   optional string apns_sound = 7 [(google.api.field_behavior) = OPTIONAL];
-  // APNs の content-available（バックグラウンド更新）を有効にするか。
+  // APNs の content-available フラグ。true でサイレントプッシュ（バックグラウンド更新）になる。
   optional bool apns_content_available = 8 [(google.api.field_behavior) = OPTIONAL];
-  // Android の通知チャンネル ID。
+  // Android の通知チャンネルID。Android 8.0 以降、通知はチャンネル単位で管理される。
   optional string android_channel_id = 9 [(google.api.field_behavior) = OPTIONAL];
-  // Android の配信優先度。
+  // Android の通知優先度。
   optional NotificationAndroidPriority android_priority = 10 [(google.api.field_behavior) = OPTIONAL];
-  // Android の通知の有効期間（秒）。
+  // Android の通知TTL（秒）。FCM がメッセージを保持する最大時間で、期限切れで破棄される。
   optional int32 android_ttl_seconds = 11 [(google.api.field_behavior) = OPTIONAL];
-  // Web Push の通知を開いたときのリンク。
+  // Web Push 通知をクリックした際に開くURL。
   optional string webpush_link = 12 [(google.api.field_behavior) = OPTIONAL];
-  // 通知を開いたときに表示する URL。
+  // 通知をタップした時に開くURL。アプリを開くのみの場合は未設定。
   optional string url = 13 [(google.api.field_behavior) = OPTIONAL];
-  // この日時以降に配信する。
+  // 通知送信可能になる日時（この時刻以降に送信対象となる）。
   google.protobuf.Timestamp notify_after = 14 [(google.api.field_behavior) = REQUIRED];
-  // この日時までに配信する。
+  // 通知送信期限日時（この時刻を過ぎた場合は送信しない）。
   google.protobuf.Timestamp notify_before = 15 [(google.api.field_behavior) = REQUIRED];
   // 作成日時。
   google.protobuf.Timestamp created_at = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -68,7 +68,7 @@ message ListNotificationsRequest {
 
 // ListNotifications の Response。
 message ListNotificationsResponse {
-  // プッシュ通知の一覧。
+  // 通知の一覧。
   repeated Notification notifications = 1;
   // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
@@ -76,85 +76,85 @@ message ListNotificationsResponse {
 
 // GetNotification の Request。
 message GetNotificationRequest {
-  // 取得するプッシュ通知の ID。
+  // 取得する通知ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetNotification の Response。
 message GetNotificationResponse {
-  // 取得したプッシュ通知。
+  // 取得した通知。
   Notification notification = 1;
 }
 
 // CreateNotification の Request。
 message CreateNotificationRequest {
-  // 通知のタイトル。
+  // 通知タイトル。
   string title = 1 [(google.api.field_behavior) = REQUIRED];
-  // 通知の本文。
+  // 通知本文。
   string body = 2 [(google.api.field_behavior) = REQUIRED];
-  // 通知に表示する画像の URL。
+  // 通知に表示する画像のURL。
   optional string image_url = 3 [(google.api.field_behavior) = OPTIONAL];
-  // FCM の分析用ラベル。
+  // Firebase Analytics に記録する分析ラベル。通知の開封率計測などに利用する。
   optional string analytics_label = 4 [(google.api.field_behavior) = OPTIONAL];
-  // APNs のバッジ数。
+  // APNs のバッジ数。アプリアイコンに表示される数値。0 でバッジを消去する。
   optional int32 apns_badge = 5 [(google.api.field_behavior) = OPTIONAL];
   // APNs の通知音。
   optional string apns_sound = 6 [(google.api.field_behavior) = OPTIONAL];
-  // APNs の content-available（バックグラウンド更新）を有効にするか。
+  // APNs の content-available フラグ。true でサイレントプッシュ（バックグラウンド更新）になる。
   optional bool apns_content_available = 7 [(google.api.field_behavior) = OPTIONAL];
-  // Android の通知チャンネル ID。
+  // Android の通知チャンネルID。Android 8.0 以降、通知はチャンネル単位で管理される。
   optional string android_channel_id = 8 [(google.api.field_behavior) = OPTIONAL];
-  // Android の配信優先度。
+  // Android の通知優先度。
   optional NotificationAndroidPriority android_priority = 9 [(google.api.field_behavior) = OPTIONAL];
-  // Android の通知の有効期間（秒）。
+  // Android の通知TTL（秒）。FCM がメッセージを保持する最大時間で、期限切れで破棄される。
   optional int32 android_ttl_seconds = 10 [(google.api.field_behavior) = OPTIONAL];
-  // Web Push の通知を開いたときのリンク。
+  // Web Push 通知をクリックした際に開くURL。
   optional string webpush_link = 11 [(google.api.field_behavior) = OPTIONAL];
-  // 通知を開いたときに表示する URL。
+  // 通知をタップした時に開くURL。アプリを開くのみの場合は未設定。
   optional string url = 12 [(google.api.field_behavior) = OPTIONAL];
-  // この日時以降に配信する。
+  // 通知送信可能になる日時（この時刻以降に送信対象となる）。
   google.protobuf.Timestamp notify_after = 13 [(google.api.field_behavior) = REQUIRED];
-  // この日時までに配信する。
+  // 通知送信期限日時（この時刻を過ぎた場合は送信しない）。
   google.protobuf.Timestamp notify_before = 14 [(google.api.field_behavior) = REQUIRED];
 }
 
 // CreateNotification の Response。
 message CreateNotificationResponse {
-  // 作成したプッシュ通知。
+  // 作成した通知。
   Notification notification = 1;
 }
 
 // UpdateNotification の Request。
 message UpdateNotificationRequest {
-  // 更新するプッシュ通知の ID。
+  // 更新する通知ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 通知のタイトル。
+  // 通知タイトル。
   string title = 2 [(google.api.field_behavior) = OPTIONAL];
-  // 通知の本文。
+  // 通知本文。
   string body = 3 [(google.api.field_behavior) = OPTIONAL];
-  // 通知に表示する画像の URL。
+  // 通知に表示する画像のURL。
   optional string image_url = 4 [(google.api.field_behavior) = OPTIONAL];
-  // FCM の分析用ラベル。
+  // Firebase Analytics に記録する分析ラベル。通知の開封率計測などに利用する。
   optional string analytics_label = 5 [(google.api.field_behavior) = OPTIONAL];
-  // APNs のバッジ数。
+  // APNs のバッジ数。アプリアイコンに表示される数値。0 でバッジを消去する。
   optional int32 apns_badge = 6 [(google.api.field_behavior) = OPTIONAL];
   // APNs の通知音。
   optional string apns_sound = 7 [(google.api.field_behavior) = OPTIONAL];
-  // APNs の content-available（バックグラウンド更新）を有効にするか。
+  // APNs の content-available フラグ。true でサイレントプッシュ（バックグラウンド更新）になる。
   optional bool apns_content_available = 8 [(google.api.field_behavior) = OPTIONAL];
-  // Android の通知チャンネル ID。
+  // Android の通知チャンネルID。Android 8.0 以降、通知はチャンネル単位で管理される。
   optional string android_channel_id = 9 [(google.api.field_behavior) = OPTIONAL];
-  // Android の配信優先度。
+  // Android の通知優先度。
   optional NotificationAndroidPriority android_priority = 10 [(google.api.field_behavior) = OPTIONAL];
-  // Android の通知の有効期間（秒）。
+  // Android の通知TTL（秒）。FCM がメッセージを保持する最大時間で、期限切れで破棄される。
   optional int32 android_ttl_seconds = 11 [(google.api.field_behavior) = OPTIONAL];
-  // Web Push の通知を開いたときのリンク。
+  // Web Push 通知をクリックした際に開くURL。
   optional string webpush_link = 12 [(google.api.field_behavior) = OPTIONAL];
-  // 通知を開いたときに表示する URL。
+  // 通知をタップした時に開くURL。アプリを開くのみの場合は未設定。
   optional string url = 13 [(google.api.field_behavior) = OPTIONAL];
-  // この日時以降に配信する。
+  // 通知送信可能になる日時（この時刻以降に送信対象となる）。
   google.protobuf.Timestamp notify_after = 14 [(google.api.field_behavior) = OPTIONAL];
-  // この日時までに配信する。
+  // 通知送信期限日時（この時刻を過ぎた場合は送信しない）。
   google.protobuf.Timestamp notify_before = 15 [(google.api.field_behavior) = OPTIONAL];
   // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
   google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
@@ -162,20 +162,20 @@ message UpdateNotificationRequest {
 
 // UpdateNotification の Response。
 message UpdateNotificationResponse {
-  // 更新したプッシュ通知。
+  // 更新した通知。
   Notification notification = 1;
 }
 
 // DeleteNotification の Request。
 message DeleteNotificationRequest {
-  // 削除するプッシュ通知の ID。
+  // 削除する通知ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // DeleteNotification の Response。
 message DeleteNotificationResponse {}
 
-// Android の配信優先度。
+// Android の通知優先度。
 enum NotificationAndroidPriority {
   // 未指定。
   NOTIFICATION_ANDROID_PRIORITY_UNSPECIFIED = 0;

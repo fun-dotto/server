@@ -24,16 +24,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// バス停（GTFS の stops）。
+// 停留所・標柱情報（GTFS の stops）。
 type Stop struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// バス停の ID（GTFS の stop_id）。
+	// 停留所・標柱ID（GTFS の stop_id）。
 	StopId string `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
-	// バス停名（GTFS の stop_name）。
+	// 停留所・標柱名称（GTFS の stop_name）。
 	StopName string `protobuf:"bytes,2,opt,name=stop_name,json=stopName,proto3" json:"stop_name,omitempty"`
-	// バス停の緯度経度（GTFS の stop_lat / stop_lon）。
+	// 緯度・経度（GTFS の stop_lat / stop_lon）。
 	StopLocation *latlng.LatLng `protobuf:"bytes,3,opt,name=stop_location,json=stopLocation,proto3" json:"stop_location,omitempty"`
-	// 運賃ゾーンの ID（GTFS の zone_id）。
+	// 運賃エリアID（GTFS の zone_id）。
 	ZoneId        *string `protobuf:"bytes,4,opt,name=zone_id,json=zoneId,proto3,oneof" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -155,7 +155,7 @@ func (x *ListStopsRequest) GetPageToken() string {
 // ListStops の Response。
 type ListStopsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// バス停（GTFS の stops）の一覧。
+	// 停留所・標柱情報（GTFS の stops）の一覧。
 	Stops []*Stop `protobuf:"bytes,1,rep,name=stops,proto3" json:"stops,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -210,7 +210,7 @@ func (x *ListStopsResponse) GetNextPageToken() string {
 // GetStop の Request。
 type GetStopRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// バス停の ID（GTFS の stop_id）。
+	// 停留所・標柱ID（GTFS の stop_id）。
 	StopId        string `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -256,7 +256,7 @@ func (x *GetStopRequest) GetStopId() string {
 // GetStop の Response。
 type GetStopResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得したバス停（GTFS の stops）。
+	// 取得した停留所・標柱情報（GTFS の stops）。
 	Stop          *Stop `protobuf:"bytes,1,opt,name=stop,proto3" json:"stop,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -302,13 +302,13 @@ func (x *GetStopResponse) GetStop() *Stop {
 // CreateStop の Request。
 type CreateStopRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// バス停の ID（GTFS の stop_id）。
+	// 停留所・標柱ID（GTFS の stop_id）。
 	StopId string `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
-	// バス停名（GTFS の stop_name）。
+	// 停留所・標柱名称（GTFS の stop_name）。
 	StopName string `protobuf:"bytes,2,opt,name=stop_name,json=stopName,proto3" json:"stop_name,omitempty"`
-	// バス停の緯度経度（GTFS の stop_lat / stop_lon）。
+	// 緯度・経度（GTFS の stop_lat / stop_lon）。
 	StopLocation *latlng.LatLng `protobuf:"bytes,3,opt,name=stop_location,json=stopLocation,proto3" json:"stop_location,omitempty"`
-	// 運賃ゾーンの ID（GTFS の zone_id）。
+	// 運賃エリアID（GTFS の zone_id）。
 	ZoneId        *string `protobuf:"bytes,4,opt,name=zone_id,json=zoneId,proto3,oneof" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -375,7 +375,7 @@ func (x *CreateStopRequest) GetZoneId() string {
 // CreateStop の Response。
 type CreateStopResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成したバス停（GTFS の stops）。
+	// 作成した停留所・標柱情報（GTFS の stops）。
 	Stop          *Stop `protobuf:"bytes,1,opt,name=stop,proto3" json:"stop,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -421,13 +421,13 @@ func (x *CreateStopResponse) GetStop() *Stop {
 // UpdateStop の Request。
 type UpdateStopRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// バス停の ID（GTFS の stop_id）。
+	// 停留所・標柱ID（GTFS の stop_id）。
 	StopId string `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
-	// バス停名（GTFS の stop_name）。
+	// 停留所・標柱名称（GTFS の stop_name）。
 	StopName string `protobuf:"bytes,2,opt,name=stop_name,json=stopName,proto3" json:"stop_name,omitempty"`
-	// バス停の緯度経度（GTFS の stop_lat / stop_lon）。
+	// 緯度・経度（GTFS の stop_lat / stop_lon）。
 	StopLocation *latlng.LatLng `protobuf:"bytes,3,opt,name=stop_location,json=stopLocation,proto3" json:"stop_location,omitempty"`
-	// 運賃ゾーンの ID（GTFS の zone_id）。
+	// 運賃エリアID（GTFS の zone_id）。
 	ZoneId *string `protobuf:"bytes,4,opt,name=zone_id,json=zoneId,proto3,oneof" json:"zone_id,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -503,7 +503,7 @@ func (x *UpdateStopRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateStop の Response。
 type UpdateStopResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新したバス停（GTFS の stops）。
+	// 更新した停留所・標柱情報（GTFS の stops）。
 	Stop          *Stop `protobuf:"bytes,1,opt,name=stop,proto3" json:"stop,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -549,7 +549,7 @@ func (x *UpdateStopResponse) GetStop() *Stop {
 // DeleteStop の Request。
 type DeleteStopRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// バス停の ID（GTFS の stop_id）。
+	// 停留所・標柱ID（GTFS の stop_id）。
 	StopId        string `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

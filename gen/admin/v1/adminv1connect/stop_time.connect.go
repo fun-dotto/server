@@ -52,15 +52,15 @@ const (
 
 // StopTimeServiceClient is a client for the admin.v1.StopTimeService service.
 type StopTimeServiceClient interface {
-	// 便ごとのバス停の発着時刻（GTFS の stop_times）の一覧を取得する。
+	// 通過時刻情報（GTFS の stop_times）の一覧を取得する。
 	ListStopTimes(context.Context, *connect.Request[v1.ListStopTimesRequest]) (*connect.Response[v1.ListStopTimesResponse], error)
-	// 便ごとのバス停の発着時刻（GTFS の stop_times）を取得する。
+	// 通過時刻情報（GTFS の stop_times）を取得する。
 	GetStopTime(context.Context, *connect.Request[v1.GetStopTimeRequest]) (*connect.Response[v1.GetStopTimeResponse], error)
-	// 便ごとのバス停の発着時刻（GTFS の stop_times）を作成する。
+	// 通過時刻情報（GTFS の stop_times）を作成する。
 	CreateStopTime(context.Context, *connect.Request[v1.CreateStopTimeRequest]) (*connect.Response[v1.CreateStopTimeResponse], error)
-	// 便ごとのバス停の発着時刻（GTFS の stop_times）を更新する。
+	// 通過時刻情報（GTFS の stop_times）を更新する。
 	UpdateStopTime(context.Context, *connect.Request[v1.UpdateStopTimeRequest]) (*connect.Response[v1.UpdateStopTimeResponse], error)
-	// 便ごとのバス停の発着時刻（GTFS の stop_times）を削除する。
+	// 通過時刻情報（GTFS の stop_times）を削除する。
 	DeleteStopTime(context.Context, *connect.Request[v1.DeleteStopTimeRequest]) (*connect.Response[v1.DeleteStopTimeResponse], error)
 }
 
@@ -144,15 +144,15 @@ func (c *stopTimeServiceClient) DeleteStopTime(ctx context.Context, req *connect
 
 // StopTimeServiceHandler is an implementation of the admin.v1.StopTimeService service.
 type StopTimeServiceHandler interface {
-	// 便ごとのバス停の発着時刻（GTFS の stop_times）の一覧を取得する。
+	// 通過時刻情報（GTFS の stop_times）の一覧を取得する。
 	ListStopTimes(context.Context, *connect.Request[v1.ListStopTimesRequest]) (*connect.Response[v1.ListStopTimesResponse], error)
-	// 便ごとのバス停の発着時刻（GTFS の stop_times）を取得する。
+	// 通過時刻情報（GTFS の stop_times）を取得する。
 	GetStopTime(context.Context, *connect.Request[v1.GetStopTimeRequest]) (*connect.Response[v1.GetStopTimeResponse], error)
-	// 便ごとのバス停の発着時刻（GTFS の stop_times）を作成する。
+	// 通過時刻情報（GTFS の stop_times）を作成する。
 	CreateStopTime(context.Context, *connect.Request[v1.CreateStopTimeRequest]) (*connect.Response[v1.CreateStopTimeResponse], error)
-	// 便ごとのバス停の発着時刻（GTFS の stop_times）を更新する。
+	// 通過時刻情報（GTFS の stop_times）を更新する。
 	UpdateStopTime(context.Context, *connect.Request[v1.UpdateStopTimeRequest]) (*connect.Response[v1.UpdateStopTimeResponse], error)
-	// 便ごとのバス停の発着時刻（GTFS の stop_times）を削除する。
+	// 通過時刻情報（GTFS の stop_times）を削除する。
 	DeleteStopTime(context.Context, *connect.Request[v1.DeleteStopTimeRequest]) (*connect.Response[v1.DeleteStopTimeResponse], error)
 }
 

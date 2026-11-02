@@ -24,27 +24,27 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 教室の階。
+// フロア。
 type RoomFloor int32
 
 const (
 	// 未指定。
 	RoomFloor_ROOM_FLOOR_UNSPECIFIED RoomFloor = 0
-	// 1 階。
+	// 1F。
 	RoomFloor_ROOM_FLOOR_1 RoomFloor = 1
-	// 2 階。
+	// 2F。
 	RoomFloor_ROOM_FLOOR_2 RoomFloor = 2
-	// 3 階。
+	// 3F。
 	RoomFloor_ROOM_FLOOR_3 RoomFloor = 3
-	// 4 階。
+	// 4F。
 	RoomFloor_ROOM_FLOOR_4 RoomFloor = 4
-	// 5 階。
+	// 5F。
 	RoomFloor_ROOM_FLOOR_5 RoomFloor = 5
-	// 6 階。
+	// R6F。
 	RoomFloor_ROOM_FLOOR_6 RoomFloor = 6
-	// 7 階。
+	// R7F。
 	RoomFloor_ROOM_FLOOR_7 RoomFloor = 7
-	// 物理的な階を持たない教室。
+	// 仮想教室（オンラインなど）。
 	RoomFloor_ROOM_FLOOR_VIRTUAL RoomFloor = 8
 )
 
@@ -106,9 +106,9 @@ type Room struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 教室名。
+	// 部屋名。
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// 階。
+	// フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
 	Floor RoomFloor `protobuf:"varint,3,opt,name=floor,proto3,enum=admin.v1.RoomFloor" json:"floor,omitempty"`
 	// 作成日時。
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -296,7 +296,7 @@ func (x *ListRoomsResponse) GetNextPageToken() string {
 // GetRoom の Request。
 type GetRoomRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得する教室の ID。
+	// 取得する教室ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -388,9 +388,9 @@ func (x *GetRoomResponse) GetRoom() *Room {
 // CreateRoom の Request。
 type CreateRoomRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 教室名。
+	// 部屋名。
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// 階。
+	// フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
 	Floor         RoomFloor `protobuf:"varint,2,opt,name=floor,proto3,enum=admin.v1.RoomFloor" json:"floor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -489,11 +489,11 @@ func (x *CreateRoomResponse) GetRoom() *Room {
 // UpdateRoom の Request。
 type UpdateRoomRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新する教室の ID。
+	// 更新する教室ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 教室名。
+	// 部屋名。
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// 階。
+	// フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
 	Floor RoomFloor `protobuf:"varint,3,opt,name=floor,proto3,enum=admin.v1.RoomFloor" json:"floor,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -608,7 +608,7 @@ func (x *UpdateRoomResponse) GetRoom() *Room {
 // DeleteRoom の Request。
 type DeleteRoomRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除する教室の ID。
+	// 削除する教室ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

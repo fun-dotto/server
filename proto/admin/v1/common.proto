@@ -34,7 +34,7 @@ enum Course {
   COURSE_INFORMATION_SYSTEM = 1;
   // 情報デザインコース。
   COURSE_INFORMATION_DESIGN = 2;
-  // 高度 ICT コース。
+  // 高度ICTコース。
   COURSE_ADVANCED_ICT = 3;
   // 複雑系コース。
   COURSE_COMPLEX_SYSTEM = 4;
@@ -76,16 +76,16 @@ enum Class {
 enum Period {
   // 未指定。
   PERIOD_UNSPECIFIED = 0;
-  // 1 限。
+  // 1限。
   PERIOD_1 = 1;
-  // 2 限。
+  // 2限。
   PERIOD_2 = 2;
-  // 3 限。
+  // 3限。
   PERIOD_3 = 3;
-  // 4 限。
+  // 4限。
   PERIOD_4 = 4;
-  // 5 限。
+  // 5限。
   PERIOD_5 = 5;
-  // 6 限。
+  // 6限。
   PERIOD_6 = 6;
 }

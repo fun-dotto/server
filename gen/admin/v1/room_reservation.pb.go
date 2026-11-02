@@ -31,7 +31,7 @@ type RoomReservation struct {
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// 予約のタイトル。
 	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	// 教室の ID。
+	// 教室ID。
 	RoomId string `protobuf:"bytes,3,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
 	// 予約の開始日時。
 	StartTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
@@ -237,7 +237,7 @@ func (x *ListRoomReservationsResponse) GetNextPageToken() string {
 // GetRoomReservation の Request。
 type GetRoomReservationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得する教室の予約の ID。
+	// 取得する教室の予約ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -331,7 +331,7 @@ type CreateRoomReservationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 予約のタイトル。
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	// 教室の ID。
+	// 教室ID。
 	RoomId string `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
 	// 予約の開始日時。
 	StartTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
@@ -448,11 +448,11 @@ func (x *CreateRoomReservationResponse) GetRoomReservation() *RoomReservation {
 // UpdateRoomReservation の Request。
 type UpdateRoomReservationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新する教室の予約の ID。
+	// 更新する教室の予約ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// 予約のタイトル。
 	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	// 教室の ID。
+	// 教室ID。
 	RoomId string `protobuf:"bytes,3,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
 	// 予約の開始日時。
 	StartTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
@@ -585,7 +585,7 @@ func (x *UpdateRoomReservationResponse) GetRoomReservation() *RoomReservation {
 // DeleteRoomReservation の Request。
 type DeleteRoomReservationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除する教室の予約の ID。
+	// 削除する教室の予約ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

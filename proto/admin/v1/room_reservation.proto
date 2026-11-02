@@ -26,7 +26,7 @@ message RoomReservation {
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 予約のタイトル。
   string title = 2 [(google.api.field_behavior) = REQUIRED];
-  // 教室の ID。
+  // 教室ID。
   string room_id = 3 [(google.api.field_behavior) = REQUIRED];
   // 予約の開始日時。
   google.protobuf.Timestamp start_time = 4 [(google.api.field_behavior) = REQUIRED];
@@ -56,7 +56,7 @@ message ListRoomReservationsResponse {
 
 // GetRoomReservation の Request。
 message GetRoomReservationRequest {
-  // 取得する教室の予約の ID。
+  // 取得する教室の予約ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
@@ -70,7 +70,7 @@ message GetRoomReservationResponse {
 message CreateRoomReservationRequest {
   // 予約のタイトル。
   string title = 1 [(google.api.field_behavior) = REQUIRED];
-  // 教室の ID。
+  // 教室ID。
   string room_id = 2 [(google.api.field_behavior) = REQUIRED];
   // 予約の開始日時。
   google.protobuf.Timestamp start_time = 3 [(google.api.field_behavior) = REQUIRED];
@@ -86,11 +86,11 @@ message CreateRoomReservationResponse {
 
 // UpdateRoomReservation の Request。
 message UpdateRoomReservationRequest {
-  // 更新する教室の予約の ID。
+  // 更新する教室の予約ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
   // 予約のタイトル。
   string title = 2 [(google.api.field_behavior) = OPTIONAL];
-  // 教室の ID。
+  // 教室ID。
   string room_id = 3 [(google.api.field_behavior) = OPTIONAL];
   // 予約の開始日時。
   google.protobuf.Timestamp start_time = 4 [(google.api.field_behavior) = OPTIONAL];
@@ -108,7 +108,7 @@ message UpdateRoomReservationResponse {
 
 // DeleteRoomReservation の Request。
 message DeleteRoomReservationRequest {
-  // 削除する教室の予約の ID。
+  // 削除する教室の予約ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 

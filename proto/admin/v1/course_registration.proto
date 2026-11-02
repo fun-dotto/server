@@ -5,23 +5,23 @@ package admin.v1;
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
-// 履修登録を管理する。
+// 履修情報を管理する。
 service CourseRegistrationService {
-  // 履修登録の一覧を取得する。
+  // 履修情報の一覧を取得する。
   rpc ListCourseRegistrations(ListCourseRegistrationsRequest) returns (ListCourseRegistrationsResponse);
-  // 履修登録を取得する。
+  // 履修情報を取得する。
   rpc GetCourseRegistration(GetCourseRegistrationRequest) returns (GetCourseRegistrationResponse);
-  // 履修登録を作成する。
+  // 履修情報を作成する。
   rpc CreateCourseRegistration(CreateCourseRegistrationRequest) returns (CreateCourseRegistrationResponse);
-  // 履修登録を削除する。
+  // 履修情報を削除する。
   rpc DeleteCourseRegistration(DeleteCourseRegistrationRequest) returns (DeleteCourseRegistrationResponse);
 }
 
-// 履修登録。
+// 履修情報。
 message CourseRegistration {
-  // ユーザーの ID。
+  // ユーザーID。
   string user_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 科目の ID。
+  // 科目ID。
   string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
   // 作成日時。
   google.protobuf.Timestamp created_at = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -39,7 +39,7 @@ message ListCourseRegistrationsRequest {
 
 // ListCourseRegistrations の Response。
 message ListCourseRegistrationsResponse {
-  // 履修登録の一覧。
+  // 履修情報の一覧。
   repeated CourseRegistration course_registrations = 1;
   // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
@@ -47,37 +47,37 @@ message ListCourseRegistrationsResponse {
 
 // GetCourseRegistration の Request。
 message GetCourseRegistrationRequest {
-  // ユーザーの ID。
+  // ユーザーID。
   string user_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 科目の ID。
+  // 科目ID。
   string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetCourseRegistration の Response。
 message GetCourseRegistrationResponse {
-  // 取得した履修登録。
+  // 取得した履修情報。
   CourseRegistration course_registration = 1;
 }
 
 // CreateCourseRegistration の Request。
 message CreateCourseRegistrationRequest {
-  // ユーザーの ID。
+  // ユーザーID。
   string user_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 科目の ID。
+  // 科目ID。
   string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // CreateCourseRegistration の Response。
 message CreateCourseRegistrationResponse {
-  // 作成した履修登録。
+  // 作成した履修情報。
   CourseRegistration course_registration = 1;
 }
 
 // DeleteCourseRegistration の Request。
 message DeleteCourseRegistrationRequest {
-  // ユーザーの ID。
+  // ユーザーID。
   string user_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 科目の ID。
+  // 科目ID。
   string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 

@@ -23,12 +23,12 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 履修登録。
+// 履修情報。
 type CourseRegistration struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	// 作成日時。
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -154,7 +154,7 @@ func (x *ListCourseRegistrationsRequest) GetPageToken() string {
 // ListCourseRegistrations の Response。
 type ListCourseRegistrationsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 履修登録の一覧。
+	// 履修情報の一覧。
 	CourseRegistrations []*CourseRegistration `protobuf:"bytes,1,rep,name=course_registrations,json=courseRegistrations,proto3" json:"course_registrations,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -209,9 +209,9 @@ func (x *ListCourseRegistrationsResponse) GetNextPageToken() string {
 // GetCourseRegistration の Request。
 type GetCourseRegistrationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId     string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -264,7 +264,7 @@ func (x *GetCourseRegistrationRequest) GetSubjectId() string {
 // GetCourseRegistration の Response。
 type GetCourseRegistrationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得した履修登録。
+	// 取得した履修情報。
 	CourseRegistration *CourseRegistration `protobuf:"bytes,1,opt,name=course_registration,json=courseRegistration,proto3" json:"course_registration,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -310,9 +310,9 @@ func (x *GetCourseRegistrationResponse) GetCourseRegistration() *CourseRegistrat
 // CreateCourseRegistration の Request。
 type CreateCourseRegistrationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId     string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -365,7 +365,7 @@ func (x *CreateCourseRegistrationRequest) GetSubjectId() string {
 // CreateCourseRegistration の Response。
 type CreateCourseRegistrationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成した履修登録。
+	// 作成した履修情報。
 	CourseRegistration *CourseRegistration `protobuf:"bytes,1,opt,name=course_registration,json=courseRegistration,proto3" json:"course_registration,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -411,9 +411,9 @@ func (x *CreateCourseRegistrationResponse) GetCourseRegistration() *CourseRegist
 // DeleteCourseRegistration の Request。
 type DeleteCourseRegistrationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId     string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

@@ -6,21 +6,21 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
-// お知らせを管理する。
+// おしらせを管理する。
 service AnnouncementService {
-  // お知らせの一覧を取得する。
+  // おしらせの一覧を取得する。
   rpc ListAnnouncements(ListAnnouncementsRequest) returns (ListAnnouncementsResponse);
-  // お知らせを取得する。
+  // おしらせを取得する。
   rpc GetAnnouncement(GetAnnouncementRequest) returns (GetAnnouncementResponse);
-  // お知らせを作成する。
+  // おしらせを作成する。
   rpc CreateAnnouncement(CreateAnnouncementRequest) returns (CreateAnnouncementResponse);
-  // お知らせを更新する。
+  // おしらせを更新する。
   rpc UpdateAnnouncement(UpdateAnnouncementRequest) returns (UpdateAnnouncementResponse);
-  // お知らせを削除する。
+  // おしらせを削除する。
   rpc DeleteAnnouncement(DeleteAnnouncementRequest) returns (DeleteAnnouncementResponse);
 }
 
-// お知らせ。
+// おしらせ。
 message Announcement {
   // ID。
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -48,7 +48,7 @@ message ListAnnouncementsRequest {
 
 // ListAnnouncements の Response。
 message ListAnnouncementsResponse {
-  // お知らせの一覧。
+  // おしらせの一覧。
   repeated Announcement announcements = 1;
   // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
@@ -56,13 +56,13 @@ message ListAnnouncementsResponse {
 
 // GetAnnouncement の Request。
 message GetAnnouncementRequest {
-  // 取得するお知らせの ID。
+  // 取得するおしらせID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetAnnouncement の Response。
 message GetAnnouncementResponse {
-  // 取得したお知らせ。
+  // 取得したおしらせ。
   Announcement announcement = 1;
 }
 
@@ -80,13 +80,13 @@ message CreateAnnouncementRequest {
 
 // CreateAnnouncement の Response。
 message CreateAnnouncementResponse {
-  // 作成したお知らせ。
+  // 作成したおしらせ。
   Announcement announcement = 1;
 }
 
 // UpdateAnnouncement の Request。
 message UpdateAnnouncementRequest {
-  // 更新するお知らせの ID。
+  // 更新するおしらせID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
   // タイトル。
   string title = 2 [(google.api.field_behavior) = OPTIONAL];
@@ -102,13 +102,13 @@ message UpdateAnnouncementRequest {
 
 // UpdateAnnouncement の Response。
 message UpdateAnnouncementResponse {
-  // 更新したお知らせ。
+  // 更新したおしらせ。
   Announcement announcement = 1;
 }
 
 // DeleteAnnouncement の Request。
 message DeleteAnnouncementRequest {
-  // 削除するお知らせの ID。
+  // 削除するおしらせID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 

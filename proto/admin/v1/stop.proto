@@ -6,29 +6,29 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/type/latlng.proto";
 
-// バス停（GTFS の stops）を管理する。
+// 停留所・標柱情報（GTFS の stops）を管理する。
 service StopService {
-  // バス停（GTFS の stops）の一覧を取得する。
+  // 停留所・標柱情報（GTFS の stops）の一覧を取得する。
   rpc ListStops(ListStopsRequest) returns (ListStopsResponse);
-  // バス停（GTFS の stops）を取得する。
+  // 停留所・標柱情報（GTFS の stops）を取得する。
   rpc GetStop(GetStopRequest) returns (GetStopResponse);
-  // バス停（GTFS の stops）を作成する。
+  // 停留所・標柱情報（GTFS の stops）を作成する。
   rpc CreateStop(CreateStopRequest) returns (CreateStopResponse);
-  // バス停（GTFS の stops）を更新する。
+  // 停留所・標柱情報（GTFS の stops）を更新する。
   rpc UpdateStop(UpdateStopRequest) returns (UpdateStopResponse);
-  // バス停（GTFS の stops）を削除する。
+  // 停留所・標柱情報（GTFS の stops）を削除する。
   rpc DeleteStop(DeleteStopRequest) returns (DeleteStopResponse);
 }
 
-// バス停（GTFS の stops）。
+// 停留所・標柱情報（GTFS の stops）。
 message Stop {
-  // バス停の ID（GTFS の stop_id）。
+  // 停留所・標柱ID（GTFS の stop_id）。
   string stop_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // バス停名（GTFS の stop_name）。
+  // 停留所・標柱名称（GTFS の stop_name）。
   string stop_name = 2 [(google.api.field_behavior) = REQUIRED];
-  // バス停の緯度経度（GTFS の stop_lat / stop_lon）。
+  // 緯度・経度（GTFS の stop_lat / stop_lon）。
   google.type.LatLng stop_location = 3 [(google.api.field_behavior) = REQUIRED];
-  // 運賃ゾーンの ID（GTFS の zone_id）。
+  // 運賃エリアID（GTFS の zone_id）。
   optional string zone_id = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
@@ -42,7 +42,7 @@ message ListStopsRequest {
 
 // ListStops の Response。
 message ListStopsResponse {
-  // バス停（GTFS の stops）の一覧。
+  // 停留所・標柱情報（GTFS の stops）の一覧。
   repeated Stop stops = 1;
   // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
@@ -50,43 +50,43 @@ message ListStopsResponse {
 
 // GetStop の Request。
 message GetStopRequest {
-  // バス停の ID（GTFS の stop_id）。
+  // 停留所・標柱ID（GTFS の stop_id）。
   string stop_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetStop の Response。
 message GetStopResponse {
-  // 取得したバス停（GTFS の stops）。
+  // 取得した停留所・標柱情報（GTFS の stops）。
   Stop stop = 1;
 }
 
 // CreateStop の Request。
 message CreateStopRequest {
-  // バス停の ID（GTFS の stop_id）。
+  // 停留所・標柱ID（GTFS の stop_id）。
   string stop_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // バス停名（GTFS の stop_name）。
+  // 停留所・標柱名称（GTFS の stop_name）。
   string stop_name = 2 [(google.api.field_behavior) = REQUIRED];
-  // バス停の緯度経度（GTFS の stop_lat / stop_lon）。
+  // 緯度・経度（GTFS の stop_lat / stop_lon）。
   google.type.LatLng stop_location = 3 [(google.api.field_behavior) = REQUIRED];
-  // 運賃ゾーンの ID（GTFS の zone_id）。
+  // 運賃エリアID（GTFS の zone_id）。
   optional string zone_id = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // CreateStop の Response。
 message CreateStopResponse {
-  // 作成したバス停（GTFS の stops）。
+  // 作成した停留所・標柱情報（GTFS の stops）。
   Stop stop = 1;
 }
 
 // UpdateStop の Request。
 message UpdateStopRequest {
-  // バス停の ID（GTFS の stop_id）。
+  // 停留所・標柱ID（GTFS の stop_id）。
   string stop_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // バス停名（GTFS の stop_name）。
+  // 停留所・標柱名称（GTFS の stop_name）。
   string stop_name = 2 [(google.api.field_behavior) = OPTIONAL];
-  // バス停の緯度経度（GTFS の stop_lat / stop_lon）。
+  // 緯度・経度（GTFS の stop_lat / stop_lon）。
   google.type.LatLng stop_location = 3 [(google.api.field_behavior) = OPTIONAL];
-  // 運賃ゾーンの ID（GTFS の zone_id）。
+  // 運賃エリアID（GTFS の zone_id）。
   optional string zone_id = 4 [(google.api.field_behavior) = OPTIONAL];
   // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
   google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
@@ -94,13 +94,13 @@ message UpdateStopRequest {
 
 // UpdateStop の Response。
 message UpdateStopResponse {
-  // 更新したバス停（GTFS の stops）。
+  // 更新した停留所・標柱情報（GTFS の stops）。
   Stop stop = 1;
 }
 
 // DeleteStop の Request。
 message DeleteStopRequest {
-  // バス停の ID（GTFS の stop_id）。
+  // 停留所・標柱ID（GTFS の stop_id）。
   string stop_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 

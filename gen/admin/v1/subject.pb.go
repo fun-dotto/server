@@ -36,17 +36,17 @@ const (
 	SubjectSemester_SUBJECT_SEMESTER_H1 SubjectSemester = 2
 	// 後期。
 	SubjectSemester_SUBJECT_SEMESTER_H2 SubjectSemester = 3
-	// 第 1 クォーター。
+	// 第1クオーター。
 	SubjectSemester_SUBJECT_SEMESTER_Q1 SubjectSemester = 4
-	// 第 2 クォーター。
+	// 第2クオーター。
 	SubjectSemester_SUBJECT_SEMESTER_Q2 SubjectSemester = 5
-	// 第 3 クォーター。
+	// 第3クオーター。
 	SubjectSemester_SUBJECT_SEMESTER_Q3 SubjectSemester = 6
-	// 第 4 クォーター。
+	// 第4クオーター。
 	SubjectSemester_SUBJECT_SEMESTER_Q4 SubjectSemester = 7
-	// 夏季集中。
+	// 夏期集中。
 	SubjectSemester_SUBJECT_SEMESTER_SUMMER_INTENSIVE SubjectSemester = 8
-	// 冬季集中。
+	// 冬期集中。
 	SubjectSemester_SUBJECT_SEMESTER_WINTER_INTENSIVE SubjectSemester = 9
 )
 
@@ -105,7 +105,7 @@ func (SubjectSemester) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_subject_proto_rawDescGZIP(), []int{0}
 }
 
-// 科目区分。
+// 科目カテゴリ。
 type SubjectClassification int32
 
 const (
@@ -162,7 +162,7 @@ func (SubjectClassification) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_subject_proto_rawDescGZIP(), []int{1}
 }
 
-// 教養科目の分野。
+// 教養科目カテゴリ。
 type SubjectCulturalSubjectCategory int32
 
 const (
@@ -227,7 +227,7 @@ func (SubjectCulturalSubjectCategory) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_subject_proto_rawDescGZIP(), []int{2}
 }
 
-// 科目の必修・選択の区分。
+// 必修・選択。
 type SubjectRequirementType int32
 
 const (
@@ -287,9 +287,9 @@ func (SubjectRequirementType) EnumDescriptor() ([]byte, []int) {
 // 科目の担当教員。
 type SubjectFaculty struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 教員の ID。
+	// 教員ID。
 	FacultyId string `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
-	// 主担当の教員か。
+	// 主担当かどうか。
 	IsPrimary     bool `protobuf:"varint,2,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -339,12 +339,12 @@ func (x *SubjectFaculty) GetIsPrimary() bool {
 	return false
 }
 
-// 科目を履修できる学年・クラス。
+// 対象学年・クラス。
 type SubjectEligibleAttribute struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 学年。
 	Grade Grade `protobuf:"varint,1,opt,name=grade,proto3,enum=admin.v1.Grade" json:"grade,omitempty"`
-	// クラス。未設定の場合は学年内のすべてのクラス。
+	// クラス。修士課程・博士課程対象の場合は未設定。
 	Class         *Class `protobuf:"varint,2,opt,name=class,proto3,enum=admin.v1.Class,oneof" json:"class,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -394,12 +394,12 @@ func (x *SubjectEligibleAttribute) GetClass() Class {
 	return Class_CLASS_UNSPECIFIED
 }
 
-// コースごとの科目の必修・選択の区分。
+// コースごとの必修・選択。
 type SubjectRequirement struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// コース。
 	Course Course `protobuf:"varint,1,opt,name=course,proto3,enum=admin.v1.Course" json:"course,omitempty"`
-	// 必修・選択の区分。
+	// 必修・選択・選択必修。
 	RequirementType SubjectRequirementType `protobuf:"varint,2,opt,name=requirement_type,json=requirementType,proto3,enum=admin.v1.SubjectRequirementType" json:"requirement_type,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -462,17 +462,17 @@ type Subject struct {
 	Semester SubjectSemester `protobuf:"varint,4,opt,name=semester,proto3,enum=admin.v1.SubjectSemester" json:"semester,omitempty"`
 	// 単位数。
 	Credit int32 `protobuf:"varint,5,opt,name=credit,proto3" json:"credit,omitempty"`
-	// 科目区分。
+	// 科目カテゴリ。
 	Classification SubjectClassification `protobuf:"varint,6,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
-	// 教養科目の分野。教養科目以外では UNSPECIFIED。
+	// 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
 	CulturalSubjectCategory SubjectCulturalSubjectCategory `protobuf:"varint,7,opt,name=cultural_subject_category,json=culturalSubjectCategory,proto3,enum=admin.v1.SubjectCulturalSubjectCategory" json:"cultural_subject_category,omitempty"`
-	// シラバスの ID。
+	// シラバスID。
 	SyllabusId string `protobuf:"bytes,8,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
 	// 担当教員。
 	Faculties []*SubjectFaculty `protobuf:"bytes,9,rep,name=faculties,proto3" json:"faculties,omitempty"`
-	// 履修できる学年・クラス。
+	// 対象学年・クラス。授業名末尾の `学年-クラス` をもとに決定する。
 	EligibleAttributes []*SubjectEligibleAttribute `protobuf:"bytes,10,rep,name=eligible_attributes,json=eligibleAttributes,proto3" json:"eligible_attributes,omitempty"`
-	// コースごとの必修・選択の区分。
+	// コースごとの必修・選択。科目群・科目区分をもとに決定する。
 	Requirements []*SubjectRequirement `protobuf:"bytes,11,rep,name=requirements,proto3" json:"requirements,omitempty"`
 	// 作成日時。
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -716,7 +716,7 @@ func (x *ListSubjectsResponse) GetNextPageToken() string {
 // GetSubject の Request。
 type GetSubjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得する科目の ID。
+	// 取得する科目ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -816,17 +816,17 @@ type CreateSubjectRequest struct {
 	Semester SubjectSemester `protobuf:"varint,3,opt,name=semester,proto3,enum=admin.v1.SubjectSemester" json:"semester,omitempty"`
 	// 単位数。
 	Credit int32 `protobuf:"varint,4,opt,name=credit,proto3" json:"credit,omitempty"`
-	// 科目区分。
+	// 科目カテゴリ。
 	Classification SubjectClassification `protobuf:"varint,5,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
-	// 教養科目の分野。教養科目以外では UNSPECIFIED。
+	// 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
 	CulturalSubjectCategory SubjectCulturalSubjectCategory `protobuf:"varint,6,opt,name=cultural_subject_category,json=culturalSubjectCategory,proto3,enum=admin.v1.SubjectCulturalSubjectCategory" json:"cultural_subject_category,omitempty"`
-	// シラバスの ID。
+	// シラバスID。
 	SyllabusId string `protobuf:"bytes,7,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
 	// 担当教員。
 	Faculties []*SubjectFaculty `protobuf:"bytes,8,rep,name=faculties,proto3" json:"faculties,omitempty"`
-	// 履修できる学年・クラス。
+	// 対象学年・クラス。授業名末尾の `学年-クラス` をもとに決定する。
 	EligibleAttributes []*SubjectEligibleAttribute `protobuf:"bytes,9,rep,name=eligible_attributes,json=eligibleAttributes,proto3" json:"eligible_attributes,omitempty"`
-	// コースごとの必修・選択の区分。
+	// コースごとの必修・選択。科目群・科目区分をもとに決定する。
 	Requirements  []*SubjectRequirement `protobuf:"bytes,10,rep,name=requirements,proto3" json:"requirements,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -981,7 +981,7 @@ func (x *CreateSubjectResponse) GetSubject() *Subject {
 // UpdateSubject の Request。
 type UpdateSubjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新する科目の ID。
+	// 更新する科目ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// 科目名。
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -991,17 +991,17 @@ type UpdateSubjectRequest struct {
 	Semester SubjectSemester `protobuf:"varint,4,opt,name=semester,proto3,enum=admin.v1.SubjectSemester" json:"semester,omitempty"`
 	// 単位数。
 	Credit int32 `protobuf:"varint,5,opt,name=credit,proto3" json:"credit,omitempty"`
-	// 科目区分。
+	// 科目カテゴリ。
 	Classification SubjectClassification `protobuf:"varint,6,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
-	// 教養科目の分野。教養科目以外では UNSPECIFIED。
+	// 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
 	CulturalSubjectCategory SubjectCulturalSubjectCategory `protobuf:"varint,7,opt,name=cultural_subject_category,json=culturalSubjectCategory,proto3,enum=admin.v1.SubjectCulturalSubjectCategory" json:"cultural_subject_category,omitempty"`
-	// シラバスの ID。
+	// シラバスID。
 	SyllabusId string `protobuf:"bytes,8,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
 	// 担当教員。
 	Faculties []*SubjectFaculty `protobuf:"bytes,9,rep,name=faculties,proto3" json:"faculties,omitempty"`
-	// 履修できる学年・クラス。
+	// 対象学年・クラス。授業名末尾の `学年-クラス` をもとに決定する。
 	EligibleAttributes []*SubjectEligibleAttribute `protobuf:"bytes,10,rep,name=eligible_attributes,json=eligibleAttributes,proto3" json:"eligible_attributes,omitempty"`
-	// コースごとの必修・選択の区分。
+	// コースごとの必修・選択。科目群・科目区分をもとに決定する。
 	Requirements []*SubjectRequirement `protobuf:"bytes,11,rep,name=requirements,proto3" json:"requirements,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -1172,7 +1172,7 @@ func (x *UpdateSubjectResponse) GetSubject() *Subject {
 // DeleteSubject の Request。
 type DeleteSubjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除する科目の ID。
+	// 削除する科目ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

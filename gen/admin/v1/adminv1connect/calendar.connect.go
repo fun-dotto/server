@@ -52,15 +52,15 @@ const (
 
 // CalendarServiceClient is a client for the admin.v1.CalendarService service.
 type CalendarServiceClient interface {
-	// 運行カレンダー（GTFS の calendar）の一覧を取得する。
+	// 運行区分情報（GTFS の calendar）の一覧を取得する。
 	ListCalendars(context.Context, *connect.Request[v1.ListCalendarsRequest]) (*connect.Response[v1.ListCalendarsResponse], error)
-	// 運行カレンダー（GTFS の calendar）を取得する。
+	// 運行区分情報（GTFS の calendar）を取得する。
 	GetCalendar(context.Context, *connect.Request[v1.GetCalendarRequest]) (*connect.Response[v1.GetCalendarResponse], error)
-	// 運行カレンダー（GTFS の calendar）を作成する。
+	// 運行区分情報（GTFS の calendar）を作成する。
 	CreateCalendar(context.Context, *connect.Request[v1.CreateCalendarRequest]) (*connect.Response[v1.CreateCalendarResponse], error)
-	// 運行カレンダー（GTFS の calendar）を更新する。
+	// 運行区分情報（GTFS の calendar）を更新する。
 	UpdateCalendar(context.Context, *connect.Request[v1.UpdateCalendarRequest]) (*connect.Response[v1.UpdateCalendarResponse], error)
-	// 運行カレンダー（GTFS の calendar）を削除する。
+	// 運行区分情報（GTFS の calendar）を削除する。
 	DeleteCalendar(context.Context, *connect.Request[v1.DeleteCalendarRequest]) (*connect.Response[v1.DeleteCalendarResponse], error)
 }
 
@@ -144,15 +144,15 @@ func (c *calendarServiceClient) DeleteCalendar(ctx context.Context, req *connect
 
 // CalendarServiceHandler is an implementation of the admin.v1.CalendarService service.
 type CalendarServiceHandler interface {
-	// 運行カレンダー（GTFS の calendar）の一覧を取得する。
+	// 運行区分情報（GTFS の calendar）の一覧を取得する。
 	ListCalendars(context.Context, *connect.Request[v1.ListCalendarsRequest]) (*connect.Response[v1.ListCalendarsResponse], error)
-	// 運行カレンダー（GTFS の calendar）を取得する。
+	// 運行区分情報（GTFS の calendar）を取得する。
 	GetCalendar(context.Context, *connect.Request[v1.GetCalendarRequest]) (*connect.Response[v1.GetCalendarResponse], error)
-	// 運行カレンダー（GTFS の calendar）を作成する。
+	// 運行区分情報（GTFS の calendar）を作成する。
 	CreateCalendar(context.Context, *connect.Request[v1.CreateCalendarRequest]) (*connect.Response[v1.CreateCalendarResponse], error)
-	// 運行カレンダー（GTFS の calendar）を更新する。
+	// 運行区分情報（GTFS の calendar）を更新する。
 	UpdateCalendar(context.Context, *connect.Request[v1.UpdateCalendarRequest]) (*connect.Response[v1.UpdateCalendarResponse], error)
-	// 運行カレンダー（GTFS の calendar）を削除する。
+	// 運行区分情報（GTFS の calendar）を削除する。
 	DeleteCalendar(context.Context, *connect.Request[v1.DeleteCalendarRequest]) (*connect.Response[v1.DeleteCalendarResponse], error)
 }
 

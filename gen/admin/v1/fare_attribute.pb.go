@@ -73,14 +73,14 @@ func (FareAttributeRiderCategory) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_fare_attribute_proto_rawDescGZIP(), []int{0}
 }
 
-// 運賃（GTFS の fare_attributes）。
+// 運賃属性情報（GTFS の fare_attributes）。
 type FareAttribute struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃の ID（GTFS の fare_id）。
+	// 運賃ID（GTFS の fare_id）。
 	FareId string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
 	// 乗客の区分。
 	RiderCategory FareAttributeRiderCategory `protobuf:"varint,2,opt,name=rider_category,json=riderCategory,proto3,enum=admin.v1.FareAttributeRiderCategory" json:"rider_category,omitempty"`
-	// 運賃（JPY）。
+	// 運賃（GTFS の price）。通貨は日本円（JPY）。
 	Price         *money.Money `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -195,7 +195,7 @@ func (x *ListFareAttributesRequest) GetPageToken() string {
 // ListFareAttributes の Response。
 type ListFareAttributesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃（GTFS の fare_attributes）の一覧。
+	// 運賃属性情報（GTFS の fare_attributes）の一覧。
 	FareAttributes []*FareAttribute `protobuf:"bytes,1,rep,name=fare_attributes,json=fareAttributes,proto3" json:"fare_attributes,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -250,7 +250,7 @@ func (x *ListFareAttributesResponse) GetNextPageToken() string {
 // GetFareAttribute の Request。
 type GetFareAttributeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃の ID（GTFS の fare_id）。
+	// 運賃ID（GTFS の fare_id）。
 	FareId        string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -296,7 +296,7 @@ func (x *GetFareAttributeRequest) GetFareId() string {
 // GetFareAttribute の Response。
 type GetFareAttributeResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得した運賃（GTFS の fare_attributes）。
+	// 取得した運賃属性情報（GTFS の fare_attributes）。
 	FareAttribute *FareAttribute `protobuf:"bytes,1,opt,name=fare_attribute,json=fareAttribute,proto3" json:"fare_attribute,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -342,11 +342,11 @@ func (x *GetFareAttributeResponse) GetFareAttribute() *FareAttribute {
 // CreateFareAttribute の Request。
 type CreateFareAttributeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃の ID（GTFS の fare_id）。
+	// 運賃ID（GTFS の fare_id）。
 	FareId string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
 	// 乗客の区分。
 	RiderCategory FareAttributeRiderCategory `protobuf:"varint,2,opt,name=rider_category,json=riderCategory,proto3,enum=admin.v1.FareAttributeRiderCategory" json:"rider_category,omitempty"`
-	// 運賃（JPY）。
+	// 運賃（GTFS の price）。通貨は日本円（JPY）。
 	Price         *money.Money `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -406,7 +406,7 @@ func (x *CreateFareAttributeRequest) GetPrice() *money.Money {
 // CreateFareAttribute の Response。
 type CreateFareAttributeResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成した運賃（GTFS の fare_attributes）。
+	// 作成した運賃属性情報（GTFS の fare_attributes）。
 	FareAttribute *FareAttribute `protobuf:"bytes,1,opt,name=fare_attribute,json=fareAttribute,proto3" json:"fare_attribute,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -452,11 +452,11 @@ func (x *CreateFareAttributeResponse) GetFareAttribute() *FareAttribute {
 // UpdateFareAttribute の Request。
 type UpdateFareAttributeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃の ID（GTFS の fare_id）。
+	// 運賃ID（GTFS の fare_id）。
 	FareId string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
 	// 乗客の区分。
 	RiderCategory FareAttributeRiderCategory `protobuf:"varint,2,opt,name=rider_category,json=riderCategory,proto3,enum=admin.v1.FareAttributeRiderCategory" json:"rider_category,omitempty"`
-	// 運賃（JPY）。
+	// 運賃（GTFS の price）。通貨は日本円（JPY）。
 	Price *money.Money `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -525,7 +525,7 @@ func (x *UpdateFareAttributeRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateFareAttribute の Response。
 type UpdateFareAttributeResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新した運賃（GTFS の fare_attributes）。
+	// 更新した運賃属性情報（GTFS の fare_attributes）。
 	FareAttribute *FareAttribute `protobuf:"bytes,1,opt,name=fare_attribute,json=fareAttribute,proto3" json:"fare_attribute,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -571,7 +571,7 @@ func (x *UpdateFareAttributeResponse) GetFareAttribute() *FareAttribute {
 // DeleteFareAttribute の Request。
 type DeleteFareAttributeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃の ID（GTFS の fare_id）。
+	// 運賃ID（GTFS の fare_id）。
 	FareId        string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

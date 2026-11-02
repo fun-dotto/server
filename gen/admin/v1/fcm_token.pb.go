@@ -24,12 +24,12 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// FCM トークン。
+// FCMトークン。
 type FcmToken struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// FCM の登録トークン。
+	// FCMトークン。
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// 作成日時。
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -155,7 +155,7 @@ func (x *ListFcmTokensRequest) GetPageToken() string {
 // ListFcmTokens の Response。
 type ListFcmTokensResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// FCM トークンの一覧。
+	// FCMトークンの一覧。
 	FcmTokens []*FcmToken `protobuf:"bytes,1,rep,name=fcm_tokens,json=fcmTokens,proto3" json:"fcm_tokens,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -210,7 +210,7 @@ func (x *ListFcmTokensResponse) GetNextPageToken() string {
 // GetFcmToken の Request。
 type GetFcmTokenRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// FCM の登録トークン。
+	// FCMトークン。
 	Token         string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -256,7 +256,7 @@ func (x *GetFcmTokenRequest) GetToken() string {
 // GetFcmToken の Response。
 type GetFcmTokenResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得したFCM トークン。
+	// 取得したFCMトークン。
 	FcmToken      *FcmToken `protobuf:"bytes,1,opt,name=fcm_token,json=fcmToken,proto3" json:"fcm_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -302,9 +302,9 @@ func (x *GetFcmTokenResponse) GetFcmToken() *FcmToken {
 // CreateFcmToken の Request。
 type CreateFcmTokenRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// FCM の登録トークン。
+	// FCMトークン。
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId        string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -357,7 +357,7 @@ func (x *CreateFcmTokenRequest) GetUserId() string {
 // CreateFcmToken の Response。
 type CreateFcmTokenResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成したFCM トークン。
+	// 作成したFCMトークン。
 	FcmToken      *FcmToken `protobuf:"bytes,1,opt,name=fcm_token,json=fcmToken,proto3" json:"fcm_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -403,9 +403,9 @@ func (x *CreateFcmTokenResponse) GetFcmToken() *FcmToken {
 // UpdateFcmToken の Request。
 type UpdateFcmTokenRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// FCM の登録トークン。
+	// FCMトークン。
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	// ユーザーの ID。
+	// ユーザーID。
 	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -467,7 +467,7 @@ func (x *UpdateFcmTokenRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateFcmToken の Response。
 type UpdateFcmTokenResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新したFCM トークン。
+	// 更新したFCMトークン。
 	FcmToken      *FcmToken `protobuf:"bytes,1,opt,name=fcm_token,json=fcmToken,proto3" json:"fcm_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -513,7 +513,7 @@ func (x *UpdateFcmTokenResponse) GetFcmToken() *FcmToken {
 // DeleteFcmToken の Request。
 type DeleteFcmTokenRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// FCM の登録トークン。
+	// FCMトークン。
 	Token         string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

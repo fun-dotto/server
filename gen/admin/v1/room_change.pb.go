@@ -30,15 +30,15 @@ type RoomChange struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	// 教室を変更する日付。
 	Date *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
 	// 教室を変更する時限。
 	Period Period `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
-	// 変更前の教室の ID。
+	// 変更前の教室ID。
 	OriginalRoomId string `protobuf:"bytes,5,opt,name=original_room_id,json=originalRoomId,proto3" json:"original_room_id,omitempty"`
-	// 変更後の教室の ID。
+	// 変更後の教室ID。
 	NewRoomId string `protobuf:"bytes,6,opt,name=new_room_id,json=newRoomId,proto3" json:"new_room_id,omitempty"`
 	// 作成日時。
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -247,7 +247,7 @@ func (x *ListRoomChangesResponse) GetNextPageToken() string {
 // GetRoomChange の Request。
 type GetRoomChangeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得する教室変更の ID。
+	// 取得する教室変更ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -339,15 +339,15 @@ func (x *GetRoomChangeResponse) GetRoomChange() *RoomChange {
 // CreateRoomChange の Request。
 type CreateRoomChangeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,1,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	// 教室を変更する日付。
 	Date *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
 	// 教室を変更する時限。
 	Period Period `protobuf:"varint,3,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
-	// 変更前の教室の ID。
+	// 変更前の教室ID。
 	OriginalRoomId string `protobuf:"bytes,4,opt,name=original_room_id,json=originalRoomId,proto3" json:"original_room_id,omitempty"`
-	// 変更後の教室の ID。
+	// 変更後の教室ID。
 	NewRoomId     string `protobuf:"bytes,5,opt,name=new_room_id,json=newRoomId,proto3" json:"new_room_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -467,17 +467,17 @@ func (x *CreateRoomChangeResponse) GetRoomChange() *RoomChange {
 // UpdateRoomChange の Request。
 type UpdateRoomChangeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新する教室変更の ID。
+	// 更新する教室変更ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	// 教室を変更する日付。
 	Date *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
 	// 教室を変更する時限。
 	Period Period `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period" json:"period,omitempty"`
-	// 変更前の教室の ID。
+	// 変更前の教室ID。
 	OriginalRoomId string `protobuf:"bytes,5,opt,name=original_room_id,json=originalRoomId,proto3" json:"original_room_id,omitempty"`
-	// 変更後の教室の ID。
+	// 変更後の教室ID。
 	NewRoomId string `protobuf:"bytes,6,opt,name=new_room_id,json=newRoomId,proto3" json:"new_room_id,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -613,7 +613,7 @@ func (x *UpdateRoomChangeResponse) GetRoomChange() *RoomChange {
 // DeleteRoomChange の Request。
 type DeleteRoomChangeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除する教室変更の ID。
+	// 削除する教室変更ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

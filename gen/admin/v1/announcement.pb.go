@@ -24,7 +24,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// お知らせ。
+// おしらせ。
 type Announcement struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID。
@@ -182,7 +182,7 @@ func (x *ListAnnouncementsRequest) GetPageToken() string {
 // ListAnnouncements の Response。
 type ListAnnouncementsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// お知らせの一覧。
+	// おしらせの一覧。
 	Announcements []*Announcement `protobuf:"bytes,1,rep,name=announcements,proto3" json:"announcements,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -237,7 +237,7 @@ func (x *ListAnnouncementsResponse) GetNextPageToken() string {
 // GetAnnouncement の Request。
 type GetAnnouncementRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得するお知らせの ID。
+	// 取得するおしらせID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -283,7 +283,7 @@ func (x *GetAnnouncementRequest) GetId() string {
 // GetAnnouncement の Response。
 type GetAnnouncementResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得したお知らせ。
+	// 取得したおしらせ。
 	Announcement  *Announcement `protobuf:"bytes,1,opt,name=announcement,proto3" json:"announcement,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -402,7 +402,7 @@ func (x *CreateAnnouncementRequest) GetAvailableUntil() *timestamppb.Timestamp {
 // CreateAnnouncement の Response。
 type CreateAnnouncementResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成したお知らせ。
+	// 作成したおしらせ。
 	Announcement  *Announcement `protobuf:"bytes,1,opt,name=announcement,proto3" json:"announcement,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -448,7 +448,7 @@ func (x *CreateAnnouncementResponse) GetAnnouncement() *Announcement {
 // UpdateAnnouncement の Request。
 type UpdateAnnouncementRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新するお知らせの ID。
+	// 更新するおしらせID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// タイトル。
 	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
@@ -539,7 +539,7 @@ func (x *UpdateAnnouncementRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateAnnouncement の Response。
 type UpdateAnnouncementResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新したお知らせ。
+	// 更新したおしらせ。
 	Announcement  *Announcement `protobuf:"bytes,1,opt,name=announcement,proto3" json:"announcement,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -585,7 +585,7 @@ func (x *UpdateAnnouncementResponse) GetAnnouncement() *Announcement {
 // DeleteAnnouncement の Request。
 type DeleteAnnouncementRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除するお知らせの ID。
+	// 削除するおしらせID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

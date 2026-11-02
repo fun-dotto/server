@@ -24,9 +24,9 @@ service RoomService {
 message Room {
   // ID。
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // 教室名。
+  // 部屋名。
   string name = 2 [(google.api.field_behavior) = REQUIRED];
-  // 階。
+  // フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
   RoomFloor floor = 3 [(google.api.field_behavior) = REQUIRED];
   // 作成日時。
   google.protobuf.Timestamp created_at = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -52,7 +52,7 @@ message ListRoomsResponse {
 
 // GetRoom の Request。
 message GetRoomRequest {
-  // 取得する教室の ID。
+  // 取得する教室ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
@@ -64,9 +64,9 @@ message GetRoomResponse {
 
 // CreateRoom の Request。
 message CreateRoomRequest {
-  // 教室名。
+  // 部屋名。
   string name = 1 [(google.api.field_behavior) = REQUIRED];
-  // 階。
+  // フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
   RoomFloor floor = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
@@ -78,11 +78,11 @@ message CreateRoomResponse {
 
 // UpdateRoom の Request。
 message UpdateRoomRequest {
-  // 更新する教室の ID。
+  // 更新する教室ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 教室名。
+  // 部屋名。
   string name = 2 [(google.api.field_behavior) = OPTIONAL];
-  // 階。
+  // フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
   RoomFloor floor = 3 [(google.api.field_behavior) = OPTIONAL];
   // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
   google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
@@ -96,31 +96,31 @@ message UpdateRoomResponse {
 
 // DeleteRoom の Request。
 message DeleteRoomRequest {
-  // 削除する教室の ID。
+  // 削除する教室ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // DeleteRoom の Response。
 message DeleteRoomResponse {}
 
-// 教室の階。
+// フロア。
 enum RoomFloor {
   // 未指定。
   ROOM_FLOOR_UNSPECIFIED = 0;
-  // 1 階。
+  // 1F。
   ROOM_FLOOR_1 = 1;
-  // 2 階。
+  // 2F。
   ROOM_FLOOR_2 = 2;
-  // 3 階。
+  // 3F。
   ROOM_FLOOR_3 = 3;
-  // 4 階。
+  // 4F。
   ROOM_FLOOR_4 = 4;
-  // 5 階。
+  // 5F。
   ROOM_FLOOR_5 = 5;
-  // 6 階。
+  // R6F。
   ROOM_FLOOR_6 = 6;
-  // 7 階。
+  // R7F。
   ROOM_FLOOR_7 = 7;
-  // 物理的な階を持たない教室。
+  // 仮想教室（オンラインなど）。
   ROOM_FLOOR_VIRTUAL = 8;
 }

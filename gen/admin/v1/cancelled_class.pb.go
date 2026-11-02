@@ -30,7 +30,7 @@ type CancelledClass struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	// 休講する日付。
 	Date *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
@@ -238,7 +238,7 @@ func (x *ListCancelledClassesResponse) GetNextPageToken() string {
 // GetCancelledClass の Request。
 type GetCancelledClassRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得する休講の ID。
+	// 取得する休講ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -330,7 +330,7 @@ func (x *GetCancelledClassResponse) GetCancelledClass() *CancelledClass {
 // CreateCancelledClass の Request。
 type CreateCancelledClassRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,1,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	// 休講する日付。
 	Date *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
@@ -449,9 +449,9 @@ func (x *CreateCancelledClassResponse) GetCancelledClass() *CancelledClass {
 // UpdateCancelledClass の Request。
 type UpdateCancelledClassRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新する休講の ID。
+	// 更新する休講ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	// 休講する日付。
 	Date *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
@@ -586,7 +586,7 @@ func (x *UpdateCancelledClassResponse) GetCancelledClass() *CancelledClass {
 // DeleteCancelledClass の Request。
 type DeleteCancelledClassRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除する休講の ID。
+	// 削除する休講ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

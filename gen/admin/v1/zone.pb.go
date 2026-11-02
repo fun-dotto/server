@@ -23,10 +23,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 運賃ゾーン（GTFS の zone_id）。
+// 運賃エリア（GTFS の zone_id）。
 type Zone struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃ゾーンの ID（GTFS の zone_id）。
+	// 運賃エリアID（GTFS の zone_id）。
 	ZoneId        string `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -127,7 +127,7 @@ func (x *ListZonesRequest) GetPageToken() string {
 // ListZones の Response。
 type ListZonesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃ゾーン（GTFS の zone_id）の一覧。
+	// 運賃エリア（GTFS の zone_id）の一覧。
 	Zones []*Zone `protobuf:"bytes,1,rep,name=zones,proto3" json:"zones,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -182,7 +182,7 @@ func (x *ListZonesResponse) GetNextPageToken() string {
 // GetZone の Request。
 type GetZoneRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃ゾーンの ID（GTFS の zone_id）。
+	// 運賃エリアID（GTFS の zone_id）。
 	ZoneId        string `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -228,7 +228,7 @@ func (x *GetZoneRequest) GetZoneId() string {
 // GetZone の Response。
 type GetZoneResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得した運賃ゾーン（GTFS の zone_id）。
+	// 取得した運賃エリア（GTFS の zone_id）。
 	Zone          *Zone `protobuf:"bytes,1,opt,name=zone,proto3" json:"zone,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -274,7 +274,7 @@ func (x *GetZoneResponse) GetZone() *Zone {
 // CreateZone の Request。
 type CreateZoneRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃ゾーンの ID（GTFS の zone_id）。
+	// 運賃エリアID（GTFS の zone_id）。
 	ZoneId        string `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -320,7 +320,7 @@ func (x *CreateZoneRequest) GetZoneId() string {
 // CreateZone の Response。
 type CreateZoneResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成した運賃ゾーン（GTFS の zone_id）。
+	// 作成した運賃エリア（GTFS の zone_id）。
 	Zone          *Zone `protobuf:"bytes,1,opt,name=zone,proto3" json:"zone,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -366,7 +366,7 @@ func (x *CreateZoneResponse) GetZone() *Zone {
 // UpdateZone の Request。
 type UpdateZoneRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃ゾーンの ID（GTFS の zone_id）。
+	// 運賃エリアID（GTFS の zone_id）。
 	ZoneId string `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -421,7 +421,7 @@ func (x *UpdateZoneRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateZone の Response。
 type UpdateZoneResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新した運賃ゾーン（GTFS の zone_id）。
+	// 更新した運賃エリア（GTFS の zone_id）。
 	Zone          *Zone `protobuf:"bytes,1,opt,name=zone,proto3" json:"zone,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -467,7 +467,7 @@ func (x *UpdateZoneResponse) GetZone() *Zone {
 // DeleteZone の Request。
 type DeleteZoneRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運賃ゾーンの ID（GTFS の zone_id）。
+	// 運賃エリアID（GTFS の zone_id）。
 	ZoneId        string `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

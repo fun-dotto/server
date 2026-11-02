@@ -112,7 +112,7 @@ const (
 	Course_COURSE_INFORMATION_SYSTEM Course = 1
 	// 情報デザインコース。
 	Course_COURSE_INFORMATION_DESIGN Course = 2
-	// 高度 ICT コース。
+	// 高度ICTコース。
 	Course_COURSE_ADVANCED_ICT Course = 3
 	// 複雑系コース。
 	Course_COURSE_COMPLEX_SYSTEM Course = 4
@@ -266,17 +266,17 @@ type Period int32
 const (
 	// 未指定。
 	Period_PERIOD_UNSPECIFIED Period = 0
-	// 1 限。
+	// 1限。
 	Period_PERIOD_1 Period = 1
-	// 2 限。
+	// 2限。
 	Period_PERIOD_2 Period = 2
-	// 3 限。
+	// 3限。
 	Period_PERIOD_3 Period = 3
-	// 4 限。
+	// 4限。
 	Period_PERIOD_4 Period = 4
-	// 5 限。
+	// 5限。
 	Period_PERIOD_5 Period = 5
-	// 6 限。
+	// 6限。
 	Period_PERIOD_6 Period = 6
 )
 

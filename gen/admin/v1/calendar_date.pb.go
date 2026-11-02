@@ -24,15 +24,15 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 運行カレンダーの例外の種類（GTFS の exception_type）。
+// 運行日情報の利用タイプ（GTFS の exception_type）。
 type CalendarDateExceptionType int32
 
 const (
 	// 未指定。
 	CalendarDateExceptionType_CALENDAR_DATE_EXCEPTION_TYPE_UNSPECIFIED CalendarDateExceptionType = 0
-	// その日の運行を追加する。
+	// 運行（exception_type = 1）。
 	CalendarDateExceptionType_CALENDAR_DATE_EXCEPTION_TYPE_ADDED CalendarDateExceptionType = 1
-	// その日の運行を取り消す。
+	// 運休（exception_type = 2）。
 	CalendarDateExceptionType_CALENDAR_DATE_EXCEPTION_TYPE_REMOVED CalendarDateExceptionType = 2
 )
 
@@ -77,14 +77,14 @@ func (CalendarDateExceptionType) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_calendar_date_proto_rawDescGZIP(), []int{0}
 }
 
-// 運行カレンダーの例外日（GTFS の calendar_dates）。
+// 運行日情報（GTFS の calendar_dates）。
 type CalendarDate struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// 例外日の日付。
+	// 日付（GTFS の date）。
 	Date *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
-	// 運行を追加するか取り消すか。
+	// 利用タイプ（GTFS の exception_type）。
 	ExceptionType CalendarDateExceptionType `protobuf:"varint,3,opt,name=exception_type,json=exceptionType,proto3,enum=admin.v1.CalendarDateExceptionType" json:"exception_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -199,7 +199,7 @@ func (x *ListCalendarDatesRequest) GetPageToken() string {
 // ListCalendarDates の Response。
 type ListCalendarDatesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダーの例外日（GTFS の calendar_dates）の一覧。
+	// 運行日情報（GTFS の calendar_dates）の一覧。
 	CalendarDates []*CalendarDate `protobuf:"bytes,1,rep,name=calendar_dates,json=calendarDates,proto3" json:"calendar_dates,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -254,9 +254,9 @@ func (x *ListCalendarDatesResponse) GetNextPageToken() string {
 // GetCalendarDate の Request。
 type GetCalendarDateRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// 例外日の日付。
+	// 日付（GTFS の date）。
 	Date          *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -309,7 +309,7 @@ func (x *GetCalendarDateRequest) GetDate() *date.Date {
 // GetCalendarDate の Response。
 type GetCalendarDateResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得した運行カレンダーの例外日（GTFS の calendar_dates）。
+	// 取得した運行日情報（GTFS の calendar_dates）。
 	CalendarDate  *CalendarDate `protobuf:"bytes,1,opt,name=calendar_date,json=calendarDate,proto3" json:"calendar_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -355,11 +355,11 @@ func (x *GetCalendarDateResponse) GetCalendarDate() *CalendarDate {
 // CreateCalendarDate の Request。
 type CreateCalendarDateRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// 例外日の日付。
+	// 日付（GTFS の date）。
 	Date *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
-	// 運行を追加するか取り消すか。
+	// 利用タイプ（GTFS の exception_type）。
 	ExceptionType CalendarDateExceptionType `protobuf:"varint,3,opt,name=exception_type,json=exceptionType,proto3,enum=admin.v1.CalendarDateExceptionType" json:"exception_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -419,7 +419,7 @@ func (x *CreateCalendarDateRequest) GetExceptionType() CalendarDateExceptionType
 // CreateCalendarDate の Response。
 type CreateCalendarDateResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成した運行カレンダーの例外日（GTFS の calendar_dates）。
+	// 作成した運行日情報（GTFS の calendar_dates）。
 	CalendarDate  *CalendarDate `protobuf:"bytes,1,opt,name=calendar_date,json=calendarDate,proto3" json:"calendar_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -465,11 +465,11 @@ func (x *CreateCalendarDateResponse) GetCalendarDate() *CalendarDate {
 // UpdateCalendarDate の Request。
 type UpdateCalendarDateRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// 例外日の日付。
+	// 日付（GTFS の date）。
 	Date *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
-	// 運行を追加するか取り消すか。
+	// 利用タイプ（GTFS の exception_type）。
 	ExceptionType CalendarDateExceptionType `protobuf:"varint,3,opt,name=exception_type,json=exceptionType,proto3,enum=admin.v1.CalendarDateExceptionType" json:"exception_type,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -538,7 +538,7 @@ func (x *UpdateCalendarDateRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateCalendarDate の Response。
 type UpdateCalendarDateResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新した運行カレンダーの例外日（GTFS の calendar_dates）。
+	// 更新した運行日情報（GTFS の calendar_dates）。
 	CalendarDate  *CalendarDate `protobuf:"bytes,1,opt,name=calendar_date,json=calendarDate,proto3" json:"calendar_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -584,9 +584,9 @@ func (x *UpdateCalendarDateResponse) GetCalendarDate() *CalendarDate {
 // DeleteCalendarDate の Request。
 type DeleteCalendarDateRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// 例外日の日付。
+	// 日付（GTFS の date）。
 	Date          *date.Date `protobuf:"bytes,2,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

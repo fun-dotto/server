@@ -26,15 +26,15 @@ service RoomChangeService {
 message RoomChange {
   // ID。
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // 科目の ID。
+  // 科目ID。
   string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
   // 教室を変更する日付。
   google.type.Date date = 3 [(google.api.field_behavior) = REQUIRED];
   // 教室を変更する時限。
   Period period = 4 [(google.api.field_behavior) = REQUIRED];
-  // 変更前の教室の ID。
+  // 変更前の教室ID。
   string original_room_id = 5 [(google.api.field_behavior) = REQUIRED];
-  // 変更後の教室の ID。
+  // 変更後の教室ID。
   string new_room_id = 6 [(google.api.field_behavior) = REQUIRED];
   // 作成日時。
   google.protobuf.Timestamp created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -60,7 +60,7 @@ message ListRoomChangesResponse {
 
 // GetRoomChange の Request。
 message GetRoomChangeRequest {
-  // 取得する教室変更の ID。
+  // 取得する教室変更ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
@@ -72,15 +72,15 @@ message GetRoomChangeResponse {
 
 // CreateRoomChange の Request。
 message CreateRoomChangeRequest {
-  // 科目の ID。
+  // 科目ID。
   string subject_id = 1 [(google.api.field_behavior) = REQUIRED];
   // 教室を変更する日付。
   google.type.Date date = 2 [(google.api.field_behavior) = REQUIRED];
   // 教室を変更する時限。
   Period period = 3 [(google.api.field_behavior) = REQUIRED];
-  // 変更前の教室の ID。
+  // 変更前の教室ID。
   string original_room_id = 4 [(google.api.field_behavior) = REQUIRED];
-  // 変更後の教室の ID。
+  // 変更後の教室ID。
   string new_room_id = 5 [(google.api.field_behavior) = REQUIRED];
 }
 
@@ -92,17 +92,17 @@ message CreateRoomChangeResponse {
 
 // UpdateRoomChange の Request。
 message UpdateRoomChangeRequest {
-  // 更新する教室変更の ID。
+  // 更新する教室変更ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 科目の ID。
+  // 科目ID。
   string subject_id = 2 [(google.api.field_behavior) = OPTIONAL];
   // 教室を変更する日付。
   google.type.Date date = 3 [(google.api.field_behavior) = OPTIONAL];
   // 教室を変更する時限。
   Period period = 4 [(google.api.field_behavior) = OPTIONAL];
-  // 変更前の教室の ID。
+  // 変更前の教室ID。
   string original_room_id = 5 [(google.api.field_behavior) = OPTIONAL];
-  // 変更後の教室の ID。
+  // 変更後の教室ID。
   string new_room_id = 6 [(google.api.field_behavior) = OPTIONAL];
   // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
   google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
@@ -116,7 +116,7 @@ message UpdateRoomChangeResponse {
 
 // DeleteRoomChange の Request。
 message DeleteRoomChangeRequest {
-  // 削除する教室変更の ID。
+  // 削除する教室変更ID。
   string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 

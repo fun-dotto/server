@@ -26,9 +26,9 @@ const (
 // ユーザー。
 type User struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// ユーザーの ID（認証基盤のユーザー ID）。
+	// ユーザーID。Firebase Authentication の UID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// メールアドレス。
+	// メールアドレス。Firebase Authentication のメールアドレス。
 	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	// 学年。
 	Grade *Grade `protobuf:"varint,3,opt,name=grade,proto3,enum=admin.v1.Grade,oneof" json:"grade,omitempty"`
@@ -218,7 +218,7 @@ func (x *ListUsersResponse) GetNextPageToken() string {
 // GetUser の Request。
 type GetUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得するユーザーの ID。
+	// 取得するユーザーID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -310,9 +310,9 @@ func (x *GetUserResponse) GetUser() *User {
 // CreateUser の Request。
 type CreateUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// ユーザーの ID（認証基盤のユーザー ID）。
+	// ユーザーID。Firebase Authentication の UID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// メールアドレス。
+	// メールアドレス。Firebase Authentication のメールアドレス。
 	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	// 学年。
 	Grade *Grade `protobuf:"varint,3,opt,name=grade,proto3,enum=admin.v1.Grade,oneof" json:"grade,omitempty"`
@@ -438,9 +438,9 @@ func (x *CreateUserResponse) GetUser() *User {
 // UpdateUser の Request。
 type UpdateUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新するユーザーの ID。
+	// 更新するユーザーID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// メールアドレス。
+	// メールアドレス。Firebase Authentication のメールアドレス。
 	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	// 学年。
 	Grade *Grade `protobuf:"varint,3,opt,name=grade,proto3,enum=admin.v1.Grade,oneof" json:"grade,omitempty"`
@@ -575,7 +575,7 @@ func (x *UpdateUserResponse) GetUser() *User {
 // DeleteUser の Request。
 type DeleteUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除するユーザーの ID。
+	// 削除するユーザーID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

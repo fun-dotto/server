@@ -25,18 +25,18 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 時間割の項目。
+// 時間割。
 type TimetableItem struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	// 曜日。集中講義など曜日がない場合は未設定。
+	// 曜日。集中講義など、時間割に含まれていない場合は未設定。
 	DayOfWeek *dayofweek.DayOfWeek `protobuf:"varint,3,opt,name=day_of_week,json=dayOfWeek,proto3,enum=google.type.DayOfWeek,oneof" json:"day_of_week,omitempty"`
-	// 時限。集中講義など時限がない場合は未設定。
+	// 時限。集中講義など、時間割に含まれていない場合は未設定。
 	Period *Period `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period,oneof" json:"period,omitempty"`
-	// 使う教室の ID。
+	// 使う教室ID。
 	RoomIds []string `protobuf:"bytes,5,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
 	// 作成日時。
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -183,7 +183,7 @@ func (x *ListTimetableItemsRequest) GetPageToken() string {
 // ListTimetableItems の Response。
 type ListTimetableItemsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 時間割の項目の一覧。
+	// 時間割の一覧。
 	TimetableItems []*TimetableItem `protobuf:"bytes,1,rep,name=timetable_items,json=timetableItems,proto3" json:"timetable_items,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -238,7 +238,7 @@ func (x *ListTimetableItemsResponse) GetNextPageToken() string {
 // GetTimetableItem の Request。
 type GetTimetableItemRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得する時間割の項目の ID。
+	// 取得する時間割ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -284,7 +284,7 @@ func (x *GetTimetableItemRequest) GetId() string {
 // GetTimetableItem の Response。
 type GetTimetableItemResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得した時間割の項目。
+	// 取得した時間割。
 	TimetableItem *TimetableItem `protobuf:"bytes,1,opt,name=timetable_item,json=timetableItem,proto3" json:"timetable_item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -330,13 +330,13 @@ func (x *GetTimetableItemResponse) GetTimetableItem() *TimetableItem {
 // CreateTimetableItem の Request。
 type CreateTimetableItemRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,1,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	// 曜日。集中講義など曜日がない場合は未設定。
+	// 曜日。集中講義など、時間割に含まれていない場合は未設定。
 	DayOfWeek *dayofweek.DayOfWeek `protobuf:"varint,2,opt,name=day_of_week,json=dayOfWeek,proto3,enum=google.type.DayOfWeek,oneof" json:"day_of_week,omitempty"`
-	// 時限。集中講義など時限がない場合は未設定。
+	// 時限。集中講義など、時間割に含まれていない場合は未設定。
 	Period *Period `protobuf:"varint,3,opt,name=period,proto3,enum=admin.v1.Period,oneof" json:"period,omitempty"`
-	// 使う教室の ID。
+	// 使う教室ID。
 	RoomIds       []string `protobuf:"bytes,4,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -403,7 +403,7 @@ func (x *CreateTimetableItemRequest) GetRoomIds() []string {
 // CreateTimetableItem の Response。
 type CreateTimetableItemResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成した時間割の項目。
+	// 作成した時間割。
 	TimetableItem *TimetableItem `protobuf:"bytes,1,opt,name=timetable_item,json=timetableItem,proto3" json:"timetable_item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -449,15 +449,15 @@ func (x *CreateTimetableItemResponse) GetTimetableItem() *TimetableItem {
 // UpdateTimetableItem の Request。
 type UpdateTimetableItemRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新する時間割の項目の ID。
+	// 更新する時間割ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 科目の ID。
+	// 科目ID。
 	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	// 曜日。集中講義など曜日がない場合は未設定。
+	// 曜日。集中講義など、時間割に含まれていない場合は未設定。
 	DayOfWeek *dayofweek.DayOfWeek `protobuf:"varint,3,opt,name=day_of_week,json=dayOfWeek,proto3,enum=google.type.DayOfWeek,oneof" json:"day_of_week,omitempty"`
-	// 時限。集中講義など時限がない場合は未設定。
+	// 時限。集中講義など、時間割に含まれていない場合は未設定。
 	Period *Period `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period,oneof" json:"period,omitempty"`
-	// 使う教室の ID。
+	// 使う教室ID。
 	RoomIds []string `protobuf:"bytes,5,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -540,7 +540,7 @@ func (x *UpdateTimetableItemRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateTimetableItem の Response。
 type UpdateTimetableItemResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新した時間割の項目。
+	// 更新した時間割。
 	TimetableItem *TimetableItem `protobuf:"bytes,1,opt,name=timetable_item,json=timetableItem,proto3" json:"timetable_item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -586,7 +586,7 @@ func (x *UpdateTimetableItemResponse) GetTimetableItem() *TimetableItem {
 // DeleteTimetableItem の Request。
 type DeleteTimetableItemRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 削除する時間割の項目の ID。
+	// 削除する時間割ID。
 	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
