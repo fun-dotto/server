@@ -23,15 +23,15 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 便の運行方向（GTFS の direction_id）。
+// 上下区分（GTFS の direction_id）。
 type TripDirection int32
 
 const (
 	// 未指定。
 	TripDirection_TRIP_DIRECTION_UNSPECIFIED TripDirection = 0
-	// 往路（direction_id = 0）。
+	// 往路（direction_id = 1）。
 	TripDirection_TRIP_DIRECTION_OUTBOUND TripDirection = 1
-	// 復路（direction_id = 1）。
+	// 復路（direction_id = 0）。
 	TripDirection_TRIP_DIRECTION_INBOUND TripDirection = 2
 )
 
@@ -76,16 +76,16 @@ func (TripDirection) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_trip_proto_rawDescGZIP(), []int{0}
 }
 
-// バスの便（GTFS の trips）。
+// 便情報（GTFS の trips）。
 type Trip struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 便の ID（GTFS の trip_id）。
+	// 便ID（GTFS の trip_id）。
 	TripId string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
-	// 路線の ID（GTFS の route_id）。
+	// 経路ID（GTFS の route_id）。
 	RouteId string `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// 運行方向（GTFS の direction_id）。
+	// 上下区分（GTFS の direction_id）。
 	Direction     *TripDirection `protobuf:"varint,4,opt,name=direction,proto3,enum=admin.v1.TripDirection,oneof" json:"direction,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -207,7 +207,7 @@ func (x *ListTripsRequest) GetPageToken() string {
 // ListTrips の Response。
 type ListTripsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// バスの便（GTFS の trips）の一覧。
+	// 便情報（GTFS の trips）の一覧。
 	Trips []*Trip `protobuf:"bytes,1,rep,name=trips,proto3" json:"trips,omitempty"`
 	// 次のページを取得するためのトークン。最終ページの場合は空文字。
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
@@ -262,7 +262,7 @@ func (x *ListTripsResponse) GetNextPageToken() string {
 // GetTrip の Request。
 type GetTripRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 便の ID（GTFS の trip_id）。
+	// 便ID（GTFS の trip_id）。
 	TripId        string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -308,7 +308,7 @@ func (x *GetTripRequest) GetTripId() string {
 // GetTrip の Response。
 type GetTripResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 取得したバスの便（GTFS の trips）。
+	// 取得した便情報（GTFS の trips）。
 	Trip          *Trip `protobuf:"bytes,1,opt,name=trip,proto3" json:"trip,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -354,13 +354,13 @@ func (x *GetTripResponse) GetTrip() *Trip {
 // CreateTrip の Request。
 type CreateTripRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 便の ID（GTFS の trip_id）。
+	// 便ID（GTFS の trip_id）。
 	TripId string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
-	// 路線の ID（GTFS の route_id）。
+	// 経路ID（GTFS の route_id）。
 	RouteId string `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// 運行方向（GTFS の direction_id）。
+	// 上下区分（GTFS の direction_id）。
 	Direction     *TripDirection `protobuf:"varint,4,opt,name=direction,proto3,enum=admin.v1.TripDirection,oneof" json:"direction,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -427,7 +427,7 @@ func (x *CreateTripRequest) GetDirection() TripDirection {
 // CreateTrip の Response。
 type CreateTripResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 作成したバスの便（GTFS の trips）。
+	// 作成した便情報（GTFS の trips）。
 	Trip          *Trip `protobuf:"bytes,1,opt,name=trip,proto3" json:"trip,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -473,13 +473,13 @@ func (x *CreateTripResponse) GetTrip() *Trip {
 // UpdateTrip の Request。
 type UpdateTripRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 便の ID（GTFS の trip_id）。
+	// 便ID（GTFS の trip_id）。
 	TripId string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
-	// 路線の ID（GTFS の route_id）。
+	// 経路ID（GTFS の route_id）。
 	RouteId string `protobuf:"bytes,2,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
-	// 運行カレンダーの ID（GTFS の service_id）。
+	// 運行日ID（GTFS の service_id）。
 	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// 運行方向（GTFS の direction_id）。
+	// 上下区分（GTFS の direction_id）。
 	Direction *TripDirection `protobuf:"varint,4,opt,name=direction,proto3,enum=admin.v1.TripDirection,oneof" json:"direction,omitempty"`
 	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -555,7 +555,7 @@ func (x *UpdateTripRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // UpdateTrip の Response。
 type UpdateTripResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 更新したバスの便（GTFS の trips）。
+	// 更新した便情報（GTFS の trips）。
 	Trip          *Trip `protobuf:"bytes,1,opt,name=trip,proto3" json:"trip,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -601,7 +601,7 @@ func (x *UpdateTripResponse) GetTrip() *Trip {
 // DeleteTrip の Request。
 type DeleteTripRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 便の ID（GTFS の trip_id）。
+	// 便ID（GTFS の trip_id）。
 	TripId        string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

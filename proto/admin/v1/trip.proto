@@ -5,29 +5,29 @@ package admin.v1;
 import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 
-// バスの便（GTFS の trips）を管理する。
+// 便情報（GTFS の trips）を管理する。
 service TripService {
-  // バスの便（GTFS の trips）の一覧を取得する。
+  // 便情報（GTFS の trips）の一覧を取得する。
   rpc ListTrips(ListTripsRequest) returns (ListTripsResponse);
-  // バスの便（GTFS の trips）を取得する。
+  // 便情報（GTFS の trips）を取得する。
   rpc GetTrip(GetTripRequest) returns (GetTripResponse);
-  // バスの便（GTFS の trips）を作成する。
+  // 便情報（GTFS の trips）を作成する。
   rpc CreateTrip(CreateTripRequest) returns (CreateTripResponse);
-  // バスの便（GTFS の trips）を更新する。
+  // 便情報（GTFS の trips）を更新する。
   rpc UpdateTrip(UpdateTripRequest) returns (UpdateTripResponse);
-  // バスの便（GTFS の trips）を削除する。
+  // 便情報（GTFS の trips）を削除する。
   rpc DeleteTrip(DeleteTripRequest) returns (DeleteTripResponse);
 }
 
-// バスの便（GTFS の trips）。
+// 便情報（GTFS の trips）。
 message Trip {
-  // 便の ID（GTFS の trip_id）。
+  // 便ID（GTFS の trip_id）。
   string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 路線の ID（GTFS の route_id）。
+  // 経路ID（GTFS の route_id）。
   string route_id = 2 [(google.api.field_behavior) = REQUIRED];
-  // 運行カレンダーの ID（GTFS の service_id）。
+  // 運行日ID（GTFS の service_id）。
   string service_id = 3 [(google.api.field_behavior) = REQUIRED];
-  // 運行方向（GTFS の direction_id）。
+  // 上下区分（GTFS の direction_id）。
   optional TripDirection direction = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
@@ -41,7 +41,7 @@ message ListTripsRequest {
 
 // ListTrips の Response。
 message ListTripsResponse {
-  // バスの便（GTFS の trips）の一覧。
+  // 便情報（GTFS の trips）の一覧。
   repeated Trip trips = 1;
   // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
@@ -49,43 +49,43 @@ message ListTripsResponse {
 
 // GetTrip の Request。
 message GetTripRequest {
-  // 便の ID（GTFS の trip_id）。
+  // 便ID（GTFS の trip_id）。
   string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // GetTrip の Response。
 message GetTripResponse {
-  // 取得したバスの便（GTFS の trips）。
+  // 取得した便情報（GTFS の trips）。
   Trip trip = 1;
 }
 
 // CreateTrip の Request。
 message CreateTripRequest {
-  // 便の ID（GTFS の trip_id）。
+  // 便ID（GTFS の trip_id）。
   string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 路線の ID（GTFS の route_id）。
+  // 経路ID（GTFS の route_id）。
   string route_id = 2 [(google.api.field_behavior) = REQUIRED];
-  // 運行カレンダーの ID（GTFS の service_id）。
+  // 運行日ID（GTFS の service_id）。
   string service_id = 3 [(google.api.field_behavior) = REQUIRED];
-  // 運行方向（GTFS の direction_id）。
+  // 上下区分（GTFS の direction_id）。
   optional TripDirection direction = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // CreateTrip の Response。
 message CreateTripResponse {
-  // 作成したバスの便（GTFS の trips）。
+  // 作成した便情報（GTFS の trips）。
   Trip trip = 1;
 }
 
 // UpdateTrip の Request。
 message UpdateTripRequest {
-  // 便の ID（GTFS の trip_id）。
+  // 便ID（GTFS の trip_id）。
   string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
-  // 路線の ID（GTFS の route_id）。
+  // 経路ID（GTFS の route_id）。
   string route_id = 2 [(google.api.field_behavior) = OPTIONAL];
-  // 運行カレンダーの ID（GTFS の service_id）。
+  // 運行日ID（GTFS の service_id）。
   string service_id = 3 [(google.api.field_behavior) = OPTIONAL];
-  // 運行方向（GTFS の direction_id）。
+  // 上下区分（GTFS の direction_id）。
   optional TripDirection direction = 4 [(google.api.field_behavior) = OPTIONAL];
   // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
   google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
@@ -93,25 +93,25 @@ message UpdateTripRequest {
 
 // UpdateTrip の Response。
 message UpdateTripResponse {
-  // 更新したバスの便（GTFS の trips）。
+  // 更新した便情報（GTFS の trips）。
   Trip trip = 1;
 }
 
 // DeleteTrip の Request。
 message DeleteTripRequest {
-  // 便の ID（GTFS の trip_id）。
+  // 便ID（GTFS の trip_id）。
   string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // DeleteTrip の Response。
 message DeleteTripResponse {}
 
-// 便の運行方向（GTFS の direction_id）。
+// 上下区分（GTFS の direction_id）。
 enum TripDirection {
   // 未指定。
   TRIP_DIRECTION_UNSPECIFIED = 0;
-  // 往路（direction_id = 0）。
+  // 往路（direction_id = 1）。
   TRIP_DIRECTION_OUTBOUND = 1;
-  // 復路（direction_id = 1）。
+  // 復路（direction_id = 0）。
   TRIP_DIRECTION_INBOUND = 2;
 }
