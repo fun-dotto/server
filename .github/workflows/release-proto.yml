@@ -24,8 +24,6 @@ jobs:
       fail-fast: false
       matrix:
         repository:
-          - app
-          - web
           - admin-web
     steps:
       - name: Create GitHub App Token
