@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -22,11 +23,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 履修情報。
 type CourseRegistration struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	SubjectId     string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ユーザーID。
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// 科目ID。
+	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -90,10 +96,13 @@ func (x *CourseRegistration) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListCourseRegistrations の Request。
 type ListCourseRegistrationsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -142,12 +151,15 @@ func (x *ListCourseRegistrationsRequest) GetPageToken() string {
 	return ""
 }
 
+// ListCourseRegistrations の Response。
 type ListCourseRegistrationsResponse struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	CourseRegistrations []*CourseRegistration  `protobuf:"bytes,1,rep,name=course_registrations,json=courseRegistrations,proto3" json:"course_registrations,omitempty"`
-	NextPageToken       string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 履修情報の一覧。
+	CourseRegistrations []*CourseRegistration `protobuf:"bytes,1,rep,name=course_registrations,json=courseRegistrations,proto3" json:"course_registrations,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListCourseRegistrationsResponse) Reset() {
@@ -194,10 +206,13 @@ func (x *ListCourseRegistrationsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetCourseRegistration の Request。
 type GetCourseRegistrationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	SubjectId     string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ユーザーID。
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// 科目ID。
+	SubjectId     string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -246,9 +261,11 @@ func (x *GetCourseRegistrationRequest) GetSubjectId() string {
 	return ""
 }
 
+// GetCourseRegistration の Response。
 type GetCourseRegistrationResponse struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	CourseRegistration *CourseRegistration    `protobuf:"bytes,1,opt,name=course_registration,json=courseRegistration,proto3" json:"course_registration,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した履修情報。
+	CourseRegistration *CourseRegistration `protobuf:"bytes,1,opt,name=course_registration,json=courseRegistration,proto3" json:"course_registration,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -290,10 +307,13 @@ func (x *GetCourseRegistrationResponse) GetCourseRegistration() *CourseRegistrat
 	return nil
 }
 
+// CreateCourseRegistration の Request。
 type CreateCourseRegistrationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	SubjectId     string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ユーザーID。
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// 科目ID。
+	SubjectId     string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -342,9 +362,11 @@ func (x *CreateCourseRegistrationRequest) GetSubjectId() string {
 	return ""
 }
 
+// CreateCourseRegistration の Response。
 type CreateCourseRegistrationResponse struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	CourseRegistration *CourseRegistration    `protobuf:"bytes,1,opt,name=course_registration,json=courseRegistration,proto3" json:"course_registration,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した履修情報。
+	CourseRegistration *CourseRegistration `protobuf:"bytes,1,opt,name=course_registration,json=courseRegistration,proto3" json:"course_registration,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -386,10 +408,13 @@ func (x *CreateCourseRegistrationResponse) GetCourseRegistration() *CourseRegist
 	return nil
 }
 
+// DeleteCourseRegistration の Request。
 type DeleteCourseRegistrationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	SubjectId     string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ユーザーID。
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// 科目ID。
+	SubjectId     string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -438,6 +463,7 @@ func (x *DeleteCourseRegistrationRequest) GetSubjectId() string {
 	return ""
 }
 
+// DeleteCourseRegistration の Response。
 type DeleteCourseRegistrationResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -478,38 +504,38 @@ var File_admin_v1_course_registration_proto protoreflect.FileDescriptor
 
 const file_admin_v1_course_registration_proto_rawDesc = "" +
 	"\n" +
-	"\"admin/v1/course_registration.proto\x12\badmin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc2\x01\n" +
-	"\x12CourseRegistration\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
+	"\"admin/v1/course_registration.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd6\x01\n" +
+	"\x12CourseRegistration\x12\x1c\n" +
+	"\auser_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06userId\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x02 \x01(\tR\tsubjectId\x129\n" +
+	"subject_id\x18\x02 \x01(\tB\x03\xe0A\x02R\tsubjectId\x12>\n" +
 	"\n" +
-	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\\\n" +
-	"\x1eListCourseRegistrationsRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\"f\n" +
+	"\x1eListCourseRegistrationsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"\x9a\x01\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"\x9a\x01\n" +
 	"\x1fListCourseRegistrationsResponse\x12O\n" +
 	"\x14course_registrations\x18\x01 \x03(\v2\x1c.admin.v1.CourseRegistrationR\x13courseRegistrations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"V\n" +
-	"\x1cGetCourseRegistrationRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"`\n" +
+	"\x1cGetCourseRegistrationRequest\x12\x1c\n" +
+	"\auser_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06userId\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x02 \x01(\tR\tsubjectId\"n\n" +
+	"subject_id\x18\x02 \x01(\tB\x03\xe0A\x02R\tsubjectId\"n\n" +
 	"\x1dGetCourseRegistrationResponse\x12M\n" +
-	"\x13course_registration\x18\x01 \x01(\v2\x1c.admin.v1.CourseRegistrationR\x12courseRegistration\"Y\n" +
-	"\x1fCreateCourseRegistrationRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
+	"\x13course_registration\x18\x01 \x01(\v2\x1c.admin.v1.CourseRegistrationR\x12courseRegistration\"c\n" +
+	"\x1fCreateCourseRegistrationRequest\x12\x1c\n" +
+	"\auser_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06userId\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x02 \x01(\tR\tsubjectId\"q\n" +
+	"subject_id\x18\x02 \x01(\tB\x03\xe0A\x02R\tsubjectId\"q\n" +
 	" CreateCourseRegistrationResponse\x12M\n" +
-	"\x13course_registration\x18\x01 \x01(\v2\x1c.admin.v1.CourseRegistrationR\x12courseRegistration\"Y\n" +
-	"\x1fDeleteCourseRegistrationRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
+	"\x13course_registration\x18\x01 \x01(\v2\x1c.admin.v1.CourseRegistrationR\x12courseRegistration\"c\n" +
+	"\x1fDeleteCourseRegistrationRequest\x12\x1c\n" +
+	"\auser_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06userId\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x02 \x01(\tR\tsubjectId\"\"\n" +
+	"subject_id\x18\x02 \x01(\tB\x03\xe0A\x02R\tsubjectId\"\"\n" +
 	" DeleteCourseRegistrationResponse2\xdb\x03\n" +
 	"\x19CourseRegistrationService\x12n\n" +
 	"\x17ListCourseRegistrations\x12(.admin.v1.ListCourseRegistrationsRequest\x1a).admin.v1.ListCourseRegistrationsResponse\x12h\n" +

@@ -1,0 +1,99 @@
+# Google API Linter (https://linter.aip.dev/) の設定
+# パスは proto/ からの相対パス。ガイドライン（.rulesync/rules/api-design.md）の
+# 「AIP からの逸脱」に対応するルールと、本プロジェクトで採用しない仕組みのルールを無効化する。
+# proto を直せば満たせるルールは無効化しない。ここに書くのは本プロジェクトの方針上、適用できないルールのみ。
+- included_paths:
+    - "**/*.proto"
+  disabled_rules:
+    # --- 採用しない google.api.* アノテーション（Connect のみで使い、リソース名も使わない） ---
+    # リソース message に google.api.resource の付与を求める。リソース名（name）のパターンを前提とするため、id を識別子とする本プロジェクトでは付与できない
+    - "core::0123::resource-annotation"
+    # RPC に google.api.http（HTTP/JSON トランスコーディング）の付与を求める。Connect が HTTP を扱うため不要
+    - "core::0127::http-annotation"
+    # Get / Create / Update / Delete に google.api.method_signature の付与を求める（クライアント生成用）
+    - "core::0131::method-signature"
+    - "core::0133::method-signature"
+    - "core::0134::method-signature"
+    - "core::0135::method-signature"
+
+    # --- Go 以外の言語向けファイルオプション（Go のみ生成するため不要） ---
+    # option java_multiple_files = true を求める
+    - "core::0191::java-multiple-files"
+    # option java_outer_classname を求める
+    - "core::0191::java-outer-classname"
+    # option java_package を求める
+    - "core::0191::java-package"
+
+    # --- 逸脱: 識別子は name ではなく id（GTFS 由来・複合キーは各キー） ---
+    # Get の Request に name フィールドを求める
+    - "core::0131::request-name-required"
+    # Get の Request に AIP 規定外のフィールド（id など）を置くことを禁じる
+    - "core::0131::request-unknown-fields"
+    # Create の Request にクライアント指定 ID 用の <resource>_id フィールドを求める
+    - "core::0133::request-id-field"
+    # Create の Request に parent フィールドを求める。親リソースを持たないフラットな構成のため不要
+    - "core::0133::request-parent-required"
+    # Delete の Request に name フィールドを求める
+    - "core::0135::request-name-required"
+    # Delete の Request に AIP 規定外のフィールド（id など）を置くことを禁じる
+    - "core::0135::request-unknown-fields"
+    # Get / Update / Delete の Request で AIP 規定外のフィールド（id など）を REQUIRED にすることを禁じる
+    - "core::0131::request-required-fields"
+    - "core::0134::request-required-fields"
+    - "core::0135::request-required-fields"
+
+    # --- 逸脱: Create / Update の Request はリソースのフィールドを直接並べる ---
+    # Create の Request にリソース message 型のフィールドを求める
+    - "core::0133::request-resource-field"
+    # Create の Request に AIP 規定外のフィールド（title など）を置くことを禁じる
+    - "core::0133::request-unknown-fields"
+    # Update の Request にリソース message 型のフィールドを求める
+    - "core::0134::request-resource-required"
+    # Update の Request に AIP 規定外のフィールド（id など）を置くことを禁じる
+    - "core::0134::request-unknown-fields"
+    # Create の Request で AIP 規定外のフィールド（name など）を REQUIRED にすることを禁じる
+    - "core::0133::request-required-fields"
+
+    # --- 逸脱: Get / Create / Update / Delete の Response は <Rpc>Response で包む（Delete は空 message） ---
+    # AIP はリソース自体（Delete は Empty）を Response にすることを求めるが、
+    # buf lint の RPC_RESPONSE_STANDARD_NAME / RPC_REQUEST_RESPONSE_UNIQUE を優先する
+    - "core::0131::response-message-name"
+    - "core::0133::response-message-name"
+    - "core::0134::response-message-name"
+    - "core::0135::response-message-name"
+
+    # --- 逸脱: タイムスタンプは created_at / updated_at ---
+    # フィールド名に前置詞（at / from など）を使うことを禁じる。
+    # available_from / notify_after / notify_before も後方互換性のため名前を変更できない
+    - "core::0140::prepositions"
+    # Timestamp フィールド名を _time で終えることを求める（create_time など）
+    - "core::0142::time-field-names"
+
+# 以下はファイル単位の例外。既存フィールド（後方互換性のため名前・型を変更できないもの）
+# 列挙値に INFORMATION ではなく略語 INFO を使うことを求める
+- included_paths:
+    - "admin/v1/common.proto"
+  disabled_rules:
+    - "core::0140::abbreviations"
+# 主要言語の予約語（class など）をフィールド名に使うことを禁じる
+- included_paths:
+    - "admin/v1/subject.proto"
+    - "admin/v1/user.proto"
+  disabled_rules:
+    - "core::0140::reserved-words"
+# フィールド名の _name サフィックスを禁じる。
+# GTFS の列名（route_short_name、stop_name など）やシラバスの既存フィールド名に合わせるため無効化
+- included_paths:
+    - "admin/v1/route.proto"
+    - "admin/v1/stop.proto"
+    - "admin/v1/syllabus.proto"
+  disabled_rules:
+    - "core::0122::name-suffix"
+# 時刻を表すフィールドに google.protobuf.Timestamp を求める。
+# GTFS の形式（arrival_time は 24 時超えを含む文字列）や日付・時刻のみの値に合わせるため無効化
+- included_paths:
+    - "admin/v1/stop_time.proto"
+    - "admin/v1/calendar_date.proto"
+    - "admin/v1/notification.proto"
+  disabled_rules:
+    - "core::0142::time-field-type"

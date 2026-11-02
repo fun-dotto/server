@@ -49,9 +49,13 @@ const (
 
 // FacultyRoomServiceClient is a client for the admin.v1.FacultyRoomService service.
 type FacultyRoomServiceClient interface {
+	// 教員室の一覧を取得する。
 	ListFacultyRooms(context.Context, *connect.Request[v1.ListFacultyRoomsRequest]) (*connect.Response[v1.ListFacultyRoomsResponse], error)
+	// 教員室を取得する。
 	GetFacultyRoom(context.Context, *connect.Request[v1.GetFacultyRoomRequest]) (*connect.Response[v1.GetFacultyRoomResponse], error)
+	// 教員室を作成する。
 	CreateFacultyRoom(context.Context, *connect.Request[v1.CreateFacultyRoomRequest]) (*connect.Response[v1.CreateFacultyRoomResponse], error)
+	// 教員室を削除する。
 	DeleteFacultyRoom(context.Context, *connect.Request[v1.DeleteFacultyRoomRequest]) (*connect.Response[v1.DeleteFacultyRoomResponse], error)
 }
 
@@ -123,9 +127,13 @@ func (c *facultyRoomServiceClient) DeleteFacultyRoom(ctx context.Context, req *c
 
 // FacultyRoomServiceHandler is an implementation of the admin.v1.FacultyRoomService service.
 type FacultyRoomServiceHandler interface {
+	// 教員室の一覧を取得する。
 	ListFacultyRooms(context.Context, *connect.Request[v1.ListFacultyRoomsRequest]) (*connect.Response[v1.ListFacultyRoomsResponse], error)
+	// 教員室を取得する。
 	GetFacultyRoom(context.Context, *connect.Request[v1.GetFacultyRoomRequest]) (*connect.Response[v1.GetFacultyRoomResponse], error)
+	// 教員室を作成する。
 	CreateFacultyRoom(context.Context, *connect.Request[v1.CreateFacultyRoomRequest]) (*connect.Response[v1.CreateFacultyRoomResponse], error)
+	// 教員室を削除する。
 	DeleteFacultyRoom(context.Context, *connect.Request[v1.DeleteFacultyRoomRequest]) (*connect.Response[v1.DeleteFacultyRoomResponse], error)
 }
 

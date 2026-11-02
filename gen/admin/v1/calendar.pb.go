@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	date "google.golang.org/genproto/googleapis/type/date"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -23,18 +24,29 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 運行区分情報（GTFS の calendar）。
 type Calendar struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServiceId     string                 `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	Monday        bool                   `protobuf:"varint,2,opt,name=monday,proto3" json:"monday,omitempty"`
-	Tuesday       bool                   `protobuf:"varint,3,opt,name=tuesday,proto3" json:"tuesday,omitempty"`
-	Wednesday     bool                   `protobuf:"varint,4,opt,name=wednesday,proto3" json:"wednesday,omitempty"`
-	Thursday      bool                   `protobuf:"varint,5,opt,name=thursday,proto3" json:"thursday,omitempty"`
-	Friday        bool                   `protobuf:"varint,6,opt,name=friday,proto3" json:"friday,omitempty"`
-	Saturday      bool                   `protobuf:"varint,7,opt,name=saturday,proto3" json:"saturday,omitempty"`
-	Sunday        bool                   `protobuf:"varint,8,opt,name=sunday,proto3" json:"sunday,omitempty"`
-	StartDate     *date.Date             `protobuf:"bytes,9,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
-	EndDate       *date.Date             `protobuf:"bytes,10,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行日ID（GTFS の service_id）。
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// 月曜日に運行するか。
+	Monday bool `protobuf:"varint,2,opt,name=monday,proto3" json:"monday,omitempty"`
+	// 火曜日に運行するか。
+	Tuesday bool `protobuf:"varint,3,opt,name=tuesday,proto3" json:"tuesday,omitempty"`
+	// 水曜日に運行するか。
+	Wednesday bool `protobuf:"varint,4,opt,name=wednesday,proto3" json:"wednesday,omitempty"`
+	// 木曜日に運行するか。
+	Thursday bool `protobuf:"varint,5,opt,name=thursday,proto3" json:"thursday,omitempty"`
+	// 金曜日に運行するか。
+	Friday bool `protobuf:"varint,6,opt,name=friday,proto3" json:"friday,omitempty"`
+	// 土曜日に運行するか。
+	Saturday bool `protobuf:"varint,7,opt,name=saturday,proto3" json:"saturday,omitempty"`
+	// 日曜日に運行するか。
+	Sunday bool `protobuf:"varint,8,opt,name=sunday,proto3" json:"sunday,omitempty"`
+	// 適用開始日（GTFS の start_date）。
+	StartDate *date.Date `protobuf:"bytes,9,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
+	// 適用終了日（GTFS の end_date）。
+	EndDate       *date.Date `protobuf:"bytes,10,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -139,10 +151,13 @@ func (x *Calendar) GetEndDate() *date.Date {
 	return nil
 }
 
+// ListCalendars の Request。
 type ListCalendarsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -191,10 +206,13 @@ func (x *ListCalendarsRequest) GetPageToken() string {
 	return ""
 }
 
+// ListCalendars の Response。
 type ListCalendarsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Calendars     []*Calendar            `protobuf:"bytes,1,rep,name=calendars,proto3" json:"calendars,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行区分情報（GTFS の calendar）の一覧。
+	Calendars []*Calendar `protobuf:"bytes,1,rep,name=calendars,proto3" json:"calendars,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -243,9 +261,11 @@ func (x *ListCalendarsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetCalendar の Request。
 type GetCalendarRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServiceId     string                 `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行日ID（GTFS の service_id）。
+	ServiceId     string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -287,9 +307,11 @@ func (x *GetCalendarRequest) GetServiceId() string {
 	return ""
 }
 
+// GetCalendar の Response。
 type GetCalendarResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Calendar      *Calendar              `protobuf:"bytes,1,opt,name=calendar,proto3" json:"calendar,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した運行区分情報（GTFS の calendar）。
+	Calendar      *Calendar `protobuf:"bytes,1,opt,name=calendar,proto3" json:"calendar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -331,18 +353,29 @@ func (x *GetCalendarResponse) GetCalendar() *Calendar {
 	return nil
 }
 
+// CreateCalendar の Request。
 type CreateCalendarRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServiceId     string                 `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	Monday        bool                   `protobuf:"varint,2,opt,name=monday,proto3" json:"monday,omitempty"`
-	Tuesday       bool                   `protobuf:"varint,3,opt,name=tuesday,proto3" json:"tuesday,omitempty"`
-	Wednesday     bool                   `protobuf:"varint,4,opt,name=wednesday,proto3" json:"wednesday,omitempty"`
-	Thursday      bool                   `protobuf:"varint,5,opt,name=thursday,proto3" json:"thursday,omitempty"`
-	Friday        bool                   `protobuf:"varint,6,opt,name=friday,proto3" json:"friday,omitempty"`
-	Saturday      bool                   `protobuf:"varint,7,opt,name=saturday,proto3" json:"saturday,omitempty"`
-	Sunday        bool                   `protobuf:"varint,8,opt,name=sunday,proto3" json:"sunday,omitempty"`
-	StartDate     *date.Date             `protobuf:"bytes,9,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
-	EndDate       *date.Date             `protobuf:"bytes,10,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行日ID（GTFS の service_id）。
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// 月曜日に運行するか。
+	Monday bool `protobuf:"varint,2,opt,name=monday,proto3" json:"monday,omitempty"`
+	// 火曜日に運行するか。
+	Tuesday bool `protobuf:"varint,3,opt,name=tuesday,proto3" json:"tuesday,omitempty"`
+	// 水曜日に運行するか。
+	Wednesday bool `protobuf:"varint,4,opt,name=wednesday,proto3" json:"wednesday,omitempty"`
+	// 木曜日に運行するか。
+	Thursday bool `protobuf:"varint,5,opt,name=thursday,proto3" json:"thursday,omitempty"`
+	// 金曜日に運行するか。
+	Friday bool `protobuf:"varint,6,opt,name=friday,proto3" json:"friday,omitempty"`
+	// 土曜日に運行するか。
+	Saturday bool `protobuf:"varint,7,opt,name=saturday,proto3" json:"saturday,omitempty"`
+	// 日曜日に運行するか。
+	Sunday bool `protobuf:"varint,8,opt,name=sunday,proto3" json:"sunday,omitempty"`
+	// 適用開始日（GTFS の start_date）。
+	StartDate *date.Date `protobuf:"bytes,9,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
+	// 適用終了日（GTFS の end_date）。
+	EndDate       *date.Date `protobuf:"bytes,10,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -447,9 +480,11 @@ func (x *CreateCalendarRequest) GetEndDate() *date.Date {
 	return nil
 }
 
+// CreateCalendar の Response。
 type CreateCalendarResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Calendar      *Calendar              `protobuf:"bytes,1,opt,name=calendar,proto3" json:"calendar,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した運行区分情報（GTFS の calendar）。
+	Calendar      *Calendar `protobuf:"bytes,1,opt,name=calendar,proto3" json:"calendar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -491,18 +526,30 @@ func (x *CreateCalendarResponse) GetCalendar() *Calendar {
 	return nil
 }
 
+// UpdateCalendar の Request。
 type UpdateCalendarRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServiceId     string                 `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	Monday        bool                   `protobuf:"varint,2,opt,name=monday,proto3" json:"monday,omitempty"`
-	Tuesday       bool                   `protobuf:"varint,3,opt,name=tuesday,proto3" json:"tuesday,omitempty"`
-	Wednesday     bool                   `protobuf:"varint,4,opt,name=wednesday,proto3" json:"wednesday,omitempty"`
-	Thursday      bool                   `protobuf:"varint,5,opt,name=thursday,proto3" json:"thursday,omitempty"`
-	Friday        bool                   `protobuf:"varint,6,opt,name=friday,proto3" json:"friday,omitempty"`
-	Saturday      bool                   `protobuf:"varint,7,opt,name=saturday,proto3" json:"saturday,omitempty"`
-	Sunday        bool                   `protobuf:"varint,8,opt,name=sunday,proto3" json:"sunday,omitempty"`
-	StartDate     *date.Date             `protobuf:"bytes,9,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
-	EndDate       *date.Date             `protobuf:"bytes,10,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行日ID（GTFS の service_id）。
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// 月曜日に運行するか。
+	Monday bool `protobuf:"varint,2,opt,name=monday,proto3" json:"monday,omitempty"`
+	// 火曜日に運行するか。
+	Tuesday bool `protobuf:"varint,3,opt,name=tuesday,proto3" json:"tuesday,omitempty"`
+	// 水曜日に運行するか。
+	Wednesday bool `protobuf:"varint,4,opt,name=wednesday,proto3" json:"wednesday,omitempty"`
+	// 木曜日に運行するか。
+	Thursday bool `protobuf:"varint,5,opt,name=thursday,proto3" json:"thursday,omitempty"`
+	// 金曜日に運行するか。
+	Friday bool `protobuf:"varint,6,opt,name=friday,proto3" json:"friday,omitempty"`
+	// 土曜日に運行するか。
+	Saturday bool `protobuf:"varint,7,opt,name=saturday,proto3" json:"saturday,omitempty"`
+	// 日曜日に運行するか。
+	Sunday bool `protobuf:"varint,8,opt,name=sunday,proto3" json:"sunday,omitempty"`
+	// 適用開始日（GTFS の start_date）。
+	StartDate *date.Date `protobuf:"bytes,9,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
+	// 適用終了日（GTFS の end_date）。
+	EndDate *date.Date `protobuf:"bytes,10,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -615,9 +662,11 @@ func (x *UpdateCalendarRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateCalendar の Response。
 type UpdateCalendarResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Calendar      *Calendar              `protobuf:"bytes,1,opt,name=calendar,proto3" json:"calendar,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した運行区分情報（GTFS の calendar）。
+	Calendar      *Calendar `protobuf:"bytes,1,opt,name=calendar,proto3" json:"calendar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -659,9 +708,11 @@ func (x *UpdateCalendarResponse) GetCalendar() *Calendar {
 	return nil
 }
 
+// DeleteCalendar の Request。
 type DeleteCalendarRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServiceId     string                 `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運行日ID（GTFS の service_id）。
+	ServiceId     string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -703,6 +754,7 @@ func (x *DeleteCalendarRequest) GetServiceId() string {
 	return ""
 }
 
+// DeleteCalendar の Response。
 type DeleteCalendarResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -743,70 +795,70 @@ var File_admin_v1_calendar_proto protoreflect.FileDescriptor
 
 const file_admin_v1_calendar_proto_rawDesc = "" +
 	"\n" +
-	"\x17admin/v1/calendar.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\x1a\x16google/type/date.proto\"\xc1\x02\n" +
-	"\bCalendar\x12\x1d\n" +
+	"\x17admin/v1/calendar.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x16google/type/date.proto\"\xf3\x02\n" +
+	"\bCalendar\x12\"\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tR\tserviceId\x12\x16\n" +
-	"\x06monday\x18\x02 \x01(\bR\x06monday\x12\x18\n" +
-	"\atuesday\x18\x03 \x01(\bR\atuesday\x12\x1c\n" +
-	"\twednesday\x18\x04 \x01(\bR\twednesday\x12\x1a\n" +
-	"\bthursday\x18\x05 \x01(\bR\bthursday\x12\x16\n" +
-	"\x06friday\x18\x06 \x01(\bR\x06friday\x12\x1a\n" +
-	"\bsaturday\x18\a \x01(\bR\bsaturday\x12\x16\n" +
-	"\x06sunday\x18\b \x01(\bR\x06sunday\x120\n" +
+	"service_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tserviceId\x12\x1b\n" +
+	"\x06monday\x18\x02 \x01(\bB\x03\xe0A\x01R\x06monday\x12\x1d\n" +
+	"\atuesday\x18\x03 \x01(\bB\x03\xe0A\x01R\atuesday\x12!\n" +
+	"\twednesday\x18\x04 \x01(\bB\x03\xe0A\x01R\twednesday\x12\x1f\n" +
+	"\bthursday\x18\x05 \x01(\bB\x03\xe0A\x01R\bthursday\x12\x1b\n" +
+	"\x06friday\x18\x06 \x01(\bB\x03\xe0A\x01R\x06friday\x12\x1f\n" +
+	"\bsaturday\x18\a \x01(\bB\x03\xe0A\x01R\bsaturday\x12\x1b\n" +
+	"\x06sunday\x18\b \x01(\bB\x03\xe0A\x01R\x06sunday\x125\n" +
 	"\n" +
-	"start_date\x18\t \x01(\v2\x11.google.type.DateR\tstartDate\x12,\n" +
+	"start_date\x18\t \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\tstartDate\x121\n" +
 	"\bend_date\x18\n" +
-	" \x01(\v2\x11.google.type.DateR\aendDate\"R\n" +
-	"\x14ListCalendarsRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	" \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\aendDate\"\\\n" +
+	"\x14ListCalendarsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"q\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"q\n" +
 	"\x15ListCalendarsResponse\x120\n" +
 	"\tcalendars\x18\x01 \x03(\v2\x12.admin.v1.CalendarR\tcalendars\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"3\n" +
-	"\x12GetCalendarRequest\x12\x1d\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"8\n" +
+	"\x12GetCalendarRequest\x12\"\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tR\tserviceId\"E\n" +
+	"service_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tserviceId\"E\n" +
 	"\x13GetCalendarResponse\x12.\n" +
-	"\bcalendar\x18\x01 \x01(\v2\x12.admin.v1.CalendarR\bcalendar\"\xce\x02\n" +
-	"\x15CreateCalendarRequest\x12\x1d\n" +
+	"\bcalendar\x18\x01 \x01(\v2\x12.admin.v1.CalendarR\bcalendar\"\x80\x03\n" +
+	"\x15CreateCalendarRequest\x12\"\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tR\tserviceId\x12\x16\n" +
-	"\x06monday\x18\x02 \x01(\bR\x06monday\x12\x18\n" +
-	"\atuesday\x18\x03 \x01(\bR\atuesday\x12\x1c\n" +
-	"\twednesday\x18\x04 \x01(\bR\twednesday\x12\x1a\n" +
-	"\bthursday\x18\x05 \x01(\bR\bthursday\x12\x16\n" +
-	"\x06friday\x18\x06 \x01(\bR\x06friday\x12\x1a\n" +
-	"\bsaturday\x18\a \x01(\bR\bsaturday\x12\x16\n" +
-	"\x06sunday\x18\b \x01(\bR\x06sunday\x120\n" +
+	"service_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tserviceId\x12\x1b\n" +
+	"\x06monday\x18\x02 \x01(\bB\x03\xe0A\x01R\x06monday\x12\x1d\n" +
+	"\atuesday\x18\x03 \x01(\bB\x03\xe0A\x01R\atuesday\x12!\n" +
+	"\twednesday\x18\x04 \x01(\bB\x03\xe0A\x01R\twednesday\x12\x1f\n" +
+	"\bthursday\x18\x05 \x01(\bB\x03\xe0A\x01R\bthursday\x12\x1b\n" +
+	"\x06friday\x18\x06 \x01(\bB\x03\xe0A\x01R\x06friday\x12\x1f\n" +
+	"\bsaturday\x18\a \x01(\bB\x03\xe0A\x01R\bsaturday\x12\x1b\n" +
+	"\x06sunday\x18\b \x01(\bB\x03\xe0A\x01R\x06sunday\x125\n" +
 	"\n" +
-	"start_date\x18\t \x01(\v2\x11.google.type.DateR\tstartDate\x12,\n" +
+	"start_date\x18\t \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\tstartDate\x121\n" +
 	"\bend_date\x18\n" +
-	" \x01(\v2\x11.google.type.DateR\aendDate\"H\n" +
+	" \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\aendDate\"H\n" +
 	"\x16CreateCalendarResponse\x12.\n" +
-	"\bcalendar\x18\x01 \x01(\v2\x12.admin.v1.CalendarR\bcalendar\"\x8b\x03\n" +
-	"\x15UpdateCalendarRequest\x12\x1d\n" +
+	"\bcalendar\x18\x01 \x01(\v2\x12.admin.v1.CalendarR\bcalendar\"\xc2\x03\n" +
+	"\x15UpdateCalendarRequest\x12\"\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tR\tserviceId\x12\x16\n" +
-	"\x06monday\x18\x02 \x01(\bR\x06monday\x12\x18\n" +
-	"\atuesday\x18\x03 \x01(\bR\atuesday\x12\x1c\n" +
-	"\twednesday\x18\x04 \x01(\bR\twednesday\x12\x1a\n" +
-	"\bthursday\x18\x05 \x01(\bR\bthursday\x12\x16\n" +
-	"\x06friday\x18\x06 \x01(\bR\x06friday\x12\x1a\n" +
-	"\bsaturday\x18\a \x01(\bR\bsaturday\x12\x16\n" +
-	"\x06sunday\x18\b \x01(\bR\x06sunday\x120\n" +
+	"service_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tserviceId\x12\x1b\n" +
+	"\x06monday\x18\x02 \x01(\bB\x03\xe0A\x01R\x06monday\x12\x1d\n" +
+	"\atuesday\x18\x03 \x01(\bB\x03\xe0A\x01R\atuesday\x12!\n" +
+	"\twednesday\x18\x04 \x01(\bB\x03\xe0A\x01R\twednesday\x12\x1f\n" +
+	"\bthursday\x18\x05 \x01(\bB\x03\xe0A\x01R\bthursday\x12\x1b\n" +
+	"\x06friday\x18\x06 \x01(\bB\x03\xe0A\x01R\x06friday\x12\x1f\n" +
+	"\bsaturday\x18\a \x01(\bB\x03\xe0A\x01R\bsaturday\x12\x1b\n" +
+	"\x06sunday\x18\b \x01(\bB\x03\xe0A\x01R\x06sunday\x125\n" +
 	"\n" +
-	"start_date\x18\t \x01(\v2\x11.google.type.DateR\tstartDate\x12,\n" +
+	"start_date\x18\t \x01(\v2\x11.google.type.DateB\x03\xe0A\x01R\tstartDate\x121\n" +
 	"\bend_date\x18\n" +
-	" \x01(\v2\x11.google.type.DateR\aendDate\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	" \x01(\v2\x11.google.type.DateB\x03\xe0A\x01R\aendDate\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"H\n" +
 	"\x16UpdateCalendarResponse\x12.\n" +
-	"\bcalendar\x18\x01 \x01(\v2\x12.admin.v1.CalendarR\bcalendar\"6\n" +
-	"\x15DeleteCalendarRequest\x12\x1d\n" +
+	"\bcalendar\x18\x01 \x01(\v2\x12.admin.v1.CalendarR\bcalendar\";\n" +
+	"\x15DeleteCalendarRequest\x12\"\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\tR\tserviceId\"\x18\n" +
+	"service_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tserviceId\"\x18\n" +
 	"\x16DeleteCalendarResponse2\xae\x03\n" +
 	"\x0fCalendarService\x12P\n" +
 	"\rListCalendars\x12\x1e.admin.v1.ListCalendarsRequest\x1a\x1f.admin.v1.ListCalendarsResponse\x12J\n" +

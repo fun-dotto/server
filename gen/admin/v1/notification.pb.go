@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -23,12 +24,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Android の通知優先度。
 type NotificationAndroidPriority int32
 
 const (
+	// 未指定。
 	NotificationAndroidPriority_NOTIFICATION_ANDROID_PRIORITY_UNSPECIFIED NotificationAndroidPriority = 0
-	NotificationAndroidPriority_NOTIFICATION_ANDROID_PRIORITY_NORMAL      NotificationAndroidPriority = 1
-	NotificationAndroidPriority_NOTIFICATION_ANDROID_PRIORITY_HIGH        NotificationAndroidPriority = 2
+	// 通常。
+	NotificationAndroidPriority_NOTIFICATION_ANDROID_PRIORITY_NORMAL NotificationAndroidPriority = 1
+	// 高。
+	NotificationAndroidPriority_NOTIFICATION_ANDROID_PRIORITY_HIGH NotificationAndroidPriority = 2
 )
 
 // Enum value maps for NotificationAndroidPriority.
@@ -72,27 +77,45 @@ func (NotificationAndroidPriority) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_notification_proto_rawDescGZIP(), []int{0}
 }
 
+// 通知。
 type Notification struct {
-	state                protoimpl.MessageState       `protogen:"open.v1"`
-	Id                   string                       `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title                string                       `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Body                 string                       `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
-	ImageUrl             *string                      `protobuf:"bytes,4,opt,name=image_url,json=imageUrl,proto3,oneof" json:"image_url,omitempty"`
-	AnalyticsLabel       *string                      `protobuf:"bytes,5,opt,name=analytics_label,json=analyticsLabel,proto3,oneof" json:"analytics_label,omitempty"`
-	ApnsBadge            *int32                       `protobuf:"varint,6,opt,name=apns_badge,json=apnsBadge,proto3,oneof" json:"apns_badge,omitempty"`
-	ApnsSound            *string                      `protobuf:"bytes,7,opt,name=apns_sound,json=apnsSound,proto3,oneof" json:"apns_sound,omitempty"`
-	ApnsContentAvailable *bool                        `protobuf:"varint,8,opt,name=apns_content_available,json=apnsContentAvailable,proto3,oneof" json:"apns_content_available,omitempty"`
-	AndroidChannelId     *string                      `protobuf:"bytes,9,opt,name=android_channel_id,json=androidChannelId,proto3,oneof" json:"android_channel_id,omitempty"`
-	AndroidPriority      *NotificationAndroidPriority `protobuf:"varint,10,opt,name=android_priority,json=androidPriority,proto3,enum=admin.v1.NotificationAndroidPriority,oneof" json:"android_priority,omitempty"`
-	AndroidTtlSeconds    *int32                       `protobuf:"varint,11,opt,name=android_ttl_seconds,json=androidTtlSeconds,proto3,oneof" json:"android_ttl_seconds,omitempty"`
-	WebpushLink          *string                      `protobuf:"bytes,12,opt,name=webpush_link,json=webpushLink,proto3,oneof" json:"webpush_link,omitempty"`
-	Url                  *string                      `protobuf:"bytes,13,opt,name=url,proto3,oneof" json:"url,omitempty"`
-	NotifyAfter          *timestamppb.Timestamp       `protobuf:"bytes,14,opt,name=notify_after,json=notifyAfter,proto3" json:"notify_after,omitempty"`
-	NotifyBefore         *timestamppb.Timestamp       `protobuf:"bytes,15,opt,name=notify_before,json=notifyBefore,proto3" json:"notify_before,omitempty"`
-	CreatedAt            *timestamppb.Timestamp       `protobuf:"bytes,16,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt            *timestamppb.Timestamp       `protobuf:"bytes,17,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 通知タイトル。
+	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	// 通知本文。
+	Body string `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
+	// 通知に表示する画像のURL。
+	ImageUrl *string `protobuf:"bytes,4,opt,name=image_url,json=imageUrl,proto3,oneof" json:"image_url,omitempty"`
+	// Firebase Analytics に記録する分析ラベル。通知の開封率計測などに利用する。
+	AnalyticsLabel *string `protobuf:"bytes,5,opt,name=analytics_label,json=analyticsLabel,proto3,oneof" json:"analytics_label,omitempty"`
+	// APNs のバッジ数。アプリアイコンに表示される数値。0 でバッジを消去する。
+	ApnsBadge *int32 `protobuf:"varint,6,opt,name=apns_badge,json=apnsBadge,proto3,oneof" json:"apns_badge,omitempty"`
+	// APNs の通知音。
+	ApnsSound *string `protobuf:"bytes,7,opt,name=apns_sound,json=apnsSound,proto3,oneof" json:"apns_sound,omitempty"`
+	// APNs の content-available フラグ。true でサイレントプッシュ（バックグラウンド更新）になる。
+	ApnsContentAvailable *bool `protobuf:"varint,8,opt,name=apns_content_available,json=apnsContentAvailable,proto3,oneof" json:"apns_content_available,omitempty"`
+	// Android の通知チャンネルID。Android 8.0 以降、通知はチャンネル単位で管理される。
+	AndroidChannelId *string `protobuf:"bytes,9,opt,name=android_channel_id,json=androidChannelId,proto3,oneof" json:"android_channel_id,omitempty"`
+	// Android の通知優先度。
+	AndroidPriority *NotificationAndroidPriority `protobuf:"varint,10,opt,name=android_priority,json=androidPriority,proto3,enum=admin.v1.NotificationAndroidPriority,oneof" json:"android_priority,omitempty"`
+	// Android の通知TTL（秒）。FCM がメッセージを保持する最大時間で、期限切れで破棄される。
+	AndroidTtlSeconds *int32 `protobuf:"varint,11,opt,name=android_ttl_seconds,json=androidTtlSeconds,proto3,oneof" json:"android_ttl_seconds,omitempty"`
+	// Web Push 通知をクリックした際に開くURL。
+	WebpushLink *string `protobuf:"bytes,12,opt,name=webpush_link,json=webpushLink,proto3,oneof" json:"webpush_link,omitempty"`
+	// 通知をタップした時に開くURL。アプリを開くのみの場合は未設定。
+	Url *string `protobuf:"bytes,13,opt,name=url,proto3,oneof" json:"url,omitempty"`
+	// 通知送信可能になる日時（この時刻以降に送信対象となる）。
+	NotifyAfter *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=notify_after,json=notifyAfter,proto3" json:"notify_after,omitempty"`
+	// 通知送信期限日時（この時刻を過ぎた場合は送信しない）。
+	NotifyBefore *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=notify_before,json=notifyBefore,proto3" json:"notify_before,omitempty"`
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Notification) Reset() {
@@ -244,10 +267,13 @@ func (x *Notification) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListNotifications の Request。
 type ListNotificationsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -296,10 +322,13 @@ func (x *ListNotificationsRequest) GetPageToken() string {
 	return ""
 }
 
+// ListNotifications の Response。
 type ListNotificationsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Notifications []*Notification        `protobuf:"bytes,1,rep,name=notifications,proto3" json:"notifications,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 通知の一覧。
+	Notifications []*Notification `protobuf:"bytes,1,rep,name=notifications,proto3" json:"notifications,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -348,9 +377,11 @@ func (x *ListNotificationsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetNotification の Request。
 type GetNotificationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得する通知ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -392,9 +423,11 @@ func (x *GetNotificationRequest) GetId() string {
 	return ""
 }
 
+// GetNotification の Response。
 type GetNotificationResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Notification  *Notification          `protobuf:"bytes,1,opt,name=notification,proto3" json:"notification,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した通知。
+	Notification  *Notification `protobuf:"bytes,1,opt,name=notification,proto3" json:"notification,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -436,24 +469,39 @@ func (x *GetNotificationResponse) GetNotification() *Notification {
 	return nil
 }
 
+// CreateNotification の Request。
 type CreateNotificationRequest struct {
-	state                protoimpl.MessageState       `protogen:"open.v1"`
-	Title                string                       `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Body                 string                       `protobuf:"bytes,2,opt,name=body,proto3" json:"body,omitempty"`
-	ImageUrl             *string                      `protobuf:"bytes,3,opt,name=image_url,json=imageUrl,proto3,oneof" json:"image_url,omitempty"`
-	AnalyticsLabel       *string                      `protobuf:"bytes,4,opt,name=analytics_label,json=analyticsLabel,proto3,oneof" json:"analytics_label,omitempty"`
-	ApnsBadge            *int32                       `protobuf:"varint,5,opt,name=apns_badge,json=apnsBadge,proto3,oneof" json:"apns_badge,omitempty"`
-	ApnsSound            *string                      `protobuf:"bytes,6,opt,name=apns_sound,json=apnsSound,proto3,oneof" json:"apns_sound,omitempty"`
-	ApnsContentAvailable *bool                        `protobuf:"varint,7,opt,name=apns_content_available,json=apnsContentAvailable,proto3,oneof" json:"apns_content_available,omitempty"`
-	AndroidChannelId     *string                      `protobuf:"bytes,8,opt,name=android_channel_id,json=androidChannelId,proto3,oneof" json:"android_channel_id,omitempty"`
-	AndroidPriority      *NotificationAndroidPriority `protobuf:"varint,9,opt,name=android_priority,json=androidPriority,proto3,enum=admin.v1.NotificationAndroidPriority,oneof" json:"android_priority,omitempty"`
-	AndroidTtlSeconds    *int32                       `protobuf:"varint,10,opt,name=android_ttl_seconds,json=androidTtlSeconds,proto3,oneof" json:"android_ttl_seconds,omitempty"`
-	WebpushLink          *string                      `protobuf:"bytes,11,opt,name=webpush_link,json=webpushLink,proto3,oneof" json:"webpush_link,omitempty"`
-	Url                  *string                      `protobuf:"bytes,12,opt,name=url,proto3,oneof" json:"url,omitempty"`
-	NotifyAfter          *timestamppb.Timestamp       `protobuf:"bytes,13,opt,name=notify_after,json=notifyAfter,proto3" json:"notify_after,omitempty"`
-	NotifyBefore         *timestamppb.Timestamp       `protobuf:"bytes,14,opt,name=notify_before,json=notifyBefore,proto3" json:"notify_before,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 通知タイトル。
+	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	// 通知本文。
+	Body string `protobuf:"bytes,2,opt,name=body,proto3" json:"body,omitempty"`
+	// 通知に表示する画像のURL。
+	ImageUrl *string `protobuf:"bytes,3,opt,name=image_url,json=imageUrl,proto3,oneof" json:"image_url,omitempty"`
+	// Firebase Analytics に記録する分析ラベル。通知の開封率計測などに利用する。
+	AnalyticsLabel *string `protobuf:"bytes,4,opt,name=analytics_label,json=analyticsLabel,proto3,oneof" json:"analytics_label,omitempty"`
+	// APNs のバッジ数。アプリアイコンに表示される数値。0 でバッジを消去する。
+	ApnsBadge *int32 `protobuf:"varint,5,opt,name=apns_badge,json=apnsBadge,proto3,oneof" json:"apns_badge,omitempty"`
+	// APNs の通知音。
+	ApnsSound *string `protobuf:"bytes,6,opt,name=apns_sound,json=apnsSound,proto3,oneof" json:"apns_sound,omitempty"`
+	// APNs の content-available フラグ。true でサイレントプッシュ（バックグラウンド更新）になる。
+	ApnsContentAvailable *bool `protobuf:"varint,7,opt,name=apns_content_available,json=apnsContentAvailable,proto3,oneof" json:"apns_content_available,omitempty"`
+	// Android の通知チャンネルID。Android 8.0 以降、通知はチャンネル単位で管理される。
+	AndroidChannelId *string `protobuf:"bytes,8,opt,name=android_channel_id,json=androidChannelId,proto3,oneof" json:"android_channel_id,omitempty"`
+	// Android の通知優先度。
+	AndroidPriority *NotificationAndroidPriority `protobuf:"varint,9,opt,name=android_priority,json=androidPriority,proto3,enum=admin.v1.NotificationAndroidPriority,oneof" json:"android_priority,omitempty"`
+	// Android の通知TTL（秒）。FCM がメッセージを保持する最大時間で、期限切れで破棄される。
+	AndroidTtlSeconds *int32 `protobuf:"varint,10,opt,name=android_ttl_seconds,json=androidTtlSeconds,proto3,oneof" json:"android_ttl_seconds,omitempty"`
+	// Web Push 通知をクリックした際に開くURL。
+	WebpushLink *string `protobuf:"bytes,11,opt,name=webpush_link,json=webpushLink,proto3,oneof" json:"webpush_link,omitempty"`
+	// 通知をタップした時に開くURL。アプリを開くのみの場合は未設定。
+	Url *string `protobuf:"bytes,12,opt,name=url,proto3,oneof" json:"url,omitempty"`
+	// 通知送信可能になる日時（この時刻以降に送信対象となる）。
+	NotifyAfter *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=notify_after,json=notifyAfter,proto3" json:"notify_after,omitempty"`
+	// 通知送信期限日時（この時刻を過ぎた場合は送信しない）。
+	NotifyBefore  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=notify_before,json=notifyBefore,proto3" json:"notify_before,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateNotificationRequest) Reset() {
@@ -584,9 +632,11 @@ func (x *CreateNotificationRequest) GetNotifyBefore() *timestamppb.Timestamp {
 	return nil
 }
 
+// CreateNotification の Response。
 type CreateNotificationResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Notification  *Notification          `protobuf:"bytes,1,opt,name=notification,proto3" json:"notification,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した通知。
+	Notification  *Notification `protobuf:"bytes,1,opt,name=notification,proto3" json:"notification,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -628,26 +678,43 @@ func (x *CreateNotificationResponse) GetNotification() *Notification {
 	return nil
 }
 
+// UpdateNotification の Request。
 type UpdateNotificationRequest struct {
-	state                protoimpl.MessageState       `protogen:"open.v1"`
-	Id                   string                       `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title                string                       `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Body                 string                       `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
-	ImageUrl             *string                      `protobuf:"bytes,4,opt,name=image_url,json=imageUrl,proto3,oneof" json:"image_url,omitempty"`
-	AnalyticsLabel       *string                      `protobuf:"bytes,5,opt,name=analytics_label,json=analyticsLabel,proto3,oneof" json:"analytics_label,omitempty"`
-	ApnsBadge            *int32                       `protobuf:"varint,6,opt,name=apns_badge,json=apnsBadge,proto3,oneof" json:"apns_badge,omitempty"`
-	ApnsSound            *string                      `protobuf:"bytes,7,opt,name=apns_sound,json=apnsSound,proto3,oneof" json:"apns_sound,omitempty"`
-	ApnsContentAvailable *bool                        `protobuf:"varint,8,opt,name=apns_content_available,json=apnsContentAvailable,proto3,oneof" json:"apns_content_available,omitempty"`
-	AndroidChannelId     *string                      `protobuf:"bytes,9,opt,name=android_channel_id,json=androidChannelId,proto3,oneof" json:"android_channel_id,omitempty"`
-	AndroidPriority      *NotificationAndroidPriority `protobuf:"varint,10,opt,name=android_priority,json=androidPriority,proto3,enum=admin.v1.NotificationAndroidPriority,oneof" json:"android_priority,omitempty"`
-	AndroidTtlSeconds    *int32                       `protobuf:"varint,11,opt,name=android_ttl_seconds,json=androidTtlSeconds,proto3,oneof" json:"android_ttl_seconds,omitempty"`
-	WebpushLink          *string                      `protobuf:"bytes,12,opt,name=webpush_link,json=webpushLink,proto3,oneof" json:"webpush_link,omitempty"`
-	Url                  *string                      `protobuf:"bytes,13,opt,name=url,proto3,oneof" json:"url,omitempty"`
-	NotifyAfter          *timestamppb.Timestamp       `protobuf:"bytes,14,opt,name=notify_after,json=notifyAfter,proto3" json:"notify_after,omitempty"`
-	NotifyBefore         *timestamppb.Timestamp       `protobuf:"bytes,15,opt,name=notify_before,json=notifyBefore,proto3" json:"notify_before,omitempty"`
-	UpdateMask           *fieldmaskpb.FieldMask       `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新する通知ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 通知タイトル。
+	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	// 通知本文。
+	Body string `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`
+	// 通知に表示する画像のURL。
+	ImageUrl *string `protobuf:"bytes,4,opt,name=image_url,json=imageUrl,proto3,oneof" json:"image_url,omitempty"`
+	// Firebase Analytics に記録する分析ラベル。通知の開封率計測などに利用する。
+	AnalyticsLabel *string `protobuf:"bytes,5,opt,name=analytics_label,json=analyticsLabel,proto3,oneof" json:"analytics_label,omitempty"`
+	// APNs のバッジ数。アプリアイコンに表示される数値。0 でバッジを消去する。
+	ApnsBadge *int32 `protobuf:"varint,6,opt,name=apns_badge,json=apnsBadge,proto3,oneof" json:"apns_badge,omitempty"`
+	// APNs の通知音。
+	ApnsSound *string `protobuf:"bytes,7,opt,name=apns_sound,json=apnsSound,proto3,oneof" json:"apns_sound,omitempty"`
+	// APNs の content-available フラグ。true でサイレントプッシュ（バックグラウンド更新）になる。
+	ApnsContentAvailable *bool `protobuf:"varint,8,opt,name=apns_content_available,json=apnsContentAvailable,proto3,oneof" json:"apns_content_available,omitempty"`
+	// Android の通知チャンネルID。Android 8.0 以降、通知はチャンネル単位で管理される。
+	AndroidChannelId *string `protobuf:"bytes,9,opt,name=android_channel_id,json=androidChannelId,proto3,oneof" json:"android_channel_id,omitempty"`
+	// Android の通知優先度。
+	AndroidPriority *NotificationAndroidPriority `protobuf:"varint,10,opt,name=android_priority,json=androidPriority,proto3,enum=admin.v1.NotificationAndroidPriority,oneof" json:"android_priority,omitempty"`
+	// Android の通知TTL（秒）。FCM がメッセージを保持する最大時間で、期限切れで破棄される。
+	AndroidTtlSeconds *int32 `protobuf:"varint,11,opt,name=android_ttl_seconds,json=androidTtlSeconds,proto3,oneof" json:"android_ttl_seconds,omitempty"`
+	// Web Push 通知をクリックした際に開くURL。
+	WebpushLink *string `protobuf:"bytes,12,opt,name=webpush_link,json=webpushLink,proto3,oneof" json:"webpush_link,omitempty"`
+	// 通知をタップした時に開くURL。アプリを開くのみの場合は未設定。
+	Url *string `protobuf:"bytes,13,opt,name=url,proto3,oneof" json:"url,omitempty"`
+	// 通知送信可能になる日時（この時刻以降に送信対象となる）。
+	NotifyAfter *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=notify_after,json=notifyAfter,proto3" json:"notify_after,omitempty"`
+	// 通知送信期限日時（この時刻を過ぎた場合は送信しない）。
+	NotifyBefore *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=notify_before,json=notifyBefore,proto3" json:"notify_before,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateNotificationRequest) Reset() {
@@ -792,9 +859,11 @@ func (x *UpdateNotificationRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateNotification の Response。
 type UpdateNotificationResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Notification  *Notification          `protobuf:"bytes,1,opt,name=notification,proto3" json:"notification,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した通知。
+	Notification  *Notification `protobuf:"bytes,1,opt,name=notification,proto3" json:"notification,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -836,9 +905,11 @@ func (x *UpdateNotificationResponse) GetNotification() *Notification {
 	return nil
 }
 
+// DeleteNotification の Request。
 type DeleteNotificationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 削除する通知ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -880,6 +951,7 @@ func (x *DeleteNotificationRequest) GetId() string {
 	return ""
 }
 
+// DeleteNotification の Response。
 type DeleteNotificationResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -920,30 +992,30 @@ var File_admin_v1_notification_proto protoreflect.FileDescriptor
 
 const file_admin_v1_notification_proto_rawDesc = "" +
 	"\n" +
-	"\x1badmin/v1/notification.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc7\a\n" +
-	"\fNotification\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
-	"\x04body\x18\x03 \x01(\tR\x04body\x12 \n" +
-	"\timage_url\x18\x04 \x01(\tH\x00R\bimageUrl\x88\x01\x01\x12,\n" +
-	"\x0fanalytics_label\x18\x05 \x01(\tH\x01R\x0eanalyticsLabel\x88\x01\x01\x12\"\n" +
+	"\x1badmin/v1/notification.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9c\b\n" +
+	"\fNotification\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x19\n" +
+	"\x05title\x18\x02 \x01(\tB\x03\xe0A\x02R\x05title\x12\x17\n" +
+	"\x04body\x18\x03 \x01(\tB\x03\xe0A\x02R\x04body\x12%\n" +
+	"\timage_url\x18\x04 \x01(\tB\x03\xe0A\x01H\x00R\bimageUrl\x88\x01\x01\x121\n" +
+	"\x0fanalytics_label\x18\x05 \x01(\tB\x03\xe0A\x01H\x01R\x0eanalyticsLabel\x88\x01\x01\x12'\n" +
 	"\n" +
-	"apns_badge\x18\x06 \x01(\x05H\x02R\tapnsBadge\x88\x01\x01\x12\"\n" +
+	"apns_badge\x18\x06 \x01(\x05B\x03\xe0A\x01H\x02R\tapnsBadge\x88\x01\x01\x12'\n" +
 	"\n" +
-	"apns_sound\x18\a \x01(\tH\x03R\tapnsSound\x88\x01\x01\x129\n" +
-	"\x16apns_content_available\x18\b \x01(\bH\x04R\x14apnsContentAvailable\x88\x01\x01\x121\n" +
-	"\x12android_channel_id\x18\t \x01(\tH\x05R\x10androidChannelId\x88\x01\x01\x12U\n" +
+	"apns_sound\x18\a \x01(\tB\x03\xe0A\x01H\x03R\tapnsSound\x88\x01\x01\x12>\n" +
+	"\x16apns_content_available\x18\b \x01(\bB\x03\xe0A\x01H\x04R\x14apnsContentAvailable\x88\x01\x01\x126\n" +
+	"\x12android_channel_id\x18\t \x01(\tB\x03\xe0A\x01H\x05R\x10androidChannelId\x88\x01\x01\x12Z\n" +
 	"\x10android_priority\x18\n" +
-	" \x01(\x0e2%.admin.v1.NotificationAndroidPriorityH\x06R\x0fandroidPriority\x88\x01\x01\x123\n" +
-	"\x13android_ttl_seconds\x18\v \x01(\x05H\aR\x11androidTtlSeconds\x88\x01\x01\x12&\n" +
-	"\fwebpush_link\x18\f \x01(\tH\bR\vwebpushLink\x88\x01\x01\x12\x15\n" +
-	"\x03url\x18\r \x01(\tH\tR\x03url\x88\x01\x01\x12=\n" +
-	"\fnotify_after\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\vnotifyAfter\x12?\n" +
-	"\rnotify_before\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\fnotifyBefore\x129\n" +
+	" \x01(\x0e2%.admin.v1.NotificationAndroidPriorityB\x03\xe0A\x01H\x06R\x0fandroidPriority\x88\x01\x01\x128\n" +
+	"\x13android_ttl_seconds\x18\v \x01(\x05B\x03\xe0A\x01H\aR\x11androidTtlSeconds\x88\x01\x01\x12+\n" +
+	"\fwebpush_link\x18\f \x01(\tB\x03\xe0A\x01H\bR\vwebpushLink\x88\x01\x01\x12\x1a\n" +
+	"\x03url\x18\r \x01(\tB\x03\xe0A\x01H\tR\x03url\x88\x01\x01\x12B\n" +
+	"\fnotify_after\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x02R\vnotifyAfter\x12D\n" +
+	"\rnotify_before\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x02R\fnotifyBefore\x12>\n" +
 	"\n" +
-	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\f\n" +
+	"updated_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAtB\f\n" +
 	"\n" +
 	"_image_urlB\x12\n" +
 	"\x10_analytics_labelB\r\n" +
@@ -954,36 +1026,36 @@ const file_admin_v1_notification_proto_rawDesc = "" +
 	"\x11_android_priorityB\x16\n" +
 	"\x14_android_ttl_secondsB\x0f\n" +
 	"\r_webpush_linkB\x06\n" +
-	"\x04_url\"V\n" +
-	"\x18ListNotificationsRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\x04_url\"`\n" +
+	"\x18ListNotificationsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"\x81\x01\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"\x81\x01\n" +
 	"\x19ListNotificationsResponse\x12<\n" +
 	"\rnotifications\x18\x01 \x03(\v2\x16.admin.v1.NotificationR\rnotifications\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"(\n" +
-	"\x16GetNotificationRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"U\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"-\n" +
+	"\x16GetNotificationRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"U\n" +
 	"\x17GetNotificationResponse\x12:\n" +
-	"\fnotification\x18\x01 \x01(\v2\x16.admin.v1.NotificationR\fnotification\"\xce\x06\n" +
-	"\x19CreateNotificationRequest\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12\x12\n" +
-	"\x04body\x18\x02 \x01(\tR\x04body\x12 \n" +
-	"\timage_url\x18\x03 \x01(\tH\x00R\bimageUrl\x88\x01\x01\x12,\n" +
-	"\x0fanalytics_label\x18\x04 \x01(\tH\x01R\x0eanalyticsLabel\x88\x01\x01\x12\"\n" +
+	"\fnotification\x18\x01 \x01(\v2\x16.admin.v1.NotificationR\fnotification\"\x94\a\n" +
+	"\x19CreateNotificationRequest\x12\x19\n" +
+	"\x05title\x18\x01 \x01(\tB\x03\xe0A\x02R\x05title\x12\x17\n" +
+	"\x04body\x18\x02 \x01(\tB\x03\xe0A\x02R\x04body\x12%\n" +
+	"\timage_url\x18\x03 \x01(\tB\x03\xe0A\x01H\x00R\bimageUrl\x88\x01\x01\x121\n" +
+	"\x0fanalytics_label\x18\x04 \x01(\tB\x03\xe0A\x01H\x01R\x0eanalyticsLabel\x88\x01\x01\x12'\n" +
 	"\n" +
-	"apns_badge\x18\x05 \x01(\x05H\x02R\tapnsBadge\x88\x01\x01\x12\"\n" +
+	"apns_badge\x18\x05 \x01(\x05B\x03\xe0A\x01H\x02R\tapnsBadge\x88\x01\x01\x12'\n" +
 	"\n" +
-	"apns_sound\x18\x06 \x01(\tH\x03R\tapnsSound\x88\x01\x01\x129\n" +
-	"\x16apns_content_available\x18\a \x01(\bH\x04R\x14apnsContentAvailable\x88\x01\x01\x121\n" +
-	"\x12android_channel_id\x18\b \x01(\tH\x05R\x10androidChannelId\x88\x01\x01\x12U\n" +
-	"\x10android_priority\x18\t \x01(\x0e2%.admin.v1.NotificationAndroidPriorityH\x06R\x0fandroidPriority\x88\x01\x01\x123\n" +
+	"apns_sound\x18\x06 \x01(\tB\x03\xe0A\x01H\x03R\tapnsSound\x88\x01\x01\x12>\n" +
+	"\x16apns_content_available\x18\a \x01(\bB\x03\xe0A\x01H\x04R\x14apnsContentAvailable\x88\x01\x01\x126\n" +
+	"\x12android_channel_id\x18\b \x01(\tB\x03\xe0A\x01H\x05R\x10androidChannelId\x88\x01\x01\x12Z\n" +
+	"\x10android_priority\x18\t \x01(\x0e2%.admin.v1.NotificationAndroidPriorityB\x03\xe0A\x01H\x06R\x0fandroidPriority\x88\x01\x01\x128\n" +
 	"\x13android_ttl_seconds\x18\n" +
-	" \x01(\x05H\aR\x11androidTtlSeconds\x88\x01\x01\x12&\n" +
-	"\fwebpush_link\x18\v \x01(\tH\bR\vwebpushLink\x88\x01\x01\x12\x15\n" +
-	"\x03url\x18\f \x01(\tH\tR\x03url\x88\x01\x01\x12=\n" +
-	"\fnotify_after\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\vnotifyAfter\x12?\n" +
-	"\rnotify_before\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\fnotifyBeforeB\f\n" +
+	" \x01(\x05B\x03\xe0A\x01H\aR\x11androidTtlSeconds\x88\x01\x01\x12+\n" +
+	"\fwebpush_link\x18\v \x01(\tB\x03\xe0A\x01H\bR\vwebpushLink\x88\x01\x01\x12\x1a\n" +
+	"\x03url\x18\f \x01(\tB\x03\xe0A\x01H\tR\x03url\x88\x01\x01\x12B\n" +
+	"\fnotify_after\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x02R\vnotifyAfter\x12D\n" +
+	"\rnotify_before\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x02R\fnotifyBeforeB\f\n" +
 	"\n" +
 	"_image_urlB\x12\n" +
 	"\x10_analytics_labelB\r\n" +
@@ -996,27 +1068,27 @@ const file_admin_v1_notification_proto_rawDesc = "" +
 	"\r_webpush_linkB\x06\n" +
 	"\x04_url\"X\n" +
 	"\x1aCreateNotificationResponse\x12:\n" +
-	"\fnotification\x18\x01 \x01(\v2\x16.admin.v1.NotificationR\fnotification\"\x9b\a\n" +
-	"\x19UpdateNotificationRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
-	"\x04body\x18\x03 \x01(\tR\x04body\x12 \n" +
-	"\timage_url\x18\x04 \x01(\tH\x00R\bimageUrl\x88\x01\x01\x12,\n" +
-	"\x0fanalytics_label\x18\x05 \x01(\tH\x01R\x0eanalyticsLabel\x88\x01\x01\x12\"\n" +
+	"\fnotification\x18\x01 \x01(\v2\x16.admin.v1.NotificationR\fnotification\"\xeb\a\n" +
+	"\x19UpdateNotificationRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\x19\n" +
+	"\x05title\x18\x02 \x01(\tB\x03\xe0A\x01R\x05title\x12\x17\n" +
+	"\x04body\x18\x03 \x01(\tB\x03\xe0A\x01R\x04body\x12%\n" +
+	"\timage_url\x18\x04 \x01(\tB\x03\xe0A\x01H\x00R\bimageUrl\x88\x01\x01\x121\n" +
+	"\x0fanalytics_label\x18\x05 \x01(\tB\x03\xe0A\x01H\x01R\x0eanalyticsLabel\x88\x01\x01\x12'\n" +
 	"\n" +
-	"apns_badge\x18\x06 \x01(\x05H\x02R\tapnsBadge\x88\x01\x01\x12\"\n" +
+	"apns_badge\x18\x06 \x01(\x05B\x03\xe0A\x01H\x02R\tapnsBadge\x88\x01\x01\x12'\n" +
 	"\n" +
-	"apns_sound\x18\a \x01(\tH\x03R\tapnsSound\x88\x01\x01\x129\n" +
-	"\x16apns_content_available\x18\b \x01(\bH\x04R\x14apnsContentAvailable\x88\x01\x01\x121\n" +
-	"\x12android_channel_id\x18\t \x01(\tH\x05R\x10androidChannelId\x88\x01\x01\x12U\n" +
+	"apns_sound\x18\a \x01(\tB\x03\xe0A\x01H\x03R\tapnsSound\x88\x01\x01\x12>\n" +
+	"\x16apns_content_available\x18\b \x01(\bB\x03\xe0A\x01H\x04R\x14apnsContentAvailable\x88\x01\x01\x126\n" +
+	"\x12android_channel_id\x18\t \x01(\tB\x03\xe0A\x01H\x05R\x10androidChannelId\x88\x01\x01\x12Z\n" +
 	"\x10android_priority\x18\n" +
-	" \x01(\x0e2%.admin.v1.NotificationAndroidPriorityH\x06R\x0fandroidPriority\x88\x01\x01\x123\n" +
-	"\x13android_ttl_seconds\x18\v \x01(\x05H\aR\x11androidTtlSeconds\x88\x01\x01\x12&\n" +
-	"\fwebpush_link\x18\f \x01(\tH\bR\vwebpushLink\x88\x01\x01\x12\x15\n" +
-	"\x03url\x18\r \x01(\tH\tR\x03url\x88\x01\x01\x12=\n" +
-	"\fnotify_after\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\vnotifyAfter\x12?\n" +
-	"\rnotify_before\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\fnotifyBefore\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	" \x01(\x0e2%.admin.v1.NotificationAndroidPriorityB\x03\xe0A\x01H\x06R\x0fandroidPriority\x88\x01\x01\x128\n" +
+	"\x13android_ttl_seconds\x18\v \x01(\x05B\x03\xe0A\x01H\aR\x11androidTtlSeconds\x88\x01\x01\x12+\n" +
+	"\fwebpush_link\x18\f \x01(\tB\x03\xe0A\x01H\bR\vwebpushLink\x88\x01\x01\x12\x1a\n" +
+	"\x03url\x18\r \x01(\tB\x03\xe0A\x01H\tR\x03url\x88\x01\x01\x12B\n" +
+	"\fnotify_after\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01R\vnotifyAfter\x12D\n" +
+	"\rnotify_before\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01R\fnotifyBefore\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMaskB\f\n" +
 	"\n" +
 	"_image_urlB\x12\n" +
@@ -1030,9 +1102,9 @@ const file_admin_v1_notification_proto_rawDesc = "" +
 	"\r_webpush_linkB\x06\n" +
 	"\x04_url\"X\n" +
 	"\x1aUpdateNotificationResponse\x12:\n" +
-	"\fnotification\x18\x01 \x01(\v2\x16.admin.v1.NotificationR\fnotification\"+\n" +
-	"\x19DeleteNotificationRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x1c\n" +
+	"\fnotification\x18\x01 \x01(\v2\x16.admin.v1.NotificationR\fnotification\"0\n" +
+	"\x19DeleteNotificationRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x1c\n" +
 	"\x1aDeleteNotificationResponse*\x9e\x01\n" +
 	"\x1bNotificationAndroidPriority\x12-\n" +
 	")NOTIFICATION_ANDROID_PRIORITY_UNSPECIFIED\x10\x00\x12(\n" +

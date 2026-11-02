@@ -47,10 +47,15 @@ const (
 
 // RoomServiceClient is a client for the admin.v1.RoomService service.
 type RoomServiceClient interface {
+	// 教室の一覧を取得する。
 	ListRooms(context.Context, *connect.Request[v1.ListRoomsRequest]) (*connect.Response[v1.ListRoomsResponse], error)
+	// 教室を取得する。
 	GetRoom(context.Context, *connect.Request[v1.GetRoomRequest]) (*connect.Response[v1.GetRoomResponse], error)
+	// 教室を作成する。
 	CreateRoom(context.Context, *connect.Request[v1.CreateRoomRequest]) (*connect.Response[v1.CreateRoomResponse], error)
+	// 教室を更新する。
 	UpdateRoom(context.Context, *connect.Request[v1.UpdateRoomRequest]) (*connect.Response[v1.UpdateRoomResponse], error)
+	// 教室を削除する。
 	DeleteRoom(context.Context, *connect.Request[v1.DeleteRoomRequest]) (*connect.Response[v1.DeleteRoomResponse], error)
 }
 
@@ -134,10 +139,15 @@ func (c *roomServiceClient) DeleteRoom(ctx context.Context, req *connect.Request
 
 // RoomServiceHandler is an implementation of the admin.v1.RoomService service.
 type RoomServiceHandler interface {
+	// 教室の一覧を取得する。
 	ListRooms(context.Context, *connect.Request[v1.ListRoomsRequest]) (*connect.Response[v1.ListRoomsResponse], error)
+	// 教室を取得する。
 	GetRoom(context.Context, *connect.Request[v1.GetRoomRequest]) (*connect.Response[v1.GetRoomResponse], error)
+	// 教室を作成する。
 	CreateRoom(context.Context, *connect.Request[v1.CreateRoomRequest]) (*connect.Response[v1.CreateRoomResponse], error)
+	// 教室を更新する。
 	UpdateRoom(context.Context, *connect.Request[v1.UpdateRoomRequest]) (*connect.Response[v1.UpdateRoomResponse], error)
+	// 教室を削除する。
 	DeleteRoom(context.Context, *connect.Request[v1.DeleteRoomRequest]) (*connect.Response[v1.DeleteRoomResponse], error)
 }
 

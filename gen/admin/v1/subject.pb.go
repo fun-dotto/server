@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -23,18 +24,29 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 科目の開講時期。
 type SubjectSemester int32
 
 const (
-	SubjectSemester_SUBJECT_SEMESTER_UNSPECIFIED      SubjectSemester = 0
-	SubjectSemester_SUBJECT_SEMESTER_ALL_YEAR         SubjectSemester = 1
-	SubjectSemester_SUBJECT_SEMESTER_H1               SubjectSemester = 2
-	SubjectSemester_SUBJECT_SEMESTER_H2               SubjectSemester = 3
-	SubjectSemester_SUBJECT_SEMESTER_Q1               SubjectSemester = 4
-	SubjectSemester_SUBJECT_SEMESTER_Q2               SubjectSemester = 5
-	SubjectSemester_SUBJECT_SEMESTER_Q3               SubjectSemester = 6
-	SubjectSemester_SUBJECT_SEMESTER_Q4               SubjectSemester = 7
+	// 未指定。
+	SubjectSemester_SUBJECT_SEMESTER_UNSPECIFIED SubjectSemester = 0
+	// 通年。
+	SubjectSemester_SUBJECT_SEMESTER_ALL_YEAR SubjectSemester = 1
+	// 前期。
+	SubjectSemester_SUBJECT_SEMESTER_H1 SubjectSemester = 2
+	// 後期。
+	SubjectSemester_SUBJECT_SEMESTER_H2 SubjectSemester = 3
+	// 第1クオーター。
+	SubjectSemester_SUBJECT_SEMESTER_Q1 SubjectSemester = 4
+	// 第2クオーター。
+	SubjectSemester_SUBJECT_SEMESTER_Q2 SubjectSemester = 5
+	// 第3クオーター。
+	SubjectSemester_SUBJECT_SEMESTER_Q3 SubjectSemester = 6
+	// 第4クオーター。
+	SubjectSemester_SUBJECT_SEMESTER_Q4 SubjectSemester = 7
+	// 夏期集中。
 	SubjectSemester_SUBJECT_SEMESTER_SUMMER_INTENSIVE SubjectSemester = 8
+	// 冬期集中。
 	SubjectSemester_SUBJECT_SEMESTER_WINTER_INTENSIVE SubjectSemester = 9
 )
 
@@ -93,12 +105,17 @@ func (SubjectSemester) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_subject_proto_rawDescGZIP(), []int{0}
 }
 
+// 科目カテゴリ。
 type SubjectClassification int32
 
 const (
-	SubjectClassification_SUBJECT_CLASSIFICATION_UNSPECIFIED          SubjectClassification = 0
-	SubjectClassification_SUBJECT_CLASSIFICATION_SPECIALIZED          SubjectClassification = 1
-	SubjectClassification_SUBJECT_CLASSIFICATION_CULTURAL             SubjectClassification = 2
+	// 未指定。
+	SubjectClassification_SUBJECT_CLASSIFICATION_UNSPECIFIED SubjectClassification = 0
+	// 専門科目。
+	SubjectClassification_SUBJECT_CLASSIFICATION_SPECIALIZED SubjectClassification = 1
+	// 教養科目。
+	SubjectClassification_SUBJECT_CLASSIFICATION_CULTURAL SubjectClassification = 2
+	// 研究指導。
 	SubjectClassification_SUBJECT_CLASSIFICATION_RESEARCH_INSTRUCTION SubjectClassification = 3
 )
 
@@ -145,14 +162,21 @@ func (SubjectClassification) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_subject_proto_rawDescGZIP(), []int{1}
 }
 
+// 教養科目カテゴリ。
 type SubjectCulturalSubjectCategory int32
 
 const (
-	SubjectCulturalSubjectCategory_SUBJECT_CULTURAL_SUBJECT_CATEGORY_UNSPECIFIED   SubjectCulturalSubjectCategory = 0
-	SubjectCulturalSubjectCategory_SUBJECT_CULTURAL_SUBJECT_CATEGORY_SOCIETY       SubjectCulturalSubjectCategory = 1
-	SubjectCulturalSubjectCategory_SUBJECT_CULTURAL_SUBJECT_CATEGORY_HUMAN         SubjectCulturalSubjectCategory = 2
-	SubjectCulturalSubjectCategory_SUBJECT_CULTURAL_SUBJECT_CATEGORY_SCIENCE       SubjectCulturalSubjectCategory = 3
-	SubjectCulturalSubjectCategory_SUBJECT_CULTURAL_SUBJECT_CATEGORY_HEALTH        SubjectCulturalSubjectCategory = 4
+	// 未指定。
+	SubjectCulturalSubjectCategory_SUBJECT_CULTURAL_SUBJECT_CATEGORY_UNSPECIFIED SubjectCulturalSubjectCategory = 0
+	// 社会。
+	SubjectCulturalSubjectCategory_SUBJECT_CULTURAL_SUBJECT_CATEGORY_SOCIETY SubjectCulturalSubjectCategory = 1
+	// 人間。
+	SubjectCulturalSubjectCategory_SUBJECT_CULTURAL_SUBJECT_CATEGORY_HUMAN SubjectCulturalSubjectCategory = 2
+	// 科学。
+	SubjectCulturalSubjectCategory_SUBJECT_CULTURAL_SUBJECT_CATEGORY_SCIENCE SubjectCulturalSubjectCategory = 3
+	// 健康。
+	SubjectCulturalSubjectCategory_SUBJECT_CULTURAL_SUBJECT_CATEGORY_HEALTH SubjectCulturalSubjectCategory = 4
+	// コミュニケーション。
 	SubjectCulturalSubjectCategory_SUBJECT_CULTURAL_SUBJECT_CATEGORY_COMMUNICATION SubjectCulturalSubjectCategory = 5
 )
 
@@ -203,12 +227,17 @@ func (SubjectCulturalSubjectCategory) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_subject_proto_rawDescGZIP(), []int{2}
 }
 
+// 必修・選択。
 type SubjectRequirementType int32
 
 const (
-	SubjectRequirementType_SUBJECT_REQUIREMENT_TYPE_UNSPECIFIED       SubjectRequirementType = 0
-	SubjectRequirementType_SUBJECT_REQUIREMENT_TYPE_REQUIRED          SubjectRequirementType = 1
-	SubjectRequirementType_SUBJECT_REQUIREMENT_TYPE_OPTIONAL          SubjectRequirementType = 2
+	// 未指定。
+	SubjectRequirementType_SUBJECT_REQUIREMENT_TYPE_UNSPECIFIED SubjectRequirementType = 0
+	// 必修。
+	SubjectRequirementType_SUBJECT_REQUIREMENT_TYPE_REQUIRED SubjectRequirementType = 1
+	// 選択。
+	SubjectRequirementType_SUBJECT_REQUIREMENT_TYPE_OPTIONAL SubjectRequirementType = 2
+	// 選択必修。
 	SubjectRequirementType_SUBJECT_REQUIREMENT_TYPE_OPTIONAL_REQUIRED SubjectRequirementType = 3
 )
 
@@ -255,10 +284,13 @@ func (SubjectRequirementType) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_subject_proto_rawDescGZIP(), []int{3}
 }
 
+// 科目の担当教員。
 type SubjectFaculty struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FacultyId     string                 `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
-	IsPrimary     bool                   `protobuf:"varint,2,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 教員ID。
+	FacultyId string `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
+	// 主担当かどうか。
+	IsPrimary     bool `protobuf:"varint,2,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -307,10 +339,13 @@ func (x *SubjectFaculty) GetIsPrimary() bool {
 	return false
 }
 
+// 対象学年・クラス。
 type SubjectEligibleAttribute struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Grade         Grade                  `protobuf:"varint,1,opt,name=grade,proto3,enum=admin.v1.Grade" json:"grade,omitempty"`
-	Class         *Class                 `protobuf:"varint,2,opt,name=class,proto3,enum=admin.v1.Class,oneof" json:"class,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 学年。
+	Grade Grade `protobuf:"varint,1,opt,name=grade,proto3,enum=admin.v1.Grade" json:"grade,omitempty"`
+	// クラス。修士課程・博士課程対象の場合は未設定。
+	Class         *Class `protobuf:"varint,2,opt,name=class,proto3,enum=admin.v1.Class,oneof" json:"class,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -359,9 +394,12 @@ func (x *SubjectEligibleAttribute) GetClass() Class {
 	return Class_CLASS_UNSPECIFIED
 }
 
+// コースごとの必修・選択。
 type SubjectRequirement struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Course          Course                 `protobuf:"varint,1,opt,name=course,proto3,enum=admin.v1.Course" json:"course,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// コース。
+	Course Course `protobuf:"varint,1,opt,name=course,proto3,enum=admin.v1.Course" json:"course,omitempty"`
+	// 必修・選択・選択必修。
 	RequirementType SubjectRequirementType `protobuf:"varint,2,opt,name=requirement_type,json=requirementType,proto3,enum=admin.v1.SubjectRequirementType" json:"requirement_type,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -411,23 +449,37 @@ func (x *SubjectRequirement) GetRequirementType() SubjectRequirementType {
 	return SubjectRequirementType_SUBJECT_REQUIREMENT_TYPE_UNSPECIFIED
 }
 
+// 科目。
 type Subject struct {
-	state                   protoimpl.MessageState         `protogen:"open.v1"`
-	Id                      string                         `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name                    string                         `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Year                    int32                          `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
-	Semester                SubjectSemester                `protobuf:"varint,4,opt,name=semester,proto3,enum=admin.v1.SubjectSemester" json:"semester,omitempty"`
-	Credit                  int32                          `protobuf:"varint,5,opt,name=credit,proto3" json:"credit,omitempty"`
-	Classification          SubjectClassification          `protobuf:"varint,6,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 科目名。
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// 開講年度。
+	Year int32 `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
+	// 開講時期。
+	Semester SubjectSemester `protobuf:"varint,4,opt,name=semester,proto3,enum=admin.v1.SubjectSemester" json:"semester,omitempty"`
+	// 単位数。
+	Credit int32 `protobuf:"varint,5,opt,name=credit,proto3" json:"credit,omitempty"`
+	// 科目カテゴリ。
+	Classification SubjectClassification `protobuf:"varint,6,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
+	// 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
 	CulturalSubjectCategory SubjectCulturalSubjectCategory `protobuf:"varint,7,opt,name=cultural_subject_category,json=culturalSubjectCategory,proto3,enum=admin.v1.SubjectCulturalSubjectCategory" json:"cultural_subject_category,omitempty"`
-	SyllabusId              string                         `protobuf:"bytes,8,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
-	Faculties               []*SubjectFaculty              `protobuf:"bytes,9,rep,name=faculties,proto3" json:"faculties,omitempty"`
-	EligibleAttributes      []*SubjectEligibleAttribute    `protobuf:"bytes,10,rep,name=eligible_attributes,json=eligibleAttributes,proto3" json:"eligible_attributes,omitempty"`
-	Requirements            []*SubjectRequirement          `protobuf:"bytes,11,rep,name=requirements,proto3" json:"requirements,omitempty"`
-	CreatedAt               *timestamppb.Timestamp         `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt               *timestamppb.Timestamp         `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// シラバスID。
+	SyllabusId string `protobuf:"bytes,8,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
+	// 担当教員。
+	Faculties []*SubjectFaculty `protobuf:"bytes,9,rep,name=faculties,proto3" json:"faculties,omitempty"`
+	// 対象学年・クラス。授業名末尾の `学年-クラス` をもとに決定する。
+	EligibleAttributes []*SubjectEligibleAttribute `protobuf:"bytes,10,rep,name=eligible_attributes,json=eligibleAttributes,proto3" json:"eligible_attributes,omitempty"`
+	// コースごとの必修・選択。科目群・科目区分をもとに決定する。
+	Requirements []*SubjectRequirement `protobuf:"bytes,11,rep,name=requirements,proto3" json:"requirements,omitempty"`
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Subject) Reset() {
@@ -551,10 +603,13 @@ func (x *Subject) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListSubjects の Request。
 type ListSubjectsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -603,10 +658,13 @@ func (x *ListSubjectsRequest) GetPageToken() string {
 	return ""
 }
 
+// ListSubjects の Response。
 type ListSubjectsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subjects      []*Subject             `protobuf:"bytes,1,rep,name=subjects,proto3" json:"subjects,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 科目の一覧。
+	Subjects []*Subject `protobuf:"bytes,1,rep,name=subjects,proto3" json:"subjects,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -655,9 +713,11 @@ func (x *ListSubjectsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetSubject の Request。
 type GetSubjectRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得する科目ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -699,9 +759,11 @@ func (x *GetSubjectRequest) GetId() string {
 	return ""
 }
 
+// GetSubject の Response。
 type GetSubjectResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した科目。
+	Subject       *Subject `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -743,20 +805,31 @@ func (x *GetSubjectResponse) GetSubject() *Subject {
 	return nil
 }
 
+// CreateSubject の Request。
 type CreateSubjectRequest struct {
-	state                   protoimpl.MessageState         `protogen:"open.v1"`
-	Name                    string                         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Year                    int32                          `protobuf:"varint,2,opt,name=year,proto3" json:"year,omitempty"`
-	Semester                SubjectSemester                `protobuf:"varint,3,opt,name=semester,proto3,enum=admin.v1.SubjectSemester" json:"semester,omitempty"`
-	Credit                  int32                          `protobuf:"varint,4,opt,name=credit,proto3" json:"credit,omitempty"`
-	Classification          SubjectClassification          `protobuf:"varint,5,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 科目名。
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// 開講年度。
+	Year int32 `protobuf:"varint,2,opt,name=year,proto3" json:"year,omitempty"`
+	// 開講時期。
+	Semester SubjectSemester `protobuf:"varint,3,opt,name=semester,proto3,enum=admin.v1.SubjectSemester" json:"semester,omitempty"`
+	// 単位数。
+	Credit int32 `protobuf:"varint,4,opt,name=credit,proto3" json:"credit,omitempty"`
+	// 科目カテゴリ。
+	Classification SubjectClassification `protobuf:"varint,5,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
+	// 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
 	CulturalSubjectCategory SubjectCulturalSubjectCategory `protobuf:"varint,6,opt,name=cultural_subject_category,json=culturalSubjectCategory,proto3,enum=admin.v1.SubjectCulturalSubjectCategory" json:"cultural_subject_category,omitempty"`
-	SyllabusId              string                         `protobuf:"bytes,7,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
-	Faculties               []*SubjectFaculty              `protobuf:"bytes,8,rep,name=faculties,proto3" json:"faculties,omitempty"`
-	EligibleAttributes      []*SubjectEligibleAttribute    `protobuf:"bytes,9,rep,name=eligible_attributes,json=eligibleAttributes,proto3" json:"eligible_attributes,omitempty"`
-	Requirements            []*SubjectRequirement          `protobuf:"bytes,10,rep,name=requirements,proto3" json:"requirements,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// シラバスID。
+	SyllabusId string `protobuf:"bytes,7,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
+	// 担当教員。
+	Faculties []*SubjectFaculty `protobuf:"bytes,8,rep,name=faculties,proto3" json:"faculties,omitempty"`
+	// 対象学年・クラス。授業名末尾の `学年-クラス` をもとに決定する。
+	EligibleAttributes []*SubjectEligibleAttribute `protobuf:"bytes,9,rep,name=eligible_attributes,json=eligibleAttributes,proto3" json:"eligible_attributes,omitempty"`
+	// コースごとの必修・選択。科目群・科目区分をもとに決定する。
+	Requirements  []*SubjectRequirement `protobuf:"bytes,10,rep,name=requirements,proto3" json:"requirements,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateSubjectRequest) Reset() {
@@ -859,9 +932,11 @@ func (x *CreateSubjectRequest) GetRequirements() []*SubjectRequirement {
 	return nil
 }
 
+// CreateSubject の Response。
 type CreateSubjectResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した科目。
+	Subject       *Subject `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -903,22 +978,35 @@ func (x *CreateSubjectResponse) GetSubject() *Subject {
 	return nil
 }
 
+// UpdateSubject の Request。
 type UpdateSubjectRequest struct {
-	state                   protoimpl.MessageState         `protogen:"open.v1"`
-	Id                      string                         `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name                    string                         `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Year                    int32                          `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
-	Semester                SubjectSemester                `protobuf:"varint,4,opt,name=semester,proto3,enum=admin.v1.SubjectSemester" json:"semester,omitempty"`
-	Credit                  int32                          `protobuf:"varint,5,opt,name=credit,proto3" json:"credit,omitempty"`
-	Classification          SubjectClassification          `protobuf:"varint,6,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新する科目ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 科目名。
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// 開講年度。
+	Year int32 `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
+	// 開講時期。
+	Semester SubjectSemester `protobuf:"varint,4,opt,name=semester,proto3,enum=admin.v1.SubjectSemester" json:"semester,omitempty"`
+	// 単位数。
+	Credit int32 `protobuf:"varint,5,opt,name=credit,proto3" json:"credit,omitempty"`
+	// 科目カテゴリ。
+	Classification SubjectClassification `protobuf:"varint,6,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
+	// 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
 	CulturalSubjectCategory SubjectCulturalSubjectCategory `protobuf:"varint,7,opt,name=cultural_subject_category,json=culturalSubjectCategory,proto3,enum=admin.v1.SubjectCulturalSubjectCategory" json:"cultural_subject_category,omitempty"`
-	SyllabusId              string                         `protobuf:"bytes,8,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
-	Faculties               []*SubjectFaculty              `protobuf:"bytes,9,rep,name=faculties,proto3" json:"faculties,omitempty"`
-	EligibleAttributes      []*SubjectEligibleAttribute    `protobuf:"bytes,10,rep,name=eligible_attributes,json=eligibleAttributes,proto3" json:"eligible_attributes,omitempty"`
-	Requirements            []*SubjectRequirement          `protobuf:"bytes,11,rep,name=requirements,proto3" json:"requirements,omitempty"`
-	UpdateMask              *fieldmaskpb.FieldMask         `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// シラバスID。
+	SyllabusId string `protobuf:"bytes,8,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
+	// 担当教員。
+	Faculties []*SubjectFaculty `protobuf:"bytes,9,rep,name=faculties,proto3" json:"faculties,omitempty"`
+	// 対象学年・クラス。授業名末尾の `学年-クラス` をもとに決定する。
+	EligibleAttributes []*SubjectEligibleAttribute `protobuf:"bytes,10,rep,name=eligible_attributes,json=eligibleAttributes,proto3" json:"eligible_attributes,omitempty"`
+	// コースごとの必修・選択。科目群・科目区分をもとに決定する。
+	Requirements []*SubjectRequirement `protobuf:"bytes,11,rep,name=requirements,proto3" json:"requirements,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateSubjectRequest) Reset() {
@@ -1035,9 +1123,11 @@ func (x *UpdateSubjectRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateSubject の Response。
 type UpdateSubjectResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した科目。
+	Subject       *Subject `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1079,9 +1169,11 @@ func (x *UpdateSubjectResponse) GetSubject() *Subject {
 	return nil
 }
 
+// DeleteSubject の Request。
 type DeleteSubjectRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 削除する科目ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1123,6 +1215,7 @@ func (x *DeleteSubjectRequest) GetId() string {
 	return ""
 }
 
+// DeleteSubject の Response。
 type DeleteSubjectResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1163,83 +1256,83 @@ var File_admin_v1_subject_proto protoreflect.FileDescriptor
 
 const file_admin_v1_subject_proto_rawDesc = "" +
 	"\n" +
-	"\x16admin/v1/subject.proto\x12\badmin.v1\x1a\x15admin/v1/common.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"N\n" +
-	"\x0eSubjectFaculty\x12\x1d\n" +
+	"\x16admin/v1/subject.proto\x12\badmin.v1\x1a\x15admin/v1/common.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"X\n" +
+	"\x0eSubjectFaculty\x12\"\n" +
 	"\n" +
-	"faculty_id\x18\x01 \x01(\tR\tfacultyId\x12\x1d\n" +
+	"faculty_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tfacultyId\x12\"\n" +
 	"\n" +
-	"is_primary\x18\x02 \x01(\bR\tisPrimary\"w\n" +
-	"\x18SubjectEligibleAttribute\x12%\n" +
-	"\x05grade\x18\x01 \x01(\x0e2\x0f.admin.v1.GradeR\x05grade\x12*\n" +
-	"\x05class\x18\x02 \x01(\x0e2\x0f.admin.v1.ClassH\x00R\x05class\x88\x01\x01B\b\n" +
-	"\x06_class\"\x8b\x01\n" +
-	"\x12SubjectRequirement\x12(\n" +
-	"\x06course\x18\x01 \x01(\x0e2\x10.admin.v1.CourseR\x06course\x12K\n" +
-	"\x10requirement_type\x18\x02 \x01(\x0e2 .admin.v1.SubjectRequirementTypeR\x0frequirementType\"\xa5\x05\n" +
-	"\aSubject\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
-	"\x04year\x18\x03 \x01(\x05R\x04year\x125\n" +
-	"\bsemester\x18\x04 \x01(\x0e2\x19.admin.v1.SubjectSemesterR\bsemester\x12\x16\n" +
-	"\x06credit\x18\x05 \x01(\x05R\x06credit\x12G\n" +
-	"\x0eclassification\x18\x06 \x01(\x0e2\x1f.admin.v1.SubjectClassificationR\x0eclassification\x12d\n" +
-	"\x19cultural_subject_category\x18\a \x01(\x0e2(.admin.v1.SubjectCulturalSubjectCategoryR\x17culturalSubjectCategory\x12\x1f\n" +
-	"\vsyllabus_id\x18\b \x01(\tR\n" +
-	"syllabusId\x126\n" +
-	"\tfaculties\x18\t \x03(\v2\x18.admin.v1.SubjectFacultyR\tfaculties\x12S\n" +
+	"is_primary\x18\x02 \x01(\bB\x03\xe0A\x01R\tisPrimary\"\x81\x01\n" +
+	"\x18SubjectEligibleAttribute\x12*\n" +
+	"\x05grade\x18\x01 \x01(\x0e2\x0f.admin.v1.GradeB\x03\xe0A\x02R\x05grade\x12/\n" +
+	"\x05class\x18\x02 \x01(\x0e2\x0f.admin.v1.ClassB\x03\xe0A\x01H\x00R\x05class\x88\x01\x01B\b\n" +
+	"\x06_class\"\x95\x01\n" +
+	"\x12SubjectRequirement\x12-\n" +
+	"\x06course\x18\x01 \x01(\x0e2\x10.admin.v1.CourseB\x03\xe0A\x02R\x06course\x12P\n" +
+	"\x10requirement_type\x18\x02 \x01(\x0e2 .admin.v1.SubjectRequirementTypeB\x03\xe0A\x02R\x0frequirementType\"\xe6\x05\n" +
+	"\aSubject\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x02R\x04name\x12\x17\n" +
+	"\x04year\x18\x03 \x01(\x05B\x03\xe0A\x02R\x04year\x12:\n" +
+	"\bsemester\x18\x04 \x01(\x0e2\x19.admin.v1.SubjectSemesterB\x03\xe0A\x02R\bsemester\x12\x1b\n" +
+	"\x06credit\x18\x05 \x01(\x05B\x03\xe0A\x02R\x06credit\x12L\n" +
+	"\x0eclassification\x18\x06 \x01(\x0e2\x1f.admin.v1.SubjectClassificationB\x03\xe0A\x02R\x0eclassification\x12i\n" +
+	"\x19cultural_subject_category\x18\a \x01(\x0e2(.admin.v1.SubjectCulturalSubjectCategoryB\x03\xe0A\x01R\x17culturalSubjectCategory\x12$\n" +
+	"\vsyllabus_id\x18\b \x01(\tB\x03\xe0A\x02R\n" +
+	"syllabusId\x12;\n" +
+	"\tfaculties\x18\t \x03(\v2\x18.admin.v1.SubjectFacultyB\x03\xe0A\x01R\tfaculties\x12X\n" +
 	"\x13eligible_attributes\x18\n" +
-	" \x03(\v2\".admin.v1.SubjectEligibleAttributeR\x12eligibleAttributes\x12@\n" +
-	"\frequirements\x18\v \x03(\v2\x1c.admin.v1.SubjectRequirementR\frequirements\x129\n" +
+	" \x03(\v2\".admin.v1.SubjectEligibleAttributeB\x03\xe0A\x01R\x12eligibleAttributes\x12E\n" +
+	"\frequirements\x18\v \x03(\v2\x1c.admin.v1.SubjectRequirementB\x03\xe0A\x01R\frequirements\x12>\n" +
 	"\n" +
-	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"Q\n" +
-	"\x13ListSubjectsRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\"[\n" +
+	"\x13ListSubjectsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"m\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"m\n" +
 	"\x14ListSubjectsResponse\x12-\n" +
 	"\bsubjects\x18\x01 \x03(\v2\x11.admin.v1.SubjectR\bsubjects\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"#\n" +
-	"\x11GetSubjectRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"A\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"(\n" +
+	"\x11GetSubjectRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"A\n" +
 	"\x12GetSubjectResponse\x12+\n" +
-	"\asubject\x18\x01 \x01(\v2\x11.admin.v1.SubjectR\asubject\"\xac\x04\n" +
-	"\x14CreateSubjectRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
-	"\x04year\x18\x02 \x01(\x05R\x04year\x125\n" +
-	"\bsemester\x18\x03 \x01(\x0e2\x19.admin.v1.SubjectSemesterR\bsemester\x12\x16\n" +
-	"\x06credit\x18\x04 \x01(\x05R\x06credit\x12G\n" +
-	"\x0eclassification\x18\x05 \x01(\x0e2\x1f.admin.v1.SubjectClassificationR\x0eclassification\x12d\n" +
-	"\x19cultural_subject_category\x18\x06 \x01(\x0e2(.admin.v1.SubjectCulturalSubjectCategoryR\x17culturalSubjectCategory\x12\x1f\n" +
-	"\vsyllabus_id\x18\a \x01(\tR\n" +
-	"syllabusId\x126\n" +
-	"\tfaculties\x18\b \x03(\v2\x18.admin.v1.SubjectFacultyR\tfaculties\x12S\n" +
-	"\x13eligible_attributes\x18\t \x03(\v2\".admin.v1.SubjectEligibleAttributeR\x12eligibleAttributes\x12@\n" +
+	"\asubject\x18\x01 \x01(\v2\x11.admin.v1.SubjectR\asubject\"\xde\x04\n" +
+	"\x14CreateSubjectRequest\x12\x17\n" +
+	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x02R\x04name\x12\x17\n" +
+	"\x04year\x18\x02 \x01(\x05B\x03\xe0A\x02R\x04year\x12:\n" +
+	"\bsemester\x18\x03 \x01(\x0e2\x19.admin.v1.SubjectSemesterB\x03\xe0A\x02R\bsemester\x12\x1b\n" +
+	"\x06credit\x18\x04 \x01(\x05B\x03\xe0A\x02R\x06credit\x12L\n" +
+	"\x0eclassification\x18\x05 \x01(\x0e2\x1f.admin.v1.SubjectClassificationB\x03\xe0A\x02R\x0eclassification\x12i\n" +
+	"\x19cultural_subject_category\x18\x06 \x01(\x0e2(.admin.v1.SubjectCulturalSubjectCategoryB\x03\xe0A\x01R\x17culturalSubjectCategory\x12$\n" +
+	"\vsyllabus_id\x18\a \x01(\tB\x03\xe0A\x02R\n" +
+	"syllabusId\x12;\n" +
+	"\tfaculties\x18\b \x03(\v2\x18.admin.v1.SubjectFacultyB\x03\xe0A\x01R\tfaculties\x12X\n" +
+	"\x13eligible_attributes\x18\t \x03(\v2\".admin.v1.SubjectEligibleAttributeB\x03\xe0A\x01R\x12eligibleAttributes\x12E\n" +
 	"\frequirements\x18\n" +
-	" \x03(\v2\x1c.admin.v1.SubjectRequirementR\frequirements\"D\n" +
+	" \x03(\v2\x1c.admin.v1.SubjectRequirementB\x03\xe0A\x01R\frequirements\"D\n" +
 	"\x15CreateSubjectResponse\x12+\n" +
-	"\asubject\x18\x01 \x01(\v2\x11.admin.v1.SubjectR\asubject\"\xf9\x04\n" +
-	"\x14UpdateSubjectRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
-	"\x04year\x18\x03 \x01(\x05R\x04year\x125\n" +
-	"\bsemester\x18\x04 \x01(\x0e2\x19.admin.v1.SubjectSemesterR\bsemester\x12\x16\n" +
-	"\x06credit\x18\x05 \x01(\x05R\x06credit\x12G\n" +
-	"\x0eclassification\x18\x06 \x01(\x0e2\x1f.admin.v1.SubjectClassificationR\x0eclassification\x12d\n" +
-	"\x19cultural_subject_category\x18\a \x01(\x0e2(.admin.v1.SubjectCulturalSubjectCategoryR\x17culturalSubjectCategory\x12\x1f\n" +
-	"\vsyllabus_id\x18\b \x01(\tR\n" +
-	"syllabusId\x126\n" +
-	"\tfaculties\x18\t \x03(\v2\x18.admin.v1.SubjectFacultyR\tfaculties\x12S\n" +
+	"\asubject\x18\x01 \x01(\v2\x11.admin.v1.SubjectR\asubject\"\xb5\x05\n" +
+	"\x14UpdateSubjectRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x01R\x04name\x12\x17\n" +
+	"\x04year\x18\x03 \x01(\x05B\x03\xe0A\x01R\x04year\x12:\n" +
+	"\bsemester\x18\x04 \x01(\x0e2\x19.admin.v1.SubjectSemesterB\x03\xe0A\x01R\bsemester\x12\x1b\n" +
+	"\x06credit\x18\x05 \x01(\x05B\x03\xe0A\x01R\x06credit\x12L\n" +
+	"\x0eclassification\x18\x06 \x01(\x0e2\x1f.admin.v1.SubjectClassificationB\x03\xe0A\x01R\x0eclassification\x12i\n" +
+	"\x19cultural_subject_category\x18\a \x01(\x0e2(.admin.v1.SubjectCulturalSubjectCategoryB\x03\xe0A\x01R\x17culturalSubjectCategory\x12$\n" +
+	"\vsyllabus_id\x18\b \x01(\tB\x03\xe0A\x01R\n" +
+	"syllabusId\x12;\n" +
+	"\tfaculties\x18\t \x03(\v2\x18.admin.v1.SubjectFacultyB\x03\xe0A\x01R\tfaculties\x12X\n" +
 	"\x13eligible_attributes\x18\n" +
-	" \x03(\v2\".admin.v1.SubjectEligibleAttributeR\x12eligibleAttributes\x12@\n" +
-	"\frequirements\x18\v \x03(\v2\x1c.admin.v1.SubjectRequirementR\frequirements\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	" \x03(\v2\".admin.v1.SubjectEligibleAttributeB\x03\xe0A\x01R\x12eligibleAttributes\x12E\n" +
+	"\frequirements\x18\v \x03(\v2\x1c.admin.v1.SubjectRequirementB\x03\xe0A\x01R\frequirements\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"D\n" +
 	"\x15UpdateSubjectResponse\x12+\n" +
-	"\asubject\x18\x01 \x01(\v2\x11.admin.v1.SubjectR\asubject\"&\n" +
-	"\x14DeleteSubjectRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x17\n" +
+	"\asubject\x18\x01 \x01(\v2\x11.admin.v1.SubjectR\asubject\"+\n" +
+	"\x14DeleteSubjectRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x17\n" +
 	"\x15DeleteSubjectResponse*\xb6\x02\n" +
 	"\x0fSubjectSemester\x12 \n" +
 	"\x1cSUBJECT_SEMESTER_UNSPECIFIED\x10\x00\x12\x1d\n" +

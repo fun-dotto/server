@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -22,13 +23,19 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// ユーザー。
 type User struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	Grade         *Grade                 `protobuf:"varint,3,opt,name=grade,proto3,enum=admin.v1.Grade,oneof" json:"grade,omitempty"`
-	Course        *Course                `protobuf:"varint,4,opt,name=course,proto3,enum=admin.v1.Course,oneof" json:"course,omitempty"`
-	Class         *Class                 `protobuf:"varint,5,opt,name=class,proto3,enum=admin.v1.Class,oneof" json:"class,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ユーザーID。Firebase Authentication の UID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// メールアドレス。Firebase Authentication のメールアドレス。
+	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	// 学年。
+	Grade *Grade `protobuf:"varint,3,opt,name=grade,proto3,enum=admin.v1.Grade,oneof" json:"grade,omitempty"`
+	// コース。
+	Course *Course `protobuf:"varint,4,opt,name=course,proto3,enum=admin.v1.Course,oneof" json:"course,omitempty"`
+	// クラス。
+	Class         *Class `protobuf:"varint,5,opt,name=class,proto3,enum=admin.v1.Class,oneof" json:"class,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -98,10 +105,13 @@ func (x *User) GetClass() Class {
 	return Class_CLASS_UNSPECIFIED
 }
 
+// ListUsers の Request。
 type ListUsersRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -150,10 +160,13 @@ func (x *ListUsersRequest) GetPageToken() string {
 	return ""
 }
 
+// ListUsers の Response。
 type ListUsersResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Users         []*User                `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ユーザーの一覧。
+	Users []*User `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -202,9 +215,11 @@ func (x *ListUsersResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetUser の Request。
 type GetUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得するユーザーID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -246,9 +261,11 @@ func (x *GetUserRequest) GetId() string {
 	return ""
 }
 
+// GetUser の Response。
 type GetUserResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得したユーザー。
+	User          *User `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -290,13 +307,19 @@ func (x *GetUserResponse) GetUser() *User {
 	return nil
 }
 
+// CreateUser の Request。
 type CreateUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	Grade         *Grade                 `protobuf:"varint,3,opt,name=grade,proto3,enum=admin.v1.Grade,oneof" json:"grade,omitempty"`
-	Course        *Course                `protobuf:"varint,4,opt,name=course,proto3,enum=admin.v1.Course,oneof" json:"course,omitempty"`
-	Class         *Class                 `protobuf:"varint,5,opt,name=class,proto3,enum=admin.v1.Class,oneof" json:"class,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ユーザーID。Firebase Authentication の UID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// メールアドレス。Firebase Authentication のメールアドレス。
+	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	// 学年。
+	Grade *Grade `protobuf:"varint,3,opt,name=grade,proto3,enum=admin.v1.Grade,oneof" json:"grade,omitempty"`
+	// コース。
+	Course *Course `protobuf:"varint,4,opt,name=course,proto3,enum=admin.v1.Course,oneof" json:"course,omitempty"`
+	// クラス。
+	Class         *Class `protobuf:"varint,5,opt,name=class,proto3,enum=admin.v1.Class,oneof" json:"class,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -366,9 +389,11 @@ func (x *CreateUserRequest) GetClass() Class {
 	return Class_CLASS_UNSPECIFIED
 }
 
+// CreateUser の Response。
 type CreateUserResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成したユーザー。
+	User          *User `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -410,13 +435,20 @@ func (x *CreateUserResponse) GetUser() *User {
 	return nil
 }
 
+// UpdateUser の Request。
 type UpdateUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	Grade         *Grade                 `protobuf:"varint,3,opt,name=grade,proto3,enum=admin.v1.Grade,oneof" json:"grade,omitempty"`
-	Course        *Course                `protobuf:"varint,4,opt,name=course,proto3,enum=admin.v1.Course,oneof" json:"course,omitempty"`
-	Class         *Class                 `protobuf:"varint,5,opt,name=class,proto3,enum=admin.v1.Class,oneof" json:"class,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新するユーザーID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// メールアドレス。Firebase Authentication のメールアドレス。
+	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	// 学年。
+	Grade *Grade `protobuf:"varint,3,opt,name=grade,proto3,enum=admin.v1.Grade,oneof" json:"grade,omitempty"`
+	// コース。
+	Course *Course `protobuf:"varint,4,opt,name=course,proto3,enum=admin.v1.Course,oneof" json:"course,omitempty"`
+	// クラス。
+	Class *Class `protobuf:"varint,5,opt,name=class,proto3,enum=admin.v1.Class,oneof" json:"class,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -494,9 +526,11 @@ func (x *UpdateUserRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateUser の Response。
 type UpdateUserResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新したユーザー。
+	User          *User `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -538,9 +572,11 @@ func (x *UpdateUserResponse) GetUser() *User {
 	return nil
 }
 
+// DeleteUser の Request。
 type DeleteUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 削除するユーザーID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -582,6 +618,7 @@ func (x *DeleteUserRequest) GetId() string {
 	return ""
 }
 
+// DeleteUser の Response。
 type DeleteUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -622,53 +659,53 @@ var File_admin_v1_user_proto protoreflect.FileDescriptor
 
 const file_admin_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x13admin/v1/user.proto\x12\badmin.v1\x1a\x15admin/v1/common.proto\x1a google/protobuf/field_mask.proto\"\xd2\x01\n" +
-	"\x04User\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\x12*\n" +
-	"\x05grade\x18\x03 \x01(\x0e2\x0f.admin.v1.GradeH\x00R\x05grade\x88\x01\x01\x12-\n" +
-	"\x06course\x18\x04 \x01(\x0e2\x10.admin.v1.CourseH\x01R\x06course\x88\x01\x01\x12*\n" +
-	"\x05class\x18\x05 \x01(\x0e2\x0f.admin.v1.ClassH\x02R\x05class\x88\x01\x01B\b\n" +
+	"\x13admin/v1/user.proto\x12\badmin.v1\x1a\x15admin/v1/common.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\"\xeb\x01\n" +
+	"\x04User\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\x19\n" +
+	"\x05email\x18\x02 \x01(\tB\x03\xe0A\x02R\x05email\x12/\n" +
+	"\x05grade\x18\x03 \x01(\x0e2\x0f.admin.v1.GradeB\x03\xe0A\x01H\x00R\x05grade\x88\x01\x01\x122\n" +
+	"\x06course\x18\x04 \x01(\x0e2\x10.admin.v1.CourseB\x03\xe0A\x01H\x01R\x06course\x88\x01\x01\x12/\n" +
+	"\x05class\x18\x05 \x01(\x0e2\x0f.admin.v1.ClassB\x03\xe0A\x01H\x02R\x05class\x88\x01\x01B\b\n" +
 	"\x06_gradeB\t\n" +
 	"\a_courseB\b\n" +
-	"\x06_class\"N\n" +
-	"\x10ListUsersRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\x06_class\"X\n" +
+	"\x10ListUsersRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"a\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"a\n" +
 	"\x11ListUsersResponse\x12$\n" +
 	"\x05users\x18\x01 \x03(\v2\x0e.admin.v1.UserR\x05users\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\" \n" +
-	"\x0eGetUserRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"5\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"%\n" +
+	"\x0eGetUserRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"5\n" +
 	"\x0fGetUserResponse\x12\"\n" +
-	"\x04user\x18\x01 \x01(\v2\x0e.admin.v1.UserR\x04user\"\xdf\x01\n" +
-	"\x11CreateUserRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\x12*\n" +
-	"\x05grade\x18\x03 \x01(\x0e2\x0f.admin.v1.GradeH\x00R\x05grade\x88\x01\x01\x12-\n" +
-	"\x06course\x18\x04 \x01(\x0e2\x10.admin.v1.CourseH\x01R\x06course\x88\x01\x01\x12*\n" +
-	"\x05class\x18\x05 \x01(\x0e2\x0f.admin.v1.ClassH\x02R\x05class\x88\x01\x01B\b\n" +
+	"\x04user\x18\x01 \x01(\v2\x0e.admin.v1.UserR\x04user\"\xf8\x01\n" +
+	"\x11CreateUserRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\x19\n" +
+	"\x05email\x18\x02 \x01(\tB\x03\xe0A\x02R\x05email\x12/\n" +
+	"\x05grade\x18\x03 \x01(\x0e2\x0f.admin.v1.GradeB\x03\xe0A\x01H\x00R\x05grade\x88\x01\x01\x122\n" +
+	"\x06course\x18\x04 \x01(\x0e2\x10.admin.v1.CourseB\x03\xe0A\x01H\x01R\x06course\x88\x01\x01\x12/\n" +
+	"\x05class\x18\x05 \x01(\x0e2\x0f.admin.v1.ClassB\x03\xe0A\x01H\x02R\x05class\x88\x01\x01B\b\n" +
 	"\x06_gradeB\t\n" +
 	"\a_courseB\b\n" +
 	"\x06_class\"8\n" +
 	"\x12CreateUserResponse\x12\"\n" +
-	"\x04user\x18\x01 \x01(\v2\x0e.admin.v1.UserR\x04user\"\x9c\x02\n" +
-	"\x11UpdateUserRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\x12*\n" +
-	"\x05grade\x18\x03 \x01(\x0e2\x0f.admin.v1.GradeH\x00R\x05grade\x88\x01\x01\x12-\n" +
-	"\x06course\x18\x04 \x01(\x0e2\x10.admin.v1.CourseH\x01R\x06course\x88\x01\x01\x12*\n" +
-	"\x05class\x18\x05 \x01(\x0e2\x0f.admin.v1.ClassH\x02R\x05class\x88\x01\x01\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"\x04user\x18\x01 \x01(\v2\x0e.admin.v1.UserR\x04user\"\xba\x02\n" +
+	"\x11UpdateUserRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\x19\n" +
+	"\x05email\x18\x02 \x01(\tB\x03\xe0A\x01R\x05email\x12/\n" +
+	"\x05grade\x18\x03 \x01(\x0e2\x0f.admin.v1.GradeB\x03\xe0A\x01H\x00R\x05grade\x88\x01\x01\x122\n" +
+	"\x06course\x18\x04 \x01(\x0e2\x10.admin.v1.CourseB\x03\xe0A\x01H\x01R\x06course\x88\x01\x01\x12/\n" +
+	"\x05class\x18\x05 \x01(\x0e2\x0f.admin.v1.ClassB\x03\xe0A\x01H\x02R\x05class\x88\x01\x01\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMaskB\b\n" +
 	"\x06_gradeB\t\n" +
 	"\a_courseB\b\n" +
 	"\x06_class\"8\n" +
 	"\x12UpdateUserResponse\x12\"\n" +
-	"\x04user\x18\x01 \x01(\v2\x0e.admin.v1.UserR\x04user\"#\n" +
-	"\x11DeleteUserRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x14\n" +
+	"\x04user\x18\x01 \x01(\v2\x0e.admin.v1.UserR\x04user\"(\n" +
+	"\x11DeleteUserRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x14\n" +
 	"\x12DeleteUserResponse2\xee\x02\n" +
 	"\vUserService\x12D\n" +
 	"\tListUsers\x12\x1a.admin.v1.ListUsersRequest\x1a\x1b.admin.v1.ListUsersResponse\x12>\n" +

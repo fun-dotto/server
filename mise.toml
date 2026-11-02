@@ -47,9 +47,18 @@ run = [
 [tasks."lint"]
 description = "静的解析を実行する"
 run = [
+  { task = "lint:proto" },
   "go vet ./...",
   "go build -o ./bin/gormuuidlint ./cmd/gormuuidlint",
   "go vet -vettool=./bin/gormuuidlint ./...",
+]
+
+[tasks."lint:proto"]
+description = "Protobuf 定義を buf lint と Google API Linter で検査する"
+run = [
+  "buf lint",
+  "mkdir -p ./bin && buf build -o ./bin/proto.binpb",
+  "cd proto && go tool api-linter --config ../api-linter.yaml --descriptor-set-in ../bin/proto.binpb --set-exit-status $(find . -name '*.proto' | sed 's|^./||' | sort)",
 ]
 
 [tasks.test]

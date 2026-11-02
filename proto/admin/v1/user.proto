@@ -3,69 +3,112 @@ syntax = "proto3";
 package admin.v1;
 
 import "admin/v1/common.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 
+// ユーザーを管理する。
+service UserService {
+  // ユーザーの一覧を取得する。
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  // ユーザーを取得する。
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  // ユーザーを作成する。
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  // ユーザーを更新する。
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  // ユーザーを削除する。
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+}
+
+// ユーザー。
 message User {
-  string id = 1;
-  string email = 2;
-  optional Grade grade = 3;
-  optional Course course = 4;
-  optional Class class = 5;
+  // ユーザーID。Firebase Authentication の UID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // メールアドレス。Firebase Authentication のメールアドレス。
+  string email = 2 [(google.api.field_behavior) = REQUIRED];
+  // 学年。
+  optional Grade grade = 3 [(google.api.field_behavior) = OPTIONAL];
+  // コース。
+  optional Course course = 4 [(google.api.field_behavior) = OPTIONAL];
+  // クラス。
+  optional Class class = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListUsers の Request。
 message ListUsersRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListUsers の Response。
 message ListUsersResponse {
+  // ユーザーの一覧。
   repeated User users = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetUser の Request。
 message GetUserRequest {
-  string id = 1;
+  // 取得するユーザーID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetUser の Response。
 message GetUserResponse {
+  // 取得したユーザー。
   User user = 1;
 }
 
+// CreateUser の Request。
 message CreateUserRequest {
-  string id = 1;
-  string email = 2;
-  optional Grade grade = 3;
-  optional Course course = 4;
-  optional Class class = 5;
+  // ユーザーID。Firebase Authentication の UID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // メールアドレス。Firebase Authentication のメールアドレス。
+  string email = 2 [(google.api.field_behavior) = REQUIRED];
+  // 学年。
+  optional Grade grade = 3 [(google.api.field_behavior) = OPTIONAL];
+  // コース。
+  optional Course course = 4 [(google.api.field_behavior) = OPTIONAL];
+  // クラス。
+  optional Class class = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// CreateUser の Response。
 message CreateUserResponse {
+  // 作成したユーザー。
   User user = 1;
 }
 
+// UpdateUser の Request。
 message UpdateUserRequest {
-  string id = 1;
-  string email = 2;
-  optional Grade grade = 3;
-  optional Course course = 4;
-  optional Class class = 5;
-  google.protobuf.FieldMask update_mask = 99;
+  // 更新するユーザーID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // メールアドレス。Firebase Authentication のメールアドレス。
+  string email = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 学年。
+  optional Grade grade = 3 [(google.api.field_behavior) = OPTIONAL];
+  // コース。
+  optional Course course = 4 [(google.api.field_behavior) = OPTIONAL];
+  // クラス。
+  optional Class class = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateUser の Response。
 message UpdateUserResponse {
+  // 更新したユーザー。
   User user = 1;
 }
 
+// DeleteUser の Request。
 message DeleteUserRequest {
-  string id = 1;
+  // 削除するユーザーID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteUser の Response。
 message DeleteUserResponse {}
-
-service UserService {
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
-  rpc GetUser(GetUserRequest) returns (GetUserResponse);
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
-}

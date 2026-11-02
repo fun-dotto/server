@@ -52,10 +52,15 @@ const (
 
 // CalendarDateServiceClient is a client for the admin.v1.CalendarDateService service.
 type CalendarDateServiceClient interface {
+	// 運行日情報（GTFS の calendar_dates）の一覧を取得する。
 	ListCalendarDates(context.Context, *connect.Request[v1.ListCalendarDatesRequest]) (*connect.Response[v1.ListCalendarDatesResponse], error)
+	// 運行日情報（GTFS の calendar_dates）を取得する。
 	GetCalendarDate(context.Context, *connect.Request[v1.GetCalendarDateRequest]) (*connect.Response[v1.GetCalendarDateResponse], error)
+	// 運行日情報（GTFS の calendar_dates）を作成する。
 	CreateCalendarDate(context.Context, *connect.Request[v1.CreateCalendarDateRequest]) (*connect.Response[v1.CreateCalendarDateResponse], error)
+	// 運行日情報（GTFS の calendar_dates）を更新する。
 	UpdateCalendarDate(context.Context, *connect.Request[v1.UpdateCalendarDateRequest]) (*connect.Response[v1.UpdateCalendarDateResponse], error)
+	// 運行日情報（GTFS の calendar_dates）を削除する。
 	DeleteCalendarDate(context.Context, *connect.Request[v1.DeleteCalendarDateRequest]) (*connect.Response[v1.DeleteCalendarDateResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *calendarDateServiceClient) DeleteCalendarDate(ctx context.Context, req 
 
 // CalendarDateServiceHandler is an implementation of the admin.v1.CalendarDateService service.
 type CalendarDateServiceHandler interface {
+	// 運行日情報（GTFS の calendar_dates）の一覧を取得する。
 	ListCalendarDates(context.Context, *connect.Request[v1.ListCalendarDatesRequest]) (*connect.Response[v1.ListCalendarDatesResponse], error)
+	// 運行日情報（GTFS の calendar_dates）を取得する。
 	GetCalendarDate(context.Context, *connect.Request[v1.GetCalendarDateRequest]) (*connect.Response[v1.GetCalendarDateResponse], error)
+	// 運行日情報（GTFS の calendar_dates）を作成する。
 	CreateCalendarDate(context.Context, *connect.Request[v1.CreateCalendarDateRequest]) (*connect.Response[v1.CreateCalendarDateResponse], error)
+	// 運行日情報（GTFS の calendar_dates）を更新する。
 	UpdateCalendarDate(context.Context, *connect.Request[v1.UpdateCalendarDateRequest]) (*connect.Response[v1.UpdateCalendarDateResponse], error)
+	// 運行日情報（GTFS の calendar_dates）を削除する。
 	DeleteCalendarDate(context.Context, *connect.Request[v1.DeleteCalendarDateRequest]) (*connect.Response[v1.DeleteCalendarDateResponse], error)
 }
 

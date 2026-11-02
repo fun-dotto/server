@@ -21,19 +21,30 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 学年。
 type Grade int32
 
 const (
+	// 未指定。
 	Grade_GRADE_UNSPECIFIED Grade = 0
-	Grade_GRADE_B1          Grade = 1
-	Grade_GRADE_B2          Grade = 2
-	Grade_GRADE_B3          Grade = 3
-	Grade_GRADE_B4          Grade = 4
-	Grade_GRADE_M1          Grade = 5
-	Grade_GRADE_M2          Grade = 6
-	Grade_GRADE_D1          Grade = 7
-	Grade_GRADE_D2          Grade = 8
-	Grade_GRADE_D3          Grade = 9
+	// 学部 1 年。
+	Grade_GRADE_B1 Grade = 1
+	// 学部 2 年。
+	Grade_GRADE_B2 Grade = 2
+	// 学部 3 年。
+	Grade_GRADE_B3 Grade = 3
+	// 学部 4 年。
+	Grade_GRADE_B4 Grade = 4
+	// 修士 1 年。
+	Grade_GRADE_M1 Grade = 5
+	// 修士 2 年。
+	Grade_GRADE_M2 Grade = 6
+	// 博士 1 年。
+	Grade_GRADE_D1 Grade = 7
+	// 博士 2 年。
+	Grade_GRADE_D2 Grade = 8
+	// 博士 3 年。
+	Grade_GRADE_D3 Grade = 9
 )
 
 // Enum value maps for Grade.
@@ -91,14 +102,21 @@ func (Grade) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_common_proto_rawDescGZIP(), []int{0}
 }
 
+// コース。
 type Course int32
 
 const (
-	Course_COURSE_UNSPECIFIED        Course = 0
+	// 未指定。
+	Course_COURSE_UNSPECIFIED Course = 0
+	// 情報システムコース。
 	Course_COURSE_INFORMATION_SYSTEM Course = 1
+	// 情報デザインコース。
 	Course_COURSE_INFORMATION_DESIGN Course = 2
-	Course_COURSE_ADVANCED_ICT       Course = 3
-	Course_COURSE_COMPLEX_SYSTEM     Course = 4
+	// 高度ICTコース。
+	Course_COURSE_ADVANCED_ICT Course = 3
+	// 複雑系コース。
+	Course_COURSE_COMPLEX_SYSTEM Course = 4
+	// 知能システムコース。
 	Course_COURSE_INTELLIGENT_SYSTEM Course = 5
 )
 
@@ -149,22 +167,36 @@ func (Course) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_common_proto_rawDescGZIP(), []int{1}
 }
 
+// クラス。
 type Class int32
 
 const (
+	// 未指定。
 	Class_CLASS_UNSPECIFIED Class = 0
-	Class_CLASS_A           Class = 1
-	Class_CLASS_B           Class = 2
-	Class_CLASS_C           Class = 3
-	Class_CLASS_D           Class = 4
-	Class_CLASS_E           Class = 5
-	Class_CLASS_F           Class = 6
-	Class_CLASS_G           Class = 7
-	Class_CLASS_H           Class = 8
-	Class_CLASS_I           Class = 9
-	Class_CLASS_J           Class = 10
-	Class_CLASS_K           Class = 11
-	Class_CLASS_L           Class = 12
+	// A クラス。
+	Class_CLASS_A Class = 1
+	// B クラス。
+	Class_CLASS_B Class = 2
+	// C クラス。
+	Class_CLASS_C Class = 3
+	// D クラス。
+	Class_CLASS_D Class = 4
+	// E クラス。
+	Class_CLASS_E Class = 5
+	// F クラス。
+	Class_CLASS_F Class = 6
+	// G クラス。
+	Class_CLASS_G Class = 7
+	// H クラス。
+	Class_CLASS_H Class = 8
+	// I クラス。
+	Class_CLASS_I Class = 9
+	// J クラス。
+	Class_CLASS_J Class = 10
+	// K クラス。
+	Class_CLASS_K Class = 11
+	// L クラス。
+	Class_CLASS_L Class = 12
 )
 
 // Enum value maps for Class.
@@ -228,16 +260,24 @@ func (Class) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_common_proto_rawDescGZIP(), []int{2}
 }
 
+// 時限。
 type Period int32
 
 const (
+	// 未指定。
 	Period_PERIOD_UNSPECIFIED Period = 0
-	Period_PERIOD_1           Period = 1
-	Period_PERIOD_2           Period = 2
-	Period_PERIOD_3           Period = 3
-	Period_PERIOD_4           Period = 4
-	Period_PERIOD_5           Period = 5
-	Period_PERIOD_6           Period = 6
+	// 1限。
+	Period_PERIOD_1 Period = 1
+	// 2限。
+	Period_PERIOD_2 Period = 2
+	// 3限。
+	Period_PERIOD_3 Period = 3
+	// 4限。
+	Period_PERIOD_4 Period = 4
+	// 5限。
+	Period_PERIOD_5 Period = 5
+	// 6限。
+	Period_PERIOD_6 Period = 6
 )
 
 // Enum value maps for Period.

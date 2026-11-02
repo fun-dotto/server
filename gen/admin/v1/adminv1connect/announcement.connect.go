@@ -52,10 +52,15 @@ const (
 
 // AnnouncementServiceClient is a client for the admin.v1.AnnouncementService service.
 type AnnouncementServiceClient interface {
+	// おしらせの一覧を取得する。
 	ListAnnouncements(context.Context, *connect.Request[v1.ListAnnouncementsRequest]) (*connect.Response[v1.ListAnnouncementsResponse], error)
+	// おしらせを取得する。
 	GetAnnouncement(context.Context, *connect.Request[v1.GetAnnouncementRequest]) (*connect.Response[v1.GetAnnouncementResponse], error)
+	// おしらせを作成する。
 	CreateAnnouncement(context.Context, *connect.Request[v1.CreateAnnouncementRequest]) (*connect.Response[v1.CreateAnnouncementResponse], error)
+	// おしらせを更新する。
 	UpdateAnnouncement(context.Context, *connect.Request[v1.UpdateAnnouncementRequest]) (*connect.Response[v1.UpdateAnnouncementResponse], error)
+	// おしらせを削除する。
 	DeleteAnnouncement(context.Context, *connect.Request[v1.DeleteAnnouncementRequest]) (*connect.Response[v1.DeleteAnnouncementResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *announcementServiceClient) DeleteAnnouncement(ctx context.Context, req 
 
 // AnnouncementServiceHandler is an implementation of the admin.v1.AnnouncementService service.
 type AnnouncementServiceHandler interface {
+	// おしらせの一覧を取得する。
 	ListAnnouncements(context.Context, *connect.Request[v1.ListAnnouncementsRequest]) (*connect.Response[v1.ListAnnouncementsResponse], error)
+	// おしらせを取得する。
 	GetAnnouncement(context.Context, *connect.Request[v1.GetAnnouncementRequest]) (*connect.Response[v1.GetAnnouncementResponse], error)
+	// おしらせを作成する。
 	CreateAnnouncement(context.Context, *connect.Request[v1.CreateAnnouncementRequest]) (*connect.Response[v1.CreateAnnouncementResponse], error)
+	// おしらせを更新する。
 	UpdateAnnouncement(context.Context, *connect.Request[v1.UpdateAnnouncementRequest]) (*connect.Response[v1.UpdateAnnouncementResponse], error)
+	// おしらせを削除する。
 	DeleteAnnouncement(context.Context, *connect.Request[v1.DeleteAnnouncementRequest]) (*connect.Response[v1.DeleteAnnouncementResponse], error)
 }
 

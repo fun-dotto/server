@@ -22,10 +22,10 @@ func NewTripHandler(db *gorm.DB) *TripHandler {
 	}}
 }
 
-// tripDirectionEnum は GTFS の direction_id（0 / 1）との対応。
+// tripDirectionEnum は GTFS-JP の direction_id（0: 復路 / 1: 往路）との対応。
 var tripDirectionEnum = map[adminv1.TripDirection]int{
-	adminv1.TripDirection_TRIP_DIRECTION_OUTBOUND: 0,
-	adminv1.TripDirection_TRIP_DIRECTION_INBOUND:  1,
+	adminv1.TripDirection_TRIP_DIRECTION_OUTBOUND: 1,
+	adminv1.TripDirection_TRIP_DIRECTION_INBOUND:  0,
 }
 
 var tripColumns = map[string][]string{

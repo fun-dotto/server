@@ -54,10 +54,15 @@ const (
 // NotificationTargetUserServiceClient is a client for the admin.v1.NotificationTargetUserService
 // service.
 type NotificationTargetUserServiceClient interface {
+	// 通知の対象ユーザーの一覧を取得する。
 	ListNotificationTargetUsers(context.Context, *connect.Request[v1.ListNotificationTargetUsersRequest]) (*connect.Response[v1.ListNotificationTargetUsersResponse], error)
+	// 通知の対象ユーザーを取得する。
 	GetNotificationTargetUser(context.Context, *connect.Request[v1.GetNotificationTargetUserRequest]) (*connect.Response[v1.GetNotificationTargetUserResponse], error)
+	// 通知の対象ユーザーを作成する。
 	CreateNotificationTargetUser(context.Context, *connect.Request[v1.CreateNotificationTargetUserRequest]) (*connect.Response[v1.CreateNotificationTargetUserResponse], error)
+	// 通知の対象ユーザーを更新する。
 	UpdateNotificationTargetUser(context.Context, *connect.Request[v1.UpdateNotificationTargetUserRequest]) (*connect.Response[v1.UpdateNotificationTargetUserResponse], error)
+	// 通知の対象ユーザーを削除する。
 	DeleteNotificationTargetUser(context.Context, *connect.Request[v1.DeleteNotificationTargetUserRequest]) (*connect.Response[v1.DeleteNotificationTargetUserResponse], error)
 }
 
@@ -146,10 +151,15 @@ func (c *notificationTargetUserServiceClient) DeleteNotificationTargetUser(ctx c
 // NotificationTargetUserServiceHandler is an implementation of the
 // admin.v1.NotificationTargetUserService service.
 type NotificationTargetUserServiceHandler interface {
+	// 通知の対象ユーザーの一覧を取得する。
 	ListNotificationTargetUsers(context.Context, *connect.Request[v1.ListNotificationTargetUsersRequest]) (*connect.Response[v1.ListNotificationTargetUsersResponse], error)
+	// 通知の対象ユーザーを取得する。
 	GetNotificationTargetUser(context.Context, *connect.Request[v1.GetNotificationTargetUserRequest]) (*connect.Response[v1.GetNotificationTargetUserResponse], error)
+	// 通知の対象ユーザーを作成する。
 	CreateNotificationTargetUser(context.Context, *connect.Request[v1.CreateNotificationTargetUserRequest]) (*connect.Response[v1.CreateNotificationTargetUserResponse], error)
+	// 通知の対象ユーザーを更新する。
 	UpdateNotificationTargetUser(context.Context, *connect.Request[v1.UpdateNotificationTargetUserRequest]) (*connect.Response[v1.UpdateNotificationTargetUserResponse], error)
+	// 通知の対象ユーザーを削除する。
 	DeleteNotificationTargetUser(context.Context, *connect.Request[v1.DeleteNotificationTargetUserRequest]) (*connect.Response[v1.DeleteNotificationTargetUserResponse], error)
 }
 

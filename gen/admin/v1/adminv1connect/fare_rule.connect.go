@@ -52,10 +52,15 @@ const (
 
 // FareRuleServiceClient is a client for the admin.v1.FareRuleService service.
 type FareRuleServiceClient interface {
+	// 運賃定義情報（GTFS の fare_rules）の一覧を取得する。
 	ListFareRules(context.Context, *connect.Request[v1.ListFareRulesRequest]) (*connect.Response[v1.ListFareRulesResponse], error)
+	// 運賃定義情報（GTFS の fare_rules）を取得する。
 	GetFareRule(context.Context, *connect.Request[v1.GetFareRuleRequest]) (*connect.Response[v1.GetFareRuleResponse], error)
+	// 運賃定義情報（GTFS の fare_rules）を作成する。
 	CreateFareRule(context.Context, *connect.Request[v1.CreateFareRuleRequest]) (*connect.Response[v1.CreateFareRuleResponse], error)
+	// 運賃定義情報（GTFS の fare_rules）を更新する。
 	UpdateFareRule(context.Context, *connect.Request[v1.UpdateFareRuleRequest]) (*connect.Response[v1.UpdateFareRuleResponse], error)
+	// 運賃定義情報（GTFS の fare_rules）を削除する。
 	DeleteFareRule(context.Context, *connect.Request[v1.DeleteFareRuleRequest]) (*connect.Response[v1.DeleteFareRuleResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *fareRuleServiceClient) DeleteFareRule(ctx context.Context, req *connect
 
 // FareRuleServiceHandler is an implementation of the admin.v1.FareRuleService service.
 type FareRuleServiceHandler interface {
+	// 運賃定義情報（GTFS の fare_rules）の一覧を取得する。
 	ListFareRules(context.Context, *connect.Request[v1.ListFareRulesRequest]) (*connect.Response[v1.ListFareRulesResponse], error)
+	// 運賃定義情報（GTFS の fare_rules）を取得する。
 	GetFareRule(context.Context, *connect.Request[v1.GetFareRuleRequest]) (*connect.Response[v1.GetFareRuleResponse], error)
+	// 運賃定義情報（GTFS の fare_rules）を作成する。
 	CreateFareRule(context.Context, *connect.Request[v1.CreateFareRuleRequest]) (*connect.Response[v1.CreateFareRuleResponse], error)
+	// 運賃定義情報（GTFS の fare_rules）を更新する。
 	UpdateFareRule(context.Context, *connect.Request[v1.UpdateFareRuleRequest]) (*connect.Response[v1.UpdateFareRuleResponse], error)
+	// 運賃定義情報（GTFS の fare_rules）を削除する。
 	DeleteFareRule(context.Context, *connect.Request[v1.DeleteFareRuleRequest]) (*connect.Response[v1.DeleteFareRuleResponse], error)
 }
 

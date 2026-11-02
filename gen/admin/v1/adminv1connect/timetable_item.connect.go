@@ -52,10 +52,15 @@ const (
 
 // TimetableItemServiceClient is a client for the admin.v1.TimetableItemService service.
 type TimetableItemServiceClient interface {
+	// 時間割の一覧を取得する。
 	ListTimetableItems(context.Context, *connect.Request[v1.ListTimetableItemsRequest]) (*connect.Response[v1.ListTimetableItemsResponse], error)
+	// 時間割を取得する。
 	GetTimetableItem(context.Context, *connect.Request[v1.GetTimetableItemRequest]) (*connect.Response[v1.GetTimetableItemResponse], error)
+	// 時間割を作成する。
 	CreateTimetableItem(context.Context, *connect.Request[v1.CreateTimetableItemRequest]) (*connect.Response[v1.CreateTimetableItemResponse], error)
+	// 時間割を更新する。
 	UpdateTimetableItem(context.Context, *connect.Request[v1.UpdateTimetableItemRequest]) (*connect.Response[v1.UpdateTimetableItemResponse], error)
+	// 時間割を削除する。
 	DeleteTimetableItem(context.Context, *connect.Request[v1.DeleteTimetableItemRequest]) (*connect.Response[v1.DeleteTimetableItemResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *timetableItemServiceClient) DeleteTimetableItem(ctx context.Context, re
 
 // TimetableItemServiceHandler is an implementation of the admin.v1.TimetableItemService service.
 type TimetableItemServiceHandler interface {
+	// 時間割の一覧を取得する。
 	ListTimetableItems(context.Context, *connect.Request[v1.ListTimetableItemsRequest]) (*connect.Response[v1.ListTimetableItemsResponse], error)
+	// 時間割を取得する。
 	GetTimetableItem(context.Context, *connect.Request[v1.GetTimetableItemRequest]) (*connect.Response[v1.GetTimetableItemResponse], error)
+	// 時間割を作成する。
 	CreateTimetableItem(context.Context, *connect.Request[v1.CreateTimetableItemRequest]) (*connect.Response[v1.CreateTimetableItemResponse], error)
+	// 時間割を更新する。
 	UpdateTimetableItem(context.Context, *connect.Request[v1.UpdateTimetableItemRequest]) (*connect.Response[v1.UpdateTimetableItemResponse], error)
+	// 時間割を削除する。
 	DeleteTimetableItem(context.Context, *connect.Request[v1.DeleteTimetableItemRequest]) (*connect.Response[v1.DeleteTimetableItemResponse], error)
 }
 

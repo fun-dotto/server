@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -23,12 +24,18 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 教員。
 type Faculty struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 名前。
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// メールアドレス。
+	Email string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -99,10 +106,13 @@ func (x *Faculty) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListFaculties の Request。
 type ListFacultiesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -151,10 +161,13 @@ func (x *ListFacultiesRequest) GetPageToken() string {
 	return ""
 }
 
+// ListFaculties の Response。
 type ListFacultiesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Faculties     []*Faculty             `protobuf:"bytes,1,rep,name=faculties,proto3" json:"faculties,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 教員の一覧。
+	Faculties []*Faculty `protobuf:"bytes,1,rep,name=faculties,proto3" json:"faculties,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -203,9 +216,11 @@ func (x *ListFacultiesResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetFaculty の Request。
 type GetFacultyRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得する教員ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -247,9 +262,11 @@ func (x *GetFacultyRequest) GetId() string {
 	return ""
 }
 
+// GetFaculty の Response。
 type GetFacultyResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Faculty       *Faculty               `protobuf:"bytes,1,opt,name=faculty,proto3" json:"faculty,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した教員。
+	Faculty       *Faculty `protobuf:"bytes,1,opt,name=faculty,proto3" json:"faculty,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -291,10 +308,13 @@ func (x *GetFacultyResponse) GetFaculty() *Faculty {
 	return nil
 }
 
+// CreateFaculty の Request。
 type CreateFacultyRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 名前。
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// メールアドレス。
+	Email         string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -343,9 +363,11 @@ func (x *CreateFacultyRequest) GetEmail() string {
 	return ""
 }
 
+// CreateFaculty の Response。
 type CreateFacultyResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Faculty       *Faculty               `protobuf:"bytes,1,opt,name=faculty,proto3" json:"faculty,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した教員。
+	Faculty       *Faculty `protobuf:"bytes,1,opt,name=faculty,proto3" json:"faculty,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -387,11 +409,16 @@ func (x *CreateFacultyResponse) GetFaculty() *Faculty {
 	return nil
 }
 
+// UpdateFaculty の Request。
 type UpdateFacultyRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新する教員ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 名前。
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// メールアドレス。
+	Email string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -455,9 +482,11 @@ func (x *UpdateFacultyRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateFaculty の Response。
 type UpdateFacultyResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Faculty       *Faculty               `protobuf:"bytes,1,opt,name=faculty,proto3" json:"faculty,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した教員。
+	Faculty       *Faculty `protobuf:"bytes,1,opt,name=faculty,proto3" json:"faculty,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -499,9 +528,11 @@ func (x *UpdateFacultyResponse) GetFaculty() *Faculty {
 	return nil
 }
 
+// DeleteFaculty の Request。
 type DeleteFacultyRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 削除する教員ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -543,6 +574,7 @@ func (x *DeleteFacultyRequest) GetId() string {
 	return ""
 }
 
+// DeleteFaculty の Response。
 type DeleteFacultyResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -583,41 +615,41 @@ var File_admin_v1_faculty_proto protoreflect.FileDescriptor
 
 const file_admin_v1_faculty_proto_rawDesc = "" +
 	"\n" +
-	"\x16admin/v1/faculty.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb9\x01\n" +
-	"\aFaculty\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\x129\n" +
+	"\x16admin/v1/faculty.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd2\x01\n" +
+	"\aFaculty\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x02R\x04name\x12\x19\n" +
+	"\x05email\x18\x03 \x01(\tB\x03\xe0A\x02R\x05email\x12>\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"R\n" +
-	"\x14ListFacultiesRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\"\\\n" +
+	"\x14ListFacultiesRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"p\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"p\n" +
 	"\x15ListFacultiesResponse\x12/\n" +
 	"\tfaculties\x18\x01 \x03(\v2\x11.admin.v1.FacultyR\tfaculties\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"#\n" +
-	"\x11GetFacultyRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"A\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"(\n" +
+	"\x11GetFacultyRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"A\n" +
 	"\x12GetFacultyResponse\x12+\n" +
-	"\afaculty\x18\x01 \x01(\v2\x11.admin.v1.FacultyR\afaculty\"@\n" +
-	"\x14CreateFacultyRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\"D\n" +
+	"\afaculty\x18\x01 \x01(\v2\x11.admin.v1.FacultyR\afaculty\"J\n" +
+	"\x14CreateFacultyRequest\x12\x17\n" +
+	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x02R\x04name\x12\x19\n" +
+	"\x05email\x18\x02 \x01(\tB\x03\xe0A\x02R\x05email\"D\n" +
 	"\x15CreateFacultyResponse\x12+\n" +
-	"\afaculty\x18\x01 \x01(\v2\x11.admin.v1.FacultyR\afaculty\"\x8d\x01\n" +
-	"\x14UpdateFacultyRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"\afaculty\x18\x01 \x01(\v2\x11.admin.v1.FacultyR\afaculty\"\xa1\x01\n" +
+	"\x14UpdateFacultyRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x01R\x04name\x12\x19\n" +
+	"\x05email\x18\x03 \x01(\tB\x03\xe0A\x01R\x05email\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"D\n" +
 	"\x15UpdateFacultyResponse\x12+\n" +
-	"\afaculty\x18\x01 \x01(\v2\x11.admin.v1.FacultyR\afaculty\"&\n" +
-	"\x14DeleteFacultyRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x17\n" +
+	"\afaculty\x18\x01 \x01(\v2\x11.admin.v1.FacultyR\afaculty\"+\n" +
+	"\x14DeleteFacultyRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x17\n" +
 	"\x15DeleteFacultyResponse2\xa1\x03\n" +
 	"\x0eFacultyService\x12P\n" +
 	"\rListFaculties\x12\x1e.admin.v1.ListFacultiesRequest\x1a\x1f.admin.v1.ListFacultiesResponse\x12G\n" +

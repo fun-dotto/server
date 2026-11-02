@@ -2,66 +2,105 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
+// 通知の対象ユーザーを管理する。
+service NotificationTargetUserService {
+  // 通知の対象ユーザーの一覧を取得する。
+  rpc ListNotificationTargetUsers(ListNotificationTargetUsersRequest) returns (ListNotificationTargetUsersResponse);
+  // 通知の対象ユーザーを取得する。
+  rpc GetNotificationTargetUser(GetNotificationTargetUserRequest) returns (GetNotificationTargetUserResponse);
+  // 通知の対象ユーザーを作成する。
+  rpc CreateNotificationTargetUser(CreateNotificationTargetUserRequest) returns (CreateNotificationTargetUserResponse);
+  // 通知の対象ユーザーを更新する。
+  rpc UpdateNotificationTargetUser(UpdateNotificationTargetUserRequest) returns (UpdateNotificationTargetUserResponse);
+  // 通知の対象ユーザーを削除する。
+  rpc DeleteNotificationTargetUser(DeleteNotificationTargetUserRequest) returns (DeleteNotificationTargetUserResponse);
+}
+
+// 通知の対象ユーザー。
 message NotificationTargetUser {
-  string notification_id = 1;
-  string user_id = 2;
-  optional google.protobuf.Timestamp notified_at = 3;
+  // 通知ID。
+  string notification_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // ユーザーID。
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 通知送信日時。送信前は未設定。
+  optional google.protobuf.Timestamp notified_at = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListNotificationTargetUsers の Request。
 message ListNotificationTargetUsersRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListNotificationTargetUsers の Response。
 message ListNotificationTargetUsersResponse {
+  // 通知の対象ユーザーの一覧。
   repeated NotificationTargetUser notification_target_users = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetNotificationTargetUser の Request。
 message GetNotificationTargetUserRequest {
-  string notification_id = 1;
-  string user_id = 2;
+  // 通知ID。
+  string notification_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // ユーザーID。
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetNotificationTargetUser の Response。
 message GetNotificationTargetUserResponse {
+  // 取得した通知の対象ユーザー。
   NotificationTargetUser notification_target_user = 1;
 }
 
+// CreateNotificationTargetUser の Request。
 message CreateNotificationTargetUserRequest {
-  string notification_id = 1;
-  string user_id = 2;
-  optional google.protobuf.Timestamp notified_at = 3;
+  // 通知ID。
+  string notification_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // ユーザーID。
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 通知送信日時。送信前は未設定。
+  optional google.protobuf.Timestamp notified_at = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// CreateNotificationTargetUser の Response。
 message CreateNotificationTargetUserResponse {
+  // 作成した通知の対象ユーザー。
   NotificationTargetUser notification_target_user = 1;
 }
 
+// UpdateNotificationTargetUser の Request。
 message UpdateNotificationTargetUserRequest {
-  string notification_id = 1;
-  string user_id = 2;
-  optional google.protobuf.Timestamp notified_at = 3;
-  google.protobuf.FieldMask update_mask = 99;
+  // 通知ID。
+  string notification_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // ユーザーID。
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 通知送信日時。送信前は未設定。
+  optional google.protobuf.Timestamp notified_at = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateNotificationTargetUser の Response。
 message UpdateNotificationTargetUserResponse {
+  // 更新した通知の対象ユーザー。
   NotificationTargetUser notification_target_user = 1;
 }
 
+// DeleteNotificationTargetUser の Request。
 message DeleteNotificationTargetUserRequest {
-  string notification_id = 1;
-  string user_id = 2;
+  // 通知ID。
+  string notification_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // ユーザーID。
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteNotificationTargetUser の Response。
 message DeleteNotificationTargetUserResponse {}
-
-service NotificationTargetUserService {
-  rpc ListNotificationTargetUsers(ListNotificationTargetUsersRequest) returns (ListNotificationTargetUsersResponse);
-  rpc GetNotificationTargetUser(GetNotificationTargetUserRequest) returns (GetNotificationTargetUserResponse);
-  rpc CreateNotificationTargetUser(CreateNotificationTargetUserRequest) returns (CreateNotificationTargetUserResponse);
-  rpc UpdateNotificationTargetUser(UpdateNotificationTargetUserRequest) returns (UpdateNotificationTargetUserResponse);
-  rpc DeleteNotificationTargetUser(DeleteNotificationTargetUserRequest) returns (DeleteNotificationTargetUserResponse);
-}

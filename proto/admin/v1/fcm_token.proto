@@ -2,63 +2,99 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
+// FCMトークンを管理する。
+service FcmTokenService {
+  // FCMトークンの一覧を取得する。
+  rpc ListFcmTokens(ListFcmTokensRequest) returns (ListFcmTokensResponse);
+  // FCMトークンを取得する。
+  rpc GetFcmToken(GetFcmTokenRequest) returns (GetFcmTokenResponse);
+  // FCMトークンを作成する。
+  rpc CreateFcmToken(CreateFcmTokenRequest) returns (CreateFcmTokenResponse);
+  // FCMトークンを更新する。
+  rpc UpdateFcmToken(UpdateFcmTokenRequest) returns (UpdateFcmTokenResponse);
+  // FCMトークンを削除する。
+  rpc DeleteFcmToken(DeleteFcmTokenRequest) returns (DeleteFcmTokenResponse);
+}
+
+// FCMトークン。
 message FcmToken {
-  string token = 1;
-  string user_id = 2;
-  google.protobuf.Timestamp created_at = 3;
-  google.protobuf.Timestamp updated_at = 4;
+  // FCMトークン。
+  string token = 1 [(google.api.field_behavior) = REQUIRED];
+  // ユーザーID。
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 作成日時。
+  google.protobuf.Timestamp created_at = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 更新日時。
+  google.protobuf.Timestamp updated_at = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ListFcmTokens の Request。
 message ListFcmTokensRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListFcmTokens の Response。
 message ListFcmTokensResponse {
+  // FCMトークンの一覧。
   repeated FcmToken fcm_tokens = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetFcmToken の Request。
 message GetFcmTokenRequest {
-  string token = 1;
+  // FCMトークン。
+  string token = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetFcmToken の Response。
 message GetFcmTokenResponse {
+  // 取得したFCMトークン。
   FcmToken fcm_token = 1;
 }
 
+// CreateFcmToken の Request。
 message CreateFcmTokenRequest {
-  string token = 1;
-  string user_id = 2;
+  // FCMトークン。
+  string token = 1 [(google.api.field_behavior) = REQUIRED];
+  // ユーザーID。
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// CreateFcmToken の Response。
 message CreateFcmTokenResponse {
+  // 作成したFCMトークン。
   FcmToken fcm_token = 1;
 }
 
+// UpdateFcmToken の Request。
 message UpdateFcmTokenRequest {
-  string token = 1;
-  string user_id = 2;
-  google.protobuf.FieldMask update_mask = 99;
+  // FCMトークン。
+  string token = 1 [(google.api.field_behavior) = REQUIRED];
+  // ユーザーID。
+  string user_id = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateFcmToken の Response。
 message UpdateFcmTokenResponse {
+  // 更新したFCMトークン。
   FcmToken fcm_token = 1;
 }
 
+// DeleteFcmToken の Request。
 message DeleteFcmTokenRequest {
-  string token = 1;
+  // FCMトークン。
+  string token = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteFcmToken の Response。
 message DeleteFcmTokenResponse {}
-
-service FcmTokenService {
-  rpc ListFcmTokens(ListFcmTokensRequest) returns (ListFcmTokensResponse);
-  rpc GetFcmToken(GetFcmTokenRequest) returns (GetFcmTokenResponse);
-  rpc CreateFcmToken(CreateFcmTokenRequest) returns (CreateFcmTokenResponse);
-  rpc UpdateFcmToken(UpdateFcmTokenRequest) returns (UpdateFcmTokenResponse);
-  rpc DeleteFcmToken(DeleteFcmTokenRequest) returns (DeleteFcmTokenResponse);
-}

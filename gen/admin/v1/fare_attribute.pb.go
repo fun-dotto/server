@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	money "google.golang.org/genproto/googleapis/type/money"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -23,11 +24,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 乗客の区分。
 type FareAttributeRiderCategory int32
 
 const (
+	// 未指定。
 	FareAttributeRiderCategory_FARE_ATTRIBUTE_RIDER_CATEGORY_UNSPECIFIED FareAttributeRiderCategory = 0
-	FareAttributeRiderCategory_FARE_ATTRIBUTE_RIDER_CATEGORY_ADULT       FareAttributeRiderCategory = 1
+	// 大人。
+	FareAttributeRiderCategory_FARE_ATTRIBUTE_RIDER_CATEGORY_ADULT FareAttributeRiderCategory = 1
 )
 
 // Enum value maps for FareAttributeRiderCategory.
@@ -69,11 +73,15 @@ func (FareAttributeRiderCategory) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_fare_attribute_proto_rawDescGZIP(), []int{0}
 }
 
+// 運賃属性情報（GTFS の fare_attributes）。
 type FareAttribute struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	FareId        string                     `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃ID（GTFS の fare_id）。
+	FareId string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
+	// 乗客の区分。
 	RiderCategory FareAttributeRiderCategory `protobuf:"varint,2,opt,name=rider_category,json=riderCategory,proto3,enum=admin.v1.FareAttributeRiderCategory" json:"rider_category,omitempty"`
-	Price         *money.Money               `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
+	// 運賃（GTFS の price）。通貨は日本円（JPY）。
+	Price         *money.Money `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -129,10 +137,13 @@ func (x *FareAttribute) GetPrice() *money.Money {
 	return nil
 }
 
+// ListFareAttributes の Request。
 type ListFareAttributesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -181,12 +192,15 @@ func (x *ListFareAttributesRequest) GetPageToken() string {
 	return ""
 }
 
+// ListFareAttributes の Response。
 type ListFareAttributesResponse struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	FareAttributes []*FareAttribute       `protobuf:"bytes,1,rep,name=fare_attributes,json=fareAttributes,proto3" json:"fare_attributes,omitempty"`
-	NextPageToken  string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃属性情報（GTFS の fare_attributes）の一覧。
+	FareAttributes []*FareAttribute `protobuf:"bytes,1,rep,name=fare_attributes,json=fareAttributes,proto3" json:"fare_attributes,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListFareAttributesResponse) Reset() {
@@ -233,9 +247,11 @@ func (x *ListFareAttributesResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetFareAttribute の Request。
 type GetFareAttributeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FareId        string                 `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃ID（GTFS の fare_id）。
+	FareId        string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -277,9 +293,11 @@ func (x *GetFareAttributeRequest) GetFareId() string {
 	return ""
 }
 
+// GetFareAttribute の Response。
 type GetFareAttributeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FareAttribute *FareAttribute         `protobuf:"bytes,1,opt,name=fare_attribute,json=fareAttribute,proto3" json:"fare_attribute,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した運賃属性情報（GTFS の fare_attributes）。
+	FareAttribute *FareAttribute `protobuf:"bytes,1,opt,name=fare_attribute,json=fareAttribute,proto3" json:"fare_attribute,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -321,11 +339,15 @@ func (x *GetFareAttributeResponse) GetFareAttribute() *FareAttribute {
 	return nil
 }
 
+// CreateFareAttribute の Request。
 type CreateFareAttributeRequest struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	FareId        string                     `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃ID（GTFS の fare_id）。
+	FareId string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
+	// 乗客の区分。
 	RiderCategory FareAttributeRiderCategory `protobuf:"varint,2,opt,name=rider_category,json=riderCategory,proto3,enum=admin.v1.FareAttributeRiderCategory" json:"rider_category,omitempty"`
-	Price         *money.Money               `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
+	// 運賃（GTFS の price）。通貨は日本円（JPY）。
+	Price         *money.Money `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -381,9 +403,11 @@ func (x *CreateFareAttributeRequest) GetPrice() *money.Money {
 	return nil
 }
 
+// CreateFareAttribute の Response。
 type CreateFareAttributeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FareAttribute *FareAttribute         `protobuf:"bytes,1,opt,name=fare_attribute,json=fareAttribute,proto3" json:"fare_attribute,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した運賃属性情報（GTFS の fare_attributes）。
+	FareAttribute *FareAttribute `protobuf:"bytes,1,opt,name=fare_attribute,json=fareAttribute,proto3" json:"fare_attribute,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -425,12 +449,17 @@ func (x *CreateFareAttributeResponse) GetFareAttribute() *FareAttribute {
 	return nil
 }
 
+// UpdateFareAttribute の Request。
 type UpdateFareAttributeRequest struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	FareId        string                     `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃ID（GTFS の fare_id）。
+	FareId string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
+	// 乗客の区分。
 	RiderCategory FareAttributeRiderCategory `protobuf:"varint,2,opt,name=rider_category,json=riderCategory,proto3,enum=admin.v1.FareAttributeRiderCategory" json:"rider_category,omitempty"`
-	Price         *money.Money               `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
-	UpdateMask    *fieldmaskpb.FieldMask     `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	// 運賃（GTFS の price）。通貨は日本円（JPY）。
+	Price *money.Money `protobuf:"bytes,3,opt,name=price,proto3" json:"price,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -493,9 +522,11 @@ func (x *UpdateFareAttributeRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateFareAttribute の Response。
 type UpdateFareAttributeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FareAttribute *FareAttribute         `protobuf:"bytes,1,opt,name=fare_attribute,json=fareAttribute,proto3" json:"fare_attribute,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した運賃属性情報（GTFS の fare_attributes）。
+	FareAttribute *FareAttribute `protobuf:"bytes,1,opt,name=fare_attribute,json=fareAttribute,proto3" json:"fare_attribute,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -537,9 +568,11 @@ func (x *UpdateFareAttributeResponse) GetFareAttribute() *FareAttribute {
 	return nil
 }
 
+// DeleteFareAttribute の Request。
 type DeleteFareAttributeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FareId        string                 `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 運賃ID（GTFS の fare_id）。
+	FareId        string `protobuf:"bytes,1,opt,name=fare_id,json=fareId,proto3" json:"fare_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -581,6 +614,7 @@ func (x *DeleteFareAttributeRequest) GetFareId() string {
 	return ""
 }
 
+// DeleteFareAttribute の Response。
 type DeleteFareAttributeResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -621,38 +655,38 @@ var File_admin_v1_fare_attribute_proto protoreflect.FileDescriptor
 
 const file_admin_v1_fare_attribute_proto_rawDesc = "" +
 	"\n" +
-	"\x1dadmin/v1/fare_attribute.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\x1a\x17google/type/money.proto\"\x9f\x01\n" +
-	"\rFareAttribute\x12\x17\n" +
-	"\afare_id\x18\x01 \x01(\tR\x06fareId\x12K\n" +
-	"\x0erider_category\x18\x02 \x01(\x0e2$.admin.v1.FareAttributeRiderCategoryR\rriderCategory\x12(\n" +
-	"\x05price\x18\x03 \x01(\v2\x12.google.type.MoneyR\x05price\"W\n" +
-	"\x19ListFareAttributesRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\x1dadmin/v1/fare_attribute.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x17google/type/money.proto\"\xae\x01\n" +
+	"\rFareAttribute\x12\x1c\n" +
+	"\afare_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06fareId\x12P\n" +
+	"\x0erider_category\x18\x02 \x01(\x0e2$.admin.v1.FareAttributeRiderCategoryB\x03\xe0A\x02R\rriderCategory\x12-\n" +
+	"\x05price\x18\x03 \x01(\v2\x12.google.type.MoneyB\x03\xe0A\x02R\x05price\"a\n" +
+	"\x19ListFareAttributesRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"\x86\x01\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"\x86\x01\n" +
 	"\x1aListFareAttributesResponse\x12@\n" +
 	"\x0ffare_attributes\x18\x01 \x03(\v2\x17.admin.v1.FareAttributeR\x0efareAttributes\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"2\n" +
-	"\x17GetFareAttributeRequest\x12\x17\n" +
-	"\afare_id\x18\x01 \x01(\tR\x06fareId\"Z\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"7\n" +
+	"\x17GetFareAttributeRequest\x12\x1c\n" +
+	"\afare_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06fareId\"Z\n" +
 	"\x18GetFareAttributeResponse\x12>\n" +
-	"\x0efare_attribute\x18\x01 \x01(\v2\x17.admin.v1.FareAttributeR\rfareAttribute\"\xac\x01\n" +
-	"\x1aCreateFareAttributeRequest\x12\x17\n" +
-	"\afare_id\x18\x01 \x01(\tR\x06fareId\x12K\n" +
-	"\x0erider_category\x18\x02 \x01(\x0e2$.admin.v1.FareAttributeRiderCategoryR\rriderCategory\x12(\n" +
-	"\x05price\x18\x03 \x01(\v2\x12.google.type.MoneyR\x05price\"]\n" +
+	"\x0efare_attribute\x18\x01 \x01(\v2\x17.admin.v1.FareAttributeR\rfareAttribute\"\xbb\x01\n" +
+	"\x1aCreateFareAttributeRequest\x12\x1c\n" +
+	"\afare_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06fareId\x12P\n" +
+	"\x0erider_category\x18\x02 \x01(\x0e2$.admin.v1.FareAttributeRiderCategoryB\x03\xe0A\x02R\rriderCategory\x12-\n" +
+	"\x05price\x18\x03 \x01(\v2\x12.google.type.MoneyB\x03\xe0A\x02R\x05price\"]\n" +
 	"\x1bCreateFareAttributeResponse\x12>\n" +
-	"\x0efare_attribute\x18\x01 \x01(\v2\x17.admin.v1.FareAttributeR\rfareAttribute\"\xe9\x01\n" +
-	"\x1aUpdateFareAttributeRequest\x12\x17\n" +
-	"\afare_id\x18\x01 \x01(\tR\x06fareId\x12K\n" +
-	"\x0erider_category\x18\x02 \x01(\x0e2$.admin.v1.FareAttributeRiderCategoryR\rriderCategory\x12(\n" +
-	"\x05price\x18\x03 \x01(\v2\x12.google.type.MoneyR\x05price\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"\x0efare_attribute\x18\x01 \x01(\v2\x17.admin.v1.FareAttributeR\rfareAttribute\"\xfd\x01\n" +
+	"\x1aUpdateFareAttributeRequest\x12\x1c\n" +
+	"\afare_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06fareId\x12P\n" +
+	"\x0erider_category\x18\x02 \x01(\x0e2$.admin.v1.FareAttributeRiderCategoryB\x03\xe0A\x01R\rriderCategory\x12-\n" +
+	"\x05price\x18\x03 \x01(\v2\x12.google.type.MoneyB\x03\xe0A\x01R\x05price\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"]\n" +
 	"\x1bUpdateFareAttributeResponse\x12>\n" +
-	"\x0efare_attribute\x18\x01 \x01(\v2\x17.admin.v1.FareAttributeR\rfareAttribute\"5\n" +
-	"\x1aDeleteFareAttributeRequest\x12\x17\n" +
-	"\afare_id\x18\x01 \x01(\tR\x06fareId\"\x1d\n" +
+	"\x0efare_attribute\x18\x01 \x01(\v2\x17.admin.v1.FareAttributeR\rfareAttribute\":\n" +
+	"\x1aDeleteFareAttributeRequest\x12\x1c\n" +
+	"\afare_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06fareId\"\x1d\n" +
 	"\x1bDeleteFareAttributeResponse*t\n" +
 	"\x1aFareAttributeRiderCategory\x12-\n" +
 	")FARE_ATTRIBUTE_RIDER_CATEGORY_UNSPECIFIED\x10\x00\x12'\n" +

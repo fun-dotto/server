@@ -2,60 +2,94 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 
+// 経路情報（GTFS の routes）を管理する。
+service RouteService {
+  // 経路情報（GTFS の routes）の一覧を取得する。
+  rpc ListRoutes(ListRoutesRequest) returns (ListRoutesResponse);
+  // 経路情報（GTFS の routes）を取得する。
+  rpc GetRoute(GetRouteRequest) returns (GetRouteResponse);
+  // 経路情報（GTFS の routes）を作成する。
+  rpc CreateRoute(CreateRouteRequest) returns (CreateRouteResponse);
+  // 経路情報（GTFS の routes）を更新する。
+  rpc UpdateRoute(UpdateRouteRequest) returns (UpdateRouteResponse);
+  // 経路情報（GTFS の routes）を削除する。
+  rpc DeleteRoute(DeleteRouteRequest) returns (DeleteRouteResponse);
+}
+
+// 経路情報（GTFS の routes）。
 message Route {
-  string route_id = 1;
-  string route_short_name = 2;
+  // 経路ID（GTFS の route_id）。
+  string route_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 経路略称（GTFS の route_short_name）。
+  string route_short_name = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// ListRoutes の Request。
 message ListRoutesRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListRoutes の Response。
 message ListRoutesResponse {
+  // 経路情報（GTFS の routes）の一覧。
   repeated Route routes = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetRoute の Request。
 message GetRouteRequest {
-  string route_id = 1;
+  // 経路ID（GTFS の route_id）。
+  string route_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetRoute の Response。
 message GetRouteResponse {
+  // 取得した経路情報（GTFS の routes）。
   Route route = 1;
 }
 
+// CreateRoute の Request。
 message CreateRouteRequest {
-  string route_id = 1;
-  string route_short_name = 2;
+  // 経路ID（GTFS の route_id）。
+  string route_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 経路略称（GTFS の route_short_name）。
+  string route_short_name = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// CreateRoute の Response。
 message CreateRouteResponse {
+  // 作成した経路情報（GTFS の routes）。
   Route route = 1;
 }
 
+// UpdateRoute の Request。
 message UpdateRouteRequest {
-  string route_id = 1;
-  string route_short_name = 2;
-  google.protobuf.FieldMask update_mask = 99;
+  // 経路ID（GTFS の route_id）。
+  string route_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 経路略称（GTFS の route_short_name）。
+  string route_short_name = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateRoute の Response。
 message UpdateRouteResponse {
+  // 更新した経路情報（GTFS の routes）。
   Route route = 1;
 }
 
+// DeleteRoute の Request。
 message DeleteRouteRequest {
-  string route_id = 1;
+  // 経路ID（GTFS の route_id）。
+  string route_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteRoute の Response。
 message DeleteRouteResponse {}
-
-service RouteService {
-  rpc ListRoutes(ListRoutesRequest) returns (ListRoutesResponse);
-  rpc GetRoute(GetRouteRequest) returns (GetRouteResponse);
-  rpc CreateRoute(CreateRouteRequest) returns (CreateRouteResponse);
-  rpc UpdateRoute(UpdateRouteRequest) returns (UpdateRouteResponse);
-  rpc DeleteRoute(DeleteRouteRequest) returns (DeleteRouteResponse);
-}

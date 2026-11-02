@@ -52,10 +52,15 @@ const (
 
 // NotificationServiceClient is a client for the admin.v1.NotificationService service.
 type NotificationServiceClient interface {
+	// 通知の一覧を取得する。
 	ListNotifications(context.Context, *connect.Request[v1.ListNotificationsRequest]) (*connect.Response[v1.ListNotificationsResponse], error)
+	// 通知を取得する。
 	GetNotification(context.Context, *connect.Request[v1.GetNotificationRequest]) (*connect.Response[v1.GetNotificationResponse], error)
+	// 通知を作成する。
 	CreateNotification(context.Context, *connect.Request[v1.CreateNotificationRequest]) (*connect.Response[v1.CreateNotificationResponse], error)
+	// 通知を更新する。
 	UpdateNotification(context.Context, *connect.Request[v1.UpdateNotificationRequest]) (*connect.Response[v1.UpdateNotificationResponse], error)
+	// 通知を削除する。
 	DeleteNotification(context.Context, *connect.Request[v1.DeleteNotificationRequest]) (*connect.Response[v1.DeleteNotificationResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *notificationServiceClient) DeleteNotification(ctx context.Context, req 
 
 // NotificationServiceHandler is an implementation of the admin.v1.NotificationService service.
 type NotificationServiceHandler interface {
+	// 通知の一覧を取得する。
 	ListNotifications(context.Context, *connect.Request[v1.ListNotificationsRequest]) (*connect.Response[v1.ListNotificationsResponse], error)
+	// 通知を取得する。
 	GetNotification(context.Context, *connect.Request[v1.GetNotificationRequest]) (*connect.Response[v1.GetNotificationResponse], error)
+	// 通知を作成する。
 	CreateNotification(context.Context, *connect.Request[v1.CreateNotificationRequest]) (*connect.Response[v1.CreateNotificationResponse], error)
+	// 通知を更新する。
 	UpdateNotification(context.Context, *connect.Request[v1.UpdateNotificationRequest]) (*connect.Response[v1.UpdateNotificationResponse], error)
+	// 通知を削除する。
 	DeleteNotification(context.Context, *connect.Request[v1.DeleteNotificationRequest]) (*connect.Response[v1.DeleteNotificationResponse], error)
 }
 

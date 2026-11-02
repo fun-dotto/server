@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -22,10 +23,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 経路情報（GTFS の routes）。
 type Route struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	RouteId        string                 `protobuf:"bytes,1,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
-	RouteShortName string                 `protobuf:"bytes,2,opt,name=route_short_name,json=routeShortName,proto3" json:"route_short_name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 経路ID（GTFS の route_id）。
+	RouteId string `protobuf:"bytes,1,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
+	// 経路略称（GTFS の route_short_name）。
+	RouteShortName string `protobuf:"bytes,2,opt,name=route_short_name,json=routeShortName,proto3" json:"route_short_name,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -74,10 +78,13 @@ func (x *Route) GetRouteShortName() string {
 	return ""
 }
 
+// ListRoutes の Request。
 type ListRoutesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -126,10 +133,13 @@ func (x *ListRoutesRequest) GetPageToken() string {
 	return ""
 }
 
+// ListRoutes の Response。
 type ListRoutesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Routes        []*Route               `protobuf:"bytes,1,rep,name=routes,proto3" json:"routes,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 経路情報（GTFS の routes）の一覧。
+	Routes []*Route `protobuf:"bytes,1,rep,name=routes,proto3" json:"routes,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -178,9 +188,11 @@ func (x *ListRoutesResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetRoute の Request。
 type GetRouteRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RouteId       string                 `protobuf:"bytes,1,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 経路ID（GTFS の route_id）。
+	RouteId       string `protobuf:"bytes,1,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -222,9 +234,11 @@ func (x *GetRouteRequest) GetRouteId() string {
 	return ""
 }
 
+// GetRoute の Response。
 type GetRouteResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Route         *Route                 `protobuf:"bytes,1,opt,name=route,proto3" json:"route,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した経路情報（GTFS の routes）。
+	Route         *Route `protobuf:"bytes,1,opt,name=route,proto3" json:"route,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -266,10 +280,13 @@ func (x *GetRouteResponse) GetRoute() *Route {
 	return nil
 }
 
+// CreateRoute の Request。
 type CreateRouteRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	RouteId        string                 `protobuf:"bytes,1,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
-	RouteShortName string                 `protobuf:"bytes,2,opt,name=route_short_name,json=routeShortName,proto3" json:"route_short_name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 経路ID（GTFS の route_id）。
+	RouteId string `protobuf:"bytes,1,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
+	// 経路略称（GTFS の route_short_name）。
+	RouteShortName string `protobuf:"bytes,2,opt,name=route_short_name,json=routeShortName,proto3" json:"route_short_name,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -318,9 +335,11 @@ func (x *CreateRouteRequest) GetRouteShortName() string {
 	return ""
 }
 
+// CreateRoute の Response。
 type CreateRouteResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Route         *Route                 `protobuf:"bytes,1,opt,name=route,proto3" json:"route,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した経路情報（GTFS の routes）。
+	Route         *Route `protobuf:"bytes,1,opt,name=route,proto3" json:"route,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -362,13 +381,17 @@ func (x *CreateRouteResponse) GetRoute() *Route {
 	return nil
 }
 
+// UpdateRoute の Request。
 type UpdateRouteRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	RouteId        string                 `protobuf:"bytes,1,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
-	RouteShortName string                 `protobuf:"bytes,2,opt,name=route_short_name,json=routeShortName,proto3" json:"route_short_name,omitempty"`
-	UpdateMask     *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 経路ID（GTFS の route_id）。
+	RouteId string `protobuf:"bytes,1,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
+	// 経路略称（GTFS の route_short_name）。
+	RouteShortName string `protobuf:"bytes,2,opt,name=route_short_name,json=routeShortName,proto3" json:"route_short_name,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateRouteRequest) Reset() {
@@ -422,9 +445,11 @@ func (x *UpdateRouteRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateRoute の Response。
 type UpdateRouteResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Route         *Route                 `protobuf:"bytes,1,opt,name=route,proto3" json:"route,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した経路情報（GTFS の routes）。
+	Route         *Route `protobuf:"bytes,1,opt,name=route,proto3" json:"route,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -466,9 +491,11 @@ func (x *UpdateRouteResponse) GetRoute() *Route {
 	return nil
 }
 
+// DeleteRoute の Request。
 type DeleteRouteRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RouteId       string                 `protobuf:"bytes,1,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 経路ID（GTFS の route_id）。
+	RouteId       string `protobuf:"bytes,1,opt,name=route_id,json=routeId,proto3" json:"route_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -510,6 +537,7 @@ func (x *DeleteRouteRequest) GetRouteId() string {
 	return ""
 }
 
+// DeleteRoute の Response。
 type DeleteRouteResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -550,35 +578,35 @@ var File_admin_v1_route_proto protoreflect.FileDescriptor
 
 const file_admin_v1_route_proto_rawDesc = "" +
 	"\n" +
-	"\x14admin/v1/route.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\"L\n" +
-	"\x05Route\x12\x19\n" +
-	"\broute_id\x18\x01 \x01(\tR\arouteId\x12(\n" +
-	"\x10route_short_name\x18\x02 \x01(\tR\x0erouteShortName\"O\n" +
-	"\x11ListRoutesRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\x14admin/v1/route.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\"V\n" +
+	"\x05Route\x12\x1e\n" +
+	"\broute_id\x18\x01 \x01(\tB\x03\xe0A\x02R\arouteId\x12-\n" +
+	"\x10route_short_name\x18\x02 \x01(\tB\x03\xe0A\x02R\x0erouteShortName\"Y\n" +
+	"\x11ListRoutesRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"e\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"e\n" +
 	"\x12ListRoutesResponse\x12'\n" +
 	"\x06routes\x18\x01 \x03(\v2\x0f.admin.v1.RouteR\x06routes\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\",\n" +
-	"\x0fGetRouteRequest\x12\x19\n" +
-	"\broute_id\x18\x01 \x01(\tR\arouteId\"9\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"1\n" +
+	"\x0fGetRouteRequest\x12\x1e\n" +
+	"\broute_id\x18\x01 \x01(\tB\x03\xe0A\x02R\arouteId\"9\n" +
 	"\x10GetRouteResponse\x12%\n" +
-	"\x05route\x18\x01 \x01(\v2\x0f.admin.v1.RouteR\x05route\"Y\n" +
-	"\x12CreateRouteRequest\x12\x19\n" +
-	"\broute_id\x18\x01 \x01(\tR\arouteId\x12(\n" +
-	"\x10route_short_name\x18\x02 \x01(\tR\x0erouteShortName\"<\n" +
+	"\x05route\x18\x01 \x01(\v2\x0f.admin.v1.RouteR\x05route\"c\n" +
+	"\x12CreateRouteRequest\x12\x1e\n" +
+	"\broute_id\x18\x01 \x01(\tB\x03\xe0A\x02R\arouteId\x12-\n" +
+	"\x10route_short_name\x18\x02 \x01(\tB\x03\xe0A\x02R\x0erouteShortName\"<\n" +
 	"\x13CreateRouteResponse\x12%\n" +
-	"\x05route\x18\x01 \x01(\v2\x0f.admin.v1.RouteR\x05route\"\x96\x01\n" +
-	"\x12UpdateRouteRequest\x12\x19\n" +
-	"\broute_id\x18\x01 \x01(\tR\arouteId\x12(\n" +
-	"\x10route_short_name\x18\x02 \x01(\tR\x0erouteShortName\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"\x05route\x18\x01 \x01(\v2\x0f.admin.v1.RouteR\x05route\"\xa5\x01\n" +
+	"\x12UpdateRouteRequest\x12\x1e\n" +
+	"\broute_id\x18\x01 \x01(\tB\x03\xe0A\x02R\arouteId\x12-\n" +
+	"\x10route_short_name\x18\x02 \x01(\tB\x03\xe0A\x01R\x0erouteShortName\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"<\n" +
 	"\x13UpdateRouteResponse\x12%\n" +
-	"\x05route\x18\x01 \x01(\v2\x0f.admin.v1.RouteR\x05route\"/\n" +
-	"\x12DeleteRouteRequest\x12\x19\n" +
-	"\broute_id\x18\x01 \x01(\tR\arouteId\"\x15\n" +
+	"\x05route\x18\x01 \x01(\v2\x0f.admin.v1.RouteR\x05route\"4\n" +
+	"\x12DeleteRouteRequest\x12\x1e\n" +
+	"\broute_id\x18\x01 \x01(\tB\x03\xe0A\x02R\arouteId\"\x15\n" +
 	"\x13DeleteRouteResponse2\xfe\x02\n" +
 	"\fRouteService\x12G\n" +
 	"\n" +
