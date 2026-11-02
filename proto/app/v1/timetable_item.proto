@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "app/v1/common.proto";
+import "app/v1/room.proto";
+import "app/v1/subject.proto";
+import "google/api/field_behavior.proto";
+import "google/type/dayofweek.proto";
+
+// 時間割を提供する。
+service TimetableItemService {
+  // 時間割の一覧を取得する。
+  rpc ListTimetableItems(ListTimetableItemsRequest) returns (ListTimetableItemsResponse);
+}
+
+// 時間割の枠（曜日・時限）。
+message TimetableItemSlot {
+  // 曜日。
+  google.type.DayOfWeek day_of_week = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 時限。
+  Period period = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// 時間割。
+message TimetableItem {
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 科目。
+  Subject subject = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 時間割の枠。集中講義など、時間割に含まれていない場合は未設定。
+  optional TimetableItemSlot slot = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 教室。
+  repeated Room rooms = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListTimetableItems の Request。
+message ListTimetableItemsRequest {
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 開講年度。未設定の場合は今年度。
+  optional int32 year = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 開講時期。
+  repeated SubjectSemester semesters = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListTimetableItems の Response。
+message ListTimetableItemsResponse {
+  // 時間割の一覧。
+  repeated TimetableItem timetable_items = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
+  string next_page_token = 2;
+}

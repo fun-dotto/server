@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "app/v1/common.proto";
+import "app/v1/subject.proto";
+import "google/api/field_behavior.proto";
+import "google/type/date.proto";
+
+// 休講を提供する。
+service CancelledClassService {
+  // 休講の一覧を取得する。
+  rpc ListCancelledClasses(ListCancelledClassesRequest) returns (ListCancelledClassesResponse);
+}
+
+// 休講。
+message CancelledClass {
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 科目。
+  Subject subject = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 日付。
+  google.type.Date date = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 時限。
+  Period period = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 補足のコメント。
+  string comment = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListCancelledClasses の Request。
+message ListCancelledClassesRequest {
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 科目IDのリスト。指定した科目の休講のみを取得する。空の場合は全科目を対象とする。
+  repeated string subject_ids = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 検索対象の開始日付。未設定の場合は開始日付で絞り込まない。
+  optional google.type.Date from_date = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 検索対象の終了日付。未設定の場合は終了日付で絞り込まない。
+  optional google.type.Date until_date = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListCancelledClasses の Response。
+message ListCancelledClassesResponse {
+  // 休講の一覧。
+  repeated CancelledClass cancelled_classes = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
+  string next_page_token = 2;
+}

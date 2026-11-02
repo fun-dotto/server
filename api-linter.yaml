@@ -97,3 +97,28 @@
     - "admin/v1/notification.proto"
   disabled_rules:
     - "core::0142::time-field-type"
+# --- App API ---
+# 逸脱: List の絞り込み条件を型付きフィールドとして Request に並べ、取得範囲を決める条件は必須にする（app-api-design.md）
+# List の Request に AIP 規定外のフィールド（subject_ids など）を置くことを禁じる
+# List の Request で AIP 規定外のフィールド（date など）を REQUIRED にすることを禁じる
+- included_paths:
+    - "app/v1/*.proto"
+  disabled_rules:
+    - "core::0132::request-unknown-fields"
+    - "core::0132::request-required-fields"
+# 列挙値に INFORMATION ではなく略語 INFO を使うことを求める。admin.v1 の Course と値を揃えるため無効化
+- included_paths:
+    - "app/v1/common.proto"
+  disabled_rules:
+    - "core::0140::abbreviations"
+# 主要言語の予約語（class など）をフィールド名に使うことを禁じる。admin.v1 とフィールド名を揃えるため無効化
+- included_paths:
+    - "app/v1/subject.proto"
+    - "app/v1/user.proto"
+  disabled_rules:
+    - "core::0140::reserved-words"
+# フィールド名の _name サフィックスを禁じる。シラバスの既存フィールド名（en_name、faculty_names）に合わせるため無効化
+- included_paths:
+    - "app/v1/subject.proto"
+  disabled_rules:
+    - "core::0122::name-suffix"
