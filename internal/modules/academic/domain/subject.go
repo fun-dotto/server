@@ -41,3 +41,9 @@ type SubjectListFilter struct {
 	RequirementType         []SubjectRequirementType
 	CulturalSubjectCategory []CulturalSubjectCategory
 }
+
+// SubjectListSort はユーザーの属性に基づく科目一覧・時間割一覧の並び替え条件。
+type SubjectListSort struct {
+	UserCourse *CourseType
+	UserGrade  *Grade
+}

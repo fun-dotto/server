@@ -20,8 +20,15 @@ func NewTimetableItemService(repo timetableItemRepository) *TimetableItemService
 	return &TimetableItemService{repo: repo}
 }
 
-func (s *TimetableItemService) List(ctx context.Context, filter domain.TimetableItemListFilter) ([]domain.TimetableItem, error) {
-	return s.repo.List(ctx, filter)
+func (s *TimetableItemService) List(ctx context.Context, filter domain.TimetableItemListFilter, sort *domain.SubjectListSort) ([]domain.TimetableItem, error) {
+	items, err := s.repo.List(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	if sort != nil {
+		sortTimetableItems(items, sort.UserCourse, sort.UserGrade)
+	}
+	return items, nil
 }
 
 func (s *TimetableItemService) Create(ctx context.Context, item domain.TimetableItem) (domain.TimetableItem, error) {
