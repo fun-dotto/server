@@ -8,10 +8,7 @@ inputs:
     description: GCP プロジェクト ID
     required: true
   workload_identity_provider:
-    description: Workload Identity プロバイダ
-    required: true
-  service_account:
-    description: 借用するサービスアカウント
+    description: Workload Identity プロバイダ（Direct Workload Identity Federation で認証する）
     required: true
   tag_latest:
     description: latest タグも付与して push するか
@@ -37,7 +34,7 @@ runs:
     - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
       with:
         workload_identity_provider: ${{ inputs.workload_identity_provider }}
-        service_account: ${{ inputs.service_account }}
+        project_id: ${{ inputs.project_id }}
     - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
       with:
         project_id: ${{ inputs.project_id }}
