@@ -93,9 +93,10 @@ func NewInterceptor(appCheck AppCheckVerifier, cfAccess CFAccessVerifier, servic
 }
 
 // verifyCFAccess は Cloudflare Access の JWT が有効かを返す。JWT がない、または不正な場合は false を返す。
+// v が nil（Cloudflare Access を使わない環境）の場合は常に false を返す。
 func verifyCFAccess(ctx context.Context, v CFAccessVerifier, h http.Header) bool {
 	token := h.Get(cfAccessJWTHeader)
-	if token == "" {
+	if v == nil || token == "" {
 		return false
 	}
 	if err := v.Verify(ctx, token); err != nil {

@@ -154,3 +154,23 @@ func getUser(c appv1connect.UserServiceClient) func(func(http.Header)) error {
 		return err
 	}
 }
+
+func TestInterceptorWithoutCFAccess(t *testing.T) {
+	opts := connect.WithInterceptors(NewInterceptor(appCheck, nil, fakeService{}, fakeIDToken{}))
+	mux := http.NewServeMux()
+	mux.Handle(appv1connect.NewAnnouncementServiceHandler(announcementHandler{}, opts))
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	announcements := appv1connect.NewAnnouncementServiceClient(http.DefaultClient, srv.URL)
+
+	call := listAnnouncements(announcements)
+	if err := call(func(h http.Header) { h.Set(cfAccessJWTHeader, "valid-cf") }); connect.CodeOf(err) != connect.CodeUnauthenticated {
+		t.Fatalf("Cloudflare Access を使わない場合は JWT があっても App Check が必要: err = %v", err)
+	}
+	if err := call(func(h http.Header) { h.Set(appCheckHeader, "valid-app") }); err != nil {
+		t.Fatalf("App Check で通るはず: %v", err)
+	}
+	if err := call(func(h http.Header) { h.Set(serviceAuthHeader, "Bearer valid-svc") }); err != nil {
+		t.Fatalf("サービスの ID トークンで通るはず: %v", err)
+	}
+}

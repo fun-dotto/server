@@ -45,9 +45,14 @@ func main() {
 	}
 
 	// Cloudflare Access を経由したリクエストは App Check の検証を省略する。
-	cfAccess, err := middleware.NewCFAccessVerifier(os.Getenv("CF_ACCESS_ISSUER"), os.Getenv("CF_ACCESS_AUD"))
-	if err != nil {
-		log.Fatalf("Failed to initialize Cloudflare Access verifier: %v", err)
+	// Access をかけていない環境（prd）では検証しない。
+	var cfAccess auth.CFAccessVerifier
+	if os.Getenv("CF_ACCESS_ENABLED") == "true" {
+		v, err := middleware.NewCFAccessVerifier(os.Getenv("CF_ACCESS_ISSUER"), os.Getenv("CF_ACCESS_AUD"))
+		if err != nil {
+			log.Fatalf("Failed to initialize Cloudflare Access verifier: %v", err)
+		}
+		cfAccess = v
 	}
 
 	// 許可されたサービス（Web）からの Google ID トークン付きリクエストは App Check の検証を省略する。
