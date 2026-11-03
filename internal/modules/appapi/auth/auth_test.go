@@ -37,6 +37,15 @@ func (fakeCFAccess) Verify(_ context.Context, token string) error {
 	return nil
 }
 
+type fakeService struct{}
+
+func (fakeService) Verify(_ context.Context, token string) error {
+	if token != "valid-svc" {
+		return errors.New("invalid")
+	}
+	return nil
+}
+
 type userHandler struct {
 	appv1connect.UnimplementedUserServiceHandler
 }
@@ -58,7 +67,7 @@ func (announcementHandler) ListAnnouncements(ctx context.Context, _ *connect.Req
 
 func newServer(t *testing.T) *httptest.Server {
 	t.Helper()
-	opts := connect.WithInterceptors(NewInterceptor(appCheck, fakeCFAccess{}, fakeIDToken{}))
+	opts := connect.WithInterceptors(NewInterceptor(appCheck, fakeCFAccess{}, fakeService{}, fakeIDToken{}))
 	mux := http.NewServeMux()
 	mux.Handle(appv1connect.NewUserServiceHandler(userHandler{}, opts))
 	mux.Handle(appv1connect.NewAnnouncementServiceHandler(announcementHandler{}, opts))
@@ -77,21 +86,27 @@ func TestInterceptor(t *testing.T) {
 		call     func(req func(http.Header)) error
 		appCheck string
 		cfAccess string
+		service  string
 		idToken  string
 		wantCode connect.Code
 	}{
-		{"ユーザー不要の RPC は App Check のみで通る", listAnnouncements(announcements), "Bearer valid-app", "", "", 0},
-		{"App Check がない場合は UNAUTHENTICATED", listAnnouncements(announcements), "", "", "", connect.CodeUnauthenticated},
-		{"App Check が不正な場合は UNAUTHENTICATED", listAnnouncements(announcements), "invalid", "", "", connect.CodeUnauthenticated},
-		{"ユーザーが必要な RPC は ID トークンで通る", getUser(users), "valid-app", "", "Bearer valid-id", 0},
-		{"ID トークンがない場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "", connect.CodeUnauthenticated},
-		{"ID トークンが不正な場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "Bearer invalid", connect.CodeUnauthenticated},
-		{"Cloudflare Access の JWT があれば App Check なしで通る", listAnnouncements(announcements), "", "valid-cf", "", 0},
-		{"Cloudflare Access の JWT が不正で App Check がない場合は UNAUTHENTICATED", listAnnouncements(announcements), "", "invalid", "", connect.CodeUnauthenticated},
-		{"Cloudflare Access の JWT が不正でも App Check があれば通る", listAnnouncements(announcements), "valid-app", "invalid", "", 0},
-		{"Cloudflare Access の JWT があってもユーザーが必要な RPC は ID トークンが必要", getUser(users), "", "valid-cf", "", connect.CodeUnauthenticated},
-		{"Cloudflare Access の JWT と ID トークンで通る", getUser(users), "", "valid-cf", "Bearer valid-id", 0},
-		{"Bearer がない場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "valid-id", connect.CodeUnauthenticated},
+		{"ユーザー不要の RPC は App Check のみで通る", listAnnouncements(announcements), "Bearer valid-app", "", "", "", 0},
+		{"App Check がない場合は UNAUTHENTICATED", listAnnouncements(announcements), "", "", "", "", connect.CodeUnauthenticated},
+		{"App Check が不正な場合は UNAUTHENTICATED", listAnnouncements(announcements), "invalid", "", "", "", connect.CodeUnauthenticated},
+		{"ユーザーが必要な RPC は ID トークンで通る", getUser(users), "valid-app", "", "", "Bearer valid-id", 0},
+		{"ID トークンがない場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "", "", connect.CodeUnauthenticated},
+		{"ID トークンが不正な場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "", "Bearer invalid", connect.CodeUnauthenticated},
+		{"Cloudflare Access の JWT があれば App Check なしで通る", listAnnouncements(announcements), "", "valid-cf", "", "", 0},
+		{"Cloudflare Access の JWT が不正で App Check がない場合は UNAUTHENTICATED", listAnnouncements(announcements), "", "invalid", "", "", connect.CodeUnauthenticated},
+		{"Cloudflare Access の JWT が不正でも App Check があれば通る", listAnnouncements(announcements), "valid-app", "invalid", "", "", 0},
+		{"Cloudflare Access の JWT があってもユーザーが必要な RPC は ID トークンが必要", getUser(users), "", "valid-cf", "", "", connect.CodeUnauthenticated},
+		{"Cloudflare Access の JWT と ID トークンで通る", getUser(users), "", "valid-cf", "", "Bearer valid-id", 0},
+		{"許可されたサービスの ID トークンがあれば App Check なしで通る", listAnnouncements(announcements), "", "", "Bearer valid-svc", "", 0},
+		{"サービスの ID トークンが不正で App Check がない場合は UNAUTHENTICATED", listAnnouncements(announcements), "", "", "Bearer invalid", "", connect.CodeUnauthenticated},
+		{"サービスの ID トークンに Bearer がない場合は App Check が必要", listAnnouncements(announcements), "", "", "valid-svc", "", connect.CodeUnauthenticated},
+		{"サービスの ID トークンがあってもユーザーが必要な RPC は ID トークンが必要", getUser(users), "", "", "Bearer valid-svc", "", connect.CodeUnauthenticated},
+		{"サービスの ID トークンとユーザーの ID トークンで通る", getUser(users), "", "", "Bearer valid-svc", "Bearer valid-id", 0},
+		{"Bearer がない場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "", "valid-id", connect.CodeUnauthenticated},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -101,6 +116,9 @@ func TestInterceptor(t *testing.T) {
 				}
 				if tt.cfAccess != "" {
 					h.Set(cfAccessJWTHeader, tt.cfAccess)
+				}
+				if tt.service != "" {
+					h.Set(serviceAuthHeader, tt.service)
 				}
 				if tt.idToken != "" {
 					h.Set(authorizationHeader, tt.idToken)
