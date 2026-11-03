@@ -1,16 +1,13 @@
 package event
 
 import (
-	"os"
 	"testing"
+
+	"github.com/fun-dotto/server/internal/modules/academic/assets"
 )
 
 func TestLoadTermsAssets(t *testing.T) {
-	b, err := os.ReadFile("../assets/terms.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	terms, err := LoadTerms(b)
+	terms, err := LoadTerms(assets.TermsJSON)
 	if err != nil {
 		t.Fatal(err)
 	}
