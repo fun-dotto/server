@@ -11,7 +11,7 @@ service CourseRegistrationService {
   rpc ListCourseRegistrations(ListCourseRegistrationsRequest) returns (ListCourseRegistrationsResponse);
   // 履修情報を作成する。
   rpc CreateCourseRegistration(CreateCourseRegistrationRequest) returns (CreateCourseRegistrationResponse);
-  // 履修情報を削除する。
+  // 履修情報を削除する。ログイン中のユーザーの履修情報でない場合は PERMISSION_DENIED を返す。
   rpc DeleteCourseRegistration(DeleteCourseRegistrationRequest) returns (DeleteCourseRegistrationResponse);
 }
 
@@ -25,10 +25,9 @@ message CourseRegistration {
 
 // ListCourseRegistrations の Request。
 message ListCourseRegistrationsRequest {
-  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
-  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+  reserved 1, 2;
+  reserved "page_size", "page_token";
+
   // 開講年度。未設定の場合は今年度。
   optional int32 year = 3 [(google.api.field_behavior) = OPTIONAL];
   // 開講時期。
@@ -39,8 +38,9 @@ message ListCourseRegistrationsRequest {
 message ListCourseRegistrationsResponse {
   // 履修情報の一覧。
   repeated CourseRegistration course_registrations = 1;
-  // 次のページを取得するためのトークン。最終ページの場合は空文字。
-  string next_page_token = 2;
+
+  reserved 2;
+  reserved "next_page_token";
 }
 
 // CreateCourseRegistration の Request。

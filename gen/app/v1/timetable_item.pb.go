@@ -154,10 +154,6 @@ func (x *TimetableItem) GetRooms() []*Room {
 // ListTimetableItems の Request。
 type ListTimetableItemsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// 開講年度。未設定の場合は今年度。
 	Year *int32 `protobuf:"varint,3,opt,name=year,proto3,oneof" json:"year,omitempty"`
 	// 開講時期。
@@ -196,20 +192,6 @@ func (*ListTimetableItemsRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_timetable_item_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ListTimetableItemsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListTimetableItemsRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
 func (x *ListTimetableItemsRequest) GetYear() int32 {
 	if x != nil && x.Year != nil {
 		return *x.Year
@@ -229,10 +211,8 @@ type ListTimetableItemsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 時間割の一覧。
 	TimetableItems []*TimetableItem `protobuf:"bytes,1,rep,name=timetable_items,json=timetableItems,proto3" json:"timetable_items,omitempty"`
-	// 次のページを取得するためのトークン。最終ページの場合は空文字。
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ListTimetableItemsResponse) Reset() {
@@ -272,13 +252,6 @@ func (x *ListTimetableItemsResponse) GetTimetableItems() []*TimetableItem {
 	return nil
 }
 
-func (x *ListTimetableItemsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
 var File_app_v1_timetable_item_proto protoreflect.FileDescriptor
 
 const file_app_v1_timetable_item_proto_rawDesc = "" +
@@ -292,17 +265,14 @@ const file_app_v1_timetable_item_proto_rawDesc = "" +
 	"\asubject\x18\x02 \x01(\v2\x0f.app.v1.SubjectB\x03\xe0A\x03R\asubject\x127\n" +
 	"\x04slot\x18\x03 \x01(\v2\x19.app.v1.TimetableItemSlotB\x03\xe0A\x03H\x00R\x04slot\x88\x01\x01\x12'\n" +
 	"\x05rooms\x18\x04 \x03(\v2\f.app.v1.RoomB\x03\xe0A\x03R\x05roomsB\a\n" +
-	"\x05_slot\"\xc4\x01\n" +
-	"\x19ListTimetableItemsRequest\x12 \n" +
-	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
-	"\n" +
-	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\x12\x1c\n" +
+	"\x05_slot\"\xa1\x01\n" +
+	"\x19ListTimetableItemsRequest\x12\x1c\n" +
 	"\x04year\x18\x03 \x01(\x05B\x03\xe0A\x01H\x00R\x04year\x88\x01\x01\x12:\n" +
 	"\tsemesters\x18\x04 \x03(\x0e2\x17.app.v1.SubjectSemesterB\x03\xe0A\x02R\tsemestersB\a\n" +
-	"\x05_year\"\x84\x01\n" +
+	"\x05_yearJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
+	"page_token\"s\n" +
 	"\x1aListTimetableItemsResponse\x12>\n" +
-	"\x0ftimetable_items\x18\x01 \x03(\v2\x15.app.v1.TimetableItemR\x0etimetableItems\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2s\n" +
+	"\x0ftimetable_items\x18\x01 \x03(\v2\x15.app.v1.TimetableItemR\x0etimetableItemsJ\x04\b\x02\x10\x03R\x0fnext_page_token2s\n" +
 	"\x14TimetableItemService\x12[\n" +
 	"\x12ListTimetableItems\x12!.app.v1.ListTimetableItemsRequest\x1a\".app.v1.ListTimetableItemsResponseB\x87\x01\n" +
 	"\n" +

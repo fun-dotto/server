@@ -169,10 +169,6 @@ func (x *PersonalCalendarItem) GetState() PersonalCalendarItem_State {
 // ListPersonalCalendarItems の Request。
 type ListPersonalCalendarItemsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// 日付のリスト。指定した日付の個人カレンダーアイテムのみを取得する。
 	Dates         []*date.Date `protobuf:"bytes,3,rep,name=dates,proto3" json:"dates,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -209,20 +205,6 @@ func (*ListPersonalCalendarItemsRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_personal_calendar_item_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListPersonalCalendarItemsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListPersonalCalendarItemsRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
 func (x *ListPersonalCalendarItemsRequest) GetDates() []*date.Date {
 	if x != nil {
 		return x.Dates
@@ -235,10 +217,8 @@ type ListPersonalCalendarItemsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 個人カレンダーアイテムの一覧。
 	PersonalCalendarItems []*PersonalCalendarItem `protobuf:"bytes,1,rep,name=personal_calendar_items,json=personalCalendarItems,proto3" json:"personal_calendar_items,omitempty"`
-	// 次のページを取得するためのトークン。最終ページの場合は空文字。
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *ListPersonalCalendarItemsResponse) Reset() {
@@ -278,13 +258,6 @@ func (x *ListPersonalCalendarItemsResponse) GetPersonalCalendarItems() []*Person
 	return nil
 }
 
-func (x *ListPersonalCalendarItemsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
 var File_app_v1_personal_calendar_item_proto protoreflect.FileDescriptor
 
 const file_app_v1_personal_calendar_item_proto_rawDesc = "" +
@@ -301,15 +274,12 @@ const file_app_v1_personal_calendar_item_proto_rawDesc = "" +
 	"\fSTATE_NORMAL\x10\x01\x12\x13\n" +
 	"\x0fSTATE_CANCELLED\x10\x02\x12\x10\n" +
 	"\fSTATE_MAKEUP\x10\x03\x12\x16\n" +
-	"\x12STATE_ROOM_CHANGED\x10\x04\"\x96\x01\n" +
-	" ListPersonalCalendarItemsRequest\x12 \n" +
-	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
-	"\n" +
-	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\x12,\n" +
-	"\x05dates\x18\x03 \x03(\v2\x11.google.type.DateB\x03\xe0A\x02R\x05dates\"\xa1\x01\n" +
+	"\x12STATE_ROOM_CHANGED\x10\x04\"s\n" +
+	" ListPersonalCalendarItemsRequest\x12,\n" +
+	"\x05dates\x18\x03 \x03(\v2\x11.google.type.DateB\x03\xe0A\x02R\x05datesJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
+	"page_token\"\x90\x01\n" +
 	"!ListPersonalCalendarItemsResponse\x12T\n" +
-	"\x17personal_calendar_items\x18\x01 \x03(\v2\x1c.app.v1.PersonalCalendarItemR\x15personalCalendarItems\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\x8f\x01\n" +
+	"\x17personal_calendar_items\x18\x01 \x03(\v2\x1c.app.v1.PersonalCalendarItemR\x15personalCalendarItemsJ\x04\b\x02\x10\x03R\x0fnext_page_token2\x8f\x01\n" +
 	"\x1bPersonalCalendarItemService\x12p\n" +
 	"\x19ListPersonalCalendarItems\x12(.app.v1.ListPersonalCalendarItemsRequest\x1a).app.v1.ListPersonalCalendarItemsResponseB\x8e\x01\n" +
 	"\n" +

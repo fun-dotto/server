@@ -106,6 +106,11 @@
   disabled_rules:
     - "core::0132::request-unknown-fields"
     - "core::0132::request-required-fields"
+    # 逸脱: List にページングを設けない（app-api-design.md）
+    # List の Request に page_size / page_token、Response に next_page_token を求める
+    - "core::0158::request-page-size-field"
+    - "core::0158::request-page-token-field"
+    - "core::0158::response-next-page-token-field"
 # 列挙値に INFORMATION ではなく略語 INFO を使うことを求める。admin.v1 の Course と値を揃えるため無効化
 - included_paths:
     - "app/v1/common.proto"

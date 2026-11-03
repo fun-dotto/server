@@ -108,10 +108,6 @@ func (x *MakeupClass) GetComment() string {
 // ListMakeupClasses の Request。
 type ListMakeupClassesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// 科目IDのリスト。指定した科目の補講のみを取得する。空の場合は全科目を対象とする。
 	SubjectIds []string `protobuf:"bytes,3,rep,name=subject_ids,json=subjectIds,proto3" json:"subject_ids,omitempty"`
 	// 検索対象の開始日付。未設定の場合は開始日付で絞り込まない。
@@ -152,20 +148,6 @@ func (*ListMakeupClassesRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_makeup_class_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListMakeupClassesRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListMakeupClassesRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
 func (x *ListMakeupClassesRequest) GetSubjectIds() []string {
 	if x != nil {
 		return x.SubjectIds
@@ -192,8 +174,6 @@ type ListMakeupClassesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 補講の一覧。
 	MakeupClasses []*MakeupClass `protobuf:"bytes,1,rep,name=makeup_classes,json=makeupClasses,proto3" json:"makeup_classes,omitempty"`
-	// 次のページを取得するためのトークン。最終ページの場合は空文字。
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -235,13 +215,6 @@ func (x *ListMakeupClassesResponse) GetMakeupClasses() []*MakeupClass {
 	return nil
 }
 
-func (x *ListMakeupClassesResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
 var File_app_v1_makeup_class_proto protoreflect.FileDescriptor
 
 const file_app_v1_makeup_class_proto_rawDesc = "" +
@@ -252,11 +225,8 @@ const file_app_v1_makeup_class_proto_rawDesc = "" +
 	"\asubject\x18\x02 \x01(\v2\x0f.app.v1.SubjectB\x03\xe0A\x03R\asubject\x12*\n" +
 	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x03R\x04date\x12+\n" +
 	"\x06period\x18\x04 \x01(\x0e2\x0e.app.v1.PeriodB\x03\xe0A\x03R\x06period\x12\x1d\n" +
-	"\acomment\x18\x05 \x01(\tB\x03\xe0A\x03R\acomment\"\x99\x02\n" +
-	"\x18ListMakeupClassesRequest\x12 \n" +
-	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
-	"\n" +
-	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\x12$\n" +
+	"\acomment\x18\x05 \x01(\tB\x03\xe0A\x03R\acomment\"\xf6\x01\n" +
+	"\x18ListMakeupClassesRequest\x12$\n" +
 	"\vsubject_ids\x18\x03 \x03(\tB\x03\xe0A\x01R\n" +
 	"subjectIds\x128\n" +
 	"\tfrom_date\x18\x04 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x00R\bfromDate\x88\x01\x01\x12:\n" +
@@ -264,10 +234,10 @@ const file_app_v1_makeup_class_proto_rawDesc = "" +
 	"until_date\x18\x05 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x01R\tuntilDate\x88\x01\x01B\f\n" +
 	"\n" +
 	"_from_dateB\r\n" +
-	"\v_until_date\"\x7f\n" +
+	"\v_until_dateJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
+	"page_token\"n\n" +
 	"\x19ListMakeupClassesResponse\x12:\n" +
-	"\x0emakeup_classes\x18\x01 \x03(\v2\x13.app.v1.MakeupClassR\rmakeupClasses\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2n\n" +
+	"\x0emakeup_classes\x18\x01 \x03(\v2\x13.app.v1.MakeupClassR\rmakeupClassesJ\x04\b\x02\x10\x03R\x0fnext_page_token2n\n" +
 	"\x12MakeupClassService\x12X\n" +
 	"\x11ListMakeupClasses\x12 .app.v1.ListMakeupClassesRequest\x1a!.app.v1.ListMakeupClassesResponseB\x85\x01\n" +
 	"\n" +

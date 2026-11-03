@@ -108,10 +108,6 @@ func (x *Reservation) GetTitle() string {
 // ListReservations の Request。
 type ListReservationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// 教室IDのリスト。空の場合は全教室を対象とする。
 	RoomIds []string `protobuf:"bytes,3,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
 	// 検索対象の開始日時。未設定の場合は開始日時で絞り込まない。
@@ -152,20 +148,6 @@ func (*ListReservationsRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_reservation_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListReservationsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListReservationsRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
 func (x *ListReservationsRequest) GetRoomIds() []string {
 	if x != nil {
 		return x.RoomIds
@@ -191,9 +173,7 @@ func (x *ListReservationsRequest) GetUntilTime() *timestamppb.Timestamp {
 type ListReservationsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 教室の予約の一覧。
-	Reservations []*Reservation `protobuf:"bytes,1,rep,name=reservations,proto3" json:"reservations,omitempty"`
-	// 次のページを取得するためのトークン。最終ページの場合は空文字。
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	Reservations  []*Reservation `protobuf:"bytes,1,rep,name=reservations,proto3" json:"reservations,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -235,13 +215,6 @@ func (x *ListReservationsResponse) GetReservations() []*Reservation {
 	return nil
 }
 
-func (x *ListReservationsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
 var File_app_v1_reservation_proto protoreflect.FileDescriptor
 
 const file_app_v1_reservation_proto_rawDesc = "" +
@@ -252,21 +225,18 @@ const file_app_v1_reservation_proto_rawDesc = "" +
 	"\x04room\x18\x02 \x01(\v2\f.app.v1.RoomB\x03\xe0A\x03R\x04room\x12:\n" +
 	"\bstart_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\astartAt\x126\n" +
 	"\x06end_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\x05endAt\x12\x19\n" +
-	"\x05title\x18\x05 \x01(\tB\x03\xe0A\x03R\x05title\"\xa4\x02\n" +
-	"\x17ListReservationsRequest\x12 \n" +
-	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
-	"\n" +
-	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\x12\x1e\n" +
+	"\x05title\x18\x05 \x01(\tB\x03\xe0A\x03R\x05title\"\x81\x02\n" +
+	"\x17ListReservationsRequest\x12\x1e\n" +
 	"\broom_ids\x18\x03 \x03(\tB\x03\xe0A\x01R\aroomIds\x12A\n" +
 	"\tfrom_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x00R\bfromTime\x88\x01\x01\x12C\n" +
 	"\n" +
 	"until_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x01R\tuntilTime\x88\x01\x01B\f\n" +
 	"\n" +
 	"_from_timeB\r\n" +
-	"\v_until_time\"{\n" +
+	"\v_until_timeJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
+	"page_token\"j\n" +
 	"\x18ListReservationsResponse\x127\n" +
-	"\freservations\x18\x01 \x03(\v2\x13.app.v1.ReservationR\freservations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2k\n" +
+	"\freservations\x18\x01 \x03(\v2\x13.app.v1.ReservationR\freservationsJ\x04\b\x02\x10\x03R\x0fnext_page_token2k\n" +
 	"\x12ReservationService\x12U\n" +
 	"\x10ListReservations\x12\x1f.app.v1.ListReservationsRequest\x1a .app.v1.ListReservationsResponseB\x85\x01\n" +
 	"\n" +

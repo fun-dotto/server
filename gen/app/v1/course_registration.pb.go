@@ -80,10 +80,6 @@ func (x *CourseRegistration) GetSubject() *Subject {
 // ListCourseRegistrations の Request。
 type ListCourseRegistrationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// 開講年度。未設定の場合は今年度。
 	Year *int32 `protobuf:"varint,3,opt,name=year,proto3,oneof" json:"year,omitempty"`
 	// 開講時期。
@@ -122,20 +118,6 @@ func (*ListCourseRegistrationsRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_course_registration_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListCourseRegistrationsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListCourseRegistrationsRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
 func (x *ListCourseRegistrationsRequest) GetYear() int32 {
 	if x != nil && x.Year != nil {
 		return *x.Year
@@ -155,10 +137,8 @@ type ListCourseRegistrationsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 履修情報の一覧。
 	CourseRegistrations []*CourseRegistration `protobuf:"bytes,1,rep,name=course_registrations,json=courseRegistrations,proto3" json:"course_registrations,omitempty"`
-	// 次のページを取得するためのトークン。最終ページの場合は空文字。
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListCourseRegistrationsResponse) Reset() {
@@ -196,13 +176,6 @@ func (x *ListCourseRegistrationsResponse) GetCourseRegistrations() []*CourseRegi
 		return x.CourseRegistrations
 	}
 	return nil
-}
-
-func (x *ListCourseRegistrationsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
 }
 
 // CreateCourseRegistration の Request。
@@ -387,17 +360,14 @@ const file_app_v1_course_registration_proto_rawDesc = "" +
 	" app/v1/course_registration.proto\x12\x06app.v1\x1a\x14app/v1/subject.proto\x1a\x1fgoogle/api/field_behavior.proto\"Y\n" +
 	"\x12CourseRegistration\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12.\n" +
-	"\asubject\x18\x02 \x01(\v2\x0f.app.v1.SubjectB\x03\xe0A\x03R\asubject\"\xc9\x01\n" +
-	"\x1eListCourseRegistrationsRequest\x12 \n" +
-	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
-	"\n" +
-	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\x12\x1c\n" +
+	"\asubject\x18\x02 \x01(\v2\x0f.app.v1.SubjectB\x03\xe0A\x03R\asubject\"\xa6\x01\n" +
+	"\x1eListCourseRegistrationsRequest\x12\x1c\n" +
 	"\x04year\x18\x03 \x01(\x05B\x03\xe0A\x01H\x00R\x04year\x88\x01\x01\x12:\n" +
 	"\tsemesters\x18\x04 \x03(\x0e2\x17.app.v1.SubjectSemesterB\x03\xe0A\x02R\tsemestersB\a\n" +
-	"\x05_year\"\x98\x01\n" +
+	"\x05_yearJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
+	"page_token\"\x87\x01\n" +
 	"\x1fListCourseRegistrationsResponse\x12M\n" +
-	"\x14course_registrations\x18\x01 \x03(\v2\x1a.app.v1.CourseRegistrationR\x13courseRegistrations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"E\n" +
+	"\x14course_registrations\x18\x01 \x03(\v2\x1a.app.v1.CourseRegistrationR\x13courseRegistrationsJ\x04\b\x02\x10\x03R\x0fnext_page_token\"E\n" +
 	"\x1fCreateCourseRegistrationRequest\x12\"\n" +
 	"\n" +
 	"subject_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tsubjectId\"o\n" +
