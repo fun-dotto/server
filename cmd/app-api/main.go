@@ -9,11 +9,10 @@ import (
 	"connectrpc.com/connect"
 	firebaseAdmin "firebase.google.com/go/v4"
 	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
-	"github.com/fun-dotto/server/internal/modules/app/repository"
-	"github.com/fun-dotto/server/internal/modules/app/service"
 	"github.com/fun-dotto/server/internal/modules/appapi/auth"
 	"github.com/fun-dotto/server/internal/modules/appapi/handler"
-	"github.com/fun-dotto/server/internal/shared/apiclient"
+	"github.com/fun-dotto/server/internal/shared/academiccalendar"
+	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/joho/godotenv"
@@ -43,14 +42,22 @@ func main() {
 		log.Fatalf("Failed to initialize Auth client: %v", err)
 	}
 
-	clients, err := apiclient.NewExternalClients(ctx)
+	conn, err := db.ConnectWithConnectorIAMAuthN()
 	if err != nil {
-		log.Fatalf("Failed to create external clients: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer func() {
+		if err := db.Close(conn); err != nil {
+			log.Printf("Failed to close database: %v", err)
+		}
+	}()
+
+	calendar, err := academiccalendar.Load()
+	if err != nil {
+		log.Fatalf("Failed to load academic calendar: %v", err)
 	}
 
-	announcementService := service.NewAnnouncementService(repository.NewAnnouncementRepository(clients.Announcement))
-	academicService := service.NewAcademicService(repository.NewAcademicRepository(clients.Academic))
-	userService := service.NewUserService(repository.NewUserRepository(clients.User))
+	h := handler.New(conn, calendar)
 
 	appCheck := auth.AppCheckTokenVerifierFunc(func(token string) error {
 		_, err := appCheckClient.VerifyToken(token)
@@ -63,17 +70,17 @@ func main() {
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle(appv1connect.NewAnnouncementServiceHandler(handler.NewAnnouncementHandler(announcementService), opts))
-	mux.Handle(appv1connect.NewCancelledClassServiceHandler(handler.NewCancelledClassHandler(academicService), opts))
-	mux.Handle(appv1connect.NewCourseRegistrationServiceHandler(handler.NewCourseRegistrationHandler(academicService), opts))
-	mux.Handle(appv1connect.NewMakeupClassServiceHandler(handler.NewMakeupClassHandler(academicService), opts))
-	mux.Handle(appv1connect.NewPersonalCalendarItemServiceHandler(handler.NewPersonalCalendarItemHandler(academicService), opts))
-	mux.Handle(appv1connect.NewReservationServiceHandler(handler.NewReservationHandler(academicService), opts))
-	mux.Handle(appv1connect.NewRoomChangeServiceHandler(handler.NewRoomChangeHandler(academicService), opts))
-	mux.Handle(appv1connect.NewSubjectServiceHandler(handler.NewSubjectHandler(academicService), opts))
-	mux.Handle(appv1connect.NewTimetableItemServiceHandler(handler.NewTimetableItemHandler(academicService), opts))
-	mux.Handle(appv1connect.NewUserServiceHandler(handler.NewUserHandler(userService), opts))
-	mux.Handle(appv1connect.NewFcmTokenServiceHandler(handler.NewFcmTokenHandler(userService), opts))
+	mux.Handle(appv1connect.NewAnnouncementServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewCancelledClassServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewCourseRegistrationServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewMakeupClassServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewPersonalCalendarItemServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewReservationServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewRoomChangeServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewSubjectServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewTimetableItemServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewUserServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewFcmTokenServiceHandler(h, opts))
 	// バスの運行情報・学食のメニューは app-bff-api と同じく未実装（UNIMPLEMENTED を返す）。
 	mux.Handle(appv1connect.NewBusTripServiceHandler(appv1connect.UnimplementedBusTripServiceHandler{}, opts))
 	mux.Handle(appv1connect.NewBusTimetableStopServiceHandler(appv1connect.UnimplementedBusTimetableStopServiceHandler{}, opts))
