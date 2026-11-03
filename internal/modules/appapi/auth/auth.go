@@ -4,6 +4,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -15,11 +16,17 @@ import (
 const (
 	appCheckHeader      = "X-Firebase-AppCheck"
 	authorizationHeader = "Authorization"
+	cfAccessJWTHeader   = "Cf-Access-Jwt-Assertion"
 )
 
 // AppCheckVerifier は App Check トークンを検証する。
 type AppCheckVerifier interface {
 	VerifyToken(token string) error
+}
+
+// CFAccessVerifier は Cloudflare Access の JWT を検証する。
+type CFAccessVerifier interface {
+	Verify(ctx context.Context, token string) error
 }
 
 // IDTokenVerifier は Firebase ID トークンを検証し、ユーザーを返す。
@@ -55,11 +62,14 @@ func RequiresUser(procedure string) bool {
 
 // NewInterceptor はすべての RPC で App Check トークンを検証し、
 // ユーザーを必要とする RPC では ID トークンを検証してユーザーを context に格納する Interceptor を返す。
-func NewInterceptor(appCheck AppCheckVerifier, idToken IDTokenVerifier) connect.UnaryInterceptorFunc {
+// 有効な Cloudflare Access の JWT を持つリクエストは App Check の検証を省略する。
+func NewInterceptor(appCheck AppCheckVerifier, cfAccess CFAccessVerifier, idToken IDTokenVerifier) connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-			if err := verifyAppCheck(appCheck, req.Header()); err != nil {
-				return nil, err
+			if !verifyCFAccess(ctx, cfAccess, req.Header()) {
+				if err := verifyAppCheck(appCheck, req.Header()); err != nil {
+					return nil, err
+				}
 			}
 			if RequiresUser(req.Spec().Procedure) {
 				user, err := verifyUser(ctx, idToken, req.Header())
@@ -71,6 +81,19 @@ func NewInterceptor(appCheck AppCheckVerifier, idToken IDTokenVerifier) connect.
 			return next(ctx, req)
 		}
 	}
+}
+
+// verifyCFAccess は Cloudflare Access の JWT が有効かを返す。JWT がない、または不正な場合は false を返す。
+func verifyCFAccess(ctx context.Context, v CFAccessVerifier, h http.Header) bool {
+	token := h.Get(cfAccessJWTHeader)
+	if token == "" {
+		return false
+	}
+	if err := v.Verify(ctx, token); err != nil {
+		slog.WarnContext(ctx, "cloudflare access jwt verification failed", "error", err)
+		return false
+	}
+	return true
 }
 
 func verifyAppCheck(v AppCheckVerifier, h http.Header) error {
