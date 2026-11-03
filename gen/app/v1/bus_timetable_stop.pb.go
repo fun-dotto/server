@@ -90,10 +90,6 @@ func (x *BusTimetableStop) GetDepartureTime() *timestamppb.Timestamp {
 // ListBusTimetableStops の Request。
 type ListBusTimetableStopsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// 運行ID。
 	TripId        string `protobuf:"bytes,3,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -130,20 +126,6 @@ func (*ListBusTimetableStopsRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_bus_timetable_stop_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListBusTimetableStopsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListBusTimetableStopsRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
 func (x *ListBusTimetableStopsRequest) GetTripId() string {
 	if x != nil {
 		return x.TripId
@@ -156,10 +138,8 @@ type ListBusTimetableStopsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// バスの停車情報の一覧。
 	BusTimetableStops []*BusTimetableStop `protobuf:"bytes,1,rep,name=bus_timetable_stops,json=busTimetableStops,proto3" json:"bus_timetable_stops,omitempty"`
-	// 次のページを取得するためのトークン。最終ページの場合は空文字。
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ListBusTimetableStopsResponse) Reset() {
@@ -199,13 +179,6 @@ func (x *ListBusTimetableStopsResponse) GetBusTimetableStops() []*BusTimetableSt
 	return nil
 }
 
-func (x *ListBusTimetableStopsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
 var File_app_v1_bus_timetable_stop_proto protoreflect.FileDescriptor
 
 const file_app_v1_bus_timetable_stop_proto_rawDesc = "" +
@@ -214,15 +187,12 @@ const file_app_v1_bus_timetable_stop_proto_rawDesc = "" +
 	"\x10BusTimetableStop\x12\x1c\n" +
 	"\atrip_id\x18\x01 \x01(\tB\x03\xe0A\x03R\x06tripId\x12(\n" +
 	"\x04stop\x18\x02 \x01(\v2\x0f.app.v1.BusStopB\x03\xe0A\x03R\x04stop\x12F\n" +
-	"\x0edeparture_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\rdepartureTime\"\x82\x01\n" +
-	"\x1cListBusTimetableStopsRequest\x12 \n" +
-	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
-	"\n" +
-	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\x12\x1c\n" +
-	"\atrip_id\x18\x03 \x01(\tB\x03\xe0A\x02R\x06tripId\"\x91\x01\n" +
+	"\x0edeparture_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\rdepartureTime\"_\n" +
+	"\x1cListBusTimetableStopsRequest\x12\x1c\n" +
+	"\atrip_id\x18\x03 \x01(\tB\x03\xe0A\x02R\x06tripIdJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
+	"page_token\"\x80\x01\n" +
 	"\x1dListBusTimetableStopsResponse\x12H\n" +
-	"\x13bus_timetable_stops\x18\x01 \x03(\v2\x18.app.v1.BusTimetableStopR\x11busTimetableStops\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\x7f\n" +
+	"\x13bus_timetable_stops\x18\x01 \x03(\v2\x18.app.v1.BusTimetableStopR\x11busTimetableStopsJ\x04\b\x02\x10\x03R\x0fnext_page_token2\x7f\n" +
 	"\x17BusTimetableStopService\x12d\n" +
 	"\x15ListBusTimetableStops\x12$.app.v1.ListBusTimetableStopsRequest\x1a%.app.v1.ListBusTimetableStopsResponseB\x8a\x01\n" +
 	"\n" +

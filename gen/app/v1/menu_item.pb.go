@@ -294,10 +294,6 @@ func (x *MenuItem) GetPrices() []*MenuItemPrice {
 // ListMenuItems の Request。
 type ListMenuItemsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// メニューを取得する日付。
 	Date          *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -334,20 +330,6 @@ func (*ListMenuItemsRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_menu_item_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ListMenuItemsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListMenuItemsRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
 func (x *ListMenuItemsRequest) GetDate() *date.Date {
 	if x != nil {
 		return x.Date
@@ -359,9 +341,7 @@ func (x *ListMenuItemsRequest) GetDate() *date.Date {
 type ListMenuItemsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// メニューの一覧。
-	MenuItems []*MenuItem `protobuf:"bytes,1,rep,name=menu_items,json=menuItems,proto3" json:"menu_items,omitempty"`
-	// 次のページを取得するためのトークン。最終ページの場合は空文字。
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	MenuItems     []*MenuItem `protobuf:"bytes,1,rep,name=menu_items,json=menuItems,proto3" json:"menu_items,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -403,13 +383,6 @@ func (x *ListMenuItemsResponse) GetMenuItems() []*MenuItem {
 	return nil
 }
 
-func (x *ListMenuItemsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
 var File_app_v1_menu_item_proto protoreflect.FileDescriptor
 
 const file_app_v1_menu_item_proto_rawDesc = "" +
@@ -424,16 +397,13 @@ const file_app_v1_menu_item_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tB\x03\xe0A\x03R\x04name\x12 \n" +
 	"\timage_url\x18\x04 \x01(\tB\x03\xe0A\x03R\bimageUrl\x129\n" +
 	"\bcategory\x18\x05 \x01(\x0e2\x18.app.v1.MenuItemCategoryB\x03\xe0A\x03R\bcategory\x122\n" +
-	"\x06prices\x18\x06 \x03(\v2\x15.app.v1.MenuItemPriceB\x03\xe0A\x03R\x06prices\"\x88\x01\n" +
-	"\x14ListMenuItemsRequest\x12 \n" +
-	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
-	"\n" +
-	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\x12*\n" +
-	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\"p\n" +
+	"\x06prices\x18\x06 \x03(\v2\x15.app.v1.MenuItemPriceB\x03\xe0A\x03R\x06prices\"e\n" +
+	"\x14ListMenuItemsRequest\x12*\n" +
+	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04dateJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
+	"page_token\"_\n" +
 	"\x15ListMenuItemsResponse\x12/\n" +
 	"\n" +
-	"menu_items\x18\x01 \x03(\v2\x10.app.v1.MenuItemR\tmenuItems\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*\xe0\x01\n" +
+	"menu_items\x18\x01 \x03(\v2\x10.app.v1.MenuItemR\tmenuItemsJ\x04\b\x02\x10\x03R\x0fnext_page_token*\xe0\x01\n" +
 	"\x10MenuItemCategory\x12\"\n" +
 	"\x1eMENU_ITEM_CATEGORY_UNSPECIFIED\x10\x00\x12%\n" +
 	"!MENU_ITEM_CATEGORY_SET_AND_SINGLE\x10\x01\x12%\n" +

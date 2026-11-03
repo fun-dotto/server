@@ -849,10 +849,6 @@ func (x *Subject) GetSyllabus() *SubjectSyllabus {
 // ListSubjects の Request。
 type ListSubjectsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// 検索ワード。空文字の場合は絞り込まない。
 	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
 	// 学年。空の場合は絞り込まない。
@@ -901,20 +897,6 @@ func (x *ListSubjectsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListSubjectsRequest.ProtoReflect.Descriptor instead.
 func (*ListSubjectsRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_subject_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ListSubjectsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListSubjectsRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
 }
 
 func (x *ListSubjectsRequest) GetQuery() string {
@@ -977,9 +959,7 @@ func (x *ListSubjectsRequest) GetCulturalSubjectCategories() []SubjectCulturalSu
 type ListSubjectsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 科目の一覧。
-	Subjects []*Subject `protobuf:"bytes,1,rep,name=subjects,proto3" json:"subjects,omitempty"`
-	// 次のページを取得するためのトークン。最終ページの場合は空文字。
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	Subjects      []*Subject `protobuf:"bytes,1,rep,name=subjects,proto3" json:"subjects,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1019,13 +999,6 @@ func (x *ListSubjectsResponse) GetSubjects() []*Subject {
 		return x.Subjects
 	}
 	return nil
-}
-
-func (x *ListSubjectsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
 }
 
 // GetSubject の Request。
@@ -1175,11 +1148,8 @@ const file_app_v1_subject_proto_rawDesc = "" +
 	"\x13eligible_attributes\x18\a \x03(\v2 .app.v1.SubjectEligibleAttributeB\x03\xe0A\x03R\x12eligibleAttributes\x12C\n" +
 	"\frequirements\x18\b \x03(\v2\x1a.app.v1.SubjectRequirementB\x03\xe0A\x03R\frequirements\x12=\n" +
 	"\bsyllabus\x18\t \x01(\v2\x17.app.v1.SubjectSyllabusB\x03\xe0A\x03H\x00R\bsyllabus\x88\x01\x01B\v\n" +
-	"\t_syllabus\"\xc8\x04\n" +
-	"\x13ListSubjectsRequest\x12 \n" +
-	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
-	"\n" +
-	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\x12\x19\n" +
+	"\t_syllabus\"\xa5\x04\n" +
+	"\x13ListSubjectsRequest\x12\x19\n" +
 	"\x05query\x18\x03 \x01(\tB\x03\xe0A\x01R\x05query\x12*\n" +
 	"\x06grades\x18\x04 \x03(\x0e2\r.app.v1.GradeB\x03\xe0A\x01R\x06grades\x12-\n" +
 	"\acourses\x18\x05 \x03(\x0e2\x0e.app.v1.CourseB\x03\xe0A\x01R\acourses\x12,\n" +
@@ -1188,10 +1158,10 @@ const file_app_v1_subject_proto_rawDesc = "" +
 	"\tsemesters\x18\b \x03(\x0e2\x17.app.v1.SubjectSemesterB\x03\xe0A\x01R\tsemesters\x12P\n" +
 	"\x11requirement_types\x18\t \x03(\x0e2\x1e.app.v1.SubjectRequirementTypeB\x03\xe0A\x01R\x10requirementTypes\x12k\n" +
 	"\x1bcultural_subject_categories\x18\n" +
-	" \x03(\x0e2&.app.v1.SubjectCulturalSubjectCategoryB\x03\xe0A\x01R\x19culturalSubjectCategories\"k\n" +
+	" \x03(\x0e2&.app.v1.SubjectCulturalSubjectCategoryB\x03\xe0A\x01R\x19culturalSubjectCategoriesJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
+	"page_token\"Z\n" +
 	"\x14ListSubjectsResponse\x12+\n" +
-	"\bsubjects\x18\x01 \x03(\v2\x0f.app.v1.SubjectR\bsubjects\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"(\n" +
+	"\bsubjects\x18\x01 \x03(\v2\x0f.app.v1.SubjectR\bsubjectsJ\x04\b\x02\x10\x03R\x0fnext_page_token\"(\n" +
 	"\x11GetSubjectRequest\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"?\n" +
 	"\x12GetSubjectResponse\x12)\n" +

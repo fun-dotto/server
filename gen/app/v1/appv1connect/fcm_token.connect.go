@@ -41,6 +41,7 @@ const (
 // FcmTokenServiceClient is a client for the app.v1.FcmTokenService service.
 type FcmTokenServiceClient interface {
 	// FCM トークンを登録する。存在しない場合は作成し、存在する場合は更新日時を更新する。
+	// 他のユーザーに登録済みのトークンの場合は PERMISSION_DENIED を返す。
 	RegisterFcmToken(context.Context, *connect.Request[v1.RegisterFcmTokenRequest]) (*connect.Response[v1.RegisterFcmTokenResponse], error)
 }
 
@@ -77,6 +78,7 @@ func (c *fcmTokenServiceClient) RegisterFcmToken(ctx context.Context, req *conne
 // FcmTokenServiceHandler is an implementation of the app.v1.FcmTokenService service.
 type FcmTokenServiceHandler interface {
 	// FCM トークンを登録する。存在しない場合は作成し、存在する場合は更新日時を更新する。
+	// 他のユーザーに登録済みのトークンの場合は PERMISSION_DENIED を返す。
 	RegisterFcmToken(context.Context, *connect.Request[v1.RegisterFcmTokenRequest]) (*connect.Response[v1.RegisterFcmTokenResponse], error)
 }
 

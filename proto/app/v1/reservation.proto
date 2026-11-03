@@ -28,10 +28,9 @@ message Reservation {
 
 // ListReservations の Request。
 message ListReservationsRequest {
-  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
-  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+  reserved 1, 2;
+  reserved "page_size", "page_token";
+
   // 教室IDのリスト。空の場合は全教室を対象とする。
   repeated string room_ids = 3 [(google.api.field_behavior) = OPTIONAL];
   // 検索対象の開始日時。未設定の場合は開始日時で絞り込まない。
@@ -44,6 +43,7 @@ message ListReservationsRequest {
 message ListReservationsResponse {
   // 教室の予約の一覧。
   repeated Reservation reservations = 1;
-  // 次のページを取得するためのトークン。最終ページの場合は空文字。
-  string next_page_token = 2;
+
+  reserved 2;
+  reserved "next_page_token";
 }

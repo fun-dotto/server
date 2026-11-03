@@ -98,11 +98,7 @@ func (x *Announcement) GetAvailableFrom() *timestamppb.Timestamp {
 
 // ListAnnouncements の Request。
 type ListAnnouncementsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -137,27 +133,11 @@ func (*ListAnnouncementsRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_announcement_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListAnnouncementsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListAnnouncementsRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
 // ListAnnouncements の Response。
 type ListAnnouncementsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// おしらせの一覧。
 	Announcements []*Announcement `protobuf:"bytes,1,rep,name=announcements,proto3" json:"announcements,omitempty"`
-	// 次のページを取得するためのトークン。最終ページの場合は空文字。
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -199,13 +179,6 @@ func (x *ListAnnouncementsResponse) GetAnnouncements() []*Announcement {
 	return nil
 }
 
-func (x *ListAnnouncementsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
 var File_app_v1_announcement_proto protoreflect.FileDescriptor
 
 const file_app_v1_announcement_proto_rawDesc = "" +
@@ -215,14 +188,11 @@ const file_app_v1_announcement_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x19\n" +
 	"\x05title\x18\x02 \x01(\tB\x03\xe0A\x03R\x05title\x12\x15\n" +
 	"\x03url\x18\x03 \x01(\tB\x03\xe0A\x03R\x03url\x12F\n" +
-	"\x0eavailable_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\ravailableFrom\"`\n" +
-	"\x18ListAnnouncementsRequest\x12 \n" +
-	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
-	"\n" +
-	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"\x7f\n" +
+	"\x0eavailable_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\ravailableFrom\"=\n" +
+	"\x18ListAnnouncementsRequestJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
+	"page_token\"n\n" +
 	"\x19ListAnnouncementsResponse\x12:\n" +
-	"\rannouncements\x18\x01 \x03(\v2\x14.app.v1.AnnouncementR\rannouncements\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2o\n" +
+	"\rannouncements\x18\x01 \x03(\v2\x14.app.v1.AnnouncementR\rannouncementsJ\x04\b\x02\x10\x03R\x0fnext_page_token2o\n" +
 	"\x13AnnouncementService\x12X\n" +
 	"\x11ListAnnouncements\x12 .app.v1.ListAnnouncementsRequest\x1a!.app.v1.ListAnnouncementsResponseB\x86\x01\n" +
 	"\n" +

@@ -117,10 +117,6 @@ func (x *RoomChange) GetNewRoom() *Room {
 // ListRoomChanges の Request。
 type ListRoomChangesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
-	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
-	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// 科目IDのリスト。指定した科目の教室変更のみを取得する。空の場合は全科目を対象とする。
 	SubjectIds []string `protobuf:"bytes,3,rep,name=subject_ids,json=subjectIds,proto3" json:"subject_ids,omitempty"`
 	// 検索対象の開始日付。未設定の場合は開始日付で絞り込まない。
@@ -161,20 +157,6 @@ func (*ListRoomChangesRequest) Descriptor() ([]byte, []int) {
 	return file_app_v1_room_change_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListRoomChangesRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-func (x *ListRoomChangesRequest) GetPageToken() string {
-	if x != nil {
-		return x.PageToken
-	}
-	return ""
-}
-
 func (x *ListRoomChangesRequest) GetSubjectIds() []string {
 	if x != nil {
 		return x.SubjectIds
@@ -200,9 +182,7 @@ func (x *ListRoomChangesRequest) GetUntilDate() *date.Date {
 type ListRoomChangesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 教室変更の一覧。
-	RoomChanges []*RoomChange `protobuf:"bytes,1,rep,name=room_changes,json=roomChanges,proto3" json:"room_changes,omitempty"`
-	// 次のページを取得するためのトークン。最終ページの場合は空文字。
-	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	RoomChanges   []*RoomChange `protobuf:"bytes,1,rep,name=room_changes,json=roomChanges,proto3" json:"room_changes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -244,13 +224,6 @@ func (x *ListRoomChangesResponse) GetRoomChanges() []*RoomChange {
 	return nil
 }
 
-func (x *ListRoomChangesResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.NextPageToken
-	}
-	return ""
-}
-
 var File_app_v1_room_change_proto protoreflect.FileDescriptor
 
 const file_app_v1_room_change_proto_rawDesc = "" +
@@ -263,11 +236,8 @@ const file_app_v1_room_change_proto_rawDesc = "" +
 	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x03R\x04date\x12+\n" +
 	"\x06period\x18\x04 \x01(\x0e2\x0e.app.v1.PeriodB\x03\xe0A\x03R\x06period\x126\n" +
 	"\roriginal_room\x18\x05 \x01(\v2\f.app.v1.RoomB\x03\xe0A\x03R\foriginalRoom\x12,\n" +
-	"\bnew_room\x18\x06 \x01(\v2\f.app.v1.RoomB\x03\xe0A\x03R\anewRoom\"\x97\x02\n" +
-	"\x16ListRoomChangesRequest\x12 \n" +
-	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
-	"\n" +
-	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\x12$\n" +
+	"\bnew_room\x18\x06 \x01(\v2\f.app.v1.RoomB\x03\xe0A\x03R\anewRoom\"\xf4\x01\n" +
+	"\x16ListRoomChangesRequest\x12$\n" +
 	"\vsubject_ids\x18\x03 \x03(\tB\x03\xe0A\x01R\n" +
 	"subjectIds\x128\n" +
 	"\tfrom_date\x18\x04 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x00R\bfromDate\x88\x01\x01\x12:\n" +
@@ -275,10 +245,10 @@ const file_app_v1_room_change_proto_rawDesc = "" +
 	"until_date\x18\x05 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x01R\tuntilDate\x88\x01\x01B\f\n" +
 	"\n" +
 	"_from_dateB\r\n" +
-	"\v_until_date\"x\n" +
+	"\v_until_dateJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
+	"page_token\"g\n" +
 	"\x17ListRoomChangesResponse\x125\n" +
-	"\froom_changes\x18\x01 \x03(\v2\x12.app.v1.RoomChangeR\vroomChanges\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2g\n" +
+	"\froom_changes\x18\x01 \x03(\v2\x12.app.v1.RoomChangeR\vroomChangesJ\x04\b\x02\x10\x03R\x0fnext_page_token2g\n" +
 	"\x11RoomChangeService\x12R\n" +
 	"\x0fListRoomChanges\x12\x1e.app.v1.ListRoomChangesRequest\x1a\x1f.app.v1.ListRoomChangesResponseB\x84\x01\n" +
 	"\n" +

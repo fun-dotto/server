@@ -15,12 +15,10 @@ mise run bootstrap
 各 API サーバーは mise のタスクから [portless](https://portless.sh/) 経由で起動する。
 ポート番号の代わりに固定の `.localhost` URL (HTTPS / HTTP2) でアクセスできる。
 
-| タスク                          | URL                                      |
-| ------------------------------- | ---------------------------------------- |
-| `mise run run:academic-api`     | https://academic-api.dotto.localhost     |
-| `mise run run:announcement-api` | https://announcement-api.dotto.localhost |
-| `mise run run:app-bff-api`      | https://app-bff-api.dotto.localhost      |
-| `mise run run:user-api`         | https://user-api.dotto.localhost         |
+| タスク                   | URL                               |
+| ------------------------ | --------------------------------- |
+| `mise run run:admin-api` | https://admin-api.dotto.localhost |
+| `mise run run:app-api`   | https://app-api.dotto.localhost   |
 
 portless は 4000-4999 の空きポートを環境変数 `PORT` で子プロセスに渡し、
 そのポートへリバースプロキシする。サーバー側は `server.Addr()` が `PORT` を読むため、

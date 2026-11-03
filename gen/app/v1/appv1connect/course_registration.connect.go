@@ -51,7 +51,7 @@ type CourseRegistrationServiceClient interface {
 	ListCourseRegistrations(context.Context, *connect.Request[v1.ListCourseRegistrationsRequest]) (*connect.Response[v1.ListCourseRegistrationsResponse], error)
 	// 履修情報を作成する。
 	CreateCourseRegistration(context.Context, *connect.Request[v1.CreateCourseRegistrationRequest]) (*connect.Response[v1.CreateCourseRegistrationResponse], error)
-	// 履修情報を削除する。
+	// 履修情報を削除する。ログイン中のユーザーの履修情報でない場合は PERMISSION_DENIED を返す。
 	DeleteCourseRegistration(context.Context, *connect.Request[v1.DeleteCourseRegistrationRequest]) (*connect.Response[v1.DeleteCourseRegistrationResponse], error)
 }
 
@@ -116,7 +116,7 @@ type CourseRegistrationServiceHandler interface {
 	ListCourseRegistrations(context.Context, *connect.Request[v1.ListCourseRegistrationsRequest]) (*connect.Response[v1.ListCourseRegistrationsResponse], error)
 	// 履修情報を作成する。
 	CreateCourseRegistration(context.Context, *connect.Request[v1.CreateCourseRegistrationRequest]) (*connect.Response[v1.CreateCourseRegistrationResponse], error)
-	// 履修情報を削除する。
+	// 履修情報を削除する。ログイン中のユーザーの履修情報でない場合は PERMISSION_DENIED を返す。
 	DeleteCourseRegistration(context.Context, *connect.Request[v1.DeleteCourseRegistrationRequest]) (*connect.Response[v1.DeleteCourseRegistrationResponse], error)
 }
 
