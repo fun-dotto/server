@@ -25,6 +25,7 @@ jobs:
       matrix:
         repository:
           - admin-web
+          - app
     steps:
       - name: Create GitHub App Token
         id: app-token
