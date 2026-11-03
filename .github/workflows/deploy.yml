@@ -75,7 +75,6 @@ jobs:
           ar_hostname: ${{ vars._AR_HOSTNAME }}
           project_id: ${{ vars.PROJECT_ID }}
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.SERVICE_ACCOUNT }}
           # latest は main への push でのみ更新する。
           tag_latest: ${{ github.event_name == 'push' }}
 
@@ -105,4 +104,3 @@ jobs:
           region: ${{ vars._DEPLOY_REGION }}
           project_id: ${{ vars.PROJECT_ID }}
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.SERVICE_ACCOUNT }}
