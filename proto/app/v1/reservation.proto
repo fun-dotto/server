@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "app/v1/room.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// 教室の予約を提供する。
+service ReservationService {
+  // 教室の予約の一覧を取得する。検索対象期間に一部でも重複する予約を取得する。
+  rpc ListReservations(ListReservationsRequest) returns (ListReservationsResponse);
+}
+
+// 教室の予約。
+message Reservation {
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 教室。
+  Room room = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 開始日時。
+  google.protobuf.Timestamp start_at = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 終了日時。
+  google.protobuf.Timestamp end_at = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // タイトル。
+  string title = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListReservations の Request。
+message ListReservationsRequest {
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 教室IDのリスト。空の場合は全教室を対象とする。
+  repeated string room_ids = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 検索対象の開始日時。未設定の場合は開始日時で絞り込まない。
+  optional google.protobuf.Timestamp from_time = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 検索対象の終了日時。未設定の場合は終了日時で絞り込まない。
+  optional google.protobuf.Timestamp until_time = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListReservations の Response。
+message ListReservationsResponse {
+  // 教室の予約の一覧。
+  repeated Reservation reservations = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
+  string next_page_token = 2;
+}

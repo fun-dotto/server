@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "app/v1/faculty.proto";
+import "google/api/field_behavior.proto";
+
+// 教室。
+message Room {
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 部屋名。
+  string name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // フロア。オンラインなどの仮想教室の場合は ROOM_FLOOR_VIRTUAL。
+  RoomFloor floor = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 教員室の教員。空室の教員室や教員室でない場合は未設定。
+  optional Faculty faculty = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// フロア。
+enum RoomFloor {
+  // 未指定。
+  ROOM_FLOOR_UNSPECIFIED = 0;
+  // 1 階。
+  ROOM_FLOOR_1 = 1;
+  // 2 階。
+  ROOM_FLOOR_2 = 2;
+  // 3 階。
+  ROOM_FLOOR_3 = 3;
+  // 4 階。
+  ROOM_FLOOR_4 = 4;
+  // 5 階。
+  ROOM_FLOOR_5 = 5;
+  // 6 階。
+  ROOM_FLOOR_6 = 6;
+  // 7 階。
+  ROOM_FLOOR_7 = 7;
+  // 仮想教室。
+  ROOM_FLOOR_VIRTUAL = 8;
+}

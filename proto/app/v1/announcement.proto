@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// おしらせを提供する。
+service AnnouncementService {
+  // 公開中のおしらせの一覧を取得する。
+  rpc ListAnnouncements(ListAnnouncementsRequest) returns (ListAnnouncementsResponse);
+}
+
+// おしらせ。
+message Announcement {
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // タイトル。
+  string title = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // リンク先の URL。
+  string url = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 公開を開始した日時。
+  google.protobuf.Timestamp available_from = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListAnnouncements の Request。
+message ListAnnouncementsRequest {
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListAnnouncements の Response。
+message ListAnnouncementsResponse {
+  // おしらせの一覧。
+  repeated Announcement announcements = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
+  string next_page_token = 2;
+}

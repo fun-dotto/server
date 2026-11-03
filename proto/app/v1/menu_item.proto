@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "google/api/field_behavior.proto";
+import "google/type/date.proto";
+
+// 学食のメニューを提供する。
+service MenuItemService {
+  // メニューの一覧を取得する。
+  rpc ListMenuItems(ListMenuItemsRequest) returns (ListMenuItemsResponse);
+}
+
+// サイズごとの価格。
+message MenuItemPrice {
+  // サイズ。
+  MenuItemSize size = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 価格（円）。
+  int32 price = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// メニュー。
+message MenuItem {
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 提供日。
+  google.type.Date date = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // メニュー名。
+  string name = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 画像の URL。
+  string image_url = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // カテゴリ。
+  MenuItemCategory category = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // サイズごとの価格。
+  repeated MenuItemPrice prices = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListMenuItems の Request。
+message ListMenuItemsRequest {
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+  // メニューを取得する日付。
+  google.type.Date date = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListMenuItems の Response。
+message ListMenuItemsResponse {
+  // メニューの一覧。
+  repeated MenuItem menu_items = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
+  string next_page_token = 2;
+}
+
+// メニューのカテゴリ。
+enum MenuItemCategory {
+  // 未指定。
+  MENU_ITEM_CATEGORY_UNSPECIFIED = 0;
+  // 定食・単品。
+  MENU_ITEM_CATEGORY_SET_AND_SINGLE = 1;
+  // 丼・カレー。
+  MENU_ITEM_CATEGORY_BOWL_AND_CURRY = 2;
+  // 麺類。
+  MENU_ITEM_CATEGORY_NOODLE = 3;
+  // サイドメニュー。
+  MENU_ITEM_CATEGORY_SIDE = 4;
+  // デザート。
+  MENU_ITEM_CATEGORY_DESSERT = 5;
+}
+
+// メニューのサイズ。
+enum MenuItemSize {
+  // 未指定。
+  MENU_ITEM_SIZE_UNSPECIFIED = 0;
+  // 小。
+  MENU_ITEM_SIZE_SMALL = 1;
+  // 中。
+  MENU_ITEM_SIZE_MEDIUM = 2;
+  // 大。
+  MENU_ITEM_SIZE_LARGE = 3;
+}

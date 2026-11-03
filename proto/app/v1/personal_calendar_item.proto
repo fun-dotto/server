@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "app/v1/common.proto";
+import "app/v1/room.proto";
+import "app/v1/subject.proto";
+import "google/api/field_behavior.proto";
+import "google/type/date.proto";
+
+// ログイン中のユーザーの個人カレンダーを提供する。
+service PersonalCalendarItemService {
+  // 個人カレンダーアイテムの一覧を取得する。時間割、履修情報、休講・補講、振替授業日情報から構築する。
+  rpc ListPersonalCalendarItems(ListPersonalCalendarItemsRequest) returns (ListPersonalCalendarItemsResponse);
+}
+
+// 個人カレンダーアイテム。
+message PersonalCalendarItem {
+  // 個人カレンダーアイテムの状態。教室変更よりも休講・補講を優先する。
+  enum State {
+    // 未指定。
+    STATE_UNSPECIFIED = 0;
+    // 通常。
+    STATE_NORMAL = 1;
+    // 休講。
+    STATE_CANCELLED = 2;
+    // 補講。
+    STATE_MAKEUP = 3;
+    // 教室変更。
+    STATE_ROOM_CHANGED = 4;
+  }
+
+  // 日付。
+  google.type.Date date = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 時限。
+  Period period = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 科目。
+  Subject subject = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 教室。
+  repeated Room rooms = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 状態。
+  State state = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListPersonalCalendarItems の Request。
+message ListPersonalCalendarItemsRequest {
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 日付のリスト。指定した日付の個人カレンダーアイテムのみを取得する。
+  repeated google.type.Date dates = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListPersonalCalendarItems の Response。
+message ListPersonalCalendarItemsResponse {
+  // 個人カレンダーアイテムの一覧。
+  repeated PersonalCalendarItem personal_calendar_items = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
+  string next_page_token = 2;
+}

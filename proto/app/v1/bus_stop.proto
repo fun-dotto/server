@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "google/api/field_behavior.proto";
+
+// バス停。
+message BusStop {
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // バス停名。
+  string name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
