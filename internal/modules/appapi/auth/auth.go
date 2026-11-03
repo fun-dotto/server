@@ -17,6 +17,9 @@ const (
 	appCheckHeader      = "X-Firebase-AppCheck"
 	authorizationHeader = "Authorization"
 	cfAccessJWTHeader   = "Cf-Access-Jwt-Assertion"
+	// serviceAuthHeader は Web などのサービスが Google の ID トークンを付与するヘッダー。
+	// Authorization はユーザーの Firebase ID トークンに使うため別のヘッダーにする。
+	serviceAuthHeader = "X-Service-Authorization"
 )
 
 // AppCheckVerifier は App Check トークンを検証する。
@@ -26,6 +29,11 @@ type AppCheckVerifier interface {
 
 // CFAccessVerifier は Cloudflare Access の JWT を検証する。
 type CFAccessVerifier interface {
+	Verify(ctx context.Context, token string) error
+}
+
+// ServiceVerifier は呼び出し元サービスの Google ID トークンを検証する。
+type ServiceVerifier interface {
 	Verify(ctx context.Context, token string) error
 }
 
@@ -62,11 +70,12 @@ func RequiresUser(procedure string) bool {
 
 // NewInterceptor はすべての RPC で App Check トークンを検証し、
 // ユーザーを必要とする RPC では ID トークンを検証してユーザーを context に格納する Interceptor を返す。
-// 有効な Cloudflare Access の JWT を持つリクエストは App Check の検証を省略する。
-func NewInterceptor(appCheck AppCheckVerifier, cfAccess CFAccessVerifier, idToken IDTokenVerifier) connect.UnaryInterceptorFunc {
+// 有効な Cloudflare Access の JWT、または許可されたサービスの Google ID トークンを持つリクエストは
+// App Check の検証を省略する。
+func NewInterceptor(appCheck AppCheckVerifier, cfAccess CFAccessVerifier, service ServiceVerifier, idToken IDTokenVerifier) connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-			if !verifyCFAccess(ctx, cfAccess, req.Header()) {
+			if !verifyService(ctx, service, req.Header()) && !verifyCFAccess(ctx, cfAccess, req.Header()) {
 				if err := verifyAppCheck(appCheck, req.Header()); err != nil {
 					return nil, err
 				}
@@ -91,6 +100,19 @@ func verifyCFAccess(ctx context.Context, v CFAccessVerifier, h http.Header) bool
 	}
 	if err := v.Verify(ctx, token); err != nil {
 		slog.WarnContext(ctx, "cloudflare access jwt verification failed", "error", err)
+		return false
+	}
+	return true
+}
+
+// verifyService は呼び出し元サービスの Google ID トークンが有効かを返す。トークンがない、または不正な場合は false を返す。
+func verifyService(ctx context.Context, v ServiceVerifier, h http.Header) bool {
+	token, ok := strings.CutPrefix(h.Get(serviceAuthHeader), "Bearer ")
+	if !ok || token == "" {
+		return false
+	}
+	if err := v.Verify(ctx, token); err != nil {
+		slog.WarnContext(ctx, "service id token verification failed", "error", err)
 		return false
 	}
 	return true

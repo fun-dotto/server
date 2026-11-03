@@ -50,6 +50,12 @@ func main() {
 		log.Fatalf("Failed to initialize Cloudflare Access verifier: %v", err)
 	}
 
+	// 許可されたサービス（Web）からの Google ID トークン付きリクエストは App Check の検証を省略する。
+	service, err := auth.NewGoogleServiceVerifier(os.Getenv("ID_TOKEN_AUDIENCE"), os.Getenv("ID_TOKEN_ALLOWED_SERVICE_ACCOUNTS"))
+	if err != nil {
+		log.Fatalf("Failed to initialize service ID token verifier: %v", err)
+	}
+
 	conn, err := db.ConnectWithConnectorIAMAuthN()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
@@ -74,7 +80,7 @@ func main() {
 	opts := connect.WithInterceptors(
 		timeoutInterceptor(handlerTimeout),
 		errorRecordInterceptor(),
-		auth.NewInterceptor(appCheck, cfAccess, auth.FirebaseIDTokenVerifier{Client: authClient}),
+		auth.NewInterceptor(appCheck, cfAccess, service, auth.FirebaseIDTokenVerifier{Client: authClient}),
 	)
 
 	mux := http.NewServeMux()
