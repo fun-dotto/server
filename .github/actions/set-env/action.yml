@@ -75,6 +75,7 @@ runs:
           academic-api
           admin-api
           announcement-api
+          app-api
           app-bff-api
           user-api
           build-class-change-notifications-job
