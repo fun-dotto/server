@@ -4,11 +4,13 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"connectrpc.com/connect"
 	firebaseAdmin "firebase.google.com/go/v4"
 	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
+	"github.com/fun-dotto/server/internal/modules/adminapi/middleware"
 	"github.com/fun-dotto/server/internal/modules/appapi/auth"
 	"github.com/fun-dotto/server/internal/modules/appapi/handler"
 	"github.com/fun-dotto/server/internal/shared/academiccalendar"
@@ -42,6 +44,12 @@ func main() {
 		log.Fatalf("Failed to initialize Auth client: %v", err)
 	}
 
+	// Cloudflare Access を経由したリクエストは App Check の検証を省略する。
+	cfAccess, err := middleware.NewCFAccessVerifier(os.Getenv("CF_ACCESS_ISSUER"), os.Getenv("CF_ACCESS_AUD"))
+	if err != nil {
+		log.Fatalf("Failed to initialize Cloudflare Access verifier: %v", err)
+	}
+
 	conn, err := db.ConnectWithConnectorIAMAuthN()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
@@ -66,7 +74,7 @@ func main() {
 	opts := connect.WithInterceptors(
 		timeoutInterceptor(handlerTimeout),
 		errorRecordInterceptor(),
-		auth.NewInterceptor(appCheck, auth.FirebaseIDTokenVerifier{Client: authClient}),
+		auth.NewInterceptor(appCheck, cfAccess, auth.FirebaseIDTokenVerifier{Client: authClient}),
 	)
 
 	mux := http.NewServeMux()
