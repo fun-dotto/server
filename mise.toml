@@ -38,7 +38,8 @@ run = [
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/academic-api ./cmd/academic-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/admin-api ./cmd/admin-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/announcement-api ./cmd/announcement-api",
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/app-api ./cmd/app-bff-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/app-api ./cmd/app-api",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/app-bff-api ./cmd/app-bff-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/user-api ./cmd/user-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/build-class-change-notifications-job ./cmd/build-class-change-notifications-job",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/dispatch-notifications-job ./cmd/dispatch-notifications-job",
@@ -87,6 +88,10 @@ run = "portless admin-api.dotto go run ./cmd/admin-api"
 [tasks."run:announcement-api"]
 description = "announcement-api を 起動する (https://announcement-api.dotto.localhost)"
 run = "portless announcement-api.dotto go run ./cmd/announcement-api"
+
+[tasks."run:app-api"]
+description = "app-api を起動する (https://app-api.dotto.localhost)"
+run = "portless app-api.dotto go run ./cmd/app-api"
 
 [tasks."run:app-bff-api"]
 description = "app-bff-api を起動する (https://app-bff-api.dotto.localhost)"
