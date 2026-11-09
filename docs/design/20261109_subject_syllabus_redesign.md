@@ -19,50 +19,126 @@
 
 ### 1. DB スキーマ（Atlas マイグレーション追加）
 
+#### 取得元ページの調査結果（2026-11-09）
+
+ログイン不要で取得できる。
+
+- 一覧: `https://students.fun.ac.jp/lesson/SyllabusList`（ASP.NET WebForms。`__VIEWSTATE` 等を付けて POST で検索・ページング。2026 年度は 341 件、1 ページ 20 件）
+- 詳細: `https://students.fun.ac.jp/lesson/Syllabus?lesson_id={授業コード}&year={年度}`
+- **同じ `lesson_id` が年度をまたいで使われる**（例: `100101` 認知科学は 2025・2026 の両方に存在し、担当教員が異なる）。
+
+一覧の列:
+
+| 表示名 | 備考 |
+| --- | --- |
+| 履修年度 | |
+| 授業コード | = `lesson_id` |
+| 授業科目名 | 詳細の「授業名」と同じ値 |
+| Course | 詳細の「Course」と同じ値 |
+| 担当教員名 | 主担当のみ（詳細は全員 + `◎`） |
+| 授業形態 | |
+| 表示順 | 一覧にのみ存在 |
+
+詳細ページの項目（`*` は科目によって表示されない項目）:
+
+- 基本情報: 年度、授業名、Course、配当年次、開講期、単位数、担当教員名（改行区切り、主担当に `◎`）、実務家教員区分、複数人担当形式、授業形態
+- 本文: 授業の概要、授業の到達目標、提出課題等、成績の評価方法・基準、テキスト、参考書、履修条件、事前学習、事後学習、履修上の留意点、キーワード/keywords、対象コース・領域、科目群・科目区分、DSOP対象科目`*`、教授言語`*`、授業・試験の形式`*`、授業内容とスケジュール
+- 英語欄`*`（主に大学院）: (E)Course outline、(E)Course Objectives、(E)Course Schedule、(E)Assessment、(E)Language of Instruction、(E)Requirements for registration
+- ディプロマポリシー: ディプロマポリシー（学部／大学院の DP 一覧）、ディプロマポリシーとの対応（例: `DP2,DP4`）、ディプロマポリシーの各領域と配点（DP1〜DP10 の各枠に配点と S/A/B/C/D の評価基準）
+
 #### `syllabuses`
 
-- 既存 `id`（text）→ `lesson_id` に改名し `NOT NULL` + ユニーク制約。
-- 新規 `id uuid PRIMARY KEY DEFAULT gen_random_uuid()`。
-- ユニークキーは lesson_id が年度を跨いで同一かにより `lesson_id` 単独 or `(lesson_id, year)`（**要確認**）。
-- 一覧ページ由来の列を追加（推測。HTML を確認して確定する）:
-  - 科目名（現 `name` は授業名で別項目）
-  - 年度
-  - 開講期
-  - 履修可能（開始学年）／履修可能（終了学年）
-  - 所属
-  - その他一覧にのみ表示される項目
-- 全列を `text` で保持。現 `credit bigint` も方針に合わせ `text` 化を検討。
-- 取得日時（`fetched_at`）列の追加を検討。
+取得元の写しとして、値は加工せず文字列のまま保存する（空欄・非表示は `''`）。
+
+- 主キー: `id uuid DEFAULT gen_random_uuid()`
+- ユニークキー: `(lesson_id, year)`
+
+| 列 | 型 | 取得元 | 既存列からの変更 |
+| --- | --- | --- | --- |
+| `id` | uuid | — | 新規（UUID 採番） |
+| `lesson_id` | text | 授業コード | 旧 `id` を改名 |
+| `year` | bigint | 年度 | 新規（キーのため数値） |
+| `display_order` | text | 一覧: 表示順 | 新規 |
+| `list_staff_name` | text | 一覧: 担当教員名 | 新規 |
+| `name` | text | 授業名 | |
+| `en_name` | text | Course | |
+| `grades` | text | 配当年次 | |
+| `term` | text | 開講期 | 新規 |
+| `credit` | text | 単位数（例: `2単位`） | bigint → text |
+| `faculty_names` | text | 担当教員名 | |
+| `practical_home_faculty_category` | text | 実務家教員区分 | |
+| `multiple_person_teaching_form` | text | 複数人担当形式 | |
+| `teaching_form` | text | 授業形態 | |
+| `summary` | text | 授業の概要 | |
+| `learning_outcomes` | text | 授業の到達目標 | |
+| `assignments` | text | 提出課題等 | |
+| `evaluation_method` | text | 成績の評価方法・基準 | |
+| `textbooks` | text | テキスト | |
+| `reference_books` | text | 参考書 | |
+| `prerequisites` | text | 履修条件 | |
+| `pre_learning` | text | 事前学習 | |
+| `post_learning` | text | 事後学習 | |
+| `notes` | text | 履修上の留意点 | |
+| `keywords` | text | キーワード/keywords | |
+| `target_courses` | text | 対象コース・領域 | |
+| `classifications` | text | 科目群・科目区分 | |
+| `dsop_subject` | text | DSOP対象科目 | |
+| `teaching_language` | text | 教授言語 | |
+| `teaching_and_exam_form` | text | 授業・試験の形式 | |
+| `contents_and_schedule` | text | 授業内容とスケジュール | |
+| `en_summary` | text | (E)Course outline | 新規 |
+| `en_learning_outcomes` | text | (E)Course Objectives | 新規 |
+| `en_contents_and_schedule` | text | (E)Course Schedule | 新規 |
+| `en_evaluation_method` | text | (E)Assessment | 新規 |
+| `en_teaching_language` | text | (E)Language of Instruction | 新規 |
+| `en_prerequisites` | text | (E)Requirements for registration | 新規 |
+| `diploma_policies` | text | ディプロマポリシー | 新規 |
+| `diploma_policy_correspondence` | text | ディプロマポリシーとの対応 | 新規 |
+| `diploma_policy_rubrics` | jsonb | 各領域と配点（DP1〜10 × 配点・S〜D の文字列） | 新規 |
+| `fetched_at` | timestamptz | 取得日時 | 新規 |
+| `created_at` / `updated_at` | timestamptz | — | |
+
+`diploma_policy_rubrics` は 60 個の値になるため列には展開せず、`[{"weight":"0","s":"...","a":"...","b":"...","c":"...","d":"..."}, ...]` の形で文字列のまま保存する。
 
 #### `subjects`
 
-- `syllabus_id`: `text` → `uuid`、新 `syllabuses.id` を参照。
-- `syllabus_id` の UNIQUE（1:1）を維持するか、1 シラバス → 複数科目を許容するか（**要確認**）。
-- 構造化列の整理:
-  - `name` / `credit` 等はシラバスと重複しても科目側に構造化済みの正本として保持。
-  - 学年・クラス → `subject_eligible_attributes`
-  - 必修/選択 → `subject_requirements`
-  - 教員 → `subject_faculties`
-- 現在 `syllabus_id` を表示順に使っているため、代替の並び順キー（科目コード、または `lesson_id` を `subjects` に持たせる等）を追加する。
+- `syllabus_id`: `text` → `uuid`、新 `syllabuses.id` を参照。**UNIQUE（1:1）は維持する。**
+- 構造化した正本として以下を持つ（シラバスと重複しても保持する）。
+
+| 列・子テーブル | 生成元（`syllabuses`） | 変換 |
+| --- | --- | --- |
+| `name` | `name` | そのまま |
+| `year` | `year` | そのまま |
+| `semester` | `term` | `前期`/`後期`/`1Q`〜`4Q`/`通年` → enum |
+| `credit` | `credit` | `2単位` → `2` |
+| `classification` | `classifications` | 必修/選択などを enum に |
+| `cultural_subject_category` | `classifications` | 教養科目群の区分を enum に |
+| `subject_faculties` | `faculty_names` | 改行で分割し、`◎` を `is_primary`。`faculties` と名前で突合 |
+| `subject_eligible_attributes` | `grades`、`name` の末尾（例: `1-EFGH`, `2-GHI`, `1～4`） | 学年・クラスに分解 |
+| `subject_requirements` | `target_courses`、`classifications` | コース × 必修/選択 |
+
+- 表示順: 現在 `syllabus_id`（= 授業コード）で並べている箇所は、`syllabuses` を JOIN して `syllabuses.lesson_id` で並べる。
 
 #### データ移行 SQL
 
-1. `syllabuses` に UUID を採番し、旧 `id` を `lesson_id` にコピー。
-2. `subjects` に新列を追加し、旧 `syllabus_id`（= lesson_id）で JOIN して新 UUID を設定。
-3. FK・ユニークインデックスを張り替え、旧列を削除。
+1. `syllabuses` に `id uuid` を追加して採番し、旧 `id` を `lesson_id` に改名する。
+2. 既存行の `year` は、紐づく `subjects.year` から埋める。
+3. `subjects` に新しい `syllabus_id uuid` を追加し、旧 `syllabus_id`（= lesson_id）で JOIN して設定する。
+4. FK・ユニークインデックスを張り替え、旧列を削除する。
+5. `credit` を text に変換する（`2` → `2単位`）。
 
 ### 2. server（Go）
 
 - `internal/shared/model/syllabus.go` / `subject.go`: GORM タグ・型変更。
-- `internal/modules/academic/{domain,repository}`（`syllabus.go`, `convert.go`, `subject.go`）: `GetByID` の型変更、lesson_id 検索の追加。
-- `Order("...syllabus_id ASC")` の置換（UUID 順は無意味なため新しい並び順キーへ）:
+- `internal/modules/academic/{domain,repository}`（`syllabus.go`, `convert.go`, `subject.go`）: `GetByID` の型変更。
+- `Order("...syllabus_id ASC")` を `syllabuses.lesson_id` での並びに置換:
   - `internal/modules/academic/repository/`: `room_change.go`, `timetable_items.go`, `subject.go`, `cancelled_class.go`, `makeup_class.go`
   - `internal/modules/appapi/handler/`: `timetable_item.go`, `subject.go`, `course_registration.go`, `class_change.go`
-- `internal/modules/adminapi/handler/syllabus.go`: キーを UUID に変更し、lesson_id も扱う。
+- `internal/modules/adminapi/handler/syllabus.go`: キーを UUID に変更し、`lesson_id`・`year` と追加列を扱う。
 - `internal/modules/adminapi/handler/subject.go`: `syllabus_id` の型・バリデーション変更。
-- **新規ジョブ**（現リポジトリにスクレイパー・変換処理は存在しない）:
-  - `cmd/*-job`: 教務システムから取得し `syllabuses` に upsert するジョブ。
-  - `cmd/*-job`: `syllabuses` をパースして `subjects` と子テーブルを生成・更新するジョブ。手動修正した科目データを上書きしないためのルールが必要。
+- 新規ジョブ:
+  - **シラバス取得ジョブ**（`cmd/fetch-syllabuses-job`）: 年度を指定して一覧を全ページ取得し、各詳細ページを取得して `syllabuses` に `(lesson_id, year)` で upsert する。アクセス間隔を空ける。
+  - **科目生成ジョブ**（`cmd/build-subjects-job`）: 年度を指定して `syllabuses` をパースし、`subjects` と子テーブルを `syllabus_id` で upsert する。
 
 ### 3. API 定義
 
@@ -105,9 +181,14 @@ API ごとに互換性の要件が異なる。
 - `subject_detail_screen.dart` / `subject_review_new_screen.dart` で `syllabus.id` をレビュー（フィードバック）の `lessonId` に使っている。`syllabus.lessonId` を参照するよう変更する（UUID を使うと既存レビューと紐付かなくなるため）。
 - `apps/dotto/assets/syllabus.db`（同梱 SQLite）とテスト用 fake データ（`test/helpers/fake_subject_data_source.dart` 等）の追従。
 
+## 決定事項
+
+- `lesson_id` は年度をまたいで同じ値 → `syllabuses` のユニークキーは `(lesson_id, year)`。
+- シラバスと科目は 1:1 のまま。
+- 今回の実装範囲: DB + server、シラバス取得ジョブ、科目生成ジョブ（app 対応は対象外）。
+
 ## 未決事項
 
-1. lesson_id は年度を跨いで同一か（`syllabuses` のユニークキー）。
-2. 1 シラバス → 複数科目を許容するか（`subjects.syllabus_id` の UNIQUE）。
-3. 一覧・詳細ページの全項目（HTML サンプルを入手して列を確定）。
-4. 今回のスコープ（マイグレーション + server のみ／取得・生成ジョブ／app 対応まで）。
+1. 科目生成ジョブが、admin-api で手修正した科目を上書きしてよいか。
+2. 担当教員名が `faculties` に存在しない場合の扱い（自動作成する／スキップしてログに出す）。
+3. ジョブの実行基盤とスケジュール（既存ジョブと同じく Cloud Run Jobs か、実行頻度）。
