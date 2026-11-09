@@ -118,7 +118,6 @@
 | `en_teaching_and_exam_form` | text | (E)Type of class and exam | 新規 |
 | `diploma_policies` | text | ディプロマポリシー | 新規 |
 | `diploma_policy_correspondence` | text | ディプロマポリシーとの対応 | 新規 |
-| `diploma_policy_weights` | text | 各領域と配点（DP1〜10 の配点をカンマ区切り。例: `0,0,0,0,0,0,0,0,0,0`） | 新規 |
 | `content_hash` | text | 取得値から計算 | 新規 |
 | `fetched_at` | timestamptz | 取得日時（同一内容を再取得した場合は最終確認日時として更新） | 新規 |
 | `created_at` / `updated_at` | timestamptz | — | |
@@ -127,7 +126,7 @@
 
 - 「ディプロマポリシー」: 学部（DP1〜DP5、284 件）と大学院（DP1〜DP4、57 件）の **2 種類の固定文** のみ。科目ごとの情報ではないが、方針どおり `diploma_policies` にそのまま保存する。
 - 「ディプロマポリシーとの対応」（例: `DP2,DP4`）: 科目ごとに異なる。`diploma_policy_correspondence` に保存する。
-- 「各領域と配点」: DP1〜DP10 の 10 枠があるが、**全件で配点が `0`、領域名が空、行が非表示（`is-hidden`）**。S〜D の範囲は配点からブラウザの JavaScript で計算される表示で、HTML には `---` しか含まれない。そのため取得できる値は 10 枠の配点だけであり、`diploma_policy_weights` にカンマ区切りの文字列で保存する（将来入力された場合に備える）。
+- 「各領域と配点」: DP1〜DP10 の 10 枠があるが、**全件で配点が `0`、領域名が空、行が非表示（`is-hidden`）**。S〜D の範囲は配点からブラウザの JavaScript で計算される表示で、HTML には `---` しか含まれない。実質的な情報がないため **保存しない**。
 
 #### `subjects`
 
