@@ -66,22 +66,44 @@
 
 ### 3. API 定義
 
+API ごとに互換性の要件が異なる。
+
+| API | 利用者 | 方針 |
+| --- | --- | --- |
+| app-bff-api（`api/openapi/app`） | リリース済みアプリ | **スキーマ変更なし** |
+| app-api（`proto/app/v1`） | 開発中のアプリ（未リリース） | 後方互換性を考慮せず変更してよい |
+| academic-api（`api/openapi/academic`） | app-bff-api（内部） | app-bff-api が旧値を返せるよう変更 |
+| admin-api（`proto/admin/v1`） | 管理画面 | 変更する |
+
+#### app-bff-api（スキーマ変更なし）
+
+- `AcademicService.Syllabus.id` は、リリース済みアプリがレビュー（フィードバック）のキー `lessonId` として使っている。**引き続き教務システムの ID（= `lesson_id`）を返す。**
+- `internal/modules/app/external/subject_model.go` の `ToDomainSyllabus` で、`ID` に academic-api の `lessonId` を詰める。
+- そのほか、レスポンスに含まれる列が型変更（例: `credit` の text 化）の影響を受ける場合は、BFF 側で旧型へ変換する。
+
+#### academic-api
+
+- `api/openapi/academic/openapi.yaml` の `Syllabus` スキーマ: `id` を UUID にし、`lessonId` と追加列を加える。
+- `/v1/subjects/{id}/syllabus` はそのまま（subject の id は UUID のまま変わらない）。
+
+#### app-api
+
+- `proto/app/v1/subject.proto` の `SubjectSyllabus`: `id` を UUID にし、`lesson_id` と追加列を加える。互換性は考慮しない。
+
+#### admin-api
+
 - `proto/admin/v1/syllabus.proto`: `id` を UUID に、`lesson_id` と追加列を追加。
 - `proto/admin/v1/subject.proto`: `syllabus_id` の説明更新。
-- `proto/app/v1/subject.proto` `SubjectSyllabus.id`: 現コメントは「教務システムのシラバスID」。UUID 化するなら `lesson_id` フィールドを追加。
-- `api/openapi/academic/openapi.yaml`: `Syllabus` スキーマ、`/v1/subjects/{id}/syllabus`。
+
+#### 共通
+
 - `gen/` の再生成。
 
 ### 4. app（Flutter）
 
-- **互換性リスク最大**: `subject_detail_screen.dart` / `subject_review_new_screen.dart` で `syllabus.id` をレビュー（フィードバック）の `lessonId` として使用している。`id` が UUID になると既存レビューとの紐付けが切れるため、
-  1. API に `lesson_id` を追加
-  2. app の参照を `syllabus.lessonId` に切り替え
-  3. `id` の意味を変更
-
-  の順で段階移行する。
+- 現在の実装は app-api を使っており、未リリースのため互換性は考慮しない。
+- `subject_detail_screen.dart` / `subject_review_new_screen.dart` で `syllabus.id` をレビュー（フィードバック）の `lessonId` に使っている。`syllabus.lessonId` を参照するよう変更する（UUID を使うと既存レビューと紐付かなくなるため）。
 - `apps/dotto/assets/syllabus.db`（同梱 SQLite）とテスト用 fake データ（`test/helpers/fake_subject_data_source.dart` 等）の追従。
-- リリース済みの旧バージョンのアプリが新 API を叩いた場合の互換性を考慮する。
 
 ## 未決事項
 
