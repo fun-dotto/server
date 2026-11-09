@@ -14,6 +14,8 @@
 - **科目テーブル**: シラバステーブルを元に生成し、**構造化したデータ** を保存する（アプリが利用する正本）。
 - シラバスの `id` は教務システムの ID から `lesson_id` に改名し、`id` は UUID で採番し直す。
 - `subjects.syllabus_id` は新しい UUID の `syllabuses.id` を参照する。
+- `syllabuses` は複数バージョンを保持し、どのバージョンを使うかは `subjects.syllabus_id` の紐付けで決める（シラバスバージョンと科目は 1:1）。
+- 実装範囲: DB + server、シラバス取得ジョブ、科目生成ジョブ。app（Flutter）の対応は対象外。
 
 ## 変更点
 
@@ -215,17 +217,3 @@ API ごとに互換性の要件が異なる。
 - 現在の実装は app-api を使っており、未リリースのため互換性は考慮しない。
 - `subject_detail_screen.dart` / `subject_review_new_screen.dart` で `syllabus.id` をレビュー（フィードバック）の `lessonId` に使っている。`syllabus.lessonId` を参照するよう変更する（UUID を使うと既存レビューと紐付かなくなるため）。
 - `apps/dotto/assets/syllabus.db`（同梱 SQLite）とテスト用 fake データ（`test/helpers/fake_subject_data_source.dart` 等）の追従。
-
-## 決定事項
-
-- `lesson_id` は年度をまたいで同じ値 → 授業の識別は `(lesson_id, year)`。
-- `syllabuses` は複数バージョンを保持し、どのバージョンを使うかは `subjects.syllabus_id` の紐付けで決める。
-- 担当教員名が `faculties` に存在しない場合はスキップして警告ログ。
-- ジョブは既存ジョブと同じ形で作り、毎週日曜日に実行する。
-- シラバスの差分は Slack に通知し、科目の付け替えは admin-api から手動で行う。
-- シラバスと科目は 1:1 のまま。
-- 今回の実装範囲: DB + server、シラバス取得ジョブ、科目生成ジョブ（app 対応は対象外）。
-
-## 未決事項
-
-なし。
