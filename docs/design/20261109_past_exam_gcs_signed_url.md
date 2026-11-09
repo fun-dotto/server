@@ -25,6 +25,7 @@
 - オブジェクトキーは外部に出さず、不透明な `past_exam_id`(UUID)で参照する。
 - ファイル本体はサーバーで中継せず、短命の署名付き URL を返し、クライアントが直接ダウンロードする。
 - 過去問のメタデータは DB で管理し、実行時にバケットの一覧取得は行わない。
+- 新概念 `SubjectGroup` を導入する。同一年度の他クラスの科目や別年度の同じ科目を1つのグループにまとめ、過去問一覧は「指定した科目が属するグループ内の全科目の過去問」を返す。
 
 ## 3. 構成
 
@@ -53,7 +54,8 @@ App ──(3) GET 署名付き URL (TTL 5分) ───────────�
 ```proto
 // 過去問を提供する。
 service PastExamService {
-  // 科目の過去問一覧を取得する。
+  // 科目の過去問一覧を取得する。指定した科目が属する科目グループ内の全科目の過去問を返す。
+  // 科目グループに属さない場合は、その科目自身の過去問のみを返す。
   rpc ListPastExams(ListPastExamsRequest) returns (ListPastExamsResponse);
   // 過去問をダウンロードするための署名付き URL を発行する。
   rpc GetPastExamDownloadUrl(GetPastExamDownloadUrlRequest) returns (GetPastExamDownloadUrlResponse);
@@ -61,9 +63,15 @@ service PastExamService {
 
 message PastExam {
   string id = 1;                        // 不透明な ID (UUID)
-  string subject_id = 2;
+  string subject_id = 2;                // この過去問が紐づく科目 (グループ内の別年度・別クラスの科目の場合がある)
   string file_name = 3;                 // 表示名
   google.protobuf.Timestamp created_at = 4;
+  int32 year = 5;                       // 紐づく科目の年度
+  string subject_name = 6;              // 紐づく科目の名称
+}
+
+message ListPastExamsRequest {
+  string subject_id = 1;                // 起点となる科目の ID
 }
 
 message GetPastExamDownloadUrlResponse {
@@ -73,22 +81,64 @@ message GetPastExamDownloadUrlResponse {
 ```
 
 - 両 RPC を `internal/modules/appapi/auth/auth.go` の `userRequiredProcedures` に追加する。現行の「fun.ac.jp アカウントでサインイン」要件をサーバーで強制する形になる。メールドメインの検証が必要かは、既存の Firebase ID トークンの内容を確認して決める。
-- `ListPastExams` の `subject_id` は `Subject.id`(UUID)を使う。
+- `ListPastExams` の `subject_id` は `Subject.id`(UUID)を使う。存在しない場合は `NOT_FOUND` を返す。
+- 結果は年度の降順、同年度内は `file_name` の昇順で返す。件数は科目グループ単位で有限と見込み、ページングは設けない(件数が大きくなる場合に追加する)。
 - 署名付き URL の TTL は 5 分。署名時に `response-content-disposition` でファイル名を固定する。
 - 表示名(`file_name`)は、現在クライアントの `pastExamFileName` が行っている「オブジェクトキーの最初の `/` より後ろ」の抽出をサーバーへ移し、`past_exams.file_name` に保持する。
 
 ## 5. データモデル
 
-テーブル名: `past_exams`
+### 5.1 `subject_groups`(新規)
+
+同一科目とみなす科目の集合。年度をまたいでもよい。
+
+| カラム | 型 | NULL | キー・制約 | 説明 |
+|---|---|---|---|---|
+| `id` | uuid | NOT NULL | PK | 科目グループID |
+| `name` | text | NOT NULL | | 管理用の名称(例: 「プログラミング基礎」) |
+| `created_at` | timestamptz | NOT NULL | | 作成日時 |
+| `updated_at` | timestamptz | NOT NULL | | 更新日時 |
+
+### 5.2 `subjects`(変更)
+
+| カラム | 型 | NULL | キー・制約 | 説明 |
+|---|---|---|---|---|
+| `subject_group_id`(追加) | uuid | NULL | FK → `subject_groups.id`、INDEX | 所属する科目グループ。1つの科目が属せるグループは高々1つ。未所属は NULL |
+
+- FK は `ON UPDATE CASCADE ON DELETE SET NULL` とする。グループを削除しても科目は残る。
+- 中間テーブルにしなかった理由: 所属は高々1グループで、`subjects` に列を足すだけで足りる。複数グループへの所属が必要になった場合に中間テーブルへ移行する。
+
+### 5.3 `past_exams`(新規)
 
 | カラム | 型 | NULL | キー・制約 | 説明 |
 |---|---|---|---|---|
 | `id` | uuid | NOT NULL | PK | 過去問ID。API で公開する不透明な ID |
-| `subject_id` | uuid | NOT NULL | FK → `subjects.id` | 対象の科目 |
+| `subject_id` | uuid | NOT NULL | FK → `subjects.id`、INDEX | 過去問が紐づく科目 |
 | `object_name` | text | NOT NULL | UNIQUE | バケット内のオブジェクトキー。外部には出さない |
 | `file_name` | text | NOT NULL | | 表示用のファイル名 |
 | `size_bytes` | bigint | NULL | | ファイルサイズ(バイト) |
 | `created_at` | timestamptz | NOT NULL | | 登録日時 |
+
+過去問は科目グループではなく、個々の `subject` に紐づけたまま保持する。どの年度・クラスの過去問かが失われず、グループの組み替えにも影響されない。
+
+### 5.4 一覧取得のクエリ
+
+`ListPastExams(subject_id = X)` は次の条件で取得する。
+
+```sql
+SELECT pe.*, s.year, s.name
+FROM past_exams pe
+JOIN subjects s ON s.id = pe.subject_id
+WHERE pe.subject_id IN (
+  SELECT s2.id FROM subjects s2
+  WHERE s2.subject_group_id = (SELECT subject_group_id FROM subjects WHERE id = :x)
+)
+OR pe.subject_id = :x   -- 未所属 (subject_group_id が NULL) の場合は自身のみ
+ORDER BY s.year DESC, pe.file_name;
+```
+
+- `subject_group_id` が NULL のときは、サブクエリの比較が真にならないため、`pe.subject_id = :x` により自身の過去問だけが返る。
+- 実装は GORM のサブクエリで書き、`subjects.subject_group_id` と `past_exams.subject_id` のインデックスを使う。
 
 - モデルは `internal/shared/model` に追加し、Atlas でマイグレーションを作成する。`docs/er-diagram.md` も更新する。
 - 代替案(実行時に GCS をプレフィックスで一覧取得)は、毎回 GCS を呼ぶこと、ID が不安定になること、DB で管理できないことから採用しない。
@@ -108,20 +158,21 @@ message GetPastExamDownloadUrlResponse {
 
 1. 非公開 GCS バケットを作成する(Uniform bucket-level access、公開アクセス防止)。CORS は不要(ネイティブアプリが直接取得するため)。
 2. R2→GCS を `rclone` または Storage Transfer Service で一括コピーし、件数・サイズを突合する。
-3. バケットの一覧から `past_exams` を生成する移行スクリプトを実行する。キーのプレフィックスと `syllabus_id` の対応を取り、マッチしなかったものはレポートに出す。
-4. サーバー側(proto・DB・ハンドラー)をリリースする。
-5. アプリを新 API に切り替える。
-6. 旧アプリの利用が十分減ったら、R2 の読み取りキーを失効させてバケットを廃止する。
+3. 科目グループを作成し、`subjects.subject_group_id` を設定する(作成方法は「10. 未決事項」を参照)。
+4. バケットの一覧から `past_exams` を生成する移行スクリプトを実行する。キーのプレフィックスと `syllabus_id` の対応を取り、マッチしなかったものはレポートに出す。
+5. サーバー側(proto・DB・ハンドラー)をリリースする。
+6. アプリを新 API に切り替える。
+7. 旧アプリの利用が十分減ったら、R2 の読み取りキーを失効させてバケットを廃止する。
 
 旧バージョンのアプリは R2 を直接参照するため、切り替え後もしばらく R2 を残す。廃止時期は強制アップデートの判断と合わせて決める。
 
 ## 8. 実装順序
 
 1. `past_exam.proto` を追加し、`buf` でコードを生成する。
-2. `past_exams` のモデルとマイグレーションを追加する。
+2. `subject_groups`・`subjects.subject_group_id`・`past_exams` のモデルとマイグレーションを追加する。
 3. `PastExamStorage`(GCS 署名)と `PastExamService` ハンドラー、認可登録、テストを実装する。
 4. 移行スクリプトでデータを投入する。
-5. (別フェーズ)Admin API に過去問登録用 RPC を追加する。初期は移行スクリプトによる一括投入で足りる。
+5. (別フェーズ)Admin API に過去問登録用 RPC と、科目グループの管理用 RPC(作成・科目の追加と削除)を追加する。初期は移行スクリプトによる一括投入で足りる。
 
 ## 9. セキュリティ・運用
 
@@ -134,3 +185,6 @@ message GetPastExamDownloadUrlResponse {
 - 本番バケットの実際のキー構造と、`syllabus.id` 以外のプレフィックスの有無
 - Admin API 経由の登録を今回の範囲に含めるか
 - 署名付き URL の TTL(5 分は初期案)と、旧アプリのサポート終了時期
+- `SubjectGroup` の作成方法。初期案は、移行スクリプトで「科目名が同一(正規化後)の科目」を年度をまたいで自動的にまとめ、結果をレポートで人が確認する。クラス違いで名称が異なる科目(例: 末尾の A/B)の扱いは、自動判定せず Admin API で手動編集する。
+- 同一科目でも内容が大きく変わった年度(シラバス改訂など)を別グループに分けたい場合の運用基準
+- 科目グループへの所属を `GetSubject` などの App API のレスポンスに公開するか(現状は過去問一覧の絞り込みにのみ使う)
