@@ -43,8 +43,22 @@
 
 - 基本情報: 年度、授業名、Course、配当年次、開講期、単位数、担当教員名（改行区切り、主担当に `◎`）、実務家教員区分、複数人担当形式、授業形態
 - 本文: 授業の概要、授業の到達目標、提出課題等、成績の評価方法・基準、テキスト、参考書、履修条件、事前学習、事後学習、履修上の留意点、キーワード/keywords、対象コース・領域、科目群・科目区分、DSOP対象科目`*`、教授言語`*`、授業・試験の形式`*`、授業内容とスケジュール
-- 英語欄`*`（主に大学院）: (E)Course outline、(E)Course Objectives、(E)Course Schedule、(E)Assessment、(E)Language of Instruction、(E)Requirements for registration
+- 英語欄`*`: (E)Course outline、(E)Course Objectives、(E)Course Schedule、(E)Assessment、(E)Language of Instruction、(E)Requirements for registration、(E)Prior/Post Assignment、(E)Textbooks、(E)Note、(E)Type of class and exam
 - ディプロマポリシー: ディプロマポリシー（学部／大学院の DP 一覧）、ディプロマポリシーとの対応（例: `DP2,DP4`）、ディプロマポリシーの各領域と配点（DP1〜DP10 の各枠に配点と S/A/B/C/D の評価基準）
+
+項目の網羅性は、2026 年度の全 341 件の詳細ページの見出し（`<th>` とカード見出し）を集計して確認した。2020 年度（22 件）も抽出して確認し、新しい項目はなかった。
+
+| 項目 | 表示件数（2026 年度 / 341 件） |
+| --- | --- |
+| 基本情報・本文の大半 | 341 |
+| 科目群・科目区分 | 340 |
+| 開講期 / 予定開講期 | 337 / 4 |
+| 対象コース・領域 | 336 |
+| 教授言語 | 204 |
+| 授業・試験の形式 | 165 |
+| 提出課題等 | 129 |
+| 英語欄（項目ごと） | 19〜64 |
+| DSOP対象科目 | 41 |
 
 #### `syllabuses`
 
@@ -62,11 +76,14 @@
 | `lesson_id` | text | 授業コード | 旧 `id` を改名 |
 | `year` | bigint | 年度 | 新規（キーのため数値） |
 | `display_order` | text | 一覧: 表示順 | 新規 |
+| `list_lesson_name` | text | 一覧: 授業科目名 | 新規 |
+| `list_en_name` | text | 一覧: Course | 新規 |
 | `list_staff_name` | text | 一覧: 担当教員名 | 新規 |
+| `list_teaching_form` | text | 一覧: 授業形態 | 新規 |
 | `name` | text | 授業名 | |
 | `en_name` | text | Course | |
 | `grades` | text | 配当年次 | |
-| `term` | text | 開講期 | 新規 |
+| `term` | text | 開講期（一部の科目では「予定開講期」と表示） | 新規 |
 | `credit` | text | 単位数（例: `2単位`） | bigint → text |
 | `faculty_names` | text | 担当教員名 | |
 | `practical_home_faculty_category` | text | 実務家教員区分 | |
@@ -95,6 +112,10 @@
 | `en_evaluation_method` | text | (E)Assessment | 新規 |
 | `en_teaching_language` | text | (E)Language of Instruction | 新規 |
 | `en_prerequisites` | text | (E)Requirements for registration | 新規 |
+| `en_pre_post_learning` | text | (E)Prior/Post Assignment | 新規 |
+| `en_textbooks` | text | (E)Textbooks | 新規 |
+| `en_notes` | text | (E)Note | 新規 |
+| `en_teaching_and_exam_form` | text | (E)Type of class and exam | 新規 |
 | `diploma_policies` | text | ディプロマポリシー | 新規 |
 | `diploma_policy_correspondence` | text | ディプロマポリシーとの対応 | 新規 |
 | `diploma_policy_rubrics` | jsonb | 各領域と配点（DP1〜10 × 配点・S〜D の文字列） | 新規 |
