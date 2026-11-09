@@ -51,7 +51,10 @@
 取得元の写しとして、値は加工せず文字列のまま保存する（空欄・非表示は `''`）。
 
 - 主キー: `id uuid DEFAULT gen_random_uuid()`
-- ユニークキー: `(lesson_id, year)`
+- **バージョン管理**: 取得した内容が前回と異なる場合は既存行を更新せず、新しい行（新しい `id`）として追加する。同じ `(lesson_id, year)` に複数バージョンが存在しうる。
+- どのバージョンを使うかは `subjects.syllabus_id` の紐付けで決まる。
+- 内容比較のため `content_hash`（取得値から計算したハッシュ）を持ち、`(lesson_id, year, content_hash)` をユニークキーにする。
+- インデックス: `(lesson_id, year, fetched_at)`（最新バージョンの検索用）
 
 | 列 | 型 | 取得元 | 既存列からの変更 |
 | --- | --- | --- | --- |
@@ -95,14 +98,15 @@
 | `diploma_policies` | text | ディプロマポリシー | 新規 |
 | `diploma_policy_correspondence` | text | ディプロマポリシーとの対応 | 新規 |
 | `diploma_policy_rubrics` | jsonb | 各領域と配点（DP1〜10 × 配点・S〜D の文字列） | 新規 |
-| `fetched_at` | timestamptz | 取得日時 | 新規 |
+| `content_hash` | text | 取得値から計算 | 新規 |
+| `fetched_at` | timestamptz | 取得日時（同一内容を再取得した場合は最終確認日時として更新） | 新規 |
 | `created_at` / `updated_at` | timestamptz | — | |
 
 `diploma_policy_rubrics` は 60 個の値になるため列には展開せず、`[{"weight":"0","s":"...","a":"...","b":"...","c":"...","d":"..."}, ...]` の形で文字列のまま保存する。
 
 #### `subjects`
 
-- `syllabus_id`: `text` → `uuid`、新 `syllabuses.id` を参照。**UNIQUE（1:1）は維持する。**
+- `syllabus_id`: `text` → `uuid`、新 `syllabuses.id` を参照。**UNIQUE は維持する**（1 つのシラバスバージョンは 1 科目からのみ参照される）。科目と授業の対応は、紐付いたバージョンの `(lesson_id, year)` で決まる。
 - 構造化した正本として以下を持つ（シラバスと重複しても保持する）。
 
 | 列・子テーブル | 生成元（`syllabuses`） | 変換 |
@@ -117,6 +121,7 @@
 | `subject_eligible_attributes` | `grades`、`name` の末尾（例: `1-EFGH`, `2-GHI`, `1～4`） | 学年・クラスに分解 |
 | `subject_requirements` | `target_courses`、`classifications` | コース × 必修/選択 |
 
+- 異なる `(lesson_id, year)` のバージョンへの付け替えは許可しない（admin-api でバリデーション）。
 - 表示順: 現在 `syllabus_id`（= 授業コード）で並べている箇所は、`syllabuses` を JOIN して `syllabuses.lesson_id` で並べる。
 
 #### データ移行 SQL
@@ -137,8 +142,12 @@
 - `internal/modules/adminapi/handler/syllabus.go`: キーを UUID に変更し、`lesson_id`・`year` と追加列を扱う。
 - `internal/modules/adminapi/handler/subject.go`: `syllabus_id` の型・バリデーション変更。
 - 新規ジョブ:
-  - **シラバス取得ジョブ**（`cmd/fetch-syllabuses-job`）: 年度を指定して一覧を全ページ取得し、各詳細ページを取得して `syllabuses` に `(lesson_id, year)` で upsert する。アクセス間隔を空ける。
-  - **科目生成ジョブ**（`cmd/build-subjects-job`）: 年度を指定して `syllabuses` をパースし、`subjects` と子テーブルを `syllabus_id` で upsert する。
+  - **シラバス取得ジョブ**（`cmd/fetch-syllabuses-job`）: 年度を指定して一覧を全ページ取得し、各詳細ページを取得する。`content_hash` が既存バージョンと一致すれば `fetched_at` のみ更新し、異なれば新しいバージョンとして INSERT する。アクセス間隔を空ける。
+  - **科目生成ジョブ**（`cmd/build-subjects-job`）: 年度を指定して実行する。
+    - 科目が存在しない `(lesson_id, year)` は、最新バージョンから `subjects` と子テーブルを新規作成する。
+    - 既存の科目は更新しない（紐付いているバージョンを使い続ける）。新しいバージョンへの付け替えは admin-api で行い、付け替え時に紐付け先のシラバスから構造化データを再生成する。
+    - 担当教員名が `faculties` に存在しない場合は、その教員を `subject_faculties` に入れずに警告ログを出す。
+  - どちらも既存ジョブ（`build-class-change-notifications-job` など）と同じ形で `cmd/` に作り、`Dockerfile`・`mise.toml`・`.github/actions/set-env/action.yml` に追加して、同じ方法でデプロイ・スケジュール実行する。
 
 ### 3. API 定義
 
@@ -183,12 +192,14 @@ API ごとに互換性の要件が異なる。
 
 ## 決定事項
 
-- `lesson_id` は年度をまたいで同じ値 → `syllabuses` のユニークキーは `(lesson_id, year)`。
+- `lesson_id` は年度をまたいで同じ値 → 授業の識別は `(lesson_id, year)`。
+- `syllabuses` は複数バージョンを保持し、どのバージョンを使うかは `subjects.syllabus_id` の紐付けで決める。
+- 担当教員名が `faculties` に存在しない場合はスキップして警告ログ。
+- ジョブは既存ジョブと同じ形で作る。
 - シラバスと科目は 1:1 のまま。
 - 今回の実装範囲: DB + server、シラバス取得ジョブ、科目生成ジョブ（app 対応は対象外）。
 
 ## 未決事項
 
-1. 科目生成ジョブが、admin-api で手修正した科目を上書きしてよいか。
-2. 担当教員名が `faculties` に存在しない場合の扱い（自動作成する／スキップしてログに出す）。
-3. ジョブの実行基盤とスケジュール（既存ジョブと同じく Cloud Run Jobs か、実行頻度）。
+1. シラバス取得ジョブ・科目生成ジョブの実行頻度。
+2. 科目を新しいシラバスバージョンへ付け替える運用（admin-api での手動操作のみか、差分の通知を出すか）。
