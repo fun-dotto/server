@@ -79,16 +79,16 @@ message GetPastExamDownloadUrlResponse {
 
 ## 5. データモデル
 
-```
-past_exams
-  id           uuid PK
-  subject_id   uuid FK → subjects
-  object_name  text NOT NULL   -- バケット内のキー。外部には出さない
-  file_name    text NOT NULL
-  size_bytes   bigint
-  created_at   timestamptz
-  UNIQUE (object_name)
-```
+テーブル名: `past_exams`
+
+| カラム | 型 | NULL | キー・制約 | 説明 |
+|---|---|---|---|---|
+| `id` | uuid | NOT NULL | PK | 過去問ID。API で公開する不透明な ID |
+| `subject_id` | uuid | NOT NULL | FK → `subjects.id` | 対象の科目 |
+| `object_name` | text | NOT NULL | UNIQUE | バケット内のオブジェクトキー。外部には出さない |
+| `file_name` | text | NOT NULL | | 表示用のファイル名 |
+| `size_bytes` | bigint | NULL | | ファイルサイズ(バイト) |
+| `created_at` | timestamptz | NOT NULL | | 登録日時 |
 
 - モデルは `internal/shared/model` に追加し、Atlas でマイグレーションを作成する。`docs/er-diagram.md` も更新する。
 - 代替案(実行時に GCS をプレフィックスで一覧取得)は、毎回 GCS を呼ぶこと、ID が不安定になること、DB で管理できないことから採用しない。
