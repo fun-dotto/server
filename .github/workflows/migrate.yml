@@ -1,0 +1,177 @@
+name: Migrate
+
+# DB マイグレーション（Atlas）の検証と適用。
+# - pull_request / merge_group: 静的検証と、dev / stg / prd への dry-run（DB は変更しない）
+# - push（main）: dev / stg へ適用
+# - workflow_dispatch: 選択した環境へ適用（prd は GitHub Environment の承認が必要）
+# 設計: docs/design/20261110_atlas_migration.md
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - ready_for_review
+      - reopened
+      - synchronize
+  merge_group:
+    types:
+      - checks_requested
+  workflow_dispatch:
+    inputs:
+      environment_name:
+        description: 適用先の環境（prd は dev / stg で適用済みのコミットのみ）
+        required: true
+        type: choice
+        options:
+          - dev
+          - stg
+          - prd
+
+permissions:
+  contents: read
+
+env:
+  CLOUD_SQL_INSTANCE_CONNECTION_NAME: swift2023groupc:asia-northeast1:dotto
+  DRY_RUN_SERVICE_ACCOUNT: gha-server-migrate-dry-run@swift2023groupc.iam.gserviceaccount.com
+  APPLY_SERVICE_ACCOUNT: gha-server-migrate-apply@swift2023groupc.iam.gserviceaccount.com
+
+jobs:
+  # 環境に依存しない静的検証。matrix にせず 1 回だけ実行する。
+  validate:
+    name: Migration Validate
+    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: migrate-validate-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup mise
+        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        with:
+          github_token: ${{ github.token }}
+          cache: true
+
+      - name: Setup
+        run: mise bootstrap
+
+      # atlas.sum の整合性（atlas migrate lint は Atlas のログインが必要なため使わない）
+      - name: Validate migrations
+        run: mise run migrate:validate
+
+      # モデルの変更に対するマイグレーションの生成し忘れを検出する
+      - name: Check model diff
+        run: |
+          atlas migrate diff ci_check --env gorm
+          if [ -n "$(git status --porcelain migrations)" ]; then
+            echo "::error::GORM モデルとマイグレーションに差分があります。mise run migrate:diff <name> でマイグレーションを生成してください"
+            git status --porcelain migrations
+            git diff migrations
+            exit 1
+          fi
+
+  # 各環境の DB に接続して、未適用のリビジョンを確認する（DB は変更しない）。
+  # GitHub Environment を指定しない（prd は承認必須・保護ブランチ限定のため PR で使えない）。
+  # fork からの PR にはシークレット / OIDC が渡らないため対象外。
+  dry-run:
+    name: Migration Dry Run
+    if: >-
+      github.event_name == 'merge_group'
+      || (github.event_name == 'pull_request'
+        && github.event.pull_request.draft == false
+        && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write # dry-run の結果を PR にコメントする
+    concurrency:
+      group: migrate-dry-run-${{ github.ref }}-${{ matrix.environment }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - environment: dev
+            database_name: dotto_dev
+          - environment: stg
+            database_name: dotto_stg
+          - environment: prd
+            database_name: dotto
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/atlas-migrate
+        with:
+          environment: ${{ matrix.environment }}
+          database_name: ${{ matrix.database_name }}
+          instance_connection_name: ${{ env.CLOUD_SQL_INSTANCE_CONNECTION_NAME }}
+          service_account: ${{ env.DRY_RUN_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.PROJECT_ID }}
+          dry_run: "true"
+
+      # dry-run の結果を PR にコメントする（環境ごとに 1 件。再実行時は同じコメントを更新する）。
+      # 失敗した場合も出力を残す。merge_group には PR がないためコメントしない。
+      - name: Comment dry-run result
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ENVIRONMENT: ${{ matrix.environment }}
+          DATABASE_NAME: ${{ matrix.database_name }}
+          JOB_STATUS: ${{ job.status }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          marker="<!-- atlas-migrate-dry-run:${ENVIRONMENT} -->"
+          log_file="$RUNNER_TEMP/atlas-migrate.log"
+          if [ -s "$log_file" ]; then
+            # コメントの上限 (65536 文字) に収まるよう末尾を残して切り詰める
+            output="$(tail -c 50000 "$log_file")"
+          else
+            output="(atlas の出力はありません。接続前に失敗した可能性があります。ジョブのログを確認してください)"
+          fi
+          if [ "$JOB_STATUS" = "success" ]; then icon="✅"; else icon="❌"; fi
+          body="$(printf '%s\n### %s Migration Dry Run: `%s` (`%s`)\n\n<details open><summary>atlas migrate apply --dry-run</summary>\n\n```\n%s\n```\n\n</details>\n\n[ジョブのログ](%s)\n' \
+            "$marker" "$icon" "$ENVIRONMENT" "$DATABASE_NAME" "$output" "$RUN_URL")"
+          comment_id="$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --paginate \
+            --jq "map(select(.user.login == \"github-actions[bot]\" and (.body | contains(\"${marker}\")))) | first | .id // empty")"
+          if [ -n "$comment_id" ]; then
+            gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${comment_id}" -f body="$body" > /dev/null
+          else
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -f body="$body" > /dev/null
+          fi
+
+  # main への push は dev / stg、workflow_dispatch は選択した環境に適用する。
+  apply:
+    name: Migration Apply
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    # 同一環境への並列実行を防ぐ（Atlas も advisory lock を取得する）
+    concurrency:
+      group: migrate-apply-${{ matrix.environment }}
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include: ${{ fromJSON(github.event_name == 'push' && '[{"environment":"dev","database_name":"dotto_dev"},{"environment":"stg","database_name":"dotto_stg"}]' || (inputs.environment_name == 'prd' && '[{"environment":"prd","database_name":"dotto"}]') || (inputs.environment_name == 'stg' && '[{"environment":"stg","database_name":"dotto_stg"}]') || '[{"environment":"dev","database_name":"dotto_dev"}]') }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/atlas-migrate
+        with:
+          environment: ${{ matrix.environment }}
+          database_name: ${{ matrix.database_name }}
+          instance_connection_name: ${{ env.CLOUD_SQL_INSTANCE_CONNECTION_NAME }}
+          service_account: ${{ env.APPLY_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.PROJECT_ID }}
+          dry_run: "false"
+          # 新規テーブルの owner を dotto_admin にする
+          database_role: dotto_admin

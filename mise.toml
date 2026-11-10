@@ -73,6 +73,17 @@ arg "name" help="生成するマイグレーション名 (省略可、例: add_u
 '''
 run = 'atlas migrate diff {{arg(name="name")}} --env gorm'
 
+[tasks."migrate:validate"]
+description = "マイグレーションの整合性 (atlas.sum) を検査する"
+run = "atlas migrate validate --env gorm"
+
+[tasks."migrate:plan"]
+description = "Atlas で未適用のマイグレーションを dry-run する (DATABASE_URL が必要。DB は変更しない)"
+usage = '''
+arg "env" help="対象の環境 (dev / stg / prd)"
+'''
+run = 'atlas migrate apply --env {{arg(name="env")}} --dry-run'
+
 [tasks."migrate:apply"]
 description = "マイグレーションを実行する"
 run = "go run ./cmd/migrate"
