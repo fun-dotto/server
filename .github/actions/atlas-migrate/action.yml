@@ -24,7 +24,7 @@ inputs:
     required: false
     default: "true"
   database_role:
-    description: 接続後に SET ROLE するロール（適用用は dotto_admin。空なら指定しない）
+    description: 接続後に SET ROLE するロール（適用用は dotto_admin_<env>。空なら指定しない）
     required: false
     default: ""
   cloud_sql_proxy_version:

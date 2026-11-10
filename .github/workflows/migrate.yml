@@ -32,7 +32,6 @@ permissions:
 
 env:
   CLOUD_SQL_INSTANCE_CONNECTION_NAME: swift2023groupc:asia-northeast1:dotto
-  DRY_RUN_SERVICE_ACCOUNT: gha-server-migrate-dry-run@swift2023groupc.iam.gserviceaccount.com
 
 jobs:
   # 環境に依存しない静的検証。matrix にせず 1 回だけ実行する。
@@ -105,7 +104,7 @@ jobs:
           environment: ${{ matrix.environment }}
           database_name: ${{ matrix.database_name }}
           instance_connection_name: ${{ env.CLOUD_SQL_INSTANCE_CONNECTION_NAME }}
-          service_account: ${{ env.DRY_RUN_SERVICE_ACCOUNT }}
+          service_account: gha-server-migrate-dry-run-${{ matrix.environment }}@swift2023groupc.iam.gserviceaccount.com
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.PROJECT_ID }}
           dry_run: "true"

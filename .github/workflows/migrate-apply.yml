@@ -18,7 +18,6 @@ permissions:
 
 env:
   CLOUD_SQL_INSTANCE_CONNECTION_NAME: swift2023groupc:asia-northeast1:dotto
-  APPLY_SERVICE_ACCOUNT: gha-server-migrate-apply@swift2023groupc.iam.gserviceaccount.com
 
 jobs:
   apply:
@@ -45,9 +44,9 @@ jobs:
           environment: ${{ matrix.environment }}
           database_name: ${{ fromJSON('{"dev":"dotto_dev","stg":"dotto_stg","prd":"dotto"}')[matrix.environment] }}
           instance_connection_name: ${{ env.CLOUD_SQL_INSTANCE_CONNECTION_NAME }}
-          service_account: ${{ env.APPLY_SERVICE_ACCOUNT }}
+          service_account: gha-server-migrate-apply-${{ matrix.environment }}@swift2023groupc.iam.gserviceaccount.com
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.PROJECT_ID }}
           dry_run: "false"
-          # 新規テーブルの owner を dotto_admin にする
-          database_role: dotto_admin
+          # 新規テーブルの owner を環境ごとの dotto_admin_<env> にする
+          database_role: dotto_admin_${{ matrix.environment }}

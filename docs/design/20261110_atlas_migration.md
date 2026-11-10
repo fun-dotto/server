@@ -91,7 +91,7 @@ env "dev" {
 # stg / prd も同様
 ```
 
-`DATABASE_URL` は `postgres://<iam-user>@127.0.0.1:5432/<dotto | dotto_stg | dotto_dev>?sslmode=disable`（IAM ユーザー名の `@` は `%40` にエスケープする）。適用時は `&options=-c%20role%3Ddotto_admin` を付け、接続後に `dotto_admin` へ切り替える。インスタンスは共通で、環境ごとに変わるのは DB 名のみ。
+`DATABASE_URL` は `postgres://<iam-user>@127.0.0.1:5432/<dotto | dotto_stg | dotto_dev>?sslmode=disable`（IAM ユーザー名の `@` は `%40` にエスケープする）。適用時は `&options=-c%20role%3Ddotto_admin_<env>` を付け、接続後に環境ごとの `dotto_admin_<env>` へ切り替える。インスタンスは共通で、環境ごとに変わるのは DB 名のみ。
 
 `env "gorm"`（diff 生成用）は据え置く。
 
@@ -117,25 +117,25 @@ env "dev" {
 
 これを別ジョブとして残さず **マイグレーション適用に内包した**。方針は次のとおり。
 
-1. **新規テーブルの owner を `dotto_admin` にする。** 適用用 SA（Cloud SQL IAM ユーザー）は Terraform の `database_roles` で `dotto_admin` のメンバーになっており（`inherit_option` / `set_option` がともに true）、接続時に `options=-c role=dotto_admin` を指定して切り替える。Atlas（pgx）がこのパラメータを透過することは、dev / stg への適用で確認済み。
-2. **新規テーブルへの権限は `ALTER DEFAULT PRIVILEGES` で自動付与する。** `dotto_admin` が作るオブジェクトに対して付与される。
+1. **新規テーブルの owner を `dotto_admin_<env>` にする。** 適用用 SA（環境ごとの Cloud SQL IAM ユーザー）は Terraform の `database_roles` で自環境の `dotto_admin_<env>` のメンバーになっており（`inherit_option` / `set_option` がともに true）、接続時に `options=-c role=dotto_admin_<env>` を指定して切り替える。Atlas（pgx）がこのパラメータを透過することは、dev / stg への適用で確認済み。
+2. **新規テーブルへの権限は `ALTER DEFAULT PRIVILEGES` で自動付与する。** `dotto_admin_<env>` が作るオブジェクトに対して付与される。
 3. **既存テーブルの owner 変更・権限付与は、マイグレーションに含めず手動で行う。**
 
 | ロール | dotto_dev / dotto_stg | dotto (prd) |
 | --- | --- | --- |
-| `dotto_admin` | owner、`ALL` | owner、`ALL` |
-| `dotto_service` | `SELECT, INSERT, UPDATE, DELETE` | `SELECT, INSERT, UPDATE, DELETE` |
+| `dotto_admin_<env>` | owner、`ALL` | owner、`ALL` |
+| `dotto_service_<env>` | `SELECT, INSERT, UPDATE, DELETE` | `SELECT, INSERT, UPDATE, DELETE` |
 | `dotto_developer` | `SELECT, INSERT, UPDATE, DELETE` | **`SELECT` のみ** |
 
 prd では運用上、`dotto_developer` には `SELECT` のみを与える。現行の `apply-table-privileges` は全環境で `dotto_developer` に DML を付与していたため、prd への切り替え時に既存テーブルの `INSERT, UPDATE, DELETE` を取り消す。手動実行する SQL は infra の `docs/atlas-migration.md` にまとめている。
 
 注意点:
 
-- `ALTER DEFAULT PRIVILEGES` は **DB 単位**（`dotto` / `dotto_stg` / `dotto_dev` それぞれ）かつ **作成者ロール単位**。`dotto_admin` 以外のロールで作ったテーブルには効かないため、1 の `role=dotto_admin` が前提になる。
+- `ALTER DEFAULT PRIVILEGES` は **DB 単位**（`dotto` / `dotto_stg` / `dotto_dev` それぞれ）かつ **作成者ロール単位**。`dotto_admin_<env>` 以外のロールで作ったテーブルには効かないため、1 の `role=dotto_admin_<env>` が前提になる。
 - 現行ジョブはシーケンスへの権限を扱っていない。シーケンスを使うテーブル（`serial` / `bigserial`）が追加された場合は、`USAGE` の付与（`ALTER DEFAULT PRIVILEGES ... ON SEQUENCES`）も必要になる。
 - 人手で作ったテーブルやマイグレーション外の変更は、この方式では権限が補正されない（旧ジョブの「全テーブル再付与」と挙動が異なる）。
 
-stg では、GTFS のマイグレーションを適用して、新規テーブルの owner が `dotto_admin`、権限が上表どおりに付くことを確認した。
+stg では、GTFS のマイグレーションを適用して、新規テーブルの owner が `dotto_admin`（環境別ロールへの分割前）、権限が上表どおりに付くことを確認した。
 
 ### 4. コードの削除
 
@@ -175,14 +175,16 @@ atlas migrate apply --env <env> [--dry-run]
 | --- | --- |
 | DB ユーザー | サービスアカウントを Cloud SQL の IAM ユーザーとして登録する（ユーザー名は `<sa-name>@swift2023groupc.iam`、`.gserviceaccount.com` を除いた形）。infra の `terraform/google/foundation/cloud-sql/users.tf` で管理 |
 | IAM ロール | `roles/cloudsql.client`、`roles/cloudsql.instanceUser` |
-| DB 権限 | dry-run 用: 接続と `atlas_schema_revisions` の読み取り。適用用: `dotto_admin` ロールのメンバーとし、`role=dotto_admin` で接続して DDL を実行する |
+| DB 権限 | dry-run 用: 接続と `atlas_schema_revisions` の読み取り。適用用: 自環境の `dotto_admin_<env>` ロールのメンバーとし、`role=dotto_admin_<env>` で接続して DDL を実行する。dry-run 用は `dotto_migrate_readonly_<env>` |
 
 リビジョンテーブルは `public` ではなく、専用スキーマ `atlas_schema_revisions` の `atlas_schema_revisions` テーブルにある。dry-run 用ロールには、このスキーマの `USAGE` とテーブルの `SELECT` を付与する。
 
 #### サービスアカウントの分離
 
-- **dry-run 用（読み取り専用）`gha-server-migrate-dry-run`:** `pull_request` / `merge_group` で使う。server リポジトリの任意のワークフローから借用できる（読み取り専用のため）。fork からの PR には OIDC トークンが渡らない。
-- **適用用（DDL 権限あり）`gha-server-migrate-apply`:** 適用ジョブで使う。server の GitHub Environment（dev / stg / prd）を指定したジョブからのみ借用できる。prd は Environment 側の承認者必須・保護ブランチ限定で守る。
+ロールはインスタンス共通のため、SA とロールは環境（dev / stg / prd）ごとに分けている。各 SA は自環境の DB にのみ接続できる。ロール構成の詳細は infra の `docs/postgresql_roles.md` を参照。
+
+- **dry-run 用（読み取り専用）`gha-server-migrate-dry-run-<env>`（ロール `dotto_migrate_readonly_<env>`）:** `pull_request` / `merge_group` で使う。server リポジトリの任意のワークフローから借用できる（読み取り専用のため）。fork からの PR には OIDC トークンが渡らない。
+- **適用用（DDL 権限あり）`gha-server-migrate-apply-<env>`（ロール `dotto_admin_<env>`）:** 適用ジョブで使う。server の同名の GitHub Environment を指定したジョブからのみ借用できる（他環境の Environment では借用できない）。prd は Environment 側の承認者必須・保護ブランチ限定で守る。
 
 ### 7. infra 側の対応
 
@@ -192,7 +194,7 @@ atlas migrate apply --env <env> [--dry-run]
 | --- | --- | --- |
 | マイグレーション用 SA（dry-run 用 / 適用用）の作成 | `terraform/google/foundation/iam-workload-identity` | 完了（infra#100） |
 | 各 SA への `roles/cloudsql.client` / `roles/cloudsql.instanceUser` の付与 | 同上 | 完了（infra#100） |
-| SA の Cloud SQL IAM ユーザー登録とロール割り当て | `terraform/google/foundation/cloud-sql` | 完了（infra#100）。適用用は `dotto_admin` |
+| SA の Cloud SQL IAM ユーザー登録とロール割り当て | `terraform/google/foundation/cloud-sql` | 完了（infra#100）。環境別への分割は infra#103。適用用は `dotto_admin_<env>` |
 | 環境ごとの権限分離 | WIF プロバイダ | 完了（infra#100）。プロバイダに `attribute.repository_environment`（`<owner>/<repo>/<environment>`）を追加し、適用用 SA の借用を server の Environment 限定にした |
 | `required_status_checks` の追加 | `terraform/github/fun-dotto/repository-server.tf` | 完了（infra#101） |
 | DB ロールの GRANT（読み取り専用ロール、`ALTER DEFAULT PRIVILEGES` など） | Cloud SQL（手動 SQL） | dev / stg は完了、prd は適用前に実施する。手順は infra の `docs/atlas-migration.md` |
