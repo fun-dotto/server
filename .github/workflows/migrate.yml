@@ -87,6 +87,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      pull-requests: write # dry-run の結果を PR にコメントする
     concurrency:
       group: migrate-dry-run-${{ github.ref }}-${{ matrix.environment }}
       cancel-in-progress: true
@@ -111,6 +112,37 @@ jobs:
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.PROJECT_ID }}
           dry_run: "true"
+
+      # dry-run の結果を PR にコメントする（環境ごとに 1 件。再実行時は同じコメントを更新する）。
+      # 失敗した場合も出力を残す。merge_group には PR がないためコメントしない。
+      - name: Comment dry-run result
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ENVIRONMENT: ${{ matrix.environment }}
+          DATABASE_NAME: ${{ matrix.database_name }}
+          JOB_STATUS: ${{ job.status }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          marker="<!-- atlas-migrate-dry-run:${ENVIRONMENT} -->"
+          log_file="$RUNNER_TEMP/atlas-migrate.log"
+          if [ -s "$log_file" ]; then
+            # コメントの上限 (65536 文字) に収まるよう末尾を残して切り詰める
+            output="$(tail -c 50000 "$log_file")"
+          else
+            output="(atlas の出力はありません。接続前に失敗した可能性があります。ジョブのログを確認してください)"
+          fi
+          if [ "$JOB_STATUS" = "success" ]; then icon="✅"; else icon="❌"; fi
+          body="$(printf '%s\n### %s Migration Dry Run: `%s` (`%s`)\n\n<details open><summary>atlas migrate apply --dry-run</summary>\n\n```\n%s\n```\n\n</details>\n\n[ジョブのログ](%s)\n' \
+            "$marker" "$icon" "$ENVIRONMENT" "$DATABASE_NAME" "$output" "$RUN_URL")"
+          comment_id="$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" --paginate \
+            --jq "map(select(.user.login == \"github-actions[bot]\" and (.body | contains(\"${marker}\")))) | first | .id // empty")"
+          if [ -n "$comment_id" ]; then
+            gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${comment_id}" -f body="$body" > /dev/null
+          else
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -f body="$body" > /dev/null
+          fi
 
   # main への push は dev / stg、workflow_dispatch は選択した環境に適用する。
   # 権限付与の手動対応（docs/design/20261110_atlas_migration.md「3. 権限付与」）が完了するまでは

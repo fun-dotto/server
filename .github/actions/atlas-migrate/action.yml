@@ -92,4 +92,6 @@ runs:
           args+=(--dry-run)
         fi
         echo "atlas ${args[*]} (database: ${DATABASE_NAME})"
-        atlas "${args[@]}"
+        # 出力は $RUNNER_TEMP/atlas-migrate.log にも保存する（PR コメント用）。atlas の終了コードを維持する
+        set -o pipefail
+        atlas "${args[@]}" 2>&1 | tee "$RUNNER_TEMP/atlas-migrate.log"
