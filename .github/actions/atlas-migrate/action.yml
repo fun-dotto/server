@@ -1,0 +1,95 @@
+name: Atlas Migrate
+description: Cloud SQL に IAM 認証で接続し、Atlas でマイグレーションを適用（または dry-run）する
+inputs:
+  environment:
+    description: atlas.hcl の env 名（dev / stg / prd）
+    required: true
+  database_name:
+    description: 接続先の DB 名（dotto / dotto_stg / dotto_dev）
+    required: true
+  instance_connection_name:
+    description: Cloud SQL のインスタンス接続名（<project>:<region>:<instance>）
+    required: true
+  service_account:
+    description: 借用するサービスアカウントのメールアドレス（dry-run 用 / 適用用）
+    required: true
+  workload_identity_provider:
+    description: Workload Identity プロバイダ
+    required: true
+  project_id:
+    description: GCP プロジェクト ID
+    required: true
+  dry_run:
+    description: true の場合は dry-run（DB を変更しない）
+    required: false
+    default: "true"
+  database_role:
+    description: 接続後に SET ROLE するロール（適用用は dotto_admin。空なら指定しない）
+    required: false
+    default: ""
+  cloud_sql_proxy_version:
+    description: Cloud SQL Auth Proxy のバージョン
+    required: false
+    default: v2.18.0
+runs:
+  using: composite
+  steps:
+    - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+      with:
+        workload_identity_provider: ${{ inputs.workload_identity_provider }}
+        service_account: ${{ inputs.service_account }}
+        project_id: ${{ inputs.project_id }}
+
+    # mise.toml と同じバージョンの Atlas を使う
+    - name: Setup mise
+      uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+      with:
+        github_token: ${{ github.token }}
+        cache: true
+        install_args: atlas
+
+    - name: Start Cloud SQL Auth Proxy
+      shell: bash
+      env:
+        PROXY_VERSION: ${{ inputs.cloud_sql_proxy_version }}
+        INSTANCE_CONNECTION_NAME: ${{ inputs.instance_connection_name }}
+      run: |
+        curl -fsSL -o "$RUNNER_TEMP/cloud-sql-proxy" \
+          "https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/${PROXY_VERSION}/cloud-sql-proxy.linux.amd64"
+        chmod +x "$RUNNER_TEMP/cloud-sql-proxy"
+        "$RUNNER_TEMP/cloud-sql-proxy" --auto-iam-authn --address 127.0.0.1 --port 5432 \
+          "$INSTANCE_CONNECTION_NAME" > "$RUNNER_TEMP/cloud-sql-proxy.log" 2>&1 &
+        for _ in $(seq 1 30); do
+          if (echo > /dev/tcp/127.0.0.1/5432) 2>/dev/null; then
+            exit 0
+          fi
+          sleep 1
+        done
+        echo "::error::Cloud SQL Auth Proxy が起動しませんでした"
+        cat "$RUNNER_TEMP/cloud-sql-proxy.log"
+        exit 1
+
+    - name: Run atlas migrate apply
+      shell: bash
+      env:
+        ATLAS_ENV: ${{ inputs.environment }}
+        DATABASE_NAME: ${{ inputs.database_name }}
+        SERVICE_ACCOUNT: ${{ inputs.service_account }}
+        DATABASE_ROLE: ${{ inputs.database_role }}
+        DRY_RUN: ${{ inputs.dry_run }}
+      run: |
+        # Cloud SQL の IAM ユーザー名は、SA のメールアドレスから ".gserviceaccount.com" を除いたもの
+        IAM_USER="${SERVICE_ACCOUNT%.gserviceaccount.com}"
+        # "@" は userinfo 内でエスケープする
+        DATABASE_URL="postgres://${IAM_USER//@/%40}@127.0.0.1:5432/${DATABASE_NAME}?sslmode=disable"
+        if [ -n "$DATABASE_ROLE" ]; then
+          DATABASE_URL="${DATABASE_URL}&options=-c%20role%3D${DATABASE_ROLE}"
+        fi
+        export DATABASE_URL
+
+        args=(migrate apply --env "$ATLAS_ENV")
+        if [ "$DRY_RUN" = "true" ]; then
+          args+=(--dry-run)
+        fi
+        echo "atlas ${args[*]} (database: ${DATABASE_NAME})"
+        atlas "${args[@]}"
