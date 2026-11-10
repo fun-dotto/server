@@ -1,7 +1,8 @@
 name: Deploy
 
-# main への push: ビルドして latest を更新し、stg へデプロイする。
-# 手動実行: action で実行範囲を選択する。
+# main への push: dev / stg にマイグレーションを適用してから、ビルドして latest を更新し、stg へデプロイする。
+# 手動実行: action で実行範囲を選択する。dev / stg へデプロイする場合はマイグレーションを先に適用する。
+# prd のマイグレーションはここでは適用しない（Migrate ワークフローの手動実行で、デプロイより前に適用する）。
 on:
   push:
     branches:
@@ -79,18 +80,30 @@ jobs:
           tag_latest: ${{ github.event_name == 'push' }}
 
   # set-env が明示列挙した matrix で各ターゲットを並列デプロイする。対象の増減は set-env の DEPLOY_TARGETS を編集する。
+  # アプリのデプロイより前に DB マイグレーションを適用する。失敗した場合はデプロイしない。
+  # main への push は dev / stg、手動実行は選択した環境（build-push と prd を除く）。
+  migrate:
+    if: >-
+      github.event_name == 'push'
+      || (inputs.action != 'build-push' && inputs.environment_name != 'prd')
+    uses: ./.github/workflows/migrate-apply.yml
+    with:
+      environments: ${{ github.event_name == 'push' && '["dev","stg"]' || format('["{0}"]', inputs.environment_name) }}
+
   deploy:
-    # build-and-push がスキップされた場合もデプロイするため、結果を明示的に判定する。
+    # build-and-push / migrate がスキップされた場合もデプロイするため、結果を明示的に判定する。
     if: >-
       !cancelled()
       && inputs.action != 'build-push'
       && needs.set-env.result == 'success'
       && (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped')
+      && (needs.migrate.result == 'success' || needs.migrate.result == 'skipped')
     runs-on: ubuntu-latest
     environment: ${{ needs.set-env.outputs.environment }}
     needs:
       - set-env
       - build-and-push
+      - migrate
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.set-env.outputs.matrix) }}

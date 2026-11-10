@@ -85,8 +85,11 @@ arg "env" help="対象の環境 (dev / stg / prd)"
 run = 'atlas migrate apply --env {{arg(name="env")}} --dry-run'
 
 [tasks."migrate:apply"]
-description = "マイグレーションを実行する"
-run = "go run ./cmd/migrate"
+description = "Atlas でマイグレーションを適用する (DATABASE_URL が必要)"
+usage = '''
+arg "env" help="適用先の環境 (dev / stg / prd)"
+'''
+run = 'atlas migrate apply --env {{arg(name="env")}}'
 
 [tasks."run:academic-api"]
 description = "academic-api を 起動する (https://academic-api.dotto.localhost)"

@@ -1,14 +1,12 @@
 name: Migrate
 
-# DB マイグレーション（Atlas）の検証と適用。
+# DB マイグレーション（Atlas）の検証と手動適用。
 # - pull_request / merge_group: 静的検証と、dev / stg / prd への dry-run（DB は変更しない）
-# - push（main）: dev / stg へ適用
-# - workflow_dispatch: 選択した環境へ適用（prd は GitHub Environment の承認が必要）
+# - workflow_dispatch: 選択した環境へ手動で適用（prd は GitHub Environment の承認が必要）
+# main への push 時の dev / stg への適用は、デプロイより前に完了させるため deploy.yml から
+# migrate-apply.yml を呼び出して行う。
 # 設計: docs/design/20261110_atlas_migration.md
 on:
-  push:
-    branches:
-      - main
   pull_request:
     types:
       - opened
@@ -35,7 +33,6 @@ permissions:
 env:
   CLOUD_SQL_INSTANCE_CONNECTION_NAME: swift2023groupc:asia-northeast1:dotto
   DRY_RUN_SERVICE_ACCOUNT: gha-server-migrate-dry-run@swift2023groupc.iam.gserviceaccount.com
-  APPLY_SERVICE_ACCOUNT: gha-server-migrate-apply@swift2023groupc.iam.gserviceaccount.com
 
 jobs:
   # 環境に依存しない静的検証。matrix にせず 1 回だけ実行する。
@@ -144,34 +141,13 @@ jobs:
             gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -f body="$body" > /dev/null
           fi
 
-  # main への push は dev / stg、workflow_dispatch は選択した環境に適用する。
+  # 選択した環境に手動で適用する。prd は dev / stg で適用済みのコミットのみを想定する。
   apply:
     name: Migration Apply
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    environment: ${{ matrix.environment }}
+    if: github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/migrate-apply.yml
     permissions:
       contents: read
       id-token: write
-    # 同一環境への並列実行を防ぐ（Atlas も advisory lock を取得する）
-    concurrency:
-      group: migrate-apply-${{ matrix.environment }}
-      cancel-in-progress: false
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        include: ${{ fromJSON(github.event_name == 'push' && '[{"environment":"dev","database_name":"dotto_dev"},{"environment":"stg","database_name":"dotto_stg"}]' || (inputs.environment_name == 'prd' && '[{"environment":"prd","database_name":"dotto"}]') || (inputs.environment_name == 'stg' && '[{"environment":"stg","database_name":"dotto_stg"}]') || '[{"environment":"dev","database_name":"dotto_dev"}]') }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: ./.github/actions/atlas-migrate
-        with:
-          environment: ${{ matrix.environment }}
-          database_name: ${{ matrix.database_name }}
-          instance_connection_name: ${{ env.CLOUD_SQL_INSTANCE_CONNECTION_NAME }}
-          service_account: ${{ env.APPLY_SERVICE_ACCOUNT }}
-          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
-          project_id: ${{ vars.PROJECT_ID }}
-          dry_run: "false"
-          # 新規テーブルの owner を dotto_admin にする
-          database_role: dotto_admin
+    with:
+      environments: ${{ format('["{0}"]', inputs.environment_name) }}

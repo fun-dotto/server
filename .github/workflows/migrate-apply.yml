@@ -1,0 +1,53 @@
+name: Migrate Apply
+
+# Atlas で DB マイグレーションを適用する再利用ワークフロー。
+# 呼び出し元:
+# - deploy.yml: アプリのデプロイより前にマイグレーションを完了させる
+# - migrate.yml: workflow_dispatch で選択した環境に手動で適用する
+# 設計: docs/design/20261110_atlas_migration.md
+on:
+  workflow_call:
+    inputs:
+      environments:
+        description: 適用先の環境の JSON 配列（例 ["dev","stg"]）。配列の順に 1 環境ずつ適用する
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  CLOUD_SQL_INSTANCE_CONNECTION_NAME: swift2023groupc:asia-northeast1:dotto
+  APPLY_SERVICE_ACCOUNT: gha-server-migrate-apply@swift2023groupc.iam.gserviceaccount.com
+
+jobs:
+  apply:
+    name: Migration Apply
+    runs-on: ubuntu-latest
+    # prd は承認必須・保護ブランチ限定（terraform/github/fun-dotto/repository-server.tf）
+    environment: ${{ matrix.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    # 同一環境への並列実行を防ぐ（Atlas も advisory lock を取得する）
+    concurrency:
+      group: migrate-apply-${{ matrix.environment }}
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        environment: ${{ fromJSON(inputs.environments) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/atlas-migrate
+        with:
+          environment: ${{ matrix.environment }}
+          database_name: ${{ fromJSON('{"dev":"dotto_dev","stg":"dotto_stg","prd":"dotto"}')[matrix.environment] }}
+          instance_connection_name: ${{ env.CLOUD_SQL_INSTANCE_CONNECTION_NAME }}
+          service_account: ${{ env.APPLY_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.PROJECT_ID }}
+          dry_run: "false"
+          # 新規テーブルの owner を dotto_admin にする
+          database_role: dotto_admin
