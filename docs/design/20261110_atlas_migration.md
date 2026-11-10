@@ -119,30 +119,21 @@ env "dev" {
 
 1. **新規テーブルの owner を `dotto_admin` にする。** 適用用 SA（Cloud SQL IAM ユーザー）を `dotto_admin` ロールのメンバーにし、接続時に `role=dotto_admin`（`SET ROLE` 相当）を指定する。`DATABASE_URL` に `?options=-c%20role%3Ddotto_admin` を付ける案、または各マイグレーションの先頭に `SET ROLE dotto_admin;` を書く案がある。前者はファイルを汚さないが、Atlas（pgx）が実行時パラメータとして透過することの検証が必要。
 2. **新規テーブルへの権限は `ALTER DEFAULT PRIVILEGES` で自動付与する。** `dotto_admin` が作るオブジェクトに対し `dotto_service` / `dotto_developer` へ上記権限が付くよう、DB ごとに 1 回設定する。
-3. **既存テーブルは 1 回だけ catch-up する。** owner 変更と GRANT を行うマイグレーションを 1 本追加する（`DO` ブロックで `pg_tables` を走査）。ロールが存在しないローカル / dev 用 Docker Postgres でも失敗しないよう、`pg_roles` の存在確認でガードする。
+3. **既存テーブルの owner 変更・権限付与は、マイグレーションに含めず手動で行う（担当: kantacky）。** 各 DB（`dotto` / `dotto_stg` / `dotto_dev`）で、現行の `apply-table-privileges` と同じ内容（owner を `dotto_admin` に変更、`dotto_admin` に `ALL`、`dotto_service` / `dotto_developer` に `SELECT, INSERT, UPDATE, DELETE`）を実施する。あわせて 2 の `ALTER DEFAULT PRIVILEGES` も同じタイミングで 1 回実行する（マイグレーションには入れない）。
 
 ```sql
--- 例: migrations/<timestamp>_grant_privileges.sql（要検証）
-DO $$
-DECLARE t record;
-BEGIN
-  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'dotto_admin') THEN
-    FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = current_schema() LOOP
-      EXECUTE format('ALTER TABLE %I OWNER TO dotto_admin', t.tablename);
-      EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE %I TO dotto_service, dotto_developer', t.tablename);
-    END LOOP;
-    ALTER DEFAULT PRIVILEGES FOR ROLE dotto_admin
-      GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dotto_service, dotto_developer;
-  END IF;
-END $$;
+-- 手動実行用（各 DB で 1 回、dotto_admin 権限で実行）
+ALTER DEFAULT PRIVILEGES FOR ROLE dotto_admin
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dotto_service, dotto_developer;
 ```
+
+手動対応が完了するまでは、適用ワークフロー（`push` / `workflow_dispatch`）を有効化しない。
 
 注意点:
 
 - `ALTER DEFAULT PRIVILEGES` は **DB 単位**（`dotto` / `dotto_stg` / `dotto_dev` それぞれ）かつ **作成者ロール単位**。`dotto_admin` 以外のロールで作ったテーブルには効かないため、1 の `role=dotto_admin` が前提になる。
 - 現行ジョブはシーケンスへの権限を扱っていない。シーケンスを使うテーブル（`serial` / `bigserial`）があれば `USAGE` の付与も必要になる。要確認。
 - 人手で作ったテーブルやマイグレーション外の変更は、この方式では権限が補正されない（現行ジョブの「全テーブル再付与」と挙動が異なる）。必要なら移行後も `mise` タスクとして手動で流せるようにしておく。
-- 全環境で適用済みとなった後は、catch-up のマイグレーションが `atlas.sum` に残る点に注意する（過去の履歴として許容する）。
 
 これにより `apply-table-privileges` と Cloud Run Job は不要になり、「4. コードの削除」で一緒に削除できる。
 
@@ -158,7 +149,7 @@ END $$;
 
 1. 既存環境の `atlas_schema_revisions` の中身が Atlas CLI から読めることを確認する（自作実装はテーブル定義を互換にしている）。差異があれば `atlas migrate set` で合わせる。
 2. dry-run のみのワークフローを先に導入し、全環境で差分が空・想定どおりであることを確認する。
-3. 権限付与のマイグレーション（catch-up + `ALTER DEFAULT PRIVILEGES`）を追加し、dev で適用して既存テーブルの owner / 権限が現行ジョブの結果と一致することを確認する。
+3. 既存テーブルの権限変更と `ALTER DEFAULT PRIVILEGES` を各 DB で手動実施する（dev → stg → prd）。実施後、現行ジョブの結果と owner / 権限が一致することを確認する。
 4. dev で適用を CI に切り替え、続いて stg、最後に prd へ展開する。
 5. 安定後に `cmd/migrate` 等を削除する。
 
