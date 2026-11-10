@@ -182,20 +182,10 @@ atlas migrate apply --env <env> [--dry-run]
 - **dry-run 用（読み取り専用）:** `pull_request` / `merge_group` で使う。fork からの PR には渡さない。
 - **適用用（DDL 権限あり）:** `push`（main）と `workflow_dispatch` で使う。GitHub Environment ごとに別の SA / 変数を割り当て、prd は承認必須にする。
 
-#### ネットワーク構成による分岐
-
-| Cloud SQL の構成 | 方針 |
-| --- | --- |
-| Public IP あり（**現状これ**） | GitHub-hosted runner + Auth Proxy で接続する（上記） |
-| Private IP のみ（現状は該当しない） | GitHub-hosted runner からは到達できない。Cloud Run Job（`arigaio/atlas` イメージ + Auth Proxy サイドカー、または Job 用 SA の IAM 認証）で Atlas を実行し、ワークフローは Job を起動して結果を待つ。または self-hosted runner を VPC 内に置く |
-
-Cloud Run 組み込みの Cloud SQL 接続（`/cloudsql/...`）は IAM 認証のトークンを自動付与しないため、パスワードなし接続には Auth Proxy サイドカーが必要になる。
-
 ### 7. 未確定事項
 
 - 現在、本番で `migrate` / `apply-table-privileges` Job を誰がいつ実行しているか。**Terraform に Job 定義がない**ことは確認済みなので、手動作成・手動実行（`gcloud run jobs execute` 等）の可能性が高い。GCP 上の実在確認が必要。
 - GitHub Actions 用の接続権限の付与方式（「8. infra 側で必要な対応」で整理）。
-- ~~Cloud SQL が Public IP か Private IP か~~ → **Public IP（確認済み）。** GitHub-hosted runner + Auth Proxy で接続できる。
 - `dotto_dev` / `dotto_stg` / `dotto` の各 DB のスキーマ・`atlas_schema_revisions` の状態（infra からは確認できない）。
 - ファイル名が不揃いなマイグレーション（名前なし）の扱い。履歴の書き換えは不要で、今後は `mise run migrate:diff <name>` で名前を必須にする運用で足りる。
 
