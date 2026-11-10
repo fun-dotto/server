@@ -25,12 +25,14 @@
 | 本番適用 | 同一イメージの `/bin/migrate` を Cloud Run Job で実行。cloudsqlconn + IAM 認証で接続 |
 | リビジョン管理 | `internal/migrate/revisions.go` に Atlas CLI 互換の `atlas_schema_revisions` を自前実装（約 200 行） |
 | 権限 | 別ジョブ `apply-table-privileges` が全テーブルの owner を `dotto_admin` に変更し、権限を再付与 |
+| DB 構成（infra 確認済み） | Cloud SQL インスタンスは 1 つ（`swift2023groupc:asia-northeast1:dotto`、PostgreSQL 18、**Public IP 有効**、`cloudsql.iam_authentication=on`）。環境の分離は **同一インスタンス内の DB 名**（prd: `dotto` / stg: `dotto_stg` / dev: `dotto_dev`） |
 | `atlas.hcl` | `env "gorm"` のみ（`src` + `dev` + `migration.dir`）。接続先 `url` を持つ env はない |
 
 ### CI / CD
 
 - `ci.yml`: test / build / lint のみ。マイグレーションの検証はない。
 - `deploy.yml`: main への push で stg にデプロイ。`workflow_dispatch` で環境を選択でき、prd は `action: deploy` のみ指定可。**`migrate` / `apply-table-privileges` の Job を実行するステップはない**（`set-env` の `DEPLOY_TARGETS` にも含まれない）。適用は手動、または別管理と思われる。
+- infra 側（確認済み）: `migrate` / `apply-table-privileges` を実行する Cloud Run Job は **Terraform に定義がない**（`terraform/modules/cloud-run-job` を使う Job は import-gtfs / notify-user / build-irregular-notification のスケジュール実行系のみ）。手動作成または未管理の可能性が高い。
 - dev へは `workflow_dispatch` でのみデプロイ可能。push 時の対象は stg のみ。
 
 ### 課題
@@ -48,7 +50,7 @@
 
 - **適用も Atlas CLI に一本化する。** `atlas migrate apply` を使い、`--dry-run` で適用予定を確認できるようにする。自作のリビジョン管理（`revisions.go`）と `cmd/migrate` は廃止する。
 - **環境ごとに `atlas.hcl` の env を定義する。** 接続先は環境変数（`DATABASE_URL`）で注入する。
-- **GitHub Actions から Cloud SQL に IAM 認証で接続する。** Workload Identity Federation で認証し、Cloud SQL Auth Proxy 経由で接続する。環境ごとの GitHub Environment の `vars` で接続先を切り替える。
+- **GitHub Actions から Cloud SQL に IAM 認証で接続する。** Workload Identity Federation で認証し、Cloud SQL Auth Proxy 経由で接続する。環境ごとの GitHub Environment の `vars` で接続先（DB 名）を切り替える。インスタンスは全環境共通で、環境差は DB 名のみ。
 - **PR で静的検証と dry-run を行う。** DB を変更しない検証をマージ前に必ず通す。
 
 ### ワークフロー
@@ -61,7 +63,7 @@
 
 補足:
 
-- dry-run は DB に書き込まない。ただし接続して未適用のリビジョンを読むため、PR の CI にも各環境への読み取り接続が必要になる。fork からの PR ではシークレットが渡らないため、dry-run は同一リポジトリの PR のみ対象とする。
+- dry-run は DB に書き込まない。ただし接続して未適用のリビジョンを読むため、PR の CI にも各環境への読み取り接続が必要になる。**PR の dry-run ジョブは GitHub Environment（特に `prd`）を指定しない。** `prd` は承認者必須かつ保護ブランチのみ許可（`protected_branches_only`）のため、指定すると PR のたびに承認待ちになる、または PR ブランチから実行できない。環境の切り替えは matrix の値（DB 名）で行う。fork からの PR ではシークレットが渡らないため、dry-run は同一リポジトリの PR のみ対象とする。
 - 静的検証（validate / lint / 差分チェック）は環境に依存しないため 1 回だけ実行し、環境ごとの matrix は `apply --dry-run` のみに絞る。
 - `merge_group` でも同じ検証を実行し、マージキュー上の最終状態を検証する。
 - `workflow_dispatch` の prd は、dev / stg で適用済みのコミットのみ許可する運用を想定する（`deploy.yml` の prd 制約と揃える）。
@@ -86,8 +88,10 @@ env "dev" {
   }
 }
 
-# stg / prd も同様（接続先は GitHub Environment ごとの vars / secrets で切り替える）
+# stg / prd も同様（DB 名は GitHub Environment ごとの vars / PR 時は matrix の値で切り替える）
 ```
+
+`DATABASE_URL` は `postgres://<iam-user>@127.0.0.1:5432/<dotto | dotto_stg | dotto_dev>?sslmode=disable`。インスタンスは共通で、環境ごとに変わるのは DB 名（と IAM ユーザー）のみ。
 
 `env "gorm"`（diff 生成用）は据え置く。lint 用に `lint { latest = 1 }` などの設定も追加する。
 
@@ -100,6 +104,7 @@ env "dev" {
   3. mise で Atlas をセットアップ（`mise.toml` のバージョンと同一）
   4. `atlas migrate apply --env <env>`（dry-run 時は `--dry-run`）
 - PR 向けの静的検証ジョブでは、dev DB として `docker://postgres/18/dev` を使う（`atlas.hcl` の既存設定）。
+- 新しいチェック名（検証ジョブ・dry-run ジョブ）は infra 側の Ruleset の `required_status_checks`（現状 `Test` / `Lint` / `Build`）に追加する必要がある（「8. infra 側で必要な対応」参照）。matrix ジョブのチェック名は `ジョブ名 (env)` になる点に注意する。
 - `concurrency` を環境ごとに設定し、同一環境へのマイグレーションの並列実行を防ぐ（Atlas は advisory lock も取得する）。
 - `deploy.yml` の push 対象を stg から dev + stg に拡張するかは別途判断する。マイグレーションのみ dev / stg 両方を対象とし、アプリのデプロイ範囲は現状維持でもよい。
 
@@ -140,9 +145,11 @@ atlas migrate apply --env <env> [--dry-run]
 
 | 項目 | 内容 |
 | --- | --- |
-| DB ユーザー | WIF 用サービスアカウントを Cloud SQL の IAM ユーザーとして登録する（ユーザー名は `<sa-name>@<project>.iam`、`.gserviceaccount.com` を除いた形） |
+| DB ユーザー | WIF 用サービスアカウントを Cloud SQL の IAM ユーザーとして登録する（ユーザー名は `<sa-name>@swift2023groupc.iam`、`.gserviceaccount.com` を除いた形）。infra では `terraform/google/foundation/cloud-sql` の `google_sql_user` で管理しており、`database_service_accounts` に追加して `database_roles` を指定する |
 | IAM ロール | `roles/cloudsql.client`、`roles/cloudsql.instanceUser` |
 | DB 権限 | dry-run 用: 接続と `atlas_schema_revisions` の読み取り。適用用: DDL 権限（現状の `dotto_admin` への owner 変更との整合を設計する） |
+
+現状の DB ロール（infra 確認済み）: アプリ・ジョブの SA は `dotto_service`、人間の管理者は `dotto_admin`、開発者は `dotto_developer`。マイグレーション用 SA は `dotto_service` のままでは DDL ができない可能性が高く、`dotto_admin` 相当（または専用ロール）を割り当てる設計が必要。
 
 #### サービスアカウントの分離
 
@@ -153,14 +160,47 @@ atlas migrate apply --env <env> [--dry-run]
 
 | Cloud SQL の構成 | 方針 |
 | --- | --- |
-| Public IP あり | GitHub-hosted runner + Auth Proxy で接続する（上記） |
-| Private IP のみ | GitHub-hosted runner からは到達できない。Cloud Run Job（`arigaio/atlas` イメージ + Auth Proxy サイドカー、または Job 用 SA の IAM 認証）で Atlas を実行し、ワークフローは Job を起動して結果を待つ。または self-hosted runner を VPC 内に置く |
+| Public IP あり（**現状これ**） | GitHub-hosted runner + Auth Proxy で接続する（上記） |
+| Private IP のみ（現状は該当しない） | GitHub-hosted runner からは到達できない。Cloud Run Job（`arigaio/atlas` イメージ + Auth Proxy サイドカー、または Job 用 SA の IAM 認証）で Atlas を実行し、ワークフローは Job を起動して結果を待つ。または self-hosted runner を VPC 内に置く |
 
 Cloud Run 組み込みの Cloud SQL 接続（`/cloudsql/...`）は IAM 認証のトークンを自動付与しないため、パスワードなし接続には Auth Proxy サイドカーが必要になる。
 
 ### 7. 未確定事項
 
-- 現在、本番で `migrate` / `apply-table-privileges` Job を誰がいつ実行しているか（Terraform、手動 `gcloud run jobs execute` など）の確認が必要。
-- GitHub Actions の WIF サービスアカウントに、各環境の Cloud SQL への接続権限（`roles/cloudsql.client` + DB IAM ユーザー）を付与する必要がある。権限は dry-run 用に読み取り専用のロールで分けるのが望ましい。
-- Cloud SQL の各環境が Public IP を持つか Private IP のみか。構成により接続方式が分岐する（「6. Cloud SQL への IAM 認証接続」を参照）。
+- 現在、本番で `migrate` / `apply-table-privileges` Job を誰がいつ実行しているか。**Terraform に Job 定義がない**ことは確認済みなので、手動作成・手動実行（`gcloud run jobs execute` 等）の可能性が高い。GCP 上の実在確認が必要。
+- GitHub Actions 用の接続権限の付与方式（「8. infra 側で必要な対応」で整理）。
+- ~~Cloud SQL が Public IP か Private IP か~~ → **Public IP（確認済み）。** GitHub-hosted runner + Auth Proxy で接続できる。
+- `dotto_dev` / `dotto_stg` / `dotto` の各 DB のスキーマ・`atlas_schema_revisions` の状態（infra からは確認できない）。
 - ファイル名が不揃いなマイグレーション（名前なし）の扱い。履歴の書き換えは不要で、今後は `mise run migrate:diff <name>` で名前を必須にする運用で足りる。
+
+### 8. infra 側で必要な対応
+
+`fun-dotto/infra` を確認した結果、以下が必要。いずれも Terraform（Digger 経由）で管理する。
+
+#### 8.1 現状（確認済み）
+
+- `terraform/github/fun-dotto/repository-server.tf`: `server` リポジトリの `workload_identity_roles` は `artifactregistry.writer` / `iam.serviceAccountUser` / `run.developer` のみ。**Cloud SQL 関連のロールはない。** GitHub Environment は `dev` / `stg` / `prd` が定義済みで、`prd` のみ承認者 3 名・`prevent_self_review`・`protected_branches_only`・`can_admins_bypass = false`。
+- WIF は `terraform/modules/github-repository/workload-identity.tf` で **リポジトリ単位の principal**（`principal://.../subject/<owner>/<repo>`）に直接ロールを付与する方式。プロバイダの属性マッピングは `google.subject = assertion.repository` のみで、**環境（`assertion.environment`）では区別できない。** つまり現構成のままでは、`server` リポジトリのどのワークフローも同じ権限を持つ。
+- `terraform/google/foundation/cloud-sql`: IAM ユーザーは `database_service_accounts`（アプリ・ジョブ用 SA、`dotto_service`）、`database_admins`（`dotto_admin`）、`database_developers`（`dotto_developer`）。**マイグレーション用の SA / DB ユーザーはない。**
+- `terraform/google/foundation/iam-workload-identity` に `terraform-ci` / `github-actions-app` の SA がある。リポジトリ専用 SA を `workloadIdentityUser` で借用するパターンが既にある（直近の PR で app リポジトリ専用 SA を追加済み）。
+- `required_status_checks` は `["Test", "Lint", "Build"]`。
+
+#### 8.2 対応一覧
+
+| # | 対応 | 場所 | 備考 |
+| --- | --- | --- | --- |
+| 1 | マイグレーション用 SA を作成する（dry-run 用 / 適用用の 2 種） | `terraform/google/foundation/iam-workload-identity` | 既存の `github-actions-app` のパターンに倣う。`server` リポジトリの principal に `roles/iam.workloadIdentityUser` を付与 |
+| 2 | 各 SA に `roles/cloudsql.client` / `roles/cloudsql.instanceUser` を付与 | 同上 | プロジェクトレベル。Cloud SQL は 1 インスタンスのため環境別の IAM 条件は不要だが、DB 単位の権限は 3 に委ねる |
+| 3 | 各 SA を Cloud SQL の IAM ユーザーとして登録し、DB ロールを割り当てる | `terraform/google/foundation/cloud-sql`（`locals.tf` / `users.tf`） | 現状の `database_service_accounts` は `dotto_service` 固定。適用用は `dotto_admin` 相当、dry-run 用は読み取り専用ロール（新規 DB ロール）が必要。`google_sql_user` は `database_roles` を指定できるが、**ロール自体の GRANT（`atlas_schema_revisions` の SELECT、`dotto_dev` / `dotto_stg` / `dotto` ごとの権限）は Terraform の管理外の SQL** になる可能性が高く、手順化が必要 |
+| 4 | 環境ごとの権限分離をどう担保するか決める | WIF / SA 設計 | リポジトリ単位 principal では環境を区別できないため、(a) プロバイダに `attribute.environment` を追加して SA 借用を環境条件で制限する、(b) 環境ごとに SA を分け Environment の `vars` で SA を切り替える（ただし PR からも他環境の SA を指定できてしまう）、のいずれか。prd 適用 SA は `environment:prd` かつ保護ブランチのみ借用可とするのが望ましい。(a) は全リポジトリの WIF に影響するため要検討 |
+| 5 | `server` リポジトリの GitHub Environment に変数を追加する | `terraform/github/fun-dotto`（`github_actions_environment_variable` を module に追加） | DB 名（`dotto` / `dotto_stg` / `dotto_dev`）、インスタンス接続名、使用する SA、WIF プロバイダ名など。現在 module に Environment 変数のリソースはない |
+| 6 | Ruleset の `required_status_checks` に新しいチェックを追加する | `repository-server.tf` | 検証ジョブ・dry-run ジョブ（matrix なら `名前 (env)` 形式）。`merge_group` でも同名チェックが走ること。ワークフロー導入後に追加しないとマージ不能になるため、順序に注意 |
+| 7 | `prd` Environment の見直し | `repository-server.tf` | 既存設定（承認者必須・`protected_branches_only`）は適用ワークフローの要件に合致。`dev` / `stg` は現状保護なしで、`push`（main）での適用に問題はない。PR の dry-run は Environment を使わない（本文参照）ため追加変更は不要 |
+| 8 | 既存の `migrate` / `apply-table-privileges` Job の実在確認と扱いを決める | GCP コンソール / `gcloud run jobs list` | Terraform 管理外。移行完了後に削除する。`apply-table-privileges` を残す間は、適用用 SA で実行する方法（Job を `gcloud run jobs execute` で起動する場合は `roles/run.developer` に加え対象 Job への権限が必要）を決める |
+| 9 | ワークフロー導入後の drift 確認 | `.github/workflows/drift-detection.yml` | 追加リソースが Terraform 管理に入っていることの確認のみ |
+
+#### 8.3 推奨する進め方
+
+1. infra: 8.2 の 1〜3, 5（SA・IAM ユーザー・Environment 変数）を dev から先行して入れる。DB ロールの GRANT は手動 SQL になるため、実施手順を infra リポジトリのドキュメントに残す。
+2. server: dry-run のみの `migrate.yml` を追加し、動作確認後に infra で 8.2 の 6（必須チェック追加）を行う。
+3. 適用ワークフローを dev → stg → prd の順に有効化する。prd の SA の借用条件（8.2 の 4）は prd 展開前に必ず確定させる。
