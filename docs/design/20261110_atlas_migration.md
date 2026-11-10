@@ -39,7 +39,7 @@
 
 1. **dry-run できない。** `cmd/migrate` は常に適用する。`atlas.hcl` に接続先を持つ env がないため `atlas migrate apply --dry-run` も使えない。
 2. **PR で検証されない。** `atlas migrate lint` / `validate`（`atlas.sum` 整合性）や、モデルとマイグレーションの差分残りの検査がない。生成し忘れや破壊的変更に PR で気付けない。
-3. **適用が CI/CD に組み込まれていない。** 環境ごとの適用トリガーが定義されておらず、実行順序（マイグレーション → 権限付与 → アプリのデプロイ）の保証もない。
+3. **適用が CI/CD に組み込まれていない。** 環境ごとの適用トリガーが定義されておらず、実行順序（マイグレーション → アプリのデプロイ。権限付与はマイグレーションに内包する）の保証もない。
 4. **Atlas CLI の再実装を抱えている。** リビジョンテーブルの読み書きを自前実装しており、Atlas のバージョンアップで互換性が崩れるリスクがある。ロックもなく、Job の多重起動に弱い。
 5. Atlas の CLI（mise: 1.3.0）と Go ライブラリ（`ariga.io/atlas`）の二重管理。
 6. マイグレーションファイル名が不揃い（`20260510085829.sql` のように名前なしのものがある）。
@@ -58,8 +58,8 @@
 | トリガー | 環境 | 実行内容 |
 | --- | --- | --- |
 | `pull_request` / `merge_group` | dev, stg, prd（matrix） | `atlas migrate validate` → `atlas migrate lint` → モデル差分チェック → `atlas migrate apply --dry-run` |
-| `push`（main） | dev, stg（matrix） | `atlas migrate apply` → `apply-table-privileges` |
-| `workflow_dispatch` | 入力で選択（prd 用） | `atlas migrate apply` → `apply-table-privileges`（GitHub Environment `prd` の承認を必須にする） |
+| `push`（main） | dev, stg（matrix） | `atlas migrate apply` |
+| `workflow_dispatch` | 入力で選択（prd 用） | `atlas migrate apply`（GitHub Environment `prd` の承認を必須にする） |
 
 補足:
 
@@ -110,22 +110,57 @@ env "dev" {
 
 ### 3. 権限付与
 
-`apply-table-privileges` は、移行期間中は現状のバイナリを流用してマイグレーション適用後に実行する。最終的には、マイグレーションの SQL に `GRANT` / `ALTER OWNER` を含める、または `ALTER DEFAULT PRIVILEGES` に寄せて別ジョブを不要にすることを検討する。
+`apply-table-privileges`（`internal/migrate/privileges.go`）は、`current_schema()` 配下の全テーブルについて次を毎回やり直している。
+
+- owner を `dotto_admin` に変更し、`ALL PRIVILEGES` を付与
+- `dotto_service` / `dotto_developer` に `SELECT, INSERT, UPDATE, DELETE` を付与
+
+今回の移行で、これを別ジョブとして残さず **マイグレーション適用に内包する**。方針は次のとおり。
+
+1. **新規テーブルの owner を `dotto_admin` にする。** 適用用 SA（Cloud SQL IAM ユーザー）を `dotto_admin` ロールのメンバーにし、接続時に `role=dotto_admin`（`SET ROLE` 相当）を指定する。`DATABASE_URL` に `?options=-c%20role%3Ddotto_admin` を付ける案、または各マイグレーションの先頭に `SET ROLE dotto_admin;` を書く案がある。前者はファイルを汚さないが、Atlas（pgx）が実行時パラメータとして透過することの検証が必要。
+2. **新規テーブルへの権限は `ALTER DEFAULT PRIVILEGES` で自動付与する。** `dotto_admin` が作るオブジェクトに対し `dotto_service` / `dotto_developer` へ上記権限が付くよう、DB ごとに 1 回設定する。
+3. **既存テーブルは 1 回だけ catch-up する。** owner 変更と GRANT を行うマイグレーションを 1 本追加する（`DO` ブロックで `pg_tables` を走査）。ロールが存在しないローカル / dev 用 Docker Postgres でも失敗しないよう、`pg_roles` の存在確認でガードする。
+
+```sql
+-- 例: migrations/<timestamp>_grant_privileges.sql（要検証）
+DO $$
+DECLARE t record;
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'dotto_admin') THEN
+    FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = current_schema() LOOP
+      EXECUTE format('ALTER TABLE %I OWNER TO dotto_admin', t.tablename);
+      EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE %I TO dotto_service, dotto_developer', t.tablename);
+    END LOOP;
+    ALTER DEFAULT PRIVILEGES FOR ROLE dotto_admin
+      GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO dotto_service, dotto_developer;
+  END IF;
+END $$;
+```
+
+注意点:
+
+- `ALTER DEFAULT PRIVILEGES` は **DB 単位**（`dotto` / `dotto_stg` / `dotto_dev` それぞれ）かつ **作成者ロール単位**。`dotto_admin` 以外のロールで作ったテーブルには効かないため、1 の `role=dotto_admin` が前提になる。
+- 現行ジョブはシーケンスへの権限を扱っていない。シーケンスを使うテーブル（`serial` / `bigserial`）があれば `USAGE` の付与も必要になる。要確認。
+- 人手で作ったテーブルやマイグレーション外の変更は、この方式では権限が補正されない（現行ジョブの「全テーブル再付与」と挙動が異なる）。必要なら移行後も `mise` タスクとして手動で流せるようにしておく。
+- 全環境で適用済みとなった後は、catch-up のマイグレーションが `atlas.sum` に残る点に注意する（過去の履歴として許容する）。
+
+これにより `apply-table-privileges` と Cloud Run Job は不要になり、「4. コードの削除」で一緒に削除できる。
 
 ### 4. コードの削除
 
 - `cmd/migrate`、`internal/migrate/{apply,revisions}.go` を削除する。
 - `go.mod` から `ariga.io/atlas` の直接依存が不要になれば除去する（`atlas-provider-gorm` は残る）。
-- `Dockerfile` の `migrate` ビルドと `migrations/` の COPY を削除する（Cloud Run Job で適用しなくなるため）。
+- `Dockerfile` の `migrate` / `apply-table-privileges` ビルドと `migrations/` の COPY を削除する（Cloud Run Job で適用しなくなるため）。
 - `mise.toml` の `migrate:apply` タスクは `atlas migrate apply --env <env>` に置き換える。`migrate:diff` は据え置く。
-- 権限付与（`apply-table-privileges`）の削除は、上記「3. 権限付与」の整理後に行う。
+- `cmd/apply-table-privileges`、`internal/migrate/privileges.go`、`Dockerfile` の `apply-table-privileges` ビルド、`set-env` のコメント中の記載を削除する。「3. 権限付与」の方式で全環境の権限が揃ったことを確認してから行う。
 
 ### 5. 移行手順
 
 1. 既存環境の `atlas_schema_revisions` の中身が Atlas CLI から読めることを確認する（自作実装はテーブル定義を互換にしている）。差異があれば `atlas migrate set` で合わせる。
 2. dry-run のみのワークフローを先に導入し、全環境で差分が空・想定どおりであることを確認する。
-3. dev で適用を CI に切り替え、続いて stg、最後に prd へ展開する。
-4. 安定後に `cmd/migrate` 等を削除する。
+3. 権限付与のマイグレーション（catch-up + `ALTER DEFAULT PRIVILEGES`）を追加し、dev で適用して既存テーブルの owner / 権限が現行ジョブの結果と一致することを確認する。
+4. dev で適用を CI に切り替え、続いて stg、最後に prd へ展開する。
+5. 安定後に `cmd/migrate` 等を削除する。
 
 ### 6. Cloud SQL への IAM 認証接続
 
@@ -147,9 +182,9 @@ atlas migrate apply --env <env> [--dry-run]
 | --- | --- |
 | DB ユーザー | WIF 用サービスアカウントを Cloud SQL の IAM ユーザーとして登録する（ユーザー名は `<sa-name>@swift2023groupc.iam`、`.gserviceaccount.com` を除いた形）。infra では `terraform/google/foundation/cloud-sql` の `google_sql_user` で管理しており、`database_service_accounts` に追加して `database_roles` を指定する |
 | IAM ロール | `roles/cloudsql.client`、`roles/cloudsql.instanceUser` |
-| DB 権限 | dry-run 用: 接続と `atlas_schema_revisions` の読み取り。適用用: DDL 権限（現状の `dotto_admin` への owner 変更との整合を設計する） |
+| DB 権限 | dry-run 用: 接続と `atlas_schema_revisions` の読み取り。適用用: `dotto_admin` ロールのメンバーとし、`role=dotto_admin` で接続して DDL を実行する（「3. 権限付与」） |
 
-現状の DB ロール（infra 確認済み）: アプリ・ジョブの SA は `dotto_service`、人間の管理者は `dotto_admin`、開発者は `dotto_developer`。マイグレーション用 SA は `dotto_service` のままでは DDL ができない可能性が高く、`dotto_admin` 相当（または専用ロール）を割り当てる設計が必要。
+現状の DB ロール（infra 確認済み）: アプリ・ジョブの SA は `dotto_service`、人間の管理者は `dotto_admin`、開発者は `dotto_developer`。マイグレーション用 SA は `dotto_service` のままでは DDL ができないため、適用用は `dotto_admin` ロールを割り当てる。
 
 #### サービスアカウントの分離
 
@@ -191,12 +226,13 @@ Cloud Run 組み込みの Cloud SQL 接続（`/cloudsql/...`）は IAM 認証の
 | --- | --- | --- | --- |
 | 1 | マイグレーション用 SA を作成する（dry-run 用 / 適用用の 2 種） | `terraform/google/foundation/iam-workload-identity` | 既存の `github-actions-app` のパターンに倣う。`server` リポジトリの principal に `roles/iam.workloadIdentityUser` を付与 |
 | 2 | 各 SA に `roles/cloudsql.client` / `roles/cloudsql.instanceUser` を付与 | 同上 | プロジェクトレベル。Cloud SQL は 1 インスタンスのため環境別の IAM 条件は不要だが、DB 単位の権限は 3 に委ねる |
-| 3 | 各 SA を Cloud SQL の IAM ユーザーとして登録し、DB ロールを割り当てる | `terraform/google/foundation/cloud-sql`（`locals.tf` / `users.tf`） | 現状の `database_service_accounts` は `dotto_service` 固定。適用用は `dotto_admin` 相当、dry-run 用は読み取り専用ロール（新規 DB ロール）が必要。`google_sql_user` は `database_roles` を指定できるが、**ロール自体の GRANT（`atlas_schema_revisions` の SELECT、`dotto_dev` / `dotto_stg` / `dotto` ごとの権限）は Terraform の管理外の SQL** になる可能性が高く、手順化が必要 |
+| 3 | 各 SA を Cloud SQL の IAM ユーザーとして登録し、DB ロールを割り当てる | `terraform/google/foundation/cloud-sql`（`locals.tf` / `users.tf`） | 現状の `database_service_accounts` は `dotto_service` 固定。適用用は `database_roles = ["dotto_admin"]`（「3. 権限付与」の `role=dotto_admin` 接続に必要）、dry-run 用は読み取り専用ロール（新規 DB ロール）が必要。`google_sql_user` は `database_roles` を指定できるが、**ロール自体の GRANT（`atlas_schema_revisions` の SELECT、`dotto_dev` / `dotto_stg` / `dotto` ごとの権限）は Terraform の管理外の SQL** になる可能性が高く、手順化が必要 |
 | 4 | 環境ごとの権限分離をどう担保するか決める | WIF / SA 設計 | リポジトリ単位 principal では環境を区別できないため、(a) プロバイダに `attribute.environment` を追加して SA 借用を環境条件で制限する、(b) 環境ごとに SA を分け Environment の `vars` で SA を切り替える（ただし PR からも他環境の SA を指定できてしまう）、のいずれか。prd 適用 SA は `environment:prd` かつ保護ブランチのみ借用可とするのが望ましい。(a) は全リポジトリの WIF に影響するため要検討 |
 | 5 | `server` リポジトリの GitHub Environment に変数を追加する | `terraform/github/fun-dotto`（`github_actions_environment_variable` を module に追加） | DB 名（`dotto` / `dotto_stg` / `dotto_dev`）、インスタンス接続名、使用する SA、WIF プロバイダ名など。現在 module に Environment 変数のリソースはない |
 | 6 | Ruleset の `required_status_checks` に新しいチェックを追加する | `repository-server.tf` | 検証ジョブ・dry-run ジョブ（matrix なら `名前 (env)` 形式）。`merge_group` でも同名チェックが走ること。ワークフロー導入後に追加しないとマージ不能になるため、順序に注意 |
 | 7 | `prd` Environment の見直し | `repository-server.tf` | 既存設定（承認者必須・`protected_branches_only`）は適用ワークフローの要件に合致。`dev` / `stg` は現状保護なしで、`push`（main）での適用に問題はない。PR の dry-run は Environment を使わない（本文参照）ため追加変更は不要 |
-| 8 | 既存の `migrate` / `apply-table-privileges` Job の実在確認と扱いを決める | GCP コンソール / `gcloud run jobs list` | Terraform 管理外。移行完了後に削除する。`apply-table-privileges` を残す間は、適用用 SA で実行する方法（Job を `gcloud run jobs execute` で起動する場合は `roles/run.developer` に加え対象 Job への権限が必要）を決める |
+| 8 | 既存の `migrate` / `apply-table-privileges` Job の実在確認と削除 | GCP コンソール / `gcloud run jobs list` | Terraform 管理外。権限付与をマイグレーションに内包するため、移行完了後に両方削除する（ワークフローから起動しないので `run.developer` の追加は不要） |
+| 8b | `dotto_dev` / `dotto_stg` / `dotto` の各 DB で、適用用 SA が `dotto_admin` に `SET ROLE` できることを確認する | Cloud SQL（SQL 手動） | `google_sql_user` の `database_roles` でメンバーになるが、`dotto_admin` が `INHERIT` / `SET` オプション付きのメンバーシップを許すか（PostgreSQL 16+ の `GRANT ... WITH SET TRUE`）を実機で検証する |
 | 9 | ワークフロー導入後の drift 確認 | `.github/workflows/drift-detection.yml` | 追加リソースが Terraform 管理に入っていることの確認のみ |
 
 #### 8.3 推奨する進め方
