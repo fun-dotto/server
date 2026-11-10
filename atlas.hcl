@@ -14,10 +14,6 @@ env "gorm" {
   migration {
     dir = "file://migrations"
   }
-  lint {
-    # 直近 1 ファイル（今回追加したマイグレーション）のみを lint 対象にする
-    latest = 1
-  }
 }
 
 # 適用先の環境。接続先は環境変数 DATABASE_URL で注入する。

@@ -58,8 +58,8 @@ jobs:
       - name: Setup
         run: mise bootstrap
 
-      # atlas.sum の整合性と、直近のマイグレーションの lint（破壊的変更など）
-      - name: Validate and lint migrations
+      # atlas.sum の整合性（atlas migrate lint は Atlas のログインが必要なため使わない）
+      - name: Validate migrations
         run: mise run migrate:validate
 
       # モデルの変更に対するマイグレーションの生成し忘れを検出する
