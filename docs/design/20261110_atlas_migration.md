@@ -122,9 +122,45 @@ env "dev" {
 3. dev で適用を CI に切り替え、続いて stg、最後に prd へ展開する。
 4. 安定後に `cmd/migrate` 等を削除する。
 
-### 6. 未確定事項
+### 6. Cloud SQL への IAM 認証接続
+
+Cloud SQL は IAM 認証で接続している（現状の `cmd/migrate` も cloudsqlconn + IAM 認証）。Atlas CLI からは Cloud SQL Auth Proxy の `--auto-iam-authn` を介して、パスワードなしで接続する。
+
+```bash
+cloud-sql-proxy --auto-iam-authn <PROJECT>:<REGION>:<INSTANCE> &
+export DATABASE_URL="postgres://<iam-user>@127.0.0.1:5432/<db>?sslmode=disable"
+atlas migrate apply --env <env> [--dry-run]
+```
+
+- プロキシが OAuth トークンをパスワード代わりに渡す。プロキシ〜インスタンス間は暗号化されるため、ローカル側は `sslmode=disable` でよい。
+- GitHub Actions では `google-github-actions/auth`（WIF）→ プロキシをバックグラウンド起動 → Atlas 実行の順に composite action へまとめる。
+- IAM アクセストークンの有効期間は約 1 時間。マイグレーションは短時間で終わるため問題ない。
+
+#### 必要な設定
+
+| 項目 | 内容 |
+| --- | --- |
+| DB ユーザー | WIF 用サービスアカウントを Cloud SQL の IAM ユーザーとして登録する（ユーザー名は `<sa-name>@<project>.iam`、`.gserviceaccount.com` を除いた形） |
+| IAM ロール | `roles/cloudsql.client`、`roles/cloudsql.instanceUser` |
+| DB 権限 | dry-run 用: 接続と `atlas_schema_revisions` の読み取り。適用用: DDL 権限（現状の `dotto_admin` への owner 変更との整合を設計する） |
+
+#### サービスアカウントの分離
+
+- **dry-run 用（読み取り専用）:** `pull_request` / `merge_group` で使う。fork からの PR には渡さない。
+- **適用用（DDL 権限あり）:** `push`（main）と `workflow_dispatch` で使う。GitHub Environment ごとに別の SA / 変数を割り当て、prd は承認必須にする。
+
+#### ネットワーク構成による分岐
+
+| Cloud SQL の構成 | 方針 |
+| --- | --- |
+| Public IP あり | GitHub-hosted runner + Auth Proxy で接続する（上記） |
+| Private IP のみ | GitHub-hosted runner からは到達できない。Cloud Run Job（`arigaio/atlas` イメージ + Auth Proxy サイドカー、または Job 用 SA の IAM 認証）で Atlas を実行し、ワークフローは Job を起動して結果を待つ。または self-hosted runner を VPC 内に置く |
+
+Cloud Run 組み込みの Cloud SQL 接続（`/cloudsql/...`）は IAM 認証のトークンを自動付与しないため、パスワードなし接続には Auth Proxy サイドカーが必要になる。
+
+### 7. 未確定事項
 
 - 現在、本番で `migrate` / `apply-table-privileges` Job を誰がいつ実行しているか（Terraform、手動 `gcloud run jobs execute` など）の確認が必要。
 - GitHub Actions の WIF サービスアカウントに、各環境の Cloud SQL への接続権限（`roles/cloudsql.client` + DB IAM ユーザー）を付与する必要がある。権限は dry-run 用に読み取り専用のロールで分けるのが望ましい。
-- Cloud SQL が Private IP のみの場合、GitHub-hosted runner から接続できない。その場合は Public IP + Auth Proxy、または Cloud Run Job での dry-run 実行に切り替える（`atlas` 公式イメージを使い、結果をログで確認する）。
+- Cloud SQL の各環境が Public IP を持つか Private IP のみか。構成により接続方式が分岐する（「6. Cloud SQL への IAM 認証接続」を参照）。
 - ファイル名が不揃いなマイグレーション（名前なし）の扱い。履歴の書き換えは不要で、今後は `mise run migrate:diff <name>` で名前を必須にする運用で足りる。
