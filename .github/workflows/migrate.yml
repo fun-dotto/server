@@ -145,13 +145,9 @@ jobs:
           fi
 
   # main への push は dev / stg、workflow_dispatch は選択した環境に適用する。
-  # 権限付与の手動対応（docs/design/20261110_atlas_migration.md「3. 権限付与」）が完了するまでは
-  # リポジトリ変数 MIGRATE_APPLY_ENABLED を true にしないこと。
   apply:
     name: Migration Apply
-    if: >-
-      vars.MIGRATE_APPLY_ENABLED == 'true'
-      && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: ${{ matrix.environment }}
     permissions:
