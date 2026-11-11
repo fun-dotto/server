@@ -54,6 +54,10 @@ run = [
   "go vet -vettool=./bin/gormuuidlint ./...",
 ]
 
+[tasks.vulncheck]
+description = "govulncheck で既知の脆弱性を検査する"
+run = "GOTOOLCHAIN=local go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./..."
+
 [tasks."lint:proto"]
 description = "Protobuf 定義を buf lint と Google API Linter で検査する"
 run = [
