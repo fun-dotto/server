@@ -1,6 +1,9 @@
 package external
 
 import (
+	"strconv"
+	"strings"
+
 	academic_api "github.com/fun-dotto/server/gen/academic"
 	"github.com/fun-dotto/server/internal/modules/app/domain"
 )
@@ -36,7 +39,8 @@ func ToDomainSubjectSummary(m academic_api.Subject) domain.Subject {
 
 func ToDomainSyllabus(m academic_api.Syllabus) domain.Syllabus {
 	return domain.Syllabus{
-		ID:                           m.Id,
+		// リリース済みアプリはレビューのキー lessonId としてシラバスの id を使うため、授業コードを返す。
+		ID:                           m.LessonId,
 		Name:                         m.Name,
 		EnName:                       m.EnName,
 		Summary:                      m.Summary,
@@ -53,7 +57,7 @@ func ToDomainSyllabus(m academic_api.Syllabus) domain.Syllabus {
 		Keywords:                     m.Keywords,
 		Classifications:              m.Classifications,
 		Grades:                       m.Grades,
-		Credit:                       m.Credit,
+		Credit:                       parseCredit(m.Credit),
 		FacultyNames:                 m.FacultyNames,
 		TeachingForm:                 m.TeachingForm,
 		TeachingAndExamForm:          m.TeachingAndExamForm,
@@ -61,8 +65,9 @@ func ToDomainSyllabus(m academic_api.Syllabus) domain.Syllabus {
 		MultiplePersonTeachingForm:   m.MultiplePersonTeachingForm,
 		PracticalHomeFacultyCategory: m.PracticalHomeFacultyCategory,
 		DsopSubject:                  m.DsopSubject,
-		TargetAreas:                  m.TargetAreas,
-		TargetCourses:                m.TargetCourses,
+		// 対象領域は対象コース・領域（TargetCourses）に統合したため空にする。
+		TargetAreas:   "",
+		TargetCourses: m.TargetCourses,
 	}
 }
 
@@ -201,4 +206,13 @@ func toExternalCulturalSubjectCategories(categories []domain.CulturalSubjectCate
 		result[i] = academic_api.DottoFoundationV1CulturalSubjectCategory(c)
 	}
 	return result
+}
+
+// parseCredit は「2単位」のような単位数の文字列から数値を取り出す。取り出せない場合は 0 を返す。
+func parseCredit(s string) int {
+	n, err := strconv.Atoi(strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(s), "単位")))
+	if err != nil {
+		return 0
+	}
+	return n
 }

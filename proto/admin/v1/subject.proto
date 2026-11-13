@@ -61,7 +61,7 @@ message Subject {
   SubjectClassification classification = 6 [(google.api.field_behavior) = REQUIRED];
   // 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
   SubjectCulturalSubjectCategory cultural_subject_category = 7 [(google.api.field_behavior) = OPTIONAL];
-  // シラバスID。
+  // 紐付けるシラバス（バージョン）の ID（UUID）。異なる (lesson_id, year) のシラバスへの付け替えはできない。
   string syllabus_id = 8 [(google.api.field_behavior) = REQUIRED];
   // 担当教員。
   repeated SubjectFaculty faculties = 9 [(google.api.field_behavior) = OPTIONAL];
@@ -117,7 +117,7 @@ message CreateSubjectRequest {
   SubjectClassification classification = 5 [(google.api.field_behavior) = REQUIRED];
   // 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
   SubjectCulturalSubjectCategory cultural_subject_category = 6 [(google.api.field_behavior) = OPTIONAL];
-  // シラバスID。
+  // 紐付けるシラバス（バージョン）の ID（UUID）。異なる (lesson_id, year) のシラバスへの付け替えはできない。
   string syllabus_id = 7 [(google.api.field_behavior) = REQUIRED];
   // 担当教員。
   repeated SubjectFaculty faculties = 8 [(google.api.field_behavior) = OPTIONAL];
@@ -149,7 +149,7 @@ message UpdateSubjectRequest {
   SubjectClassification classification = 6 [(google.api.field_behavior) = OPTIONAL];
   // 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
   SubjectCulturalSubjectCategory cultural_subject_category = 7 [(google.api.field_behavior) = OPTIONAL];
-  // シラバスID。
+  // 紐付けるシラバス（バージョン）の ID（UUID）。異なる (lesson_id, year) のシラバスへの付け替えはできない。
   string syllabus_id = 8 [(google.api.field_behavior) = OPTIONAL];
   // 担当教員。
   repeated SubjectFaculty faculties = 9 [(google.api.field_behavior) = OPTIONAL];

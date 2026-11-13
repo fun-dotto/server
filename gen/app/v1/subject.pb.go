@@ -10,6 +10,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -450,60 +451,102 @@ func (x *SubjectRequirement) GetRequirementType() SubjectRequirementType {
 // 科目のシラバス。
 type SubjectSyllabus struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// 教務システムのシラバスID。
+	// シラバス（バージョン）ID（UUID）。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 教務システムの授業コード。
+	LessonId string `protobuf:"bytes,2,opt,name=lesson_id,json=lessonId,proto3" json:"lesson_id,omitempty"`
+	// 年度。
+	Year int32 `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
+	// 一覧: 表示順。
+	DisplayOrder string `protobuf:"bytes,4,opt,name=display_order,json=displayOrder,proto3" json:"display_order,omitempty"`
+	// 一覧: 授業科目名。
+	ListLessonName string `protobuf:"bytes,5,opt,name=list_lesson_name,json=listLessonName,proto3" json:"list_lesson_name,omitempty"`
+	// 一覧: Course。
+	ListEnName string `protobuf:"bytes,6,opt,name=list_en_name,json=listEnName,proto3" json:"list_en_name,omitempty"`
+	// 一覧: 担当教員名（主担当のみ）。
+	ListStaffName string `protobuf:"bytes,7,opt,name=list_staff_name,json=listStaffName,proto3" json:"list_staff_name,omitempty"`
+	// 一覧: 授業形態。
+	ListTeachingForm string `protobuf:"bytes,8,opt,name=list_teaching_form,json=listTeachingForm,proto3" json:"list_teaching_form,omitempty"`
 	// 授業名。
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// 授業名（英語）。
-	EnName string `protobuf:"bytes,3,opt,name=en_name,json=enName,proto3" json:"en_name,omitempty"`
+	Name string `protobuf:"bytes,9,opt,name=name,proto3" json:"name,omitempty"`
+	// Course（授業名の英語表記）。
+	EnName string `protobuf:"bytes,10,opt,name=en_name,json=enName,proto3" json:"en_name,omitempty"`
 	// 配当年次。
-	Grades string `protobuf:"bytes,4,opt,name=grades,proto3" json:"grades,omitempty"`
-	// 単位数。
-	Credit int32 `protobuf:"varint,5,opt,name=credit,proto3" json:"credit,omitempty"`
-	// 担当教員名。
-	FacultyNames string `protobuf:"bytes,6,opt,name=faculty_names,json=facultyNames,proto3" json:"faculty_names,omitempty"`
+	Grades string `protobuf:"bytes,11,opt,name=grades,proto3" json:"grades,omitempty"`
+	// 開講期。
+	Term string `protobuf:"bytes,12,opt,name=term,proto3" json:"term,omitempty"`
+	// 単位数（例: 2単位）。
+	Credit string `protobuf:"bytes,13,opt,name=credit,proto3" json:"credit,omitempty"`
+	// 担当教員名（改行区切り、主担当に ◎）。
+	FacultyNames string `protobuf:"bytes,14,opt,name=faculty_names,json=facultyNames,proto3" json:"faculty_names,omitempty"`
 	// 実務家教員区分。
-	PracticalHomeFacultyCategory string `protobuf:"bytes,7,opt,name=practical_home_faculty_category,json=practicalHomeFacultyCategory,proto3" json:"practical_home_faculty_category,omitempty"`
+	PracticalHomeFacultyCategory string `protobuf:"bytes,15,opt,name=practical_home_faculty_category,json=practicalHomeFacultyCategory,proto3" json:"practical_home_faculty_category,omitempty"`
 	// 複数人担当形式。
-	MultiplePersonTeachingForm string `protobuf:"bytes,8,opt,name=multiple_person_teaching_form,json=multiplePersonTeachingForm,proto3" json:"multiple_person_teaching_form,omitempty"`
+	MultiplePersonTeachingForm string `protobuf:"bytes,16,opt,name=multiple_person_teaching_form,json=multiplePersonTeachingForm,proto3" json:"multiple_person_teaching_form,omitempty"`
 	// 授業形態。
-	TeachingForm string `protobuf:"bytes,9,opt,name=teaching_form,json=teachingForm,proto3" json:"teaching_form,omitempty"`
+	TeachingForm string `protobuf:"bytes,17,opt,name=teaching_form,json=teachingForm,proto3" json:"teaching_form,omitempty"`
 	// 授業の概要。
-	Summary string `protobuf:"bytes,10,opt,name=summary,proto3" json:"summary,omitempty"`
+	Summary string `protobuf:"bytes,18,opt,name=summary,proto3" json:"summary,omitempty"`
 	// 授業の到達目標。
-	LearningOutcomes string `protobuf:"bytes,11,opt,name=learning_outcomes,json=learningOutcomes,proto3" json:"learning_outcomes,omitempty"`
+	LearningOutcomes string `protobuf:"bytes,19,opt,name=learning_outcomes,json=learningOutcomes,proto3" json:"learning_outcomes,omitempty"`
 	// 提出課題等。
-	Assignments string `protobuf:"bytes,12,opt,name=assignments,proto3" json:"assignments,omitempty"`
+	Assignments string `protobuf:"bytes,20,opt,name=assignments,proto3" json:"assignments,omitempty"`
 	// 成績の評価方法・基準。
-	EvaluationMethod string `protobuf:"bytes,13,opt,name=evaluation_method,json=evaluationMethod,proto3" json:"evaluation_method,omitempty"`
+	EvaluationMethod string `protobuf:"bytes,21,opt,name=evaluation_method,json=evaluationMethod,proto3" json:"evaluation_method,omitempty"`
 	// テキスト。
-	Textbooks string `protobuf:"bytes,14,opt,name=textbooks,proto3" json:"textbooks,omitempty"`
+	Textbooks string `protobuf:"bytes,22,opt,name=textbooks,proto3" json:"textbooks,omitempty"`
 	// 参考書。
-	ReferenceBooks string `protobuf:"bytes,15,opt,name=reference_books,json=referenceBooks,proto3" json:"reference_books,omitempty"`
+	ReferenceBooks string `protobuf:"bytes,23,opt,name=reference_books,json=referenceBooks,proto3" json:"reference_books,omitempty"`
 	// 履修条件。
-	Prerequisites string `protobuf:"bytes,16,opt,name=prerequisites,proto3" json:"prerequisites,omitempty"`
+	Prerequisites string `protobuf:"bytes,24,opt,name=prerequisites,proto3" json:"prerequisites,omitempty"`
 	// 事前学習。
-	PreLearning string `protobuf:"bytes,17,opt,name=pre_learning,json=preLearning,proto3" json:"pre_learning,omitempty"`
+	PreLearning string `protobuf:"bytes,25,opt,name=pre_learning,json=preLearning,proto3" json:"pre_learning,omitempty"`
 	// 事後学習。
-	PostLearning string `protobuf:"bytes,18,opt,name=post_learning,json=postLearning,proto3" json:"post_learning,omitempty"`
+	PostLearning string `protobuf:"bytes,26,opt,name=post_learning,json=postLearning,proto3" json:"post_learning,omitempty"`
 	// 履修上の留意点。
-	Notes string `protobuf:"bytes,19,opt,name=notes,proto3" json:"notes,omitempty"`
-	// キーワード。
-	Keywords string `protobuf:"bytes,20,opt,name=keywords,proto3" json:"keywords,omitempty"`
+	Notes string `protobuf:"bytes,27,opt,name=notes,proto3" json:"notes,omitempty"`
+	// キーワード/keywords。
+	Keywords string `protobuf:"bytes,28,opt,name=keywords,proto3" json:"keywords,omitempty"`
 	// 対象コース・領域。
-	TargetCourses string `protobuf:"bytes,21,opt,name=target_courses,json=targetCourses,proto3" json:"target_courses,omitempty"`
-	// 対象領域。
-	TargetAreas string `protobuf:"bytes,22,opt,name=target_areas,json=targetAreas,proto3" json:"target_areas,omitempty"`
+	TargetCourses string `protobuf:"bytes,29,opt,name=target_courses,json=targetCourses,proto3" json:"target_courses,omitempty"`
 	// 科目群・科目区分。
-	Classifications string `protobuf:"bytes,23,opt,name=classifications,proto3" json:"classifications,omitempty"`
+	Classifications string `protobuf:"bytes,30,opt,name=classifications,proto3" json:"classifications,omitempty"`
+	// DSOP対象科目。
+	DsopSubject string `protobuf:"bytes,31,opt,name=dsop_subject,json=dsopSubject,proto3" json:"dsop_subject,omitempty"`
 	// 教授言語。
-	TeachingLanguage string `protobuf:"bytes,24,opt,name=teaching_language,json=teachingLanguage,proto3" json:"teaching_language,omitempty"`
-	// 授業内容とスケジュール。
-	ContentsAndSchedule string `protobuf:"bytes,25,opt,name=contents_and_schedule,json=contentsAndSchedule,proto3" json:"contents_and_schedule,omitempty"`
+	TeachingLanguage string `protobuf:"bytes,32,opt,name=teaching_language,json=teachingLanguage,proto3" json:"teaching_language,omitempty"`
 	// 授業・試験の形式。
-	TeachingAndExamForm string `protobuf:"bytes,26,opt,name=teaching_and_exam_form,json=teachingAndExamForm,proto3" json:"teaching_and_exam_form,omitempty"`
-	// DSOP 対象科目。
-	DsopSubject   string `protobuf:"bytes,27,opt,name=dsop_subject,json=dsopSubject,proto3" json:"dsop_subject,omitempty"`
+	TeachingAndExamForm string `protobuf:"bytes,33,opt,name=teaching_and_exam_form,json=teachingAndExamForm,proto3" json:"teaching_and_exam_form,omitempty"`
+	// 授業内容とスケジュール。
+	ContentsAndSchedule string `protobuf:"bytes,34,opt,name=contents_and_schedule,json=contentsAndSchedule,proto3" json:"contents_and_schedule,omitempty"`
+	// (E)Course outline。
+	EnSummary string `protobuf:"bytes,35,opt,name=en_summary,json=enSummary,proto3" json:"en_summary,omitempty"`
+	// (E)Course Objectives。
+	EnLearningOutcomes string `protobuf:"bytes,36,opt,name=en_learning_outcomes,json=enLearningOutcomes,proto3" json:"en_learning_outcomes,omitempty"`
+	// (E)Course Schedule。
+	EnContentsAndSchedule string `protobuf:"bytes,37,opt,name=en_contents_and_schedule,json=enContentsAndSchedule,proto3" json:"en_contents_and_schedule,omitempty"`
+	// (E)Assessment。
+	EnEvaluationMethod string `protobuf:"bytes,38,opt,name=en_evaluation_method,json=enEvaluationMethod,proto3" json:"en_evaluation_method,omitempty"`
+	// (E)Language of Instruction。
+	EnTeachingLanguage string `protobuf:"bytes,39,opt,name=en_teaching_language,json=enTeachingLanguage,proto3" json:"en_teaching_language,omitempty"`
+	// (E)Requirements for registration。
+	EnPrerequisites string `protobuf:"bytes,40,opt,name=en_prerequisites,json=enPrerequisites,proto3" json:"en_prerequisites,omitempty"`
+	// (E)Prior/Post Assignment。
+	EnPrePostLearning string `protobuf:"bytes,41,opt,name=en_pre_post_learning,json=enPrePostLearning,proto3" json:"en_pre_post_learning,omitempty"`
+	// (E)Textbooks。
+	EnTextbooks string `protobuf:"bytes,42,opt,name=en_textbooks,json=enTextbooks,proto3" json:"en_textbooks,omitempty"`
+	// (E)Note。
+	EnNotes string `protobuf:"bytes,43,opt,name=en_notes,json=enNotes,proto3" json:"en_notes,omitempty"`
+	// (E)Type of class and exam。
+	EnTeachingAndExamForm string `protobuf:"bytes,44,opt,name=en_teaching_and_exam_form,json=enTeachingAndExamForm,proto3" json:"en_teaching_and_exam_form,omitempty"`
+	// ディプロマポリシー。
+	DiplomaPolicies string `protobuf:"bytes,45,opt,name=diploma_policies,json=diplomaPolicies,proto3" json:"diploma_policies,omitempty"`
+	// ディプロマポリシーとの対応。
+	DiplomaPolicyCorrespondence string `protobuf:"bytes,46,opt,name=diploma_policy_correspondence,json=diplomaPolicyCorrespondence,proto3" json:"diploma_policy_correspondence,omitempty"`
+	// 取得値から計算したハッシュ。
+	ContentHash string `protobuf:"bytes,47,opt,name=content_hash,json=contentHash,proto3" json:"content_hash,omitempty"`
+	// 取得日時（同一内容を再取得した場合は最終確認日時）。
+	FetchedAt     *timestamppb.Timestamp `protobuf:"bytes,48,opt,name=fetched_at,json=fetchedAt,proto3" json:"fetched_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -545,6 +588,55 @@ func (x *SubjectSyllabus) GetId() string {
 	return ""
 }
 
+func (x *SubjectSyllabus) GetLessonId() string {
+	if x != nil {
+		return x.LessonId
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetYear() int32 {
+	if x != nil {
+		return x.Year
+	}
+	return 0
+}
+
+func (x *SubjectSyllabus) GetDisplayOrder() string {
+	if x != nil {
+		return x.DisplayOrder
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetListLessonName() string {
+	if x != nil {
+		return x.ListLessonName
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetListEnName() string {
+	if x != nil {
+		return x.ListEnName
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetListStaffName() string {
+	if x != nil {
+		return x.ListStaffName
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetListTeachingForm() string {
+	if x != nil {
+		return x.ListTeachingForm
+	}
+	return ""
+}
+
 func (x *SubjectSyllabus) GetName() string {
 	if x != nil {
 		return x.Name
@@ -566,11 +658,18 @@ func (x *SubjectSyllabus) GetGrades() string {
 	return ""
 }
 
-func (x *SubjectSyllabus) GetCredit() int32 {
+func (x *SubjectSyllabus) GetTerm() string {
+	if x != nil {
+		return x.Term
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetCredit() string {
 	if x != nil {
 		return x.Credit
 	}
-	return 0
+	return ""
 }
 
 func (x *SubjectSyllabus) GetFacultyNames() string {
@@ -685,16 +784,16 @@ func (x *SubjectSyllabus) GetTargetCourses() string {
 	return ""
 }
 
-func (x *SubjectSyllabus) GetTargetAreas() string {
+func (x *SubjectSyllabus) GetClassifications() string {
 	if x != nil {
-		return x.TargetAreas
+		return x.Classifications
 	}
 	return ""
 }
 
-func (x *SubjectSyllabus) GetClassifications() string {
+func (x *SubjectSyllabus) GetDsopSubject() string {
 	if x != nil {
-		return x.Classifications
+		return x.DsopSubject
 	}
 	return ""
 }
@@ -706,13 +805,6 @@ func (x *SubjectSyllabus) GetTeachingLanguage() string {
 	return ""
 }
 
-func (x *SubjectSyllabus) GetContentsAndSchedule() string {
-	if x != nil {
-		return x.ContentsAndSchedule
-	}
-	return ""
-}
-
 func (x *SubjectSyllabus) GetTeachingAndExamForm() string {
 	if x != nil {
 		return x.TeachingAndExamForm
@@ -720,11 +812,109 @@ func (x *SubjectSyllabus) GetTeachingAndExamForm() string {
 	return ""
 }
 
-func (x *SubjectSyllabus) GetDsopSubject() string {
+func (x *SubjectSyllabus) GetContentsAndSchedule() string {
 	if x != nil {
-		return x.DsopSubject
+		return x.ContentsAndSchedule
 	}
 	return ""
+}
+
+func (x *SubjectSyllabus) GetEnSummary() string {
+	if x != nil {
+		return x.EnSummary
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetEnLearningOutcomes() string {
+	if x != nil {
+		return x.EnLearningOutcomes
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetEnContentsAndSchedule() string {
+	if x != nil {
+		return x.EnContentsAndSchedule
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetEnEvaluationMethod() string {
+	if x != nil {
+		return x.EnEvaluationMethod
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetEnTeachingLanguage() string {
+	if x != nil {
+		return x.EnTeachingLanguage
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetEnPrerequisites() string {
+	if x != nil {
+		return x.EnPrerequisites
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetEnPrePostLearning() string {
+	if x != nil {
+		return x.EnPrePostLearning
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetEnTextbooks() string {
+	if x != nil {
+		return x.EnTextbooks
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetEnNotes() string {
+	if x != nil {
+		return x.EnNotes
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetEnTeachingAndExamForm() string {
+	if x != nil {
+		return x.EnTeachingAndExamForm
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetDiplomaPolicies() string {
+	if x != nil {
+		return x.DiplomaPolicies
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetDiplomaPolicyCorrespondence() string {
+	if x != nil {
+		return x.DiplomaPolicyCorrespondence
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetContentHash() string {
+	if x != nil {
+		return x.ContentHash
+	}
+	return ""
+}
+
+func (x *SubjectSyllabus) GetFetchedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FetchedAt
+	}
+	return nil
 }
 
 // 科目。
@@ -1097,7 +1287,7 @@ var File_app_v1_subject_proto protoreflect.FileDescriptor
 
 const file_app_v1_subject_proto_rawDesc = "" +
 	"\n" +
-	"\x14app/v1/subject.proto\x12\x06app.v1\x1a\x13app/v1/common.proto\x1a\x14app/v1/faculty.proto\x1a\x1fgoogle/api/field_behavior.proto\"d\n" +
+	"\x14app/v1/subject.proto\x12\x06app.v1\x1a\x13app/v1/common.proto\x1a\x14app/v1/faculty.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"d\n" +
 	"\x0eSubjectFaculty\x12.\n" +
 	"\afaculty\x18\x01 \x01(\v2\x0f.app.v1.FacultyB\x03\xe0A\x03R\afaculty\x12\"\n" +
 	"\n" +
@@ -1108,36 +1298,60 @@ const file_app_v1_subject_proto_rawDesc = "" +
 	"\x06_class\"\x91\x01\n" +
 	"\x12SubjectRequirement\x12+\n" +
 	"\x06course\x18\x01 \x01(\x0e2\x0e.app.v1.CourseB\x03\xe0A\x03R\x06course\x12N\n" +
-	"\x10requirement_type\x18\x02 \x01(\x0e2\x1e.app.v1.SubjectRequirementTypeB\x03\xe0A\x03R\x0frequirementType\"\x83\t\n" +
+	"\x10requirement_type\x18\x02 \x01(\x0e2\x1e.app.v1.SubjectRequirementTypeB\x03\xe0A\x03R\x0frequirementType\"\xe4\x10\n" +
 	"\x0fSubjectSyllabus\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x03R\x04name\x12\x1c\n" +
-	"\aen_name\x18\x03 \x01(\tB\x03\xe0A\x03R\x06enName\x12\x1b\n" +
-	"\x06grades\x18\x04 \x01(\tB\x03\xe0A\x03R\x06grades\x12\x1b\n" +
-	"\x06credit\x18\x05 \x01(\x05B\x03\xe0A\x03R\x06credit\x12(\n" +
-	"\rfaculty_names\x18\x06 \x01(\tB\x03\xe0A\x03R\ffacultyNames\x12J\n" +
-	"\x1fpractical_home_faculty_category\x18\a \x01(\tB\x03\xe0A\x03R\x1cpracticalHomeFacultyCategory\x12F\n" +
-	"\x1dmultiple_person_teaching_form\x18\b \x01(\tB\x03\xe0A\x03R\x1amultiplePersonTeachingForm\x12(\n" +
-	"\rteaching_form\x18\t \x01(\tB\x03\xe0A\x03R\fteachingForm\x12\x1d\n" +
-	"\asummary\x18\n" +
-	" \x01(\tB\x03\xe0A\x03R\asummary\x120\n" +
-	"\x11learning_outcomes\x18\v \x01(\tB\x03\xe0A\x03R\x10learningOutcomes\x12%\n" +
-	"\vassignments\x18\f \x01(\tB\x03\xe0A\x03R\vassignments\x120\n" +
-	"\x11evaluation_method\x18\r \x01(\tB\x03\xe0A\x03R\x10evaluationMethod\x12!\n" +
-	"\ttextbooks\x18\x0e \x01(\tB\x03\xe0A\x03R\ttextbooks\x12,\n" +
-	"\x0freference_books\x18\x0f \x01(\tB\x03\xe0A\x03R\x0ereferenceBooks\x12)\n" +
-	"\rprerequisites\x18\x10 \x01(\tB\x03\xe0A\x03R\rprerequisites\x12&\n" +
-	"\fpre_learning\x18\x11 \x01(\tB\x03\xe0A\x03R\vpreLearning\x12(\n" +
-	"\rpost_learning\x18\x12 \x01(\tB\x03\xe0A\x03R\fpostLearning\x12\x19\n" +
-	"\x05notes\x18\x13 \x01(\tB\x03\xe0A\x03R\x05notes\x12\x1f\n" +
-	"\bkeywords\x18\x14 \x01(\tB\x03\xe0A\x03R\bkeywords\x12*\n" +
-	"\x0etarget_courses\x18\x15 \x01(\tB\x03\xe0A\x03R\rtargetCourses\x12&\n" +
-	"\ftarget_areas\x18\x16 \x01(\tB\x03\xe0A\x03R\vtargetAreas\x12-\n" +
-	"\x0fclassifications\x18\x17 \x01(\tB\x03\xe0A\x03R\x0fclassifications\x120\n" +
-	"\x11teaching_language\x18\x18 \x01(\tB\x03\xe0A\x03R\x10teachingLanguage\x127\n" +
-	"\x15contents_and_schedule\x18\x19 \x01(\tB\x03\xe0A\x03R\x13contentsAndSchedule\x128\n" +
-	"\x16teaching_and_exam_form\x18\x1a \x01(\tB\x03\xe0A\x03R\x13teachingAndExamForm\x12&\n" +
-	"\fdsop_subject\x18\x1b \x01(\tB\x03\xe0A\x03R\vdsopSubject\"\xcb\x03\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12 \n" +
+	"\tlesson_id\x18\x02 \x01(\tB\x03\xe0A\x03R\blessonId\x12\x17\n" +
+	"\x04year\x18\x03 \x01(\x05B\x03\xe0A\x03R\x04year\x12(\n" +
+	"\rdisplay_order\x18\x04 \x01(\tB\x03\xe0A\x03R\fdisplayOrder\x12-\n" +
+	"\x10list_lesson_name\x18\x05 \x01(\tB\x03\xe0A\x03R\x0elistLessonName\x12%\n" +
+	"\flist_en_name\x18\x06 \x01(\tB\x03\xe0A\x03R\n" +
+	"listEnName\x12+\n" +
+	"\x0flist_staff_name\x18\a \x01(\tB\x03\xe0A\x03R\rlistStaffName\x121\n" +
+	"\x12list_teaching_form\x18\b \x01(\tB\x03\xe0A\x03R\x10listTeachingForm\x12\x17\n" +
+	"\x04name\x18\t \x01(\tB\x03\xe0A\x03R\x04name\x12\x1c\n" +
+	"\aen_name\x18\n" +
+	" \x01(\tB\x03\xe0A\x03R\x06enName\x12\x1b\n" +
+	"\x06grades\x18\v \x01(\tB\x03\xe0A\x03R\x06grades\x12\x17\n" +
+	"\x04term\x18\f \x01(\tB\x03\xe0A\x03R\x04term\x12\x1b\n" +
+	"\x06credit\x18\r \x01(\tB\x03\xe0A\x03R\x06credit\x12(\n" +
+	"\rfaculty_names\x18\x0e \x01(\tB\x03\xe0A\x03R\ffacultyNames\x12J\n" +
+	"\x1fpractical_home_faculty_category\x18\x0f \x01(\tB\x03\xe0A\x03R\x1cpracticalHomeFacultyCategory\x12F\n" +
+	"\x1dmultiple_person_teaching_form\x18\x10 \x01(\tB\x03\xe0A\x03R\x1amultiplePersonTeachingForm\x12(\n" +
+	"\rteaching_form\x18\x11 \x01(\tB\x03\xe0A\x03R\fteachingForm\x12\x1d\n" +
+	"\asummary\x18\x12 \x01(\tB\x03\xe0A\x03R\asummary\x120\n" +
+	"\x11learning_outcomes\x18\x13 \x01(\tB\x03\xe0A\x03R\x10learningOutcomes\x12%\n" +
+	"\vassignments\x18\x14 \x01(\tB\x03\xe0A\x03R\vassignments\x120\n" +
+	"\x11evaluation_method\x18\x15 \x01(\tB\x03\xe0A\x03R\x10evaluationMethod\x12!\n" +
+	"\ttextbooks\x18\x16 \x01(\tB\x03\xe0A\x03R\ttextbooks\x12,\n" +
+	"\x0freference_books\x18\x17 \x01(\tB\x03\xe0A\x03R\x0ereferenceBooks\x12)\n" +
+	"\rprerequisites\x18\x18 \x01(\tB\x03\xe0A\x03R\rprerequisites\x12&\n" +
+	"\fpre_learning\x18\x19 \x01(\tB\x03\xe0A\x03R\vpreLearning\x12(\n" +
+	"\rpost_learning\x18\x1a \x01(\tB\x03\xe0A\x03R\fpostLearning\x12\x19\n" +
+	"\x05notes\x18\x1b \x01(\tB\x03\xe0A\x03R\x05notes\x12\x1f\n" +
+	"\bkeywords\x18\x1c \x01(\tB\x03\xe0A\x03R\bkeywords\x12*\n" +
+	"\x0etarget_courses\x18\x1d \x01(\tB\x03\xe0A\x03R\rtargetCourses\x12-\n" +
+	"\x0fclassifications\x18\x1e \x01(\tB\x03\xe0A\x03R\x0fclassifications\x12&\n" +
+	"\fdsop_subject\x18\x1f \x01(\tB\x03\xe0A\x03R\vdsopSubject\x120\n" +
+	"\x11teaching_language\x18  \x01(\tB\x03\xe0A\x03R\x10teachingLanguage\x128\n" +
+	"\x16teaching_and_exam_form\x18! \x01(\tB\x03\xe0A\x03R\x13teachingAndExamForm\x127\n" +
+	"\x15contents_and_schedule\x18\" \x01(\tB\x03\xe0A\x03R\x13contentsAndSchedule\x12\"\n" +
+	"\n" +
+	"en_summary\x18# \x01(\tB\x03\xe0A\x03R\tenSummary\x125\n" +
+	"\x14en_learning_outcomes\x18$ \x01(\tB\x03\xe0A\x03R\x12enLearningOutcomes\x12<\n" +
+	"\x18en_contents_and_schedule\x18% \x01(\tB\x03\xe0A\x03R\x15enContentsAndSchedule\x125\n" +
+	"\x14en_evaluation_method\x18& \x01(\tB\x03\xe0A\x03R\x12enEvaluationMethod\x125\n" +
+	"\x14en_teaching_language\x18' \x01(\tB\x03\xe0A\x03R\x12enTeachingLanguage\x12.\n" +
+	"\x10en_prerequisites\x18( \x01(\tB\x03\xe0A\x03R\x0fenPrerequisites\x124\n" +
+	"\x14en_pre_post_learning\x18) \x01(\tB\x03\xe0A\x03R\x11enPrePostLearning\x12&\n" +
+	"\fen_textbooks\x18* \x01(\tB\x03\xe0A\x03R\venTextbooks\x12\x1e\n" +
+	"\ben_notes\x18+ \x01(\tB\x03\xe0A\x03R\aenNotes\x12=\n" +
+	"\x19en_teaching_and_exam_form\x18, \x01(\tB\x03\xe0A\x03R\x15enTeachingAndExamForm\x12.\n" +
+	"\x10diploma_policies\x18- \x01(\tB\x03\xe0A\x03R\x0fdiplomaPolicies\x12G\n" +
+	"\x1ddiploma_policy_correspondence\x18. \x01(\tB\x03\xe0A\x03R\x1bdiplomaPolicyCorrespondence\x12&\n" +
+	"\fcontent_hash\x18/ \x01(\tB\x03\xe0A\x03R\vcontentHash\x12>\n" +
+	"\n" +
+	"fetched_at\x180 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tfetchedAt\"\xcb\x03\n" +
 	"\aSubject\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x03R\x04name\x129\n" +
@@ -1233,6 +1447,7 @@ var file_app_v1_subject_proto_goTypes = []any{
 	(Grade)(0),                          // 14: app.v1.Grade
 	(Class)(0),                          // 15: app.v1.Class
 	(Course)(0),                         // 16: app.v1.Course
+	(*timestamppb.Timestamp)(nil),       // 17: google.protobuf.Timestamp
 }
 var file_app_v1_subject_proto_depIdxs = []int32{
 	13, // 0: app.v1.SubjectFaculty.faculty:type_name -> app.v1.Faculty
@@ -1240,29 +1455,30 @@ var file_app_v1_subject_proto_depIdxs = []int32{
 	15, // 2: app.v1.SubjectEligibleAttribute.class:type_name -> app.v1.Class
 	16, // 3: app.v1.SubjectRequirement.course:type_name -> app.v1.Course
 	3,  // 4: app.v1.SubjectRequirement.requirement_type:type_name -> app.v1.SubjectRequirementType
-	4,  // 5: app.v1.Subject.faculties:type_name -> app.v1.SubjectFaculty
-	0,  // 6: app.v1.Subject.semester:type_name -> app.v1.SubjectSemester
-	5,  // 7: app.v1.Subject.eligible_attributes:type_name -> app.v1.SubjectEligibleAttribute
-	6,  // 8: app.v1.Subject.requirements:type_name -> app.v1.SubjectRequirement
-	7,  // 9: app.v1.Subject.syllabus:type_name -> app.v1.SubjectSyllabus
-	14, // 10: app.v1.ListSubjectsRequest.grades:type_name -> app.v1.Grade
-	16, // 11: app.v1.ListSubjectsRequest.courses:type_name -> app.v1.Course
-	15, // 12: app.v1.ListSubjectsRequest.classes:type_name -> app.v1.Class
-	1,  // 13: app.v1.ListSubjectsRequest.classifications:type_name -> app.v1.SubjectClassification
-	0,  // 14: app.v1.ListSubjectsRequest.semesters:type_name -> app.v1.SubjectSemester
-	3,  // 15: app.v1.ListSubjectsRequest.requirement_types:type_name -> app.v1.SubjectRequirementType
-	2,  // 16: app.v1.ListSubjectsRequest.cultural_subject_categories:type_name -> app.v1.SubjectCulturalSubjectCategory
-	8,  // 17: app.v1.ListSubjectsResponse.subjects:type_name -> app.v1.Subject
-	8,  // 18: app.v1.GetSubjectResponse.subject:type_name -> app.v1.Subject
-	9,  // 19: app.v1.SubjectService.ListSubjects:input_type -> app.v1.ListSubjectsRequest
-	11, // 20: app.v1.SubjectService.GetSubject:input_type -> app.v1.GetSubjectRequest
-	10, // 21: app.v1.SubjectService.ListSubjects:output_type -> app.v1.ListSubjectsResponse
-	12, // 22: app.v1.SubjectService.GetSubject:output_type -> app.v1.GetSubjectResponse
-	21, // [21:23] is the sub-list for method output_type
-	19, // [19:21] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	17, // 5: app.v1.SubjectSyllabus.fetched_at:type_name -> google.protobuf.Timestamp
+	4,  // 6: app.v1.Subject.faculties:type_name -> app.v1.SubjectFaculty
+	0,  // 7: app.v1.Subject.semester:type_name -> app.v1.SubjectSemester
+	5,  // 8: app.v1.Subject.eligible_attributes:type_name -> app.v1.SubjectEligibleAttribute
+	6,  // 9: app.v1.Subject.requirements:type_name -> app.v1.SubjectRequirement
+	7,  // 10: app.v1.Subject.syllabus:type_name -> app.v1.SubjectSyllabus
+	14, // 11: app.v1.ListSubjectsRequest.grades:type_name -> app.v1.Grade
+	16, // 12: app.v1.ListSubjectsRequest.courses:type_name -> app.v1.Course
+	15, // 13: app.v1.ListSubjectsRequest.classes:type_name -> app.v1.Class
+	1,  // 14: app.v1.ListSubjectsRequest.classifications:type_name -> app.v1.SubjectClassification
+	0,  // 15: app.v1.ListSubjectsRequest.semesters:type_name -> app.v1.SubjectSemester
+	3,  // 16: app.v1.ListSubjectsRequest.requirement_types:type_name -> app.v1.SubjectRequirementType
+	2,  // 17: app.v1.ListSubjectsRequest.cultural_subject_categories:type_name -> app.v1.SubjectCulturalSubjectCategory
+	8,  // 18: app.v1.ListSubjectsResponse.subjects:type_name -> app.v1.Subject
+	8,  // 19: app.v1.GetSubjectResponse.subject:type_name -> app.v1.Subject
+	9,  // 20: app.v1.SubjectService.ListSubjects:input_type -> app.v1.ListSubjectsRequest
+	11, // 21: app.v1.SubjectService.GetSubject:input_type -> app.v1.GetSubjectRequest
+	10, // 22: app.v1.SubjectService.ListSubjects:output_type -> app.v1.ListSubjectsResponse
+	12, // 23: app.v1.SubjectService.GetSubject:output_type -> app.v1.GetSubjectResponse
+	22, // [22:24] is the sub-list for method output_type
+	20, // [20:22] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_app_v1_subject_proto_init() }

@@ -53,7 +53,7 @@ func (h *Handler) ListCourseRegistrations(ctx context.Context, req *connect.Requ
 		Where("course_registrations.user_id = ?", userID).
 		Where("subjects.year = ?", h.defaultYear(req.Msg.Year)).
 		Where("subjects.semester IN ?", semesters).
-		Order("subjects.syllabus_id ASC").
+		Order("(SELECT syllabuses.lesson_id FROM syllabuses WHERE syllabuses.id = subjects.syllabus_id) ASC").
 		Find(&records).Error; err != nil {
 		return nil, internalError(ctx, "ListCourseRegistrations", err)
 	}

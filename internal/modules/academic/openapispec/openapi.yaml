@@ -1622,11 +1622,20 @@ components:
       description: 対象学年・クラス
     Syllabus:
       type: object
+      description: 教務システムのシラバス（取得元の写し）。値は加工せず文字列のまま保持する。
       required:
         - id
+        - lessonId
+        - year
+        - displayOrder
+        - listLessonName
+        - listEnName
+        - listStaffName
+        - listTeachingForm
         - name
         - enName
         - grades
+        - term
         - credit
         - facultyNames
         - practicalHomeFacultyCategory
@@ -1644,31 +1653,68 @@ components:
         - notes
         - keywords
         - targetCourses
-        - targetAreas
         - classifications
-        - teachingLanguage
-        - contentsAndSchedule
-        - teachingAndExamForm
         - dsopSubject
+        - teachingLanguage
+        - teachingAndExamForm
+        - contentsAndSchedule
+        - enSummary
+        - enLearningOutcomes
+        - enContentsAndSchedule
+        - enEvaluationMethod
+        - enTeachingLanguage
+        - enPrerequisites
+        - enPrePostLearning
+        - enTextbooks
+        - enNotes
+        - enTeachingAndExamForm
+        - diplomaPolicies
+        - diplomaPolicyCorrespondence
+        - contentHash
+        - fetchedAt
       properties:
         id:
           type: string
-          description: 教務システムのシラバスID
+          description: シラバス（バージョン）ID（UUID）
+        lessonId:
+          type: string
+          description: 教務システムの授業コード
+        year:
+          type: integer
+          description: 年度
+        displayOrder:
+          type: string
+          description: '一覧: 表示順'
+        listLessonName:
+          type: string
+          description: '一覧: 授業科目名'
+        listEnName:
+          type: string
+          description: '一覧: Course'
+        listStaffName:
+          type: string
+          description: '一覧: 担当教員名（主担当のみ）'
+        listTeachingForm:
+          type: string
+          description: '一覧: 授業形態'
         name:
           type: string
           description: 授業名
         enName:
           type: string
-          description: 授業名 (en)
+          description: Course（授業名の英語表記）
         grades:
           type: string
           description: 配当年次
+        term:
+          type: string
+          description: 開講期
         credit:
-          type: integer
-          description: 単位数
+          type: string
+          description: '単位数（例: 2単位）'
         facultyNames:
           type: string
-          description: 担当教員名
+          description: 担当教員名（改行区切り、主担当に ◎）
         practicalHomeFacultyCategory:
           type: string
           description: 実務家教員区分
@@ -1710,28 +1756,68 @@ components:
           description: 履修上の留意点
         keywords:
           type: string
-          description: キーワード
+          description: キーワード/keywords
         targetCourses:
           type: string
           description: 対象コース・領域
-        targetAreas:
-          type: string
-          description: 対象領域
         classifications:
           type: string
           description: 科目群・科目区分
-        teachingLanguage:
-          type: string
-          description: 教授言語
-        contentsAndSchedule:
-          type: string
-          description: 授業内容とスケジュール
-        teachingAndExamForm:
-          type: string
-          description: 授業・試験の形式
         dsopSubject:
           type: string
           description: DSOP対象科目
+        teachingLanguage:
+          type: string
+          description: 教授言語
+        teachingAndExamForm:
+          type: string
+          description: 授業・試験の形式
+        contentsAndSchedule:
+          type: string
+          description: 授業内容とスケジュール
+        enSummary:
+          type: string
+          description: (E)Course outline
+        enLearningOutcomes:
+          type: string
+          description: (E)Course Objectives
+        enContentsAndSchedule:
+          type: string
+          description: (E)Course Schedule
+        enEvaluationMethod:
+          type: string
+          description: (E)Assessment
+        enTeachingLanguage:
+          type: string
+          description: (E)Language of Instruction
+        enPrerequisites:
+          type: string
+          description: (E)Requirements for registration
+        enPrePostLearning:
+          type: string
+          description: (E)Prior/Post Assignment
+        enTextbooks:
+          type: string
+          description: (E)Textbooks
+        enNotes:
+          type: string
+          description: (E)Note
+        enTeachingAndExamForm:
+          type: string
+          description: (E)Type of class and exam
+        diplomaPolicies:
+          type: string
+          description: ディプロマポリシー
+        diplomaPolicyCorrespondence:
+          type: string
+          description: ディプロマポリシーとの対応
+        contentHash:
+          type: string
+          description: 取得値から計算したハッシュ
+        fetchedAt:
+          type: string
+          format: date-time
+          description: 取得日時（最終確認日時）
     TimetableItem:
       type: object
       required:

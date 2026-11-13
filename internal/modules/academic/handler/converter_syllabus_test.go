@@ -8,11 +8,16 @@ import (
 
 func TestSyllabusToAPI(t *testing.T) {
 	input := domain.Syllabus{
-		ID:                           "syl-1",
+		ID:                           "0f8fad5b-d9cb-469f-a165-70867728950e",
+		LessonID:                     "100101",
+		Year:                         2026,
+		Term:                         "前期",
+		EnSummary:                    "Basics of algorithms",
+		DiplomaPolicyCorrespondence:  "DP2,DP4",
 		Name:                         "アルゴリズム論",
 		EnName:                       "Algorithm Theory",
 		Grades:                       "B2",
-		Credit:                       2,
+		Credit:                       "2単位",
 		FacultyNames:                 "田中太郎",
 		PracticalHomeFacultyCategory: "該当しない",
 		MultiplePersonTeachingForm:   "オムニバス",
@@ -29,7 +34,6 @@ func TestSyllabusToAPI(t *testing.T) {
 		Notes:                        "ノートPC持参",
 		Keywords:                     "アルゴリズム,データ構造,計算量",
 		TargetCourses:                "情報システムコース",
-		TargetAreas:                  "情報科学",
 		Classifications:              "専門科目",
 		TeachingLanguage:             "日本語",
 		ContentsAndSchedule:          "第1回:ガイダンス",
@@ -64,7 +68,11 @@ func TestSyllabusToAPI(t *testing.T) {
 		{"Notes", got.Notes, input.Notes},
 		{"Keywords", got.Keywords, input.Keywords},
 		{"TargetCourses", got.TargetCourses, input.TargetCourses},
-		{"TargetAreas", got.TargetAreas, input.TargetAreas},
+		{"LessonId", got.LessonId, input.LessonID},
+		{"Term", got.Term, input.Term},
+		{"Credit", got.Credit, input.Credit},
+		{"EnSummary", got.EnSummary, input.EnSummary},
+		{"DiplomaPolicyCorrespondence", got.DiplomaPolicyCorrespondence, input.DiplomaPolicyCorrespondence},
 		{"Classifications", got.Classifications, input.Classifications},
 		{"TeachingLanguage", got.TeachingLanguage, input.TeachingLanguage},
 		{"ContentsAndSchedule", got.ContentsAndSchedule, input.ContentsAndSchedule},
@@ -78,7 +86,7 @@ func TestSyllabusToAPI(t *testing.T) {
 		}
 	}
 
-	if got.Credit != input.Credit {
-		t.Errorf("Credit: got %d, want %d", got.Credit, input.Credit)
+	if got.Year != input.Year {
+		t.Errorf("Year: got %d, want %d", got.Year, input.Year)
 	}
 }

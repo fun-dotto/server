@@ -7,6 +7,7 @@ import (
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type SyllabusHandler struct {
@@ -15,18 +16,41 @@ type SyllabusHandler struct {
 
 func NewSyllabusHandler(db *gorm.DB) *SyllabusHandler {
 	return &SyllabusHandler{c: crud[model.Syllabus]{
-		name: "syllabus",
-		db:   db,
-		keys: func(m model.Syllabus) []keyField { return []keyField{{"id", m.ID}} },
+		name:     "syllabus",
+		db:       db,
+		keys:     func(m model.Syllabus) []keyField { return []keyField{{"id", m.ID.String()}} },
+		updateFn: updateSyllabus,
 	}}
 }
 
+// updateSyllabus は columns を更新したあと、更新後の内容から content_hash を計算し直す。
+func updateSyllabus(db *gorm.DB, key map[string]any, v *model.Syllabus, columns []string) error {
+	return db.Transaction(func(tx *gorm.DB) error {
+		if err := updateColumns(tx, key, v, columns); err != nil {
+			return err
+		}
+		var current model.Syllabus
+		if err := tx.Where(key).Take(&current).Error; err != nil {
+			return err
+		}
+		return tx.Model(&model.Syllabus{}).Where(key).Omit(clause.Associations).
+			Update("content_hash", current.ComputeContentHash()).Error
+	})
+}
+
 type syllabusInput interface {
-	GetId() string
-	GetCredit() int32
+	GetLessonId() string
+	GetYear() int32
+	GetDisplayOrder() string
+	GetListLessonName() string
+	GetListEnName() string
+	GetListStaffName() string
+	GetListTeachingForm() string
 	GetName() string
 	GetEnName() string
 	GetGrades() string
+	GetTerm() string
+	GetCredit() string
 	GetFacultyNames() string
 	GetPracticalHomeFacultyCategory() string
 	GetMultiplePersonTeachingForm() string
@@ -43,25 +67,51 @@ type syllabusInput interface {
 	GetNotes() string
 	GetKeywords() string
 	GetTargetCourses() string
-	GetTargetAreas() string
 	GetClassifications() string
-	GetTeachingLanguage() string
-	GetContentsAndSchedule() string
-	GetTeachingAndExamForm() string
 	GetDsopSubject() string
+	GetTeachingLanguage() string
+	GetTeachingAndExamForm() string
+	GetContentsAndSchedule() string
+	GetEnSummary() string
+	GetEnLearningOutcomes() string
+	GetEnContentsAndSchedule() string
+	GetEnEvaluationMethod() string
+	GetEnTeachingLanguage() string
+	GetEnPrerequisites() string
+	GetEnPrePostLearning() string
+	GetEnTextbooks() string
+	GetEnNotes() string
+	GetEnTeachingAndExamForm() string
+	GetDiplomaPolicies() string
+	GetDiplomaPolicyCorrespondence() string
 }
 
 func syllabusFromProto(in syllabusInput, s fieldSet) (model.Syllabus, error) {
 	var v violations
 	var m model.Syllabus
-	if s.has("id") {
-		m.ID = requireString(&v, "id", in.GetId())
+	if s.has("lesson_id") {
+		m.LessonID = requireString(&v, "lesson_id", in.GetLessonId())
+	}
+	if s.has("year") {
+		m.Year = requirePositive(&v, "year", in.GetYear())
 	}
 	if s.has("name") {
 		requireString(&v, "name", in.GetName())
 	}
-	if s.has("credit") {
-		m.Credit = requireNonNegative(&v, "credit", in.GetCredit())
+	if s.has("display_order") {
+		m.DisplayOrder = in.GetDisplayOrder()
+	}
+	if s.has("list_lesson_name") {
+		m.ListLessonName = in.GetListLessonName()
+	}
+	if s.has("list_en_name") {
+		m.ListEnName = in.GetListEnName()
+	}
+	if s.has("list_staff_name") {
+		m.ListStaffName = in.GetListStaffName()
+	}
+	if s.has("list_teaching_form") {
+		m.ListTeachingForm = in.GetListTeachingForm()
 	}
 	if s.has("name") {
 		m.Name = in.GetName()
@@ -71,6 +121,12 @@ func syllabusFromProto(in syllabusInput, s fieldSet) (model.Syllabus, error) {
 	}
 	if s.has("grades") {
 		m.Grades = in.GetGrades()
+	}
+	if s.has("term") {
+		m.Term = in.GetTerm()
+	}
+	if s.has("credit") {
+		m.Credit = in.GetCredit()
 	}
 	if s.has("faculty_names") {
 		m.FacultyNames = in.GetFacultyNames()
@@ -120,34 +176,75 @@ func syllabusFromProto(in syllabusInput, s fieldSet) (model.Syllabus, error) {
 	if s.has("target_courses") {
 		m.TargetCourses = in.GetTargetCourses()
 	}
-	if s.has("target_areas") {
-		m.TargetAreas = in.GetTargetAreas()
-	}
 	if s.has("classifications") {
 		m.Classifications = in.GetClassifications()
+	}
+	if s.has("dsop_subject") {
+		m.DsopSubject = in.GetDsopSubject()
 	}
 	if s.has("teaching_language") {
 		m.TeachingLanguage = in.GetTeachingLanguage()
 	}
-	if s.has("contents_and_schedule") {
-		m.ContentsAndSchedule = in.GetContentsAndSchedule()
-	}
 	if s.has("teaching_and_exam_form") {
 		m.TeachingAndExamForm = in.GetTeachingAndExamForm()
 	}
-	if s.has("dsop_subject") {
-		m.DsopSubject = in.GetDsopSubject()
+	if s.has("contents_and_schedule") {
+		m.ContentsAndSchedule = in.GetContentsAndSchedule()
+	}
+	if s.has("en_summary") {
+		m.EnSummary = in.GetEnSummary()
+	}
+	if s.has("en_learning_outcomes") {
+		m.EnLearningOutcomes = in.GetEnLearningOutcomes()
+	}
+	if s.has("en_contents_and_schedule") {
+		m.EnContentsAndSchedule = in.GetEnContentsAndSchedule()
+	}
+	if s.has("en_evaluation_method") {
+		m.EnEvaluationMethod = in.GetEnEvaluationMethod()
+	}
+	if s.has("en_teaching_language") {
+		m.EnTeachingLanguage = in.GetEnTeachingLanguage()
+	}
+	if s.has("en_prerequisites") {
+		m.EnPrerequisites = in.GetEnPrerequisites()
+	}
+	if s.has("en_pre_post_learning") {
+		m.EnPrePostLearning = in.GetEnPrePostLearning()
+	}
+	if s.has("en_textbooks") {
+		m.EnTextbooks = in.GetEnTextbooks()
+	}
+	if s.has("en_notes") {
+		m.EnNotes = in.GetEnNotes()
+	}
+	if s.has("en_teaching_and_exam_form") {
+		m.EnTeachingAndExamForm = in.GetEnTeachingAndExamForm()
+	}
+	if s.has("diploma_policies") {
+		m.DiplomaPolicies = in.GetDiplomaPolicies()
+	}
+	if s.has("diploma_policy_correspondence") {
+		m.DiplomaPolicyCorrespondence = in.GetDiplomaPolicyCorrespondence()
 	}
 	return m, v.err()
 }
 
 func syllabusToProto(m model.Syllabus) *adminv1.Syllabus {
 	return &adminv1.Syllabus{
-		Id:                           m.ID,
-		Credit:                       int32(m.Credit),
+		Id:                           m.ID.String(),
+		LessonId:                     m.LessonID,
+		Year:                         int32(m.Year),
+		DisplayOrder:                 m.DisplayOrder,
+		ListLessonName:               m.ListLessonName,
+		ListEnName:                   m.ListEnName,
+		ListStaffName:                m.ListStaffName,
+		ListTeachingForm:             m.ListTeachingForm,
 		Name:                         m.Name,
 		EnName:                       m.EnName,
 		Grades:                       m.Grades,
+		Term:                         m.Term,
+		Credit:                       m.Credit,
 		FacultyNames:                 m.FacultyNames,
 		PracticalHomeFacultyCategory: m.PracticalHomeFacultyCategory,
 		MultiplePersonTeachingForm:   m.MultiplePersonTeachingForm,
@@ -164,12 +261,25 @@ func syllabusToProto(m model.Syllabus) *adminv1.Syllabus {
 		Notes:                        m.Notes,
 		Keywords:                     m.Keywords,
 		TargetCourses:                m.TargetCourses,
-		TargetAreas:                  m.TargetAreas,
 		Classifications:              m.Classifications,
-		TeachingLanguage:             m.TeachingLanguage,
-		ContentsAndSchedule:          m.ContentsAndSchedule,
-		TeachingAndExamForm:          m.TeachingAndExamForm,
 		DsopSubject:                  m.DsopSubject,
+		TeachingLanguage:             m.TeachingLanguage,
+		TeachingAndExamForm:          m.TeachingAndExamForm,
+		ContentsAndSchedule:          m.ContentsAndSchedule,
+		EnSummary:                    m.EnSummary,
+		EnLearningOutcomes:           m.EnLearningOutcomes,
+		EnContentsAndSchedule:        m.EnContentsAndSchedule,
+		EnEvaluationMethod:           m.EnEvaluationMethod,
+		EnTeachingLanguage:           m.EnTeachingLanguage,
+		EnPrerequisites:              m.EnPrerequisites,
+		EnPrePostLearning:            m.EnPrePostLearning,
+		EnTextbooks:                  m.EnTextbooks,
+		EnNotes:                      m.EnNotes,
+		EnTeachingAndExamForm:        m.EnTeachingAndExamForm,
+		DiplomaPolicies:              m.DiplomaPolicies,
+		DiplomaPolicyCorrespondence:  m.DiplomaPolicyCorrespondence,
+		ContentHash:                  m.ContentHash,
+		FetchedAt:                    toTimestamp(m.FetchedAt),
 		CreatedAt:                    toTimestamp(m.CreatedAt),
 		UpdatedAt:                    toTimestamp(m.UpdatedAt),
 	}
@@ -188,7 +298,7 @@ func (h *SyllabusHandler) ListSyllabi(ctx context.Context, req *connect.Request[
 }
 
 func (h *SyllabusHandler) GetSyllabus(ctx context.Context, req *connect.Request[adminv1.GetSyllabusRequest]) (*connect.Response[adminv1.GetSyllabusResponse], error) {
-	id, err := requireKeyString("id", req.Msg.GetId())
+	id, err := parseIDField("id", req.Msg.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -204,6 +314,7 @@ func (h *SyllabusHandler) CreateSyllabus(ctx context.Context, req *connect.Reque
 	if err != nil {
 		return nil, err
 	}
+	m.ContentHash = m.ComputeContentHash()
 	created, err := h.c.create(ctx, &m)
 	if err != nil {
 		return nil, err
@@ -212,7 +323,7 @@ func (h *SyllabusHandler) CreateSyllabus(ctx context.Context, req *connect.Reque
 }
 
 func (h *SyllabusHandler) UpdateSyllabus(ctx context.Context, req *connect.Request[adminv1.UpdateSyllabusRequest]) (*connect.Response[adminv1.UpdateSyllabusResponse], error) {
-	id, err := requireKeyString("id", req.Msg.GetId())
+	id, err := parseIDField("id", req.Msg.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +343,7 @@ func (h *SyllabusHandler) UpdateSyllabus(ctx context.Context, req *connect.Reque
 }
 
 func (h *SyllabusHandler) DeleteSyllabus(ctx context.Context, req *connect.Request[adminv1.DeleteSyllabusRequest]) (*connect.Response[adminv1.DeleteSyllabusResponse], error) {
-	id, err := requireKeyString("id", req.Msg.GetId())
+	id, err := parseIDField("id", req.Msg.GetId())
 	if err != nil {
 		return nil, err
 	}

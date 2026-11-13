@@ -127,10 +127,18 @@ func roomFromDomain(d domain.Room) model.Room {
 
 func syllabusToDomain(m model.Syllabus) domain.Syllabus {
 	return domain.Syllabus{
-		ID:                           m.ID,
+		ID:                           m.ID.String(),
+		LessonID:                     m.LessonID,
+		Year:                         m.Year,
+		DisplayOrder:                 m.DisplayOrder,
+		ListLessonName:               m.ListLessonName,
+		ListEnName:                   m.ListEnName,
+		ListStaffName:                m.ListStaffName,
+		ListTeachingForm:             m.ListTeachingForm,
 		Name:                         m.Name,
 		EnName:                       m.EnName,
 		Grades:                       m.Grades,
+		Term:                         m.Term,
 		Credit:                       m.Credit,
 		FacultyNames:                 m.FacultyNames,
 		PracticalHomeFacultyCategory: m.PracticalHomeFacultyCategory,
@@ -148,12 +156,25 @@ func syllabusToDomain(m model.Syllabus) domain.Syllabus {
 		Notes:                        m.Notes,
 		Keywords:                     m.Keywords,
 		TargetCourses:                m.TargetCourses,
-		TargetAreas:                  m.TargetAreas,
 		Classifications:              m.Classifications,
-		TeachingLanguage:             m.TeachingLanguage,
-		ContentsAndSchedule:          m.ContentsAndSchedule,
-		TeachingAndExamForm:          m.TeachingAndExamForm,
 		DsopSubject:                  m.DsopSubject,
+		TeachingLanguage:             m.TeachingLanguage,
+		TeachingAndExamForm:          m.TeachingAndExamForm,
+		ContentsAndSchedule:          m.ContentsAndSchedule,
+		EnSummary:                    m.EnSummary,
+		EnLearningOutcomes:           m.EnLearningOutcomes,
+		EnContentsAndSchedule:        m.EnContentsAndSchedule,
+		EnEvaluationMethod:           m.EnEvaluationMethod,
+		EnTeachingLanguage:           m.EnTeachingLanguage,
+		EnPrerequisites:              m.EnPrerequisites,
+		EnPrePostLearning:            m.EnPrePostLearning,
+		EnTextbooks:                  m.EnTextbooks,
+		EnNotes:                      m.EnNotes,
+		EnTeachingAndExamForm:        m.EnTeachingAndExamForm,
+		DiplomaPolicies:              m.DiplomaPolicies,
+		DiplomaPolicyCorrespondence:  m.DiplomaPolicyCorrespondence,
+		ContentHash:                  m.ContentHash,
+		FetchedAt:                    m.FetchedAt,
 	}
 }
 
@@ -203,7 +224,7 @@ func subjectToDomain(m model.Subject) domain.Subject {
 		CulturalSubjectCategory: domain.CulturalSubjectCategory(m.CulturalSubjectCategory),
 		EligibleAttributes:      eligible,
 		Requirements:            requirements,
-		SyllabusID:              m.SyllabusID,
+		SyllabusID:              m.SyllabusID.String(),
 	}
 }
 

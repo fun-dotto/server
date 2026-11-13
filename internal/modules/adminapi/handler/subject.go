@@ -3,11 +3,13 @@ package handler
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"connectrpc.com/connect"
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/subjectbuild"
 	"gorm.io/gorm"
 )
 
@@ -149,7 +151,7 @@ func subjectFromProto(in subjectInput, s fieldSet) (model.Subject, error) {
 		m.CulturalSubjectCategory = subjectCulturalSubjectCategoryEnum.toDB(&v, "cultural_subject_category", in.GetCulturalSubjectCategory(), false)
 	}
 	if s.has("syllabus_id") {
-		m.SyllabusID = requireString(&v, "syllabus_id", in.GetSyllabusId())
+		m.SyllabusID = parseUUID(&v, "syllabus_id", in.GetSyllabusId())
 	}
 	if s.has("faculties") {
 		for i, f := range in.GetFaculties() {
@@ -190,7 +192,7 @@ func subjectToProto(m model.Subject) *adminv1.Subject {
 		Credit:                  int32(m.Credit),
 		Classification:          subjectClassificationEnum.fromDB(m.Classification),
 		CulturalSubjectCategory: subjectCulturalSubjectCategoryEnum.fromDB(m.CulturalSubjectCategory),
-		SyllabusId:              m.SyllabusID,
+		SyllabusId:              m.SyllabusID.String(),
 		CreatedAt:               toTimestamp(m.CreatedAt),
 		UpdatedAt:               toTimestamp(m.UpdatedAt),
 	}
@@ -261,7 +263,18 @@ func (h *SubjectHandler) UpdateSubject(ctx context.Context, req *connect.Request
 	if err != nil {
 		return nil, err
 	}
-	updated, err := h.c.update(ctx, []keyField{{"id", id}}, &m, s.columns(subjectColumns))
+	columns := s.columns(subjectColumns)
+	if s.has("syllabus_id") {
+		relinked, err := h.relink(ctx, id, &m)
+		if err != nil {
+			return nil, err
+		}
+		if relinked {
+			// 付け替え時は紐付け先のシラバスから構造化データを再生成する
+			columns = []string{"name", "year", "semester", "credit", "classification", "cultural_subject_category", "syllabus_id", "Faculties", "EligibleAttributes", "Requirements"}
+		}
+	}
+	updated, err := h.c.update(ctx, []keyField{{"id", id}}, &m, columns)
 	if err != nil {
 		return nil, err
 	}
@@ -277,4 +290,56 @@ func (h *SubjectHandler) DeleteSubject(ctx context.Context, req *connect.Request
 		return nil, err
 	}
 	return connect.NewResponse(&adminv1.DeleteSubjectResponse{}), nil
+}
+
+// relink は科目 id のシラバスを m.SyllabusID に付け替える場合に、付け替え先が同じ (lesson_id, year) かを検証し、
+// 付け替え先のシラバスから構造化データを生成して m に設定する。付け替えでない（同じシラバスの）場合は false を返す。
+func (h *SubjectHandler) relink(ctx context.Context, id string, m *model.Subject) (bool, error) {
+	db := h.c.db.WithContext(ctx)
+	current, err := h.c.get(ctx, []keyField{{"id", id}})
+	if err != nil {
+		return false, err
+	}
+	if current.SyllabusID == m.SyllabusID {
+		return false, nil
+	}
+	var syllabuses []model.Syllabus
+	if err := db.Where("id IN ?", []string{current.SyllabusID.String(), m.SyllabusID.String()}).Find(&syllabuses).Error; err != nil {
+		return false, toConnectError(ctx, "syllabus", nil, err)
+	}
+	var from, to *model.Syllabus
+	for i := range syllabuses {
+		switch syllabuses[i].ID {
+		case current.SyllabusID:
+			from = &syllabuses[i]
+		case m.SyllabusID:
+			to = &syllabuses[i]
+		}
+	}
+	var v violations
+	switch {
+	case to == nil:
+		v.add("syllabus_id", "syllabus not found")
+	case from != nil && (from.LessonID != to.LessonID || from.Year != to.Year):
+		v.add("syllabus_id", fmt.Sprintf("must be a version of the same lesson (lesson_id=%s, year=%d)", from.LessonID, from.Year))
+	}
+	if err := v.err(); err != nil {
+		return false, err
+	}
+
+	res, err := subjectbuild.Build(*to)
+	if err != nil {
+		var v violations
+		v.add("syllabus_id", err.Error())
+		return false, v.err()
+	}
+	var faculties []model.Faculty
+	if err := db.Find(&faculties).Error; err != nil {
+		return false, toConnectError(ctx, "faculty", nil, err)
+	}
+	if missing := res.ResolveFaculties(faculties); len(missing) > 0 {
+		slog.WarnContext(ctx, "faculties not found", "subject_id", id, "syllabus_id", to.ID.String(), "names", missing)
+	}
+	*m = res.Subject
+	return true, nil
 }

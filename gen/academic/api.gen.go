@@ -598,7 +598,7 @@ type SubjectTargetClass struct {
 	Grade DottoFoundationV1Grade `json:"grade"`
 }
 
-// Syllabus defines model for Syllabus.
+// Syllabus 教務システムのシラバス（取得元の写し）。値は加工せず文字列のまま保持する。
 type Syllabus struct {
 	// Assignments 提出課題等
 	Assignments string `json:"assignments"`
@@ -606,35 +606,95 @@ type Syllabus struct {
 	// Classifications 科目群・科目区分
 	Classifications string `json:"classifications"`
 
+	// ContentHash 取得値から計算したハッシュ
+	ContentHash string `json:"contentHash"`
+
 	// ContentsAndSchedule 授業内容とスケジュール
 	ContentsAndSchedule string `json:"contentsAndSchedule"`
 
-	// Credit 単位数
-	Credit int `json:"credit"`
+	// Credit 単位数（例: 2単位）
+	Credit string `json:"credit"`
+
+	// DiplomaPolicies ディプロマポリシー
+	DiplomaPolicies string `json:"diplomaPolicies"`
+
+	// DiplomaPolicyCorrespondence ディプロマポリシーとの対応
+	DiplomaPolicyCorrespondence string `json:"diplomaPolicyCorrespondence"`
+
+	// DisplayOrder 一覧: 表示順
+	DisplayOrder string `json:"displayOrder"`
 
 	// DsopSubject DSOP対象科目
 	DsopSubject string `json:"dsopSubject"`
 
-	// EnName 授業名 (en)
+	// EnContentsAndSchedule (E)Course Schedule
+	EnContentsAndSchedule string `json:"enContentsAndSchedule"`
+
+	// EnEvaluationMethod (E)Assessment
+	EnEvaluationMethod string `json:"enEvaluationMethod"`
+
+	// EnLearningOutcomes (E)Course Objectives
+	EnLearningOutcomes string `json:"enLearningOutcomes"`
+
+	// EnName Course（授業名の英語表記）
 	EnName string `json:"enName"`
+
+	// EnNotes (E)Note
+	EnNotes string `json:"enNotes"`
+
+	// EnPrePostLearning (E)Prior/Post Assignment
+	EnPrePostLearning string `json:"enPrePostLearning"`
+
+	// EnPrerequisites (E)Requirements for registration
+	EnPrerequisites string `json:"enPrerequisites"`
+
+	// EnSummary (E)Course outline
+	EnSummary string `json:"enSummary"`
+
+	// EnTeachingAndExamForm (E)Type of class and exam
+	EnTeachingAndExamForm string `json:"enTeachingAndExamForm"`
+
+	// EnTeachingLanguage (E)Language of Instruction
+	EnTeachingLanguage string `json:"enTeachingLanguage"`
+
+	// EnTextbooks (E)Textbooks
+	EnTextbooks string `json:"enTextbooks"`
 
 	// EvaluationMethod 成績の評価方法・基準
 	EvaluationMethod string `json:"evaluationMethod"`
 
-	// FacultyNames 担当教員名
+	// FacultyNames 担当教員名（改行区切り、主担当に ◎）
 	FacultyNames string `json:"facultyNames"`
+
+	// FetchedAt 取得日時（最終確認日時）
+	FetchedAt time.Time `json:"fetchedAt"`
 
 	// Grades 配当年次
 	Grades string `json:"grades"`
 
-	// Id 教務システムのシラバスID
+	// Id シラバス（バージョン）ID（UUID）
 	Id string `json:"id"`
 
-	// Keywords キーワード
+	// Keywords キーワード/keywords
 	Keywords string `json:"keywords"`
 
 	// LearningOutcomes 授業の到達目標
 	LearningOutcomes string `json:"learningOutcomes"`
+
+	// LessonId 教務システムの授業コード
+	LessonId string `json:"lessonId"`
+
+	// ListEnName 一覧: Course
+	ListEnName string `json:"listEnName"`
+
+	// ListLessonName 一覧: 授業科目名
+	ListLessonName string `json:"listLessonName"`
+
+	// ListStaffName 一覧: 担当教員名（主担当のみ）
+	ListStaffName string `json:"listStaffName"`
+
+	// ListTeachingForm 一覧: 授業形態
+	ListTeachingForm string `json:"listTeachingForm"`
 
 	// MultiplePersonTeachingForm 複数人担当形式
 	MultiplePersonTeachingForm string `json:"multiplePersonTeachingForm"`
@@ -663,9 +723,6 @@ type Syllabus struct {
 	// Summary 授業の概要
 	Summary string `json:"summary"`
 
-	// TargetAreas 対象領域
-	TargetAreas string `json:"targetAreas"`
-
 	// TargetCourses 対象コース・領域
 	TargetCourses string `json:"targetCourses"`
 
@@ -678,8 +735,14 @@ type Syllabus struct {
 	// TeachingLanguage 教授言語
 	TeachingLanguage string `json:"teachingLanguage"`
 
+	// Term 開講期
+	Term string `json:"term"`
+
 	// Textbooks テキスト
 	Textbooks string `json:"textbooks"`
+
+	// Year 年度
+	Year int `json:"year"`
 }
 
 // TimetableItem defines model for TimetableItem.
@@ -5450,12 +5513,14 @@ type SyllabusV1DetailResponse struct {
 	HTTPResponse *http.Response
 	// JSON200 the response for an HTTP 200 `application/json` response
 	JSON200 *struct {
+		// Syllabus 教務システムのシラバス（取得元の写し）。値は加工せず文字列のまま保持する。
 		Syllabus Syllabus `json:"syllabus"`
 	}
 }
 
 // GetJSON200 returns the response for an HTTP 200 `application/json` response
 func (r SyllabusV1DetailResponse) GetJSON200() *struct {
+	// Syllabus 教務システムのシラバス（取得元の写し）。値は加工せず文字列のまま保持する。
 	Syllabus Syllabus `json:"syllabus"`
 } {
 	return r.JSON200
@@ -7063,6 +7128,7 @@ func ParseSyllabusV1DetailResponse(rsp *http.Response) (*SyllabusV1DetailRespons
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
+			// Syllabus 教務システムのシラバス（取得元の写し）。値は加工せず文字列のまま保持する。
 			Syllabus Syllabus `json:"syllabus"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9196,6 +9262,7 @@ type SyllabusV1DetailResponseObject interface {
 }
 
 type SyllabusV1Detail200JSONResponse struct {
+	// Syllabus 教務システムのシラバス（取得元の写し）。値は加工せず文字列のまま保持する。
 	Syllabus Syllabus `json:"syllabus"`
 }
 

@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
   --mount=type=cache,target=/root/.cache/go-build \
   set -eux; \
   mkdir -p /out/bin; \
-  for cmd in academic-api admin-api announcement-api app-api app-bff-api build-class-change-notifications-job dispatch-notifications-job user-api; do \
+  for cmd in academic-api admin-api announcement-api app-api app-bff-api build-class-change-notifications-job build-subjects-job dispatch-notifications-job fetch-syllabuses-job user-api; do \
   CGO_ENABLED=0 GOOS=linux \
   go build -tags timetzdata -trimpath -ldflags='-s -w' \
   -o /out/bin/${cmd} ./cmd/${cmd}; \

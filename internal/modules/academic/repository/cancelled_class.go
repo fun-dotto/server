@@ -40,7 +40,7 @@ func (r *CancelledClassRepository) List(ctx context.Context, filter domain.Cance
 
 	query = query.
 		Joins("JOIN subjects ON subjects.id = cancelled_classes.subject_id").
-		Order("cancelled_classes.date ASC, cancelled_classes.period ASC, subjects.syllabus_id ASC")
+		Order("cancelled_classes.date ASC, cancelled_classes.period ASC, (SELECT syllabuses.lesson_id FROM syllabuses WHERE syllabuses.id = subjects.syllabus_id) ASC")
 
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err

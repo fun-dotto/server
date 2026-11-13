@@ -51,7 +51,7 @@ func (r *TimetableItemRepository) List(ctx context.Context, filter domain.Timeta
 			"WHEN 'Sunday' THEN 7 " +
 			"ELSE 8 END ASC").
 		Order("timetable_items.period ASC").
-		Order("subjects.syllabus_id ASC")
+		Order("(SELECT syllabuses.lesson_id FROM syllabuses WHERE syllabuses.id = subjects.syllabus_id) ASC")
 
 	var records []model.TimetableItem
 	if err := query.Find(&records).Error; err != nil {

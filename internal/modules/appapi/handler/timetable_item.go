@@ -12,7 +12,7 @@ import (
 const timetableOrder = "CASE timetable_items.day_of_week " +
 	"WHEN 'Monday' THEN 1 WHEN 'Tuesday' THEN 2 WHEN 'Wednesday' THEN 3 WHEN 'Thursday' THEN 4 " +
 	"WHEN 'Friday' THEN 5 WHEN 'Saturday' THEN 6 WHEN 'Sunday' THEN 7 ELSE 8 END ASC, " +
-	"timetable_items.period ASC, subjects.syllabus_id ASC"
+	"timetable_items.period ASC, (SELECT syllabuses.lesson_id FROM syllabuses WHERE syllabuses.id = subjects.syllabus_id) ASC"
 
 // findTimetableItems は年度・開講時期で時間割を取得する。year が nil の場合は年度で絞り込まない。
 func (h *Handler) findTimetableItems(ctx context.Context, year *int, semesters []string) ([]model.TimetableItem, error) {

@@ -40,7 +40,7 @@ func (r *MakeupClassRepository) List(ctx context.Context, filter domain.MakeupCl
 
 	query = query.
 		Joins("JOIN subjects ON subjects.id = makeup_classes.subject_id").
-		Order("makeup_classes.date ASC, makeup_classes.period ASC, subjects.syllabus_id ASC")
+		Order("makeup_classes.date ASC, makeup_classes.period ASC, (SELECT syllabuses.lesson_id FROM syllabuses WHERE syllabuses.id = subjects.syllabus_id) ASC")
 
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err

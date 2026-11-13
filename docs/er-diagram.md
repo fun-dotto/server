@@ -29,11 +29,19 @@ erDiagram
     }
 
     Syllabus {
-        string ID PK
+        uuid ID PK
+        string LessonID
+        int Year
+        string DisplayOrder
+        string ListLessonName
+        string ListEnName
+        string ListStaffName
+        string ListTeachingForm
         string Name
         string EnName
         string Grades
-        int Credit
+        string Term
+        string Credit
         string FacultyNames
         string PracticalHomeFacultyCategory
         string MultiplePersonTeachingForm
@@ -50,12 +58,25 @@ erDiagram
         string Notes
         string Keywords
         string TargetCourses
-        string TargetAreas
         string Classifications
-        string TeachingLanguage
-        string ContentsAndSchedule
-        string TeachingAndExamForm
         string DsopSubject
+        string TeachingLanguage
+        string TeachingAndExamForm
+        string ContentsAndSchedule
+        string EnSummary
+        string EnLearningOutcomes
+        string EnContentsAndSchedule
+        string EnEvaluationMethod
+        string EnTeachingLanguage
+        string EnPrerequisites
+        string EnPrePostLearning
+        string EnTextbooks
+        string EnNotes
+        string EnTeachingAndExamForm
+        string DiplomaPolicies
+        string DiplomaPolicyCorrespondence
+        string ContentHash
+        timestamp FetchedAt
         timestamp CreatedAt
         timestamp UpdatedAt
     }
@@ -68,7 +89,7 @@ erDiagram
         int Credit
         string Classification
         string CulturalSubjectCategory
-        string SyllabusID FK
+        uuid SyllabusID FK
         timestamp CreatedAt
         timestamp UpdatedAt
     }

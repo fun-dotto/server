@@ -80,6 +80,8 @@ runs:
           user-api
           build-class-change-notifications-job
           dispatch-notifications-job
+          fetch-syllabuses-job
+          build-subjects-job
         "
         include=""
         for name in $DEPLOY_TARGETS; do
