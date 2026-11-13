@@ -1,5 +1,6 @@
 [settings]
 minimum_release_age = "24h"
+npm.package_manager = "npm"
 
 [env]
 # ツールを必ず mise の Go でビルドする(go.mod の要求で別の Go に切り替わるのを防ぐ)
@@ -13,7 +14,7 @@ go = "1.27.4"
 "go:golang.org/x/vuln/cmd/govulncheck" = "1.9.0"
 node = "26.13.1"
 "npm:portless" = "0.17.0"
-"npm:rulesync" = "43.4.2"
+"npm:rulesync" = "43.8.0"
 
 [tasks.bootstrap]
 description = "依存関係をセットアップする"
