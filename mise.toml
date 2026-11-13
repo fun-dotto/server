@@ -13,7 +13,7 @@ go = "1.27.4"
 "go:golang.org/x/vuln/cmd/govulncheck" = "1.9.0"
 node = "26.13.1"
 "npm:portless" = "0.17.0"
-"npm:rulesync" = "43.8.0"
+"npm:rulesync" = "43.4.2"
 
 [tasks.bootstrap]
 description = "依存関係をセットアップする"
