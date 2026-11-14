@@ -127,11 +127,12 @@ func roomFromDomain(d domain.Room) model.Room {
 
 func syllabusToDomain(m model.Syllabus) domain.Syllabus {
 	return domain.Syllabus{
-		ID:                           m.ID,
+		// academic-api の Syllabus.id は、リリース済みアプリがレビューのキーとして使う教務システムの ID（= lesson_id）を返す。
+		ID:                           m.LessonID,
 		Name:                         m.Name,
 		EnName:                       m.EnName,
 		Grades:                       m.Grades,
-		Credit:                       m.Credit,
+		Credit:                       parseSyllabusCredit(m.Credit),
 		FacultyNames:                 m.FacultyNames,
 		PracticalHomeFacultyCategory: m.PracticalHomeFacultyCategory,
 		MultiplePersonTeachingForm:   m.MultiplePersonTeachingForm,
@@ -148,7 +149,6 @@ func syllabusToDomain(m model.Syllabus) domain.Syllabus {
 		Notes:                        m.Notes,
 		Keywords:                     m.Keywords,
 		TargetCourses:                m.TargetCourses,
-		TargetAreas:                  m.TargetAreas,
 		Classifications:              m.Classifications,
 		TeachingLanguage:             m.TeachingLanguage,
 		ContentsAndSchedule:          m.ContentsAndSchedule,
@@ -203,7 +203,7 @@ func subjectToDomain(m model.Subject) domain.Subject {
 		CulturalSubjectCategory: domain.CulturalSubjectCategory(m.CulturalSubjectCategory),
 		EligibleAttributes:      eligible,
 		Requirements:            requirements,
-		SyllabusID:              m.SyllabusID,
+		SyllabusID:              m.SyllabusID.String(),
 	}
 }
 
@@ -407,4 +407,13 @@ func timetableItemFromDomain(d domain.TimetableItem) model.TimetableItem {
 		m.ID = parseUUIDOrNil(d.ID)
 	}
 	return m
+}
+
+// parseSyllabusCredit はシラバスの単位数（例: `2単位`）から数値を取り出す。取り出せない場合は 0。
+func parseSyllabusCredit(s string) int {
+	n, err := strconv.Atoi(strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(s), "単位")))
+	if err != nil {
+		return 0
+	}
+	return n
 }

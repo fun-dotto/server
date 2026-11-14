@@ -44,7 +44,7 @@ func (h *Handler) classChangeQuery(ctx context.Context, req classChangeRequest, 
 	if err := v.err(); err != nil {
 		return nil, err
 	}
-	return query.Order(table + ".date ASC, " + table + ".period ASC, subjects.syllabus_id ASC"), nil
+	return query.Order(table + ".date ASC, " + table + ".period ASC, " + model.SubjectOrderByLessonID), nil
 }
 
 // ListCancelledClasses は休講の一覧を返す。
