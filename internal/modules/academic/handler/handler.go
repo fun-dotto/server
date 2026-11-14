@@ -11,7 +11,7 @@ import (
 var _ api.StrictServerInterface = (*Handler)(nil)
 
 type subjectService interface {
-	List(ctx context.Context, filter domain.SubjectListFilter) ([]domain.Subject, error)
+	List(ctx context.Context, filter domain.SubjectListFilter, sort *domain.SubjectListSort) ([]domain.Subject, error)
 	GetByID(ctx context.Context, id string) (domain.Subject, error)
 	Delete(ctx context.Context, id string) error
 	GetSyllabus(ctx context.Context, subjectID string) (domain.Syllabus, error)
@@ -34,7 +34,7 @@ type roomService interface {
 }
 
 type timetableItemService interface {
-	List(ctx context.Context, filter domain.TimetableItemListFilter) ([]domain.TimetableItem, error)
+	List(ctx context.Context, filter domain.TimetableItemListFilter, sort *domain.SubjectListSort) ([]domain.TimetableItem, error)
 	Create(ctx context.Context, item domain.TimetableItem) (domain.TimetableItem, error)
 	Delete(ctx context.Context, id string) error
 }
@@ -76,6 +76,10 @@ type facultyRoomService interface {
 	Delete(ctx context.Context, id string) error
 }
 
+type userService interface {
+	FindByID(ctx context.Context, id string) (domain.User, bool, error)
+}
+
 type Handler struct {
 	subjectSvc              subjectService
 	facultySvc              facultyService
@@ -87,6 +91,7 @@ type Handler struct {
 	makeupClassSvc          makeupClassService
 	roomChangeSvc           roomChangeService
 	facultyRoomSvc          facultyRoomService
+	userSvc                 userService
 }
 
 func NewHandler(
@@ -100,6 +105,7 @@ func NewHandler(
 	makeupClassSvc makeupClassService,
 	roomChangeSvc roomChangeService,
 	facultyRoomSvc facultyRoomService,
+	userSvc userService,
 ) *Handler {
 	return &Handler{
 		subjectSvc:              subjectSvc,
@@ -112,5 +118,6 @@ func NewHandler(
 		makeupClassSvc:          makeupClassSvc,
 		roomChangeSvc:           roomChangeSvc,
 		facultyRoomSvc:          facultyRoomSvc,
+		userSvc:                 userSvc,
 	}
 }
