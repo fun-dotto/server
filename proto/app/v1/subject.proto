@@ -159,34 +159,28 @@ message Subject {
 
 // ListSubjects の Request。
 message ListSubjectsRequest {
-  reserved 1, 2;
-  reserved "page_size", "page_token";
-
   // 検索ワード。空文字の場合は絞り込まない。
-  string query = 3 [(google.api.field_behavior) = OPTIONAL];
+  string query = 1 [(google.api.field_behavior) = OPTIONAL];
   // 学年。空の場合は絞り込まない。
-  repeated Grade grades = 4 [(google.api.field_behavior) = OPTIONAL];
+  repeated Grade grades = 2 [(google.api.field_behavior) = OPTIONAL];
   // コース。大学院の場合は大学院コースに読み替える。空の場合は絞り込まない。
-  repeated Course courses = 5 [(google.api.field_behavior) = OPTIONAL];
+  repeated Course courses = 3 [(google.api.field_behavior) = OPTIONAL];
   // クラス。大学院の学年を指定した場合は指定できない。空の場合は絞り込まない。
-  repeated Class classes = 6 [(google.api.field_behavior) = OPTIONAL];
+  repeated Class classes = 4 [(google.api.field_behavior) = OPTIONAL];
   // 科目カテゴリ（学部: 専門・教養、大学院: 専門・研究指導）。空の場合は絞り込まない。
-  repeated SubjectClassification classifications = 7 [(google.api.field_behavior) = OPTIONAL];
+  repeated SubjectClassification classifications = 5 [(google.api.field_behavior) = OPTIONAL];
   // 開講時期。空の場合は絞り込まない。
-  repeated SubjectSemester semesters = 8 [(google.api.field_behavior) = OPTIONAL];
+  repeated SubjectSemester semesters = 6 [(google.api.field_behavior) = OPTIONAL];
   // 必修・選択・選択必修。空の場合は絞り込まない。
-  repeated SubjectRequirementType requirement_types = 9 [(google.api.field_behavior) = OPTIONAL];
+  repeated SubjectRequirementType requirement_types = 7 [(google.api.field_behavior) = OPTIONAL];
   // 教養科目カテゴリ。空の場合は絞り込まない。
-  repeated SubjectCulturalSubjectCategory cultural_subject_categories = 10 [(google.api.field_behavior) = OPTIONAL];
+  repeated SubjectCulturalSubjectCategory cultural_subject_categories = 8 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // ListSubjects の Response。
 message ListSubjectsResponse {
   // 科目の一覧。
   repeated Subject subjects = 1;
-
-  reserved 2;
-  reserved "next_page_token";
 }
 
 // GetSubject の Request。
