@@ -73,7 +73,7 @@ func (r *SubjectRepository) List(ctx context.Context, filter domain.SubjectListF
 		query = query.Where("cultural_subject_category IN ?", filter.CulturalSubjectCategory)
 	}
 
-	query = query.Order("syllabus_id ASC")
+	query = query.Order(model.SubjectOrderByLessonID)
 
 	var records []model.Subject
 	if err := query.Find(&records).Error; err != nil {
