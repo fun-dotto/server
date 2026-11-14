@@ -182,7 +182,7 @@ func (x *BusTrip) GetAlert() BusTripAlert {
 type ListBusTripsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 運行情報を取得する日付。
-	Date          *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
+	Date          *date.Date `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -282,12 +282,11 @@ const file_app_v1_bus_trip_proto_rawDesc = "" +
 	"\x05route\x18\x04 \x01(\v2\x10.app.v1.BusRouteB\x03\xe0A\x03R\x05route\x12*\n" +
 	"\x05stops\x18\x05 \x03(\v2\x0f.app.v1.BusStopB\x03\xe0A\x03R\x05stops\x124\n" +
 	"\x05delay\x18\x06 \x01(\v2\x19.google.protobuf.DurationB\x03\xe0A\x03R\x05delay\x12/\n" +
-	"\x05alert\x18\a \x01(\x0e2\x14.app.v1.BusTripAlertB\x03\xe0A\x03R\x05alert\"d\n" +
+	"\x05alert\x18\a \x01(\x0e2\x14.app.v1.BusTripAlertB\x03\xe0A\x03R\x05alert\"A\n" +
 	"\x13ListBusTripsRequest\x12*\n" +
-	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04dateJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
-	"page_token\"[\n" +
+	"\x04date\x18\x01 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\"D\n" +
 	"\x14ListBusTripsResponse\x12,\n" +
-	"\tbus_trips\x18\x01 \x03(\v2\x0f.app.v1.BusTripR\bbusTripsJ\x04\b\x02\x10\x03R\x0fnext_page_token*h\n" +
+	"\tbus_trips\x18\x01 \x03(\v2\x0f.app.v1.BusTripR\bbusTrips*h\n" +
 	"\fBusTripAlert\x12\x1e\n" +
 	"\x1aBUS_TRIP_ALERT_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13BUS_TRIP_ALERT_NONE\x10\x01\x12\x1f\n" +

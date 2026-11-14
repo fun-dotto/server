@@ -295,7 +295,7 @@ func (x *MenuItem) GetPrices() []*MenuItemPrice {
 type ListMenuItemsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// メニューを取得する日付。
-	Date          *date.Date `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"`
+	Date          *date.Date `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -397,13 +397,12 @@ const file_app_v1_menu_item_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tB\x03\xe0A\x03R\x04name\x12 \n" +
 	"\timage_url\x18\x04 \x01(\tB\x03\xe0A\x03R\bimageUrl\x129\n" +
 	"\bcategory\x18\x05 \x01(\x0e2\x18.app.v1.MenuItemCategoryB\x03\xe0A\x03R\bcategory\x122\n" +
-	"\x06prices\x18\x06 \x03(\v2\x15.app.v1.MenuItemPriceB\x03\xe0A\x03R\x06prices\"e\n" +
+	"\x06prices\x18\x06 \x03(\v2\x15.app.v1.MenuItemPriceB\x03\xe0A\x03R\x06prices\"B\n" +
 	"\x14ListMenuItemsRequest\x12*\n" +
-	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04dateJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
-	"page_token\"_\n" +
+	"\x04date\x18\x01 \x01(\v2\x11.google.type.DateB\x03\xe0A\x02R\x04date\"H\n" +
 	"\x15ListMenuItemsResponse\x12/\n" +
 	"\n" +
-	"menu_items\x18\x01 \x03(\v2\x10.app.v1.MenuItemR\tmenuItemsJ\x04\b\x02\x10\x03R\x0fnext_page_token*\xe0\x01\n" +
+	"menu_items\x18\x01 \x03(\v2\x10.app.v1.MenuItemR\tmenuItems*\xe0\x01\n" +
 	"\x10MenuItemCategory\x12\"\n" +
 	"\x1eMENU_ITEM_CATEGORY_UNSPECIFIED\x10\x00\x12%\n" +
 	"!MENU_ITEM_CATEGORY_SET_AND_SINGLE\x10\x01\x12%\n" +

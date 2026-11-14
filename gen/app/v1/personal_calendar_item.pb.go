@@ -170,7 +170,7 @@ func (x *PersonalCalendarItem) GetState() PersonalCalendarItem_State {
 type ListPersonalCalendarItemsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 日付のリスト。指定した日付の個人カレンダーアイテムのみを取得する。
-	Dates         []*date.Date `protobuf:"bytes,3,rep,name=dates,proto3" json:"dates,omitempty"`
+	Dates         []*date.Date `protobuf:"bytes,1,rep,name=dates,proto3" json:"dates,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -274,12 +274,11 @@ const file_app_v1_personal_calendar_item_proto_rawDesc = "" +
 	"\fSTATE_NORMAL\x10\x01\x12\x13\n" +
 	"\x0fSTATE_CANCELLED\x10\x02\x12\x10\n" +
 	"\fSTATE_MAKEUP\x10\x03\x12\x16\n" +
-	"\x12STATE_ROOM_CHANGED\x10\x04\"s\n" +
+	"\x12STATE_ROOM_CHANGED\x10\x04\"P\n" +
 	" ListPersonalCalendarItemsRequest\x12,\n" +
-	"\x05dates\x18\x03 \x03(\v2\x11.google.type.DateB\x03\xe0A\x02R\x05datesJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
-	"page_token\"\x90\x01\n" +
+	"\x05dates\x18\x01 \x03(\v2\x11.google.type.DateB\x03\xe0A\x02R\x05dates\"y\n" +
 	"!ListPersonalCalendarItemsResponse\x12T\n" +
-	"\x17personal_calendar_items\x18\x01 \x03(\v2\x1c.app.v1.PersonalCalendarItemR\x15personalCalendarItemsJ\x04\b\x02\x10\x03R\x0fnext_page_token2\x8f\x01\n" +
+	"\x17personal_calendar_items\x18\x01 \x03(\v2\x1c.app.v1.PersonalCalendarItemR\x15personalCalendarItems2\x8f\x01\n" +
 	"\x1bPersonalCalendarItemService\x12p\n" +
 	"\x19ListPersonalCalendarItems\x12(.app.v1.ListPersonalCalendarItemsRequest\x1a).app.v1.ListPersonalCalendarItemsResponseB\x8e\x01\n" +
 	"\n" +

@@ -25,22 +25,16 @@ message CourseRegistration {
 
 // ListCourseRegistrations の Request。
 message ListCourseRegistrationsRequest {
-  reserved 1, 2;
-  reserved "page_size", "page_token";
-
   // 開講年度。未設定の場合は今年度。
-  optional int32 year = 3 [(google.api.field_behavior) = OPTIONAL];
+  optional int32 year = 1 [(google.api.field_behavior) = OPTIONAL];
   // 開講時期。
-  repeated SubjectSemester semesters = 4 [(google.api.field_behavior) = REQUIRED];
+  repeated SubjectSemester semesters = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // ListCourseRegistrations の Response。
 message ListCourseRegistrationsResponse {
   // 履修情報の一覧。
   repeated CourseRegistration course_registrations = 1;
-
-  reserved 2;
-  reserved "next_page_token";
 }
 
 // CreateCourseRegistration の Request。
