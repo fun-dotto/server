@@ -29,22 +29,16 @@ message CancelledClass {
 
 // ListCancelledClasses の Request。
 message ListCancelledClassesRequest {
-  reserved 1, 2;
-  reserved "page_size", "page_token";
-
   // 科目IDのリスト。指定した科目の休講のみを取得する。空の場合は全科目を対象とする。
-  repeated string subject_ids = 3 [(google.api.field_behavior) = OPTIONAL];
+  repeated string subject_ids = 1 [(google.api.field_behavior) = OPTIONAL];
   // 検索対象の開始日付。未設定の場合は開始日付で絞り込まない。
-  optional google.type.Date from_date = 4 [(google.api.field_behavior) = OPTIONAL];
+  optional google.type.Date from_date = 2 [(google.api.field_behavior) = OPTIONAL];
   // 検索対象の終了日付。未設定の場合は終了日付で絞り込まない。
-  optional google.type.Date until_date = 5 [(google.api.field_behavior) = OPTIONAL];
+  optional google.type.Date until_date = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // ListCancelledClasses の Response。
 message ListCancelledClassesResponse {
   // 休講の一覧。
   repeated CancelledClass cancelled_classes = 1;
-
-  reserved 2;
-  reserved "next_page_token";
 }

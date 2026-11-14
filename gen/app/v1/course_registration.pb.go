@@ -81,9 +81,9 @@ func (x *CourseRegistration) GetSubject() *Subject {
 type ListCourseRegistrationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 開講年度。未設定の場合は今年度。
-	Year *int32 `protobuf:"varint,3,opt,name=year,proto3,oneof" json:"year,omitempty"`
+	Year *int32 `protobuf:"varint,1,opt,name=year,proto3,oneof" json:"year,omitempty"`
 	// 開講時期。
-	Semesters     []SubjectSemester `protobuf:"varint,4,rep,packed,name=semesters,proto3,enum=app.v1.SubjectSemester" json:"semesters,omitempty"`
+	Semesters     []SubjectSemester `protobuf:"varint,2,rep,packed,name=semesters,proto3,enum=app.v1.SubjectSemester" json:"semesters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -360,14 +360,13 @@ const file_app_v1_course_registration_proto_rawDesc = "" +
 	" app/v1/course_registration.proto\x12\x06app.v1\x1a\x14app/v1/subject.proto\x1a\x1fgoogle/api/field_behavior.proto\"Y\n" +
 	"\x12CourseRegistration\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12.\n" +
-	"\asubject\x18\x02 \x01(\v2\x0f.app.v1.SubjectB\x03\xe0A\x03R\asubject\"\xa6\x01\n" +
+	"\asubject\x18\x02 \x01(\v2\x0f.app.v1.SubjectB\x03\xe0A\x03R\asubject\"\x83\x01\n" +
 	"\x1eListCourseRegistrationsRequest\x12\x1c\n" +
-	"\x04year\x18\x03 \x01(\x05B\x03\xe0A\x01H\x00R\x04year\x88\x01\x01\x12:\n" +
-	"\tsemesters\x18\x04 \x03(\x0e2\x17.app.v1.SubjectSemesterB\x03\xe0A\x02R\tsemestersB\a\n" +
-	"\x05_yearJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
-	"page_token\"\x87\x01\n" +
+	"\x04year\x18\x01 \x01(\x05B\x03\xe0A\x01H\x00R\x04year\x88\x01\x01\x12:\n" +
+	"\tsemesters\x18\x02 \x03(\x0e2\x17.app.v1.SubjectSemesterB\x03\xe0A\x02R\tsemestersB\a\n" +
+	"\x05_year\"p\n" +
 	"\x1fListCourseRegistrationsResponse\x12M\n" +
-	"\x14course_registrations\x18\x01 \x03(\v2\x1a.app.v1.CourseRegistrationR\x13courseRegistrationsJ\x04\b\x02\x10\x03R\x0fnext_page_token\"E\n" +
+	"\x14course_registrations\x18\x01 \x03(\v2\x1a.app.v1.CourseRegistrationR\x13courseRegistrations\"E\n" +
 	"\x1fCreateCourseRegistrationRequest\x12\"\n" +
 	"\n" +
 	"subject_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tsubjectId\"o\n" +
