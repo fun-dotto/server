@@ -109,11 +109,11 @@ func (x *Reservation) GetTitle() string {
 type ListReservationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 教室IDのリスト。空の場合は全教室を対象とする。
-	RoomIds []string `protobuf:"bytes,3,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
+	RoomIds []string `protobuf:"bytes,1,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
 	// 検索対象の開始日時。未設定の場合は開始日時で絞り込まない。
-	FromTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=from_time,json=fromTime,proto3,oneof" json:"from_time,omitempty"`
+	FromTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=from_time,json=fromTime,proto3,oneof" json:"from_time,omitempty"`
 	// 検索対象の終了日時。未設定の場合は終了日時で絞り込まない。
-	UntilTime     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=until_time,json=untilTime,proto3,oneof" json:"until_time,omitempty"`
+	UntilTime     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=until_time,json=untilTime,proto3,oneof" json:"until_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -225,18 +225,17 @@ const file_app_v1_reservation_proto_rawDesc = "" +
 	"\x04room\x18\x02 \x01(\v2\f.app.v1.RoomB\x03\xe0A\x03R\x04room\x12:\n" +
 	"\bstart_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\astartAt\x126\n" +
 	"\x06end_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\x05endAt\x12\x19\n" +
-	"\x05title\x18\x05 \x01(\tB\x03\xe0A\x03R\x05title\"\x81\x02\n" +
+	"\x05title\x18\x05 \x01(\tB\x03\xe0A\x03R\x05title\"\xde\x01\n" +
 	"\x17ListReservationsRequest\x12\x1e\n" +
-	"\broom_ids\x18\x03 \x03(\tB\x03\xe0A\x01R\aroomIds\x12A\n" +
-	"\tfrom_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x00R\bfromTime\x88\x01\x01\x12C\n" +
+	"\broom_ids\x18\x01 \x03(\tB\x03\xe0A\x01R\aroomIds\x12A\n" +
+	"\tfrom_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x00R\bfromTime\x88\x01\x01\x12C\n" +
 	"\n" +
-	"until_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x01R\tuntilTime\x88\x01\x01B\f\n" +
+	"until_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x01R\tuntilTime\x88\x01\x01B\f\n" +
 	"\n" +
 	"_from_timeB\r\n" +
-	"\v_until_timeJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
-	"page_token\"j\n" +
+	"\v_until_time\"S\n" +
 	"\x18ListReservationsResponse\x127\n" +
-	"\freservations\x18\x01 \x03(\v2\x13.app.v1.ReservationR\freservationsJ\x04\b\x02\x10\x03R\x0fnext_page_token2k\n" +
+	"\freservations\x18\x01 \x03(\v2\x13.app.v1.ReservationR\freservations2k\n" +
 	"\x12ReservationService\x12U\n" +
 	"\x10ListReservations\x12\x1f.app.v1.ListReservationsRequest\x1a .app.v1.ListReservationsResponseB\x85\x01\n" +
 	"\n" +

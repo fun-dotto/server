@@ -44,18 +44,12 @@ message PersonalCalendarItem {
 
 // ListPersonalCalendarItems の Request。
 message ListPersonalCalendarItemsRequest {
-  reserved 1, 2;
-  reserved "page_size", "page_token";
-
   // 日付のリスト。指定した日付の個人カレンダーアイテムのみを取得する。
-  repeated google.type.Date dates = 3 [(google.api.field_behavior) = REQUIRED];
+  repeated google.type.Date dates = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // ListPersonalCalendarItems の Response。
 message ListPersonalCalendarItemsResponse {
   // 個人カレンダーアイテムの一覧。
   repeated PersonalCalendarItem personal_calendar_items = 1;
-
-  reserved 2;
-  reserved "next_page_token";
 }

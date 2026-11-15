@@ -35,20 +35,14 @@ message BusTrip {
 
 // ListBusTrips の Request。
 message ListBusTripsRequest {
-  reserved 1, 2;
-  reserved "page_size", "page_token";
-
   // 運行情報を取得する日付。
-  google.type.Date date = 3 [(google.api.field_behavior) = REQUIRED];
+  google.type.Date date = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // ListBusTrips の Response。
 message ListBusTripsResponse {
   // バスの運行情報の一覧。
   repeated BusTrip bus_trips = 1;
-
-  reserved 2;
-  reserved "next_page_token";
 }
 
 // バスの運行の注意情報。
