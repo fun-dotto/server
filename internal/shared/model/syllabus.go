@@ -127,5 +127,5 @@ func (s *Syllabus) ComputeContentHash() string {
 }
 
 // SubjectOrderByLessonID は科目を紐付いたシラバスの授業コード順に並べる ORDER BY 句。
-// subjects テーブルを参照するクエリで使う。
-const SubjectOrderByLessonID = "(SELECT syllabuses.lesson_id FROM syllabuses WHERE syllabuses.id = subjects.syllabus_id) ASC"
+// subjects テーブルを参照するクエリで使う。授業コードは年度・バージョンをまたいで重複するため、subjects.id で順序を一意にする。
+const SubjectOrderByLessonID = "(SELECT syllabuses.lesson_id FROM syllabuses WHERE syllabuses.id = subjects.syllabus_id) ASC, subjects.id ASC"
