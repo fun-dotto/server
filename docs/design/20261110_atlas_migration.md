@@ -197,7 +197,7 @@ atlas migrate apply --env <env> [--dry-run]
 | 各 SA への `roles/cloudsql.client` / `roles/cloudsql.instanceUser` の付与 | 同上 | 完了（infra#100） |
 | SA の Cloud SQL IAM ユーザー登録とロール割り当て | `terraform/google/foundation/cloud-sql` | 完了（infra#100）。環境別への分割は infra#103。適用用は `dotto_admin_<env>` |
 | 環境ごとの権限分離 | WIF プロバイダ | 完了（infra#100）。プロバイダに `attribute.repository_environment`（`<owner>/<repo>/<environment>`）を追加し、適用用 SA の借用を server の Environment 限定にした |
-| `required_status_checks` の追加 | `terraform/github/fun-dotto/repository-server.tf` | 完了（infra#101） |
+| `required_status_checks` の追加 | `terraform/github/fun-dotto/repository-server.tf` | 完了（infra#101）。集約ジョブ `Migration` への置き換えは infra#111 |
 | DB ロールの GRANT（読み取り専用ロール、`ALTER DEFAULT PRIVILEGES` など） | Cloud SQL（手動 SQL） | dev / stg は完了、prd は適用前に実施する。手順は infra の `docs/atlas-migration.md` |
 | GitHub Environment への変数追加 | — | 不要。DB 名などは PR の dry-run が Environment を使えないため、ワークフローの matrix とワークフロー内の `env` で持つ |
 | 既存の `migrate` / `apply-table-privileges` Job の実在確認と削除 | GCP（`gcloud run jobs list`） | 未実施（手動） |
