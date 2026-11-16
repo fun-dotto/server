@@ -1,5 +1,5 @@
-// Package middleware は admin-api 用の HTTP ミドルウェアを提供する。
-package middleware
+// Package cfaccess は Cloudflare Access が付与する JWT を検証する。admin-api と app-api で共有する。
+package cfaccess
 
 import (
 	"context"
@@ -17,8 +17,8 @@ import (
 	"github.com/go-jose/go-jose/v4/jwt"
 )
 
-// CFAccessJWTHeader は Cloudflare Access が付与する JWT のヘッダー名。
-const CFAccessJWTHeader = "Cf-Access-Jwt-Assertion"
+// JWTHeader は Cloudflare Access が付与する JWT のヘッダー名。
+const JWTHeader = "Cf-Access-Jwt-Assertion"
 
 const (
 	jwksRefreshInterval = 10 * time.Minute
@@ -28,8 +28,8 @@ const (
 
 var allowedAlgs = []jose.SignatureAlgorithm{jose.RS256, jose.ES256}
 
-// CFAccessVerifier は Cloudflare Access の JWT を検証する。
-type CFAccessVerifier struct {
+// Verifier は Cloudflare Access の JWT を検証する。
+type Verifier struct {
 	issuer   string
 	audience string
 	certsURL string
@@ -41,9 +41,9 @@ type CFAccessVerifier struct {
 	fetchedAt time.Time
 }
 
-// NewCFAccessVerifier は issuer (例: "https://example.cloudflareaccess.com") と
+// NewVerifier は issuer (例: "https://example.cloudflareaccess.com") と
 // Access アプリケーションの AUD タグから Verifier を作る。
-func NewCFAccessVerifier(issuer, audience string) (*CFAccessVerifier, error) {
+func NewVerifier(issuer, audience string) (*Verifier, error) {
 	issuer = strings.TrimSuffix(strings.TrimSpace(issuer), "/")
 	audience = strings.TrimSpace(audience)
 	if issuer == "" {
@@ -55,7 +55,7 @@ func NewCFAccessVerifier(issuer, audience string) (*CFAccessVerifier, error) {
 	if audience == "" {
 		return nil, errors.New("cloudflare access audience is empty")
 	}
-	return &CFAccessVerifier{
+	return &Verifier{
 		issuer:   issuer,
 		audience: audience,
 		certsURL: issuer + "/cdn-cgi/access/certs",
@@ -65,9 +65,9 @@ func NewCFAccessVerifier(issuer, audience string) (*CFAccessVerifier, error) {
 }
 
 // Middleware は Cloudflare Access を経由していない (有効な JWT を持たない) リクエストを 403 で拒否する。
-func (v *CFAccessVerifier) Middleware(next http.Handler) http.Handler {
+func (v *Verifier) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get(CFAccessJWTHeader)
+		token := r.Header.Get(JWTHeader)
 		if token == "" {
 			http.Error(w, "forbidden", http.StatusForbidden)
 			return
@@ -82,7 +82,7 @@ func (v *CFAccessVerifier) Middleware(next http.Handler) http.Handler {
 }
 
 // Verify は JWT の署名・issuer・audience・有効期限を検証する。
-func (v *CFAccessVerifier) Verify(ctx context.Context, token string) error {
+func (v *Verifier) Verify(ctx context.Context, token string) error {
 	parsed, err := jwt.ParseSigned(token, allowedAlgs)
 	if err != nil {
 		return fmt.Errorf("parse jwt: %w", err)
@@ -114,7 +114,7 @@ func (v *CFAccessVerifier) Verify(ctx context.Context, token string) error {
 	return nil
 }
 
-func (v *CFAccessVerifier) key(ctx context.Context, kid string) (*jose.JSONWebKey, error) {
+func (v *Verifier) key(ctx context.Context, kid string) (*jose.JSONWebKey, error) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
@@ -138,7 +138,7 @@ func (v *CFAccessVerifier) key(ctx context.Context, kid string) (*jose.JSONWebKe
 	return nil, fmt.Errorf("unknown key id %q", kid)
 }
 
-func (v *CFAccessVerifier) lookup(kid string) *jose.JSONWebKey {
+func (v *Verifier) lookup(kid string) *jose.JSONWebKey {
 	keys := v.keys.Key(kid)
 	idx := slices.IndexFunc(keys, func(k jose.JSONWebKey) bool { return k.Use == "" || k.Use == "sig" })
 	if idx < 0 {
@@ -147,7 +147,7 @@ func (v *CFAccessVerifier) lookup(kid string) *jose.JSONWebKey {
 	return &keys[idx]
 }
 
-func (v *CFAccessVerifier) fetch(ctx context.Context) error {
+func (v *Verifier) fetch(ctx context.Context) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, v.certsURL, nil)
 	if err != nil {
 		return err
