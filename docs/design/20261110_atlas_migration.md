@@ -53,12 +53,13 @@
 - **適用も Atlas CLI に一本化する。** `atlas migrate apply` を使い、`--dry-run` で適用予定を確認できるようにする。自作のリビジョン管理（`revisions.go`）と `cmd/migrate` は廃止する。
 - **環境ごとに `atlas.hcl` の env を定義する。** 接続先は環境変数（`DATABASE_URL`）で注入する。
 - **GitHub Actions から Cloud SQL に IAM 認証で接続する。** Workload Identity Federation でサービスアカウントを借用し、Cloud SQL Auth Proxy 経由で接続する。インスタンスは全環境共通で、環境差は DB 名のみ。
-- **PR で静的検証と dry-run を行う。** DB を変更しない検証をマージ前に必ず通す。dry-run の結果は PR にコメントする。
+- **PR で静的検証と dry-run を行う。** DB を変更しない検証をマージ前に必ず通す。dry-run の結果は PR にコメントする。マイグレーションに関係するファイルを変更していない PR では検証を省略する。
 
 ### ワークフロー
 
 | トリガー | ワークフロー | 環境 | 実行内容 |
 | --- | --- | --- | --- |
+| `pull_request` / `merge_group` | `migrate.yml` の `Migration Changes` | — | マイグレーションに関係するファイルの変更を判定する（変更がなければ validate / dry-run をスキップ） |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Validate` | 環境に依存しない（1 回） | `atlas migrate validate` → モデル差分チェック |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Dry Run` | dev, stg, prd（matrix） | `atlas migrate apply --dry-run`（PR にコメント） |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration` | — | `Migration Validate` / `Migration Dry Run` の結果を集約する（必須ステータスチェック） |
@@ -71,6 +72,7 @@
 - dry-run は DB に書き込まない。ただし接続して未適用のリビジョンを読むため、PR の CI にも各環境への読み取り接続が必要になる。**PR の dry-run ジョブは GitHub Environment（特に `prd`）を指定しない。** `prd` は承認者必須かつ保護ブランチのみ許可（`protected_branches_only`）のため、指定すると PR のたびに承認待ちになる、または PR ブランチから実行できない。環境の切り替えは matrix の値（DB 名）で行う。fork からの PR ではシークレットが渡らないため、dry-run は同一リポジトリの PR のみ対象とする。
 - 静的検証（validate / 差分チェック）は環境に依存しないため 1 回だけ実行し、環境ごとの matrix は `apply --dry-run` のみに絞る。
 - `merge_group` でも同じ検証を実行し、マージキュー上の最終状態を検証する。
+- validate / dry-run は、マイグレーションに関係するファイル（対象は `Migration Changes` の `paths`）を変更した場合のみ実行する。ワークフローの `paths` で起動を止めると必須ステータスチェックが報告されないため、ジョブの `if` でスキップする。
 - `atlas migrate lint` は Atlas v0.38 以降ログイン（有償機能の認証）が必要なため採用しない。破壊的変更はレビューで確認する。
 - **prd のマイグレーションは `deploy.yml` からは適用しない。** `deploy.yml` の prd は検証済みのイメージタグを指定する `deploy` のみで、デプロイするイメージとリポジトリの HEAD のマイグレーションがずれる可能性があるため。prd は `Migrate` の `workflow_dispatch` で、dev / stg で適用済みのコミットに対して、デプロイより前に手動で適用する。
 - アプリのデプロイより前にマイグレーションが完了するよう、`deploy.yml` の `deploy` ジョブは `migrate` ジョブに `needs` する。マイグレーションが失敗した場合はデプロイしない。
