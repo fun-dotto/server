@@ -29,9 +29,10 @@ type CourseRegistration struct {
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// 科目。
 	Subject *Subject `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
-	// ログイン中のユーザーにとっての必修区分。
-	// ユーザーの学年・コース・クラスに未登録の項目がある場合（1 年生のコースを除く）や、
-	// ユーザーが科目の対象学年・クラスに含まれない場合は UNSPECIFIED。
+	// ログイン中のユーザーにとっての必修区分。次の場合は UNSPECIFIED。
+	// - ユーザーの学年・コース・クラスに未登録の項目がある（1 年生のコースと、院生のクラスは除く）
+	// - ユーザーが科目の対象学年・クラスに含まれない
+	// - 科目にユーザーのコースの必修区分がない。コースが未登録の 1 年生は、全コースで区分が同じ科目だけ設定する
 	RequirementType SubjectRequirementType `protobuf:"varint,3,opt,name=requirement_type,json=requirementType,proto3,enum=app.v1.SubjectRequirementType" json:"requirement_type,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
