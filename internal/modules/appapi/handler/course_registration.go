@@ -29,10 +29,18 @@ func decodeCourseRegistrationID(id string) (userID string, subjectID uuid.UUID, 
 	return parts[0], sid, true
 }
 
-func toProtoCourseRegistration(r model.CourseRegistration) *appv1.CourseRegistration {
+// courseRegistrationPreloads は履修情報に必要な関連を読み込む。
+// 必修区分の判定（requirementTypeFor）に、科目の対象学年・クラスと必修区分を使う。
+func courseRegistrationPreloads() []string {
+	return append(subjectPreloads("Subject."), "Subject.EligibleAttributes", "Subject.Requirements")
+}
+
+// toProtoCourseRegistration は履修情報を proto にする。user はログイン中のユーザーで、存在しない場合は nil。
+func toProtoCourseRegistration(r model.CourseRegistration, user *model.User) *appv1.CourseRegistration {
 	return &appv1.CourseRegistration{
-		Id:      encodeCourseRegistrationID(r.UserID, r.SubjectID),
-		Subject: toProtoSubject(r.Subject),
+		Id:              encodeCourseRegistrationID(r.UserID, r.SubjectID),
+		Subject:         toProtoSubject(r.Subject),
+		RequirementType: requirementTypeFor(user, r.Subject),
 	}
 }
 
@@ -47,8 +55,12 @@ func (h *Handler) ListCourseRegistrations(ctx context.Context, req *connect.Requ
 	if err := v.err(); err != nil {
 		return nil, err
 	}
+	user, err := h.findUser(ctx, userID)
+	if err != nil {
+		return nil, internalError(ctx, "ListCourseRegistrations", err)
+	}
 	var records []model.CourseRegistration
-	if err := preload(h.db.WithContext(ctx), subjectPreloads("Subject.")...).
+	if err := preload(h.db.WithContext(ctx), courseRegistrationPreloads()...).
 		Joins("JOIN subjects ON subjects.id = course_registrations.subject_id").
 		Where("course_registrations.user_id = ?", userID).
 		Where("subjects.year = ?", h.defaultYear(req.Msg.Year)).
@@ -58,7 +70,9 @@ func (h *Handler) ListCourseRegistrations(ctx context.Context, req *connect.Requ
 		return nil, internalError(ctx, "ListCourseRegistrations", err)
 	}
 	return connect.NewResponse(&appv1.ListCourseRegistrationsResponse{
-		CourseRegistrations: mapSlice(records, toProtoCourseRegistration),
+		CourseRegistrations: mapSlice(records, func(r model.CourseRegistration) *appv1.CourseRegistration {
+			return toProtoCourseRegistration(r, user)
+		}),
 	}), nil
 }
 
@@ -96,12 +110,16 @@ func (h *Handler) CreateCourseRegistration(ctx context.Context, req *connect.Req
 	}
 
 	var created model.CourseRegistration
-	if err := preload(db, subjectPreloads("Subject.")...).
+	if err := preload(db, courseRegistrationPreloads()...).
 		First(&created, "user_id = ? AND subject_id = ?", userID, subjectID.String()).Error; err != nil {
 		return nil, internalError(ctx, "CreateCourseRegistration", err)
 	}
+	user, err := h.findUser(ctx, userID)
+	if err != nil {
+		return nil, internalError(ctx, "CreateCourseRegistration", err)
+	}
 	return connect.NewResponse(&appv1.CreateCourseRegistrationResponse{
-		CourseRegistration: toProtoCourseRegistration(created),
+		CourseRegistration: toProtoCourseRegistration(created, user),
 	}), nil
 }
 

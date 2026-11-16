@@ -84,6 +84,18 @@ func (h *Handler) UpdateUser(ctx context.Context, req *connect.Request[appv1.Upd
 	return connect.NewResponse(&appv1.UpdateUserResponse{User: toProtoUser(record)}), nil
 }
 
+// findUser はユーザーを返す。存在しない場合は nil を返す（エラーにしない）。
+func (h *Handler) findUser(ctx context.Context, userID string) (*model.User, error) {
+	var record model.User
+	if err := h.db.WithContext(ctx).First(&record, "id = ?", userID).Error; err != nil {
+		if isNotFound(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &record, nil
+}
+
 // optionalFromProto は optional な enum を DB の文字列に変換する。未設定・UNSPECIFIED の場合は nil（値を消す）。
 func optionalFromProto[P comparable](m enumMap[P], p *P, field string, v *violations) *string {
 	if p == nil {
