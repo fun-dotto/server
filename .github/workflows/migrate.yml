@@ -140,6 +140,36 @@ jobs:
             gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -f body="$body" > /dev/null
           fi
 
+  # 必須ステータスチェック用の集約ジョブ。Ruleset の required_status_checks にはこのジョブ（Migration）だけを登録する。
+  # validate / dry-run がスキップされても（draft・fork からの PR など）必ず結果を報告し、スキップは成功として扱う。
+  # matrix ジョブはスキップされると "(environment, database_name)" の付かない名前で報告されるため、
+  # matrix のチェック名を直接必須にすると、スキップしたときにチェックが揃わずマージできなくなる。
+  # fork からの PR は dry-run をスキップするが、マージキュー（merge_group）では dry-run を実行する。
+  migration:
+    name: Migration
+    if: always() && (github.event_name == 'pull_request' || github.event_name == 'merge_group')
+    needs:
+      - validate
+      - dry-run
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results
+        env:
+          VALIDATE_RESULT: ${{ needs.validate.result }}
+          DRY_RUN_RESULT: ${{ needs.dry-run.result }}
+        run: |
+          echo "Migration Validate: ${VALIDATE_RESULT}"
+          echo "Migration Dry Run: ${DRY_RUN_RESULT}"
+          for result in "$VALIDATE_RESULT" "$DRY_RUN_RESULT"; do
+            case "$result" in
+              success | skipped) ;;
+              *)
+                echo "::error::Migration Validate または Migration Dry Run が成功していません。各ジョブのログを確認してください"
+                exit 1
+                ;;
+            esac
+          done
+
   # 選択した環境に手動で適用する。prd は dev / stg で適用済みのコミットのみを想定する。
   apply:
     name: Migration Apply

@@ -61,6 +61,7 @@
 | --- | --- | --- | --- |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Validate` | 環境に依存しない（1 回） | `atlas migrate validate` → モデル差分チェック |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Dry Run` | dev, stg, prd（matrix） | `atlas migrate apply --dry-run`（PR にコメント） |
+| `pull_request` / `merge_group` | `migrate.yml` の `Migration` | — | `Migration Validate` / `Migration Dry Run` の結果を集約する（必須ステータスチェック） |
 | `push`（main） | `deploy.yml` の `migrate` → `migrate-apply.yml` | dev, stg | `atlas migrate apply`。完了後にアプリをデプロイ（`needs`） |
 | `workflow_dispatch`（Deploy） | `deploy.yml` の `migrate` → `migrate-apply.yml` | 選択した環境（`build-push` と prd を除く） | `atlas migrate apply`。完了後にアプリをデプロイ |
 | `workflow_dispatch`（Migrate） | `migrate.yml` の `apply` → `migrate-apply.yml` | 入力で選択（prd 用） | `atlas migrate apply`（GitHub Environment `prd` の承認が必須） |
@@ -104,7 +105,7 @@ env "dev" {
   2. mise で Atlas をセットアップ（`mise.toml` のバージョンと同一）
   3. Cloud SQL Auth Proxy 起動（`--auto-iam-authn`）
   4. `atlas migrate apply --env <env>`（dry-run 時は `--dry-run`）。出力は PR コメント用にファイルにも保存する
-- 新しいチェック名は infra 側の Ruleset の `required_status_checks` に登録済み（`Migration Validate`、`Migration Dry Run (dev, dotto_dev)`、`Migration Dry Run (stg, dotto_stg)`、`Migration Dry Run (prd, dotto)`）。matrix ジョブのチェック名は `ジョブ名 (environment, database_name)` になるため、matrix の値を変える場合は infra 側も更新する。
+- infra 側の Ruleset の `required_status_checks` には、集約ジョブの `Migration` だけを登録する。`Migration` は `Migration Validate` / `Migration Dry Run` の後に必ず実行し、どちらかが成功・スキップ以外（failure / cancelled）なら失敗する。matrix ジョブはスキップされるとチェック名に `(environment, database_name)` が付かず、matrix のチェック名を直接必須にするとスキップ時にマージできなくなるため、個別のジョブは必須にしない。matrix の値を変えても infra 側の更新は不要。
 - `concurrency` を環境ごとに設定し、同一環境へのマイグレーションの並列実行を防ぐ（Atlas は advisory lock も取得する）。
 - 適用ジョブを一時的に無効化するスイッチ（リポジトリ変数）は設けていない。権限の手動対応が終わるまでは、マージを控えることで制御する。
 
