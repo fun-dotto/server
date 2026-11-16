@@ -6,8 +6,10 @@ import (
 	"connectrpc.com/connect"
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/modules/appapi/auth"
+	shareddb "github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/fun-dotto/server/internal/shared/rpcerror"
+	"github.com/jackc/pgerrcode"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -142,7 +144,7 @@ func (h *Handler) RegisterFcmToken(ctx context.Context, req *connect.Request[app
 		if connect.CodeOf(err) == connect.CodePermissionDenied {
 			return nil, err
 		}
-		if rpcerror.PostgresErrorCode(err) == rpcerror.PgForeignKeyViolation {
+		if shareddb.PostgresErrorCode(err) == pgerrcode.ForeignKeyViolation {
 			return nil, userNotFound()
 		}
 		return nil, internalError(ctx, "RegisterFcmToken", err)

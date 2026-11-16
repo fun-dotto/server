@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	"github.com/jackc/pgx/v5/pgconn"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/protobuf/protoadapt"
 )
@@ -75,31 +74,4 @@ func (v Violations) Err(d Domain) error {
 		nil,
 		&errdetails.BadRequest{FieldViolations: v},
 	)
-}
-
-// PostgreSQL のエラーコード（SQLSTATE）。
-// https://www.postgresql.org/docs/current/errcodes-appendix.html
-const (
-	// PgUniqueViolation は一意制約違反（unique_violation）。
-	PgUniqueViolation = "23505"
-	// PgForeignKeyViolation は外部キー制約違反（foreign_key_violation）。
-	PgForeignKeyViolation = "23503"
-	// PgCheckViolation は CHECK 制約違反（check_violation）。
-	PgCheckViolation = "23514"
-	// PgInvalidTextRepresentation は値を型として解釈できない場合（invalid_text_representation。例: 不正な UUID）。
-	PgInvalidTextRepresentation = "22P02"
-	// PgInvalidDatetimeFormat は日時の形式が不正な場合（invalid_datetime_format）。
-	PgInvalidDatetimeFormat = "22007"
-	// PgDatetimeFieldOverflow は日時のフィールドが範囲外の場合（datetime_field_overflow。例: 2 月 30 日）。
-	PgDatetimeFieldOverflow = "22008"
-)
-
-// PostgresErrorCode は err に含まれる PostgreSQL のエラーコード（SQLSTATE）を返す。
-// PostgreSQL のエラーでない場合は空文字列を返す。
-func PostgresErrorCode(err error) string {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		return pgErr.Code
-	}
-	return ""
 }

@@ -8,7 +8,9 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
+	shareddb "github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/rpcerror"
+	"github.com/jackc/pgerrcode"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"gorm.io/gorm"
 )
@@ -31,29 +33,28 @@ func toConnectError(ctx context.Context, r resourceName, keys []keyField, err er
 	for _, k := range keys {
 		metadata[r.metadataKey(k.name)] = k.String()
 	}
-	code := rpcerror.PostgresErrorCode(err)
-	switch {
-	case errors.Is(err, gorm.ErrRecordNotFound):
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return errorDomain.New(connect.CodeNotFound, r.upper()+"_NOT_FOUND", r.human()+" not found", metadata)
-	case code == rpcerror.PgUniqueViolation:
+	}
+	switch shareddb.PostgresErrorCode(err) {
+	case pgerrcode.UniqueViolation:
 		return errorDomain.New(connect.CodeAlreadyExists, r.upper()+"_ALREADY_EXISTS",
 			r.human()+" already exists; use a different identifier or update the existing one", metadata)
-	case code == rpcerror.PgForeignKeyViolation:
+	case pgerrcode.ForeignKeyViolation:
 		return errorDomain.New(connect.CodeFailedPrecondition, r.upper()+"_REFERENCE_VIOLATION",
 			r.human()+" references a resource that does not exist, or is referenced by another resource", metadata)
 	// CHECK 制約違反に加え、不正な UUID・日付など DB が値を解釈できなかった場合も含む
-	case code == rpcerror.PgCheckViolation || code == rpcerror.PgInvalidTextRepresentation ||
-		code == rpcerror.PgInvalidDatetimeFormat || code == rpcerror.PgDatetimeFieldOverflow:
+	case pgerrcode.CheckViolation, pgerrcode.InvalidTextRepresentation,
+		pgerrcode.InvalidDatetimeFormat, pgerrcode.DatetimeFieldOverflow:
 		return errorDomain.New(connect.CodeInvalidArgument, r.upper()+"_INVALID",
 			r.human()+" has a value that violates a constraint; check the request fields", metadata,
 			&errdetails.BadRequest{})
-	default:
-		if cerr := errorDomain.ContextError(err); cerr != nil {
-			return cerr
-		}
-		slog.ErrorContext(ctx, "admin-api internal error", "resource", string(r), "error", err)
-		return errorDomain.New(connect.CodeInternal, "INTERNAL", "internal error", nil)
 	}
+	if cerr := errorDomain.ContextError(err); cerr != nil {
+		return cerr
+	}
+	slog.ErrorContext(ctx, "admin-api internal error", "resource", string(r), "error", err)
+	return errorDomain.New(connect.CodeInternal, "INTERNAL", "internal error", nil)
 }
 
 // keyField はリソースを特定する識別子のフィールド（proto のフィールド名 = DB の列名）。
