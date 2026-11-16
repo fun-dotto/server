@@ -1,7 +1,7 @@
 ---
 root: false
 targets: ["*"]
-globs: ["proto/app/**/*", "internal/modules/app/**/*"]
+globs: ["proto/app/**/*", "internal/modules/appapi/**/*", "cmd/app-api/**/*"]
 ---
 
 # App API デザインガイドライン
