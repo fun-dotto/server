@@ -140,11 +140,8 @@ jobs:
             gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" -f body="$body" > /dev/null
           fi
 
-  # 必須ステータスチェック用の集約ジョブ。Ruleset の required_status_checks にはこのジョブ（Migration）だけを登録する。
-  # validate / dry-run がスキップされても（draft・fork からの PR など）必ず結果を報告し、スキップは成功として扱う。
-  # matrix ジョブはスキップされると "(environment, database_name)" の付かない名前で報告されるため、
-  # matrix のチェック名を直接必須にすると、スキップしたときにチェックが揃わずマージできなくなる。
-  # fork からの PR は dry-run をスキップするが、マージキュー（merge_group）では dry-run を実行する。
+  # 必須ステータスチェック用の集約ジョブ。Ruleset にはこのジョブだけを登録し、validate / dry-run の skipped は成功として扱う。
+  # matrix ジョブはスキップされると "(environment, database_name)" の付かない名前で報告されるため、直接は必須にしない。
   migration:
     name: Migration
     if: always() && (github.event_name == 'pull_request' || github.event_name == 'merge_group')

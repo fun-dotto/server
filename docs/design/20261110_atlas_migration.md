@@ -105,7 +105,7 @@ env "dev" {
   2. mise で Atlas をセットアップ（`mise.toml` のバージョンと同一）
   3. Cloud SQL Auth Proxy 起動（`--auto-iam-authn`）
   4. `atlas migrate apply --env <env>`（dry-run 時は `--dry-run`）。出力は PR コメント用にファイルにも保存する
-- infra 側の Ruleset の `required_status_checks` には、集約ジョブの `Migration` だけを登録する。`Migration` は `Migration Validate` / `Migration Dry Run` の後に必ず実行し、どちらかが成功・スキップ以外（failure / cancelled）なら失敗する。matrix ジョブはスキップされるとチェック名に `(environment, database_name)` が付かず、matrix のチェック名を直接必須にするとスキップ時にマージできなくなるため、個別のジョブは必須にしない。matrix の値を変えても infra 側の更新は不要。
+- infra 側の Ruleset の `required_status_checks` には集約ジョブの `Migration` だけを登録する。matrix ジョブはスキップされるとチェック名に `(environment, database_name)` が付かず、直接必須にするとマージできなくなるため。
 - `concurrency` を環境ごとに設定し、同一環境へのマイグレーションの並列実行を防ぐ（Atlas は advisory lock も取得する）。
 - 適用ジョブを一時的に無効化するスイッチ（リポジトリ変数）は設けていない。権限の手動対応が終わるまでは、マージを控えることで制御する。
 
