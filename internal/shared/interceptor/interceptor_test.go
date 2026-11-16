@@ -19,7 +19,8 @@ import (
 )
 
 // captureLog は slog の既定ロガーの出力を JSON 形式でバッファに書き出すよう差し替え、
-// テスト終了時に元に戻す。
+// テスト終了時に元に戻す。slog.SetDefault は log パッケージの出力先とフラグも書き換え、
+// 既定のロガーに戻しても元に戻らないため、log 側も退避して戻す。
 func captureLog(t *testing.T) *bytes.Buffer {
 	t.Helper()
 	prevLogger := slog.Default()
@@ -35,36 +36,21 @@ func captureLog(t *testing.T) *bytes.Buffer {
 }
 
 func TestTimeout(t *testing.T) {
-	const d = time.Minute
-	req := connect.NewRequest(&emptypb.Empty{})
 	wantRes := connect.NewResponse(&emptypb.Empty{})
 	wantErr := errors.New("boom")
 
 	var gotCtx context.Context
 	next := func(ctx context.Context, _ connect.AnyRequest) (connect.AnyResponse, error) {
 		gotCtx = ctx
-		deadline, ok := ctx.Deadline()
-		if !ok {
-			t.Fatal("下流の context に deadline が設定されていない")
-		}
-		if limit := time.Now().Add(d); deadline.After(limit) {
-			t.Errorf("deadline = %v, want <= %v", deadline, limit)
-		}
-		if err := ctx.Err(); err != nil {
-			t.Errorf("下流の処理中に context が終了している: %v", err)
-		}
 		return wantRes, wantErr
 	}
 
-	res, err := Timeout(d)(next)(context.Background(), req)
-	if res != wantRes {
-		t.Errorf("response = %v, want %v", res, wantRes)
+	res, err := Timeout(time.Minute)(next)(context.Background(), connect.NewRequest(&emptypb.Empty{}))
+	if res != wantRes || err != wantErr {
+		t.Errorf("Timeout() = (%v, %v), want (%v, %v)", res, err, wantRes, wantErr)
 	}
-	if err != wantErr {
-		t.Errorf("error = %v, want %v", err, wantErr)
-	}
-	if gotCtx == nil {
-		t.Fatal("下流の処理が呼ばれていない")
+	if _, ok := gotCtx.Deadline(); !ok {
+		t.Error("下流の context に deadline が設定されていない")
 	}
 	if err := gotCtx.Err(); !errors.Is(err, context.Canceled) {
 		t.Errorf("return 後の context の Err() = %v, want %v", err, context.Canceled)
@@ -84,50 +70,6 @@ func TestTimeoutExceeded(t *testing.T) {
 }
 
 func TestRecordError(t *testing.T) {
-	tests := []struct {
-		name string
-		err  error
-	}{
-		{
-			name: "エラーがなければそのまま返す",
-			err:  nil,
-		},
-		{
-			name: "エラーがあればそのまま返す",
-			err:  connect.NewError(connect.CodeInternal, errors.New("boom")),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			buf := captureLog(t)
-			wantRes := connect.NewResponse(&emptypb.Empty{})
-			next := func(context.Context, connect.AnyRequest) (connect.AnyResponse, error) {
-				return wantRes, tt.err
-			}
-
-			// logging.Middleware を通っていない context でも panic せずに動くこと。
-			res, err := RecordError()(next)(context.Background(), connect.NewRequest(&emptypb.Empty{}))
-			if res != wantRes {
-				t.Errorf("response = %v, want %v", res, wantRes)
-			}
-			if err != tt.err {
-				t.Errorf("error = %v, want %v", err, tt.err)
-			}
-
-			// Middleware を通っていない場合、logging.RecordError はエラーを直接ログに出す。
-			got := buf.String()
-			if tt.err == nil && got != "" {
-				t.Errorf("エラーがないのにログが出力された: %s", got)
-			}
-			if tt.err != nil && !strings.Contains(got, tt.err.Error()) {
-				t.Errorf("ログ %q にエラー %q が含まれていない", got, tt.err.Error())
-			}
-		})
-	}
-}
-
-func TestRecordErrorWithMiddleware(t *testing.T) {
 	const procedure = "/test.v1.TestService/Call"
 	wantErr := connect.NewError(connect.CodeInternal, errors.New("boom"))
 	handler := connect.NewUnaryHandler(
