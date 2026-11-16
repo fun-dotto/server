@@ -7,6 +7,7 @@ import (
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/modules/appapi/auth"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -20,7 +21,7 @@ func (h *Handler) GetUser(ctx context.Context, _ *connect.Request[appv1.GetUserR
 	var record model.User
 	if err := h.db.WithContext(ctx).First(&record, "id = ?", userID).Error; err != nil {
 		if isNotFound(err) {
-			return nil, newError(connect.CodeNotFound, "USER_NOT_FOUND", "user not found; create the user with UpdateUser", nil)
+			return nil, errorDomain.New(connect.CodeNotFound, "USER_NOT_FOUND", "user not found; create the user with UpdateUser", nil)
 		}
 		return nil, internalError(ctx, "GetUser", err)
 	}
@@ -37,14 +38,14 @@ func (h *Handler) UpdateUser(ctx context.Context, req *connect.Request[appv1.Upd
 
 	// update_mask が空の場合は値が入っているフィールドをすべて更新する。
 	paths := map[string]bool{"grade": m.Grade != nil, "course": m.Course != nil, "class": m.Class != nil}
-	var v violations
+	var v rpcerror.Violations
 	if mask := m.GetUpdateMask().GetPaths(); len(mask) > 0 {
 		for k := range paths {
 			paths[k] = false
 		}
 		for _, p := range mask {
 			if _, ok := paths[p]; !ok {
-				v.add("update_mask", "contains an unknown field: "+p)
+				v.Add("update_mask", "contains an unknown field: "+p)
 				continue
 			}
 			paths[p] = true
@@ -53,7 +54,7 @@ func (h *Handler) UpdateUser(ctx context.Context, req *connect.Request[appv1.Upd
 	grade := optionalFromProto(gradeMap, m.Grade, "grade", &v)
 	course := optionalFromProto(courseMap, m.Course, "course", &v)
 	class := optionalFromProto(classMap, m.Class, "class", &v)
-	if err := v.err(); err != nil {
+	if err := v.Err(errorDomain); err != nil {
 		return nil, err
 	}
 
@@ -85,7 +86,7 @@ func (h *Handler) UpdateUser(ctx context.Context, req *connect.Request[appv1.Upd
 }
 
 // optionalFromProto は optional な enum を DB の文字列に変換する。未設定・UNSPECIFIED の場合は nil（値を消す）。
-func optionalFromProto[P comparable](m enumMap[P], p *P, field string, v *violations) *string {
+func optionalFromProto[P comparable](m enumMap[P], p *P, field string, v *rpcerror.Violations) *string {
 	if p == nil {
 		return nil
 	}
@@ -95,7 +96,7 @@ func optionalFromProto[P comparable](m enumMap[P], p *P, field string, v *violat
 	}
 	s, ok := m.fromProto[*p]
 	if !ok {
-		v.add(field, "has an unknown value")
+		v.Add(field, "has an unknown value")
 		return nil
 	}
 	return &s
@@ -141,7 +142,7 @@ func (h *Handler) RegisterFcmToken(ctx context.Context, req *connect.Request[app
 		if connect.CodeOf(err) == connect.CodePermissionDenied {
 			return nil, err
 		}
-		if postgresErrorCode(err) == pgForeignKeyViolation {
+		if rpcerror.PostgresErrorCode(err) == rpcerror.PgForeignKeyViolation {
 			return nil, userNotFound()
 		}
 		return nil, internalError(ctx, "RegisterFcmToken", err)

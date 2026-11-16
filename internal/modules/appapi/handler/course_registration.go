@@ -8,6 +8,7 @@ import (
 	"connectrpc.com/connect"
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 // courseRegistrationIDSep は履修情報ID（ユーザーIDと科目IDの複合キー）の区切り文字。
@@ -42,9 +43,9 @@ func (h *Handler) ListCourseRegistrations(ctx context.Context, req *connect.Requ
 	if err != nil {
 		return nil, err
 	}
-	var v violations
+	var v rpcerror.Violations
 	semesters := requiredSemesters(req.Msg.GetSemesters(), &v)
-	if err := v.err(); err != nil {
+	if err := v.Err(errorDomain); err != nil {
 		return nil, err
 	}
 	var records []model.CourseRegistration
@@ -85,11 +86,11 @@ func (h *Handler) CreateCourseRegistration(ctx context.Context, req *connect.Req
 
 	record := model.CourseRegistration{UserID: userID, SubjectID: subjectID}
 	if err := db.Omit("User", "Subject").Create(&record).Error; err != nil {
-		switch postgresErrorCode(err) {
-		case pgUniqueViolation:
-			return nil, newError(connect.CodeAlreadyExists, "COURSE_REGISTRATION_ALREADY_EXISTS",
+		switch rpcerror.PostgresErrorCode(err) {
+		case rpcerror.PgUniqueViolation:
+			return nil, errorDomain.New(connect.CodeAlreadyExists, "COURSE_REGISTRATION_ALREADY_EXISTS",
 				"course registration already exists for the subject", metadata)
-		case pgForeignKeyViolation:
+		case rpcerror.PgForeignKeyViolation:
 			return nil, userNotFound()
 		}
 		return nil, internalError(ctx, "CreateCourseRegistration", err)

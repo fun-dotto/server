@@ -6,6 +6,7 @@ import (
 	"connectrpc.com/connect"
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
@@ -32,7 +33,7 @@ type cancelledClassInput interface {
 }
 
 func cancelledClassFromProto(in cancelledClassInput, s fieldSet) (model.CancelledClass, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.CancelledClass
 	if s.has("subject_id") {
 		m.SubjectID = parseUUID(&v, "subject_id", in.GetSubjectId())
@@ -46,7 +47,7 @@ func cancelledClassFromProto(in cancelledClassInput, s fieldSet) (model.Cancelle
 	if s.has("comment") {
 		m.Comment = optional(in, "comment", in.GetComment())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func cancelledClassToProto(m model.CancelledClass) *adminv1.CancelledClass {

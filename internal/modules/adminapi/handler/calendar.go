@@ -6,6 +6,7 @@ import (
 	"connectrpc.com/connect"
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"google.golang.org/genproto/googleapis/type/date"
 	"gorm.io/gorm"
 )
@@ -36,7 +37,7 @@ type calendarInput interface {
 }
 
 func calendarFromProto(in calendarInput, s fieldSet) (model.Calendar, error) {
-	var v violations
+	var v rpcerror.Violations
 	m := model.Calendar{
 		Monday:    in.GetMonday(),
 		Tuesday:   in.GetTuesday(),
@@ -56,9 +57,9 @@ func calendarFromProto(in calendarInput, s fieldSet) (model.Calendar, error) {
 		m.EndDate = requireDate(&v, "end_date", in.GetEndDate())
 	}
 	if s.has("start_date") && s.has("end_date") && len(v) == 0 && m.EndDate.Before(m.StartDate) {
-		v.add("end_date", "must not be before start_date")
+		v.Add("end_date", "must not be before start_date")
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func calendarToProto(m model.Calendar) *adminv1.Calendar {

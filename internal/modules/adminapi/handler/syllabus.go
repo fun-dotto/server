@@ -6,6 +6,7 @@ import (
 	"connectrpc.com/connect"
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"gorm.io/gorm"
 )
 
@@ -52,7 +53,7 @@ type syllabusInput interface {
 }
 
 func syllabusFromProto(in syllabusInput, s fieldSet) (model.Syllabus, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.Syllabus
 	if s.has("id") {
 		m.ID = requireString(&v, "id", in.GetId())
@@ -138,7 +139,7 @@ func syllabusFromProto(in syllabusInput, s fieldSet) (model.Syllabus, error) {
 	if s.has("dsop_subject") {
 		m.DsopSubject = in.GetDsopSubject()
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func syllabusToProto(m model.Syllabus) *adminv1.Syllabus {

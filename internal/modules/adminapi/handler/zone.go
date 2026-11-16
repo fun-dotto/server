@@ -6,6 +6,7 @@ import (
 	"connectrpc.com/connect"
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"gorm.io/gorm"
 )
 
@@ -26,12 +27,12 @@ type zoneInput interface {
 }
 
 func zoneFromProto(in zoneInput, s fieldSet) (model.Zone, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.Zone
 	if s.has("zone_id") {
 		m.ZoneID = requireString(&v, "zone_id", in.GetZoneId())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func zoneToProto(m model.Zone) *adminv1.Zone {

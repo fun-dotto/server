@@ -6,6 +6,7 @@ import (
 	"connectrpc.com/connect"
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 )
@@ -30,7 +31,7 @@ type announcementInput interface {
 }
 
 func announcementFromProto(in announcementInput, s fieldSet) (model.Announcement, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.Announcement
 	if s.has("title") {
 		m.Title = requireString(&v, "title", in.GetTitle())
@@ -44,7 +45,7 @@ func announcementFromProto(in announcementInput, s fieldSet) (model.Announcement
 	if s.has("available_until") {
 		m.AvailableUntil = optionalTimestamp(&v, "available_until", in.GetAvailableUntil())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func announcementToProto(m model.Announcement) *adminv1.Announcement {
