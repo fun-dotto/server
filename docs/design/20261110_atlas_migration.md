@@ -61,6 +61,7 @@
 | --- | --- | --- | --- |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Validate` | 環境に依存しない（1 回） | `atlas migrate validate` → モデル差分チェック |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Dry Run` | dev, stg, prd（matrix） | `atlas migrate apply --dry-run`（PR にコメント） |
+| `pull_request` / `merge_group` | `migrate.yml` の `Migration` | — | `Migration Validate` / `Migration Dry Run` の結果を集約する（必須ステータスチェック） |
 | `push`（main） | `deploy.yml` の `migrate` → `migrate-apply.yml` | dev, stg | `atlas migrate apply`。完了後にアプリをデプロイ（`needs`） |
 | `workflow_dispatch`（Deploy） | `deploy.yml` の `migrate` → `migrate-apply.yml` | 選択した環境（`build-push` と prd を除く） | `atlas migrate apply`。完了後にアプリをデプロイ |
 | `workflow_dispatch`（Migrate） | `migrate.yml` の `apply` → `migrate-apply.yml` | 入力で選択（prd 用） | `atlas migrate apply`（GitHub Environment `prd` の承認が必須） |
@@ -104,7 +105,7 @@ env "dev" {
   2. mise で Atlas をセットアップ（`mise.toml` のバージョンと同一）
   3. Cloud SQL Auth Proxy 起動（`--auto-iam-authn`）
   4. `atlas migrate apply --env <env>`（dry-run 時は `--dry-run`）。出力は PR コメント用にファイルにも保存する
-- 新しいチェック名は infra 側の Ruleset の `required_status_checks` に登録済み（`Migration Validate`、`Migration Dry Run (dev, dotto_dev)`、`Migration Dry Run (stg, dotto_stg)`、`Migration Dry Run (prd, dotto)`）。matrix ジョブのチェック名は `ジョブ名 (environment, database_name)` になるため、matrix の値を変える場合は infra 側も更新する。
+- infra 側の Ruleset の `required_status_checks` には集約ジョブの `Migration` だけを登録する。matrix ジョブはスキップされるとチェック名に `(environment, database_name)` が付かず、直接必須にするとマージできなくなるため。
 - `concurrency` を環境ごとに設定し、同一環境へのマイグレーションの並列実行を防ぐ（Atlas は advisory lock も取得する）。
 - 適用ジョブを一時的に無効化するスイッチ（リポジトリ変数）は設けていない。権限の手動対応が終わるまでは、マージを控えることで制御する。
 
@@ -196,7 +197,7 @@ atlas migrate apply --env <env> [--dry-run]
 | 各 SA への `roles/cloudsql.client` / `roles/cloudsql.instanceUser` の付与 | 同上 | 完了（infra#100） |
 | SA の Cloud SQL IAM ユーザー登録とロール割り当て | `terraform/google/foundation/cloud-sql` | 完了（infra#100）。環境別への分割は infra#103。適用用は `dotto_admin_<env>` |
 | 環境ごとの権限分離 | WIF プロバイダ | 完了（infra#100）。プロバイダに `attribute.repository_environment`（`<owner>/<repo>/<environment>`）を追加し、適用用 SA の借用を server の Environment 限定にした |
-| `required_status_checks` の追加 | `terraform/github/fun-dotto/repository-server.tf` | 完了（infra#101） |
+| `required_status_checks` の追加 | `terraform/github/fun-dotto/repository-server.tf` | 完了（infra#101）。集約ジョブ `Migration` への置き換えは infra#111 |
 | DB ロールの GRANT（読み取り専用ロール、`ALTER DEFAULT PRIVILEGES` など） | Cloud SQL（手動 SQL） | dev / stg は完了、prd は適用前に実施する。手順は infra の `docs/atlas-migration.md` |
 | GitHub Environment への変数追加 | — | 不要。DB 名などは PR の dry-run が Environment を使えないため、ワークフローの matrix とワークフロー内の `env` で持つ |
 | 既存の `migrate` / `apply-table-privileges` Job の実在確認と削除 | GCP（`gcloud run jobs list`） | 未実施（手動） |
