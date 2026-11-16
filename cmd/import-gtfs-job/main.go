@@ -15,10 +15,11 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 2 {
-		log.Fatalf("Usage: go run ./cmd/import-gtfs-job <zip-url>")
+	scheduleURL := os.Getenv("GTFS_SCHEDULE_URL")
+	if scheduleURL == "" {
+		log.Fatal("GTFS_SCHEDULE_URL is not set")
 	}
-	if err := downloadAndExtract(os.Args[1]); err != nil {
+	if err := downloadAndExtract(scheduleURL); err != nil {
 		log.Fatal(err)
 	}
 }
