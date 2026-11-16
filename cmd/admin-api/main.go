@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +11,7 @@ import (
 	"github.com/fun-dotto/server/internal/modules/adminapi/handler"
 	"github.com/fun-dotto/server/internal/modules/adminapi/middleware"
 	"github.com/fun-dotto/server/internal/shared/db"
+	"github.com/fun-dotto/server/internal/shared/interceptor"
 	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/joho/godotenv"
@@ -42,7 +42,7 @@ func main() {
 		}
 	}()
 
-	opts := connect.WithInterceptors(timeoutInterceptor(handlerTimeout), errorRecordInterceptor())
+	opts := connect.WithInterceptors(interceptor.Timeout(handlerTimeout), interceptor.RecordError())
 
 	mux := http.NewServeMux()
 	mux.Handle(adminv1connect.NewAnnouncementServiceHandler(handler.NewAnnouncementHandler(conn), opts))
@@ -73,29 +73,5 @@ func main() {
 
 	if err := server.Run(logging.Middleware(cfAccess.Middleware(mux)), server.Addr()); err != nil {
 		log.Fatalf("Server exited with error: %v", err)
-	}
-}
-
-// timeoutInterceptor は 1 リクエストあたりの処理時間の上限を設ける。
-func timeoutInterceptor(d time.Duration) connect.UnaryInterceptorFunc {
-	return func(next connect.UnaryFunc) connect.UnaryFunc {
-		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-			ctx, cancel := context.WithTimeout(ctx, d)
-			defer cancel()
-			return next(ctx, req)
-		}
-	}
-}
-
-// errorRecordInterceptor は RPC のエラーをアクセスログに記録する。
-func errorRecordInterceptor() connect.UnaryInterceptorFunc {
-	return func(next connect.UnaryFunc) connect.UnaryFunc {
-		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-			res, err := next(ctx, req)
-			if err != nil {
-				logging.RecordError(ctx, err)
-			}
-			return res, err
-		}
 	}
 }
