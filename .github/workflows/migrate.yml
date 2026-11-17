@@ -1,11 +1,9 @@
 name: Migrate
 
-# DB マイグレーション（Atlas）の検証と手動適用。
+# DB マイグレーション（Atlas）の検証。
 # - pull_request / merge_group: 静的検証と、dev / stg / prd への dry-run（DB は変更しない）。
 #   マイグレーションに関係するファイルを変更した場合のみ実行し、結果は集約ジョブ Migration で報告する
-# - workflow_dispatch: 選択した環境へ手動で適用（prd は GitHub Environment の承認が必要）
-# main への push 時の dev / stg への適用は、デプロイより前に完了させるため deploy.yml から
-# migrate-apply.yml を呼び出して行う。
+# 適用はデプロイより前に完了させるため、deploy.yml から migrate-apply.yml を呼び出して行う（全環境）。
 # 設計: docs/design/20261110_atlas_migration.md
 on:
   pull_request:
@@ -17,16 +15,6 @@ on:
   merge_group:
     types:
       - checks_requested
-  workflow_dispatch:
-    inputs:
-      environment_name:
-        description: 適用先の環境（prd は dev / stg で適用済みのコミットのみ）
-        required: true
-        type: choice
-        options:
-          - dev
-          - stg
-          - prd
 
 permissions:
   contents: read
@@ -224,14 +212,3 @@ jobs:
                 ;;
             esac
           done
-
-  # 選択した環境に手動で適用する。prd は dev / stg で適用済みのコミットのみを想定する。
-  apply:
-    name: Migration Apply
-    if: github.event_name == 'workflow_dispatch'
-    uses: ./.github/workflows/migrate-apply.yml
-    permissions:
-      contents: read
-      id-token: write
-    with:
-      environments: ${{ format('["{0}"]', inputs.environment_name) }}

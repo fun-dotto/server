@@ -2,14 +2,17 @@ name: Migrate Apply
 
 # Atlas で DB マイグレーションを適用する再利用ワークフロー。
 # 呼び出し元:
-# - deploy.yml: アプリのデプロイより前にマイグレーションを完了させる
-# - migrate.yml: workflow_dispatch で選択した環境に手動で適用する
+# - deploy.yml: アプリのデプロイより前にマイグレーションを完了させる（dev / stg / prd）
 # 設計: docs/design/20261110_atlas_migration.md
 on:
   workflow_call:
     inputs:
       environments:
         description: 適用先の環境の JSON 配列（例 ["dev","stg"]）。配列の順に 1 環境ずつ適用する
+        required: true
+        type: string
+      ref:
+        description: migrations/ を取得するコミット（デプロイするイメージのコミット）。action と atlas.hcl はワークフローのコミットのものを使う
         required: true
         type: string
 
@@ -38,7 +41,18 @@ jobs:
       matrix:
         environment: ${{ fromJSON(inputs.environments) }}
     steps:
+      # composite action・atlas.hcl はワークフローのコミット（input や SA 名と揃える）のものを使い、
+      # migrations/ だけをイメージのコミットのものに差し替える。古いイメージへのロールバックでも適用できるようにするため。
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Checkout migrations at ref
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$REF"
+          # ref にないマイグレーション（新しいもの）を残さないよう、ディレクトリごと差し替える
+          rm -rf migrations
+          git checkout FETCH_HEAD -- migrations
+          git log -1 --format='migrations: %H %s' FETCH_HEAD
       - uses: ./.github/actions/atlas-migrate
         with:
           environment: ${{ matrix.environment }}
