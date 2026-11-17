@@ -26,10 +26,11 @@
 
 ## 方針
 
-- **過去問のメタデータを Cloud SQL（`past_exams` テーブル）に持ち、科目（`subjects`）に紐付ける。** `syllabus.db` の `過去問` 列は使わない。
+- **過去問のメタデータを Cloud SQL（`past_exams` テーブル）に持ち、授業コード（`lesson_id`）に紐付ける。** `syllabus.db` の `過去問` 列は使わない。
+  - [科目テーブル・シラバステーブル再設計](./20261109_subject_syllabus_redesign.md) により、`subjects` は `(lesson_id, year)` ごとに作られ、紐付いた `syllabuses.lesson_id` で年度をまたいだ同一授業が分かる。過去問は年度をまたいで参照されるものなので、年度ごとの `subjects.id` ではなく `lesson_id` を紐付けのキーにする。
 - **ファイルは GCS の非公開バケットに置く。** アプリは GCS に直接の資格情報を持たない。
 - **App API（Connect RPC）に一覧取得とダウンロード URL 発行の RPC を追加する。** ダウンロードは **V4 署名付き URL（短期）** を返し、アプリはそれを HTTP GET する。ファイル本体を API サーバー経由で中継しない。
-- **認可はサーバーで行う。** 過去問 RPC はログイン必須（`userRequiredProcedures`）にし、さらに大学ドメイン（`@fun.ac.jp`）のユーザーに限る。
+- **認可はサーバーで行う。** 過去問 RPC はログイン必須（`userRequiredProcedures`）にし、さらに学生アカウント（`b<数字7桁>@fun.ac.jp` / `g<数字7桁>@fun.ac.jp`）のユーザーに限る。
 - **登録・更新は Admin API から行う。** アップロードも署名付き URL（PUT）で GCS に直接送る。
 - 移行期間はアプリの旧実装（R2）を残し、API 版のリリース後に R2 の資格情報を失効させる。
 
@@ -75,7 +76,7 @@ past-exams/{past_exam_id}/{file_id}.pdf
 | 列 | 型 | 備考 |
 | --- | --- | --- |
 | `id` | uuid PK | `gen_random_uuid()` |
-| `subject_id` | uuid NOT NULL | FK → `subjects.id`（`ON DELETE CASCADE`）。インデックス |
+| `lesson_id` | text NOT NULL | 授業コード（= `syllabuses.lesson_id`）。インデックス。`syllabuses` は `(lesson_id, year, content_hash)` で複数行あり単独の UNIQUE がないため FK は張らず、登録時に `syllabuses` に存在することを admin-api で検証する |
 | `year` | bigint NOT NULL | 実施年度 |
 | `exam_type` | text NOT NULL | `midterm` / `final` / `quiz` / `makeup` / `other` |
 | `title` | text NOT NULL | 表示名（例: `2024 期末`）。空なら年度・種別から生成して表示 |
@@ -83,7 +84,7 @@ past-exams/{past_exam_id}/{file_id}.pdf
 | `created_at` / `updated_at` | timestamptz | `Common` |
 
 - 並び順: `year DESC, exam_type, title`
-- インデックス: `(subject_id, year)`
+- インデックス: `(lesson_id, year)`
 
 #### `past_exam_files`
 
@@ -102,7 +103,8 @@ past-exams/{past_exam_id}/{file_id}.pdf
 | `created_at` / `updated_at` | timestamptz | |
 
 - アプリには `status = 'ready'` のみ返す。
-- 科目のバージョン（年度ごとの `subjects`）をまたいで同じ過去問を見せたい場合は、当面は登録時に科目ごとに紐付ける。将来 `lesson_id` 単位で共有する必要が出たら `past_exams.subject_id` を「科目群」への FK に変える（「未決事項」参照）。
+- 年度ごとの `subjects` をまたいで同じ過去問を見せるため、`lesson_id` で紐付ける。科目からは `subjects.syllabus_id` → `syllabuses.lesson_id` で引く。毎年の紐付け直しは不要。
+- 同じ `lesson_id` でも年度により担当教員が変わることがあるため、どの年度の試験かは `past_exams.year` で示す（アプリで年度ごとに表示）。
 
 GORM モデルは `internal/shared/model/past_exam.go` に `PastExam` / `PastExamFile` として追加し、`cmd/atlas-loader` に登録、`mise run migrate:diff` でマイグレーションを生成する。ER 図（`docs/er-diagram.md`）も更新する。
 
@@ -136,8 +138,13 @@ message PastExam {
 }
 
 message ListPastExamsRequest {
-  // 科目 ID。
-  string subject_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 対象の授業。どちらか一方を指定する。
+  oneof target {
+    // 科目 ID。サーバーで紐付いたシラバスの lesson_id に解決する。
+    string subject_id = 1;
+    // 授業コード（教務システムの lesson_id）。
+    string lesson_id = 2;
+  }
 }
 message ListPastExamsResponse {
   repeated PastExam past_exams = 1;
@@ -162,7 +169,10 @@ message GetPastExamFileDownloadUrlResponse {
 #### 認可
 
 - 2 RPC を `auth.userRequiredProcedures` に追加する（App Check + Firebase ID トークン必須）。
-- さらにハンドラー（または `auth` の procedure 単位の設定）で **メールアドレスのドメインが `fun.ac.jp` で終わり、`email_verified = true`** であることを確認し、満たさなければ `PermissionDenied`。許可ドメインは環境変数 `PAST_EXAM_ALLOWED_EMAIL_DOMAINS`（カンマ区切り）で設定する。
+- さらにハンドラー（または `auth` の procedure 単位の設定）で、Firebase ID トークンの **`email` が `^[bg][0-9]{7}@fun\.ac\.jp$` に一致し、`email_verified = true`** であることを確認し、満たさなければ `PermissionDenied`。
+  - `b` は学部生、`g` は大学院生のアカウント。教員・職員など、これ以外の `@fun.ac.jp` アカウントは閲覧できない。
+  - 大文字小文字の揺れに備え、比較前に `email` を小文字にする。
+  - `auth.User` に `EmailVerified` を追加し、`FirebaseIDTokenVerifier` でクレームから詰める。判定は `IsStudent()` などの関数に切り出してテストする。
 - 存在しない ID は `NotFound`。`status != ready` のファイルも `NotFound` とする。
 
 #### 署名付き URL
@@ -200,21 +210,21 @@ message GetPastExamFileDownloadUrlResponse {
 | データ層 | `PastExamDataSource` を Connect クライアント（`PastExamService`）に置き換える。`S3DataSource` / `s3ClientProvider` / `minio` 依存を削除 |
 | ドメイン | `PastExamRepository.fetchKeys(String)` → `fetchPastExams(subjectId)`（`PastExam` / `PastExamFile` エンティティを追加）と `fetchDownloadUrl(fileId)` |
 | PDF | `PdfRepository.download` の `isPastExam` 分岐を削除。ダウンロード URL を取得してから既存の `_downloadWeb`（HTTP GET）で取得する。`CloudflarePdfViewer` は `PastExamPdfViewer` に改名し、URL 取得 → `WebPdfViewer` の順に呼ぶ |
-| 紐付け | `SubjectDataSource.readPastExamId` と `Subject.pastExamId` を削除。科目 ID（UUID）で一覧を取得する。過去問タブは `pastExamCount > 0` で表示 |
+| 紐付け | `SubjectDataSource.readPastExamId` と `Subject.pastExamId` を削除。API の科目なら `subject_id`、`syllabus.db` 由来の科目なら `LessonId` を `lesson_id` に指定して一覧を取得する。API の科目では過去問タブを `pastExamCount > 0` で表示 |
 | ルーティング | `:pastExamId`（オブジェクトキー）→ `:fileId`（UUID）。ディープリンクの互換は不要（キーは外部共有していない想定） |
 | 画面 | 一覧を年度・試験種別でグルーピングし、ファイルごとに「問題 / 解答」を表示 |
-| 認可エラー | `PermissionDenied` の場合は「大学の Google アカウントでログインしてください」を表示 |
+| 認可エラー | `PermissionDenied` の場合は「学生の大学アカウント（b/g + 学籍番号）でログインしてください」を表示 |
 | 設定 | `CLOUDFLARE_R2_*` の `--dart-define` と CI シークレットを削除 |
 | テスト | `fake_past_exam_data_source.dart` を新インターフェースに合わせて更新 |
 
-> 科目自体がまだ `syllabus.db`（`LessonId`）由来の画面では、API の科目 ID が取れない。アプリの科目取得が App API の `SubjectService` に移行済みであることを前提とする。未移行の画面が残る場合は、移行期間に限り `ListPastExamsRequest` に `lesson_id` + `year` での指定を追加する（`oneof`）。
+> 紐付けのキーが `lesson_id` なので、科目画面が App API の `SubjectService` に移行済みかどうかに関係なく過去問を API 化できる。`syllabus.db` の `LessonId` は教務システムの授業コードであり、再設計後の `syllabuses.lesson_id` と同じ値になる。科目画面の移行が終わったら、アプリは `subject_id` 指定に揃える。
 
 ### 6. データ移行（R2 → GCS）
 
 一度きりのスクリプト `cmd/migrate-past-exams`（または `scripts/`）で行い、移行後に削除する。
 
 1. R2 のバケットを列挙し、`{pastExamId}/{ファイル名}` のキー一覧を作る。
-2. `syllabus.db` の `detail` から `過去問` → `LessonId` の対応を取り、サーバーの `syllabuses.lesson_id` → `subjects.id` を引く。同じ `lesson_id` に複数年度の科目がある場合は **最新年度の科目** に紐付ける。対応が取れないものはレポートに出して手動で判断する。
+2. `syllabus.db` の `detail` から `過去問` → `LessonId` の対応を取り、そのまま `past_exams.lesson_id` にする。`syllabuses` に存在しない `lesson_id` はレポートに出して手動で判断する。
 3. ファイル名から年度・試験種別・問題 / 解答を推定する（推定できなければ `year` = 不明として `0`、`exam_type = other`、`kind = other`。管理画面で後から修正）。
 4. 各ファイルを R2 から取得し、`sha256` を計算して GCS（`past-exams/{past_exam_id}/{file_id}.pdf`）にアップロード、DB に `ready` で登録する。同一 `sha256` は重複として 1 つにまとめる。
 5. 件数・合計サイズ・ハッシュを R2 側と突き合わせたレポートを出す。
@@ -245,8 +255,6 @@ R2 のキー失効までは課題 1 が残るため、段階 6 までの期間�
 
 ## 未決事項
 
-- 過去問を年度ごとの `subjects` ではなく `lesson_id`（年度横断の科目）単位で共有するか。シラバス再設計で同一 `lesson_id` の科目が年度ごとに作られるため、毎年紐付け直しが必要になる。科目群テーブルの導入有無と合わせて決める。
-- 閲覧ドメインを `fun.ac.jp` に限定するか（現状はログインのみで閲覧可能）。教員アカウントの扱い。
 - `pending` ファイルの掃除をバッチジョブ化するか。
 - アプリ内でのダウンロード済み PDF のキャッシュ（現状は毎回取得）。
 - 学生からの過去問投稿機能（将来。Admin API のアップロードフローを App API に流用できる形にしておく）。
