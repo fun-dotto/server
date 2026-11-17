@@ -17,11 +17,7 @@ type Syllabus struct {
 	LessonID string `gorm:"not null;uniqueIndex:idx_syllabuses_version,priority:1;index:idx_syllabuses_lesson_year_fetched_at,priority:1"`
 	Year     int    `gorm:"not null;uniqueIndex:idx_syllabuses_version,priority:2;index:idx_syllabuses_lesson_year_fetched_at,priority:2"`
 
-	DisplayOrder     string `gorm:"not null"`
-	ListLessonName   string `gorm:"not null"`
-	ListEnName       string `gorm:"not null"`
-	ListStaffName    string `gorm:"not null"`
-	ListTeachingForm string `gorm:"not null"`
+	DisplayOrder string `gorm:"not null"`
 
 	Name                         string `gorm:"not null"`
 	EnName                       string `gorm:"not null"`
@@ -81,10 +77,6 @@ func (s *Syllabus) ComputeContentHash() string {
 	write(s.LessonID)
 	write(strconv.Itoa(s.Year))
 	write(s.DisplayOrder)
-	write(s.ListLessonName)
-	write(s.ListEnName)
-	write(s.ListStaffName)
-	write(s.ListTeachingForm)
 	write(s.Name)
 	write(s.EnName)
 	write(s.Grades)

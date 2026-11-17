@@ -74,11 +74,7 @@
 | `id` | uuid | — | 新規（UUID 採番） |
 | `lesson_id` | text | 授業コード | 旧 `id` を改名 |
 | `year` | bigint | 年度 | 新規（キーのため数値） |
-| `display_order` | text | 一覧: 表示順 | 新規 |
-| `list_lesson_name` | text | 一覧: 授業科目名 | 新規 |
-| `list_en_name` | text | 一覧: Course | 新規 |
-| `list_staff_name` | text | 一覧: 担当教員名 | 新規 |
-| `list_teaching_form` | text | 一覧: 授業形態 | 新規 |
+| `display_order` | text | 一覧: 表示順 | 新規（一覧にのみ存在する項目。授業科目名・Course・担当教員名・授業形態は詳細ページと重複するため保存しない） |
 | `name` | text | 授業名 | |
 | `en_name` | text | Course | |
 | `grades` | text | 配当年次 | |

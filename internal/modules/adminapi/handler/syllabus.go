@@ -40,10 +40,6 @@ type syllabusInput interface {
 	GetLessonId() string
 	GetYear() int32
 	GetDisplayOrder() string
-	GetListLessonName() string
-	GetListEnName() string
-	GetListStaffName() string
-	GetListTeachingForm() string
 	GetName() string
 	GetEnName() string
 	GetGrades() string
@@ -95,18 +91,6 @@ func syllabusFromProto(in syllabusInput, s fieldSet) (model.Syllabus, error) {
 	}
 	if s.has("display_order") {
 		m.DisplayOrder = in.GetDisplayOrder()
-	}
-	if s.has("list_lesson_name") {
-		m.ListLessonName = in.GetListLessonName()
-	}
-	if s.has("list_en_name") {
-		m.ListEnName = in.GetListEnName()
-	}
-	if s.has("list_staff_name") {
-		m.ListStaffName = in.GetListStaffName()
-	}
-	if s.has("list_teaching_form") {
-		m.ListTeachingForm = in.GetListTeachingForm()
 	}
 	if s.has("name") {
 		m.Name = requireString(&v, "name", in.GetName())
@@ -231,10 +215,6 @@ func syllabusToProto(m model.Syllabus) *adminv1.Syllabus {
 		LessonId:                     m.LessonID,
 		Year:                         int32(m.Year),
 		DisplayOrder:                 m.DisplayOrder,
-		ListLessonName:               m.ListLessonName,
-		ListEnName:                   m.ListEnName,
-		ListStaffName:                m.ListStaffName,
-		ListTeachingForm:             m.ListTeachingForm,
 		Name:                         m.Name,
 		EnName:                       m.EnName,
 		Grades:                       m.Grades,
