@@ -12,6 +12,7 @@ import (
 	"github.com/fun-dotto/server/internal/modules/app/service"
 	"github.com/fun-dotto/server/internal/shared/apiclient"
 	"github.com/fun-dotto/server/internal/shared/logging"
+	"github.com/fun-dotto/server/internal/shared/microcms"
 	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/fun-dotto/server/internal/shared/strictgin"
 	"github.com/gin-gonic/gin"
@@ -51,9 +52,6 @@ func main() {
 		log.Fatalf("Failed to create external clients: %v", err)
 	}
 
-	announcementRepository := repository.NewAnnouncementRepository(clients.Announcement)
-	announcementService := service.NewAnnouncementService(announcementRepository)
-
 	academicRepository := repository.NewAcademicRepository(clients.Academic)
 	academicService := service.NewAcademicService(academicRepository)
 
@@ -61,9 +59,18 @@ func main() {
 	userService := service.NewUserService(userRepository)
 
 	opts := []handler.Option{
-		handler.WithAnnouncementService(announcementService),
 		handler.WithAcademicService(academicService),
 		handler.WithUserService(userService),
+	}
+
+	// microCMS が未設定でも BFF 全体は起動させ、おしらせだけ errAnnouncementServiceNotConfigured を返す。
+	if articles, err := microcms.NewClientFromEnv(); err != nil {
+		log.Printf("Warning: announcements are unavailable: %v", err)
+	} else if articleBaseURL, err := microcms.ArticleBaseURLFromEnv(); err != nil {
+		log.Printf("Warning: announcements are unavailable: %v", err)
+	} else {
+		announcementRepository := repository.NewAnnouncementRepository(articles, articleBaseURL)
+		opts = append(opts, handler.WithAnnouncementService(service.NewAnnouncementService(announcementRepository)))
 	}
 
 	h := handler.NewHandler(opts...)

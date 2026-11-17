@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// 記事を提供する。記事の本文は Web の記事ページで表示する。
+service ArticleService {
+  // 公開中の記事の一覧を、公開日時の新しい順に取得する。
+  rpc ListArticles(ListArticlesRequest) returns (ListArticlesResponse);
+}
+
+// 記事。
+message Article {
+  // ID。microCMS のコンテンツ ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 記事ページの URL。
+  string url = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // タイトル。
+  string title = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 公開日時。
+  google.protobuf.Timestamp publish_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListArticles の Request。
+message ListArticlesRequest {
+}
+
+// ListArticles の Response。
+message ListArticlesResponse {
+  // 記事の一覧。
+  repeated Article articles = 1;
+}

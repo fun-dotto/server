@@ -11,7 +11,6 @@ import (
 
 func main() {
 	stmts, err := gormschema.New("postgres").Load(
-		&model.Announcement{},
 		&model.Calendar{},
 		&model.CalendarDate{},
 		&model.CancelledClass{},

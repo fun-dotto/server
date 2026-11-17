@@ -13,7 +13,7 @@ func (h *Handler) AnnouncementsV1List(ctx context.Context, request api.Announcem
 		return nil, errAnnouncementServiceNotConfigured
 	}
 
-	announcements, err := h.announcementService.GetAnnouncements()
+	announcements, err := h.announcementService.GetAnnouncements(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get announcements: %w", err)
 	}

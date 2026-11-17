@@ -17,6 +17,7 @@ import (
 	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/interceptor"
 	"github.com/fun-dotto/server/internal/shared/logging"
+	"github.com/fun-dotto/server/internal/shared/microcms"
 	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/joho/godotenv"
 )
@@ -77,7 +78,18 @@ func main() {
 		log.Fatalf("Failed to load academic calendar: %v", err)
 	}
 
-	h := handler.New(conn, calendar)
+	// microCMS が未設定でも App API 全体は起動させ、ListArticles だけ UNAVAILABLE にする。
+	var articles handler.ArticleLister
+	var articleBaseURL string
+	if c, err := microcms.NewClientFromEnv(); err != nil {
+		log.Printf("Warning: articles are unavailable: %v", err)
+	} else if u, err := microcms.ArticleBaseURLFromEnv(); err != nil {
+		log.Printf("Warning: articles are unavailable: %v", err)
+	} else {
+		articles, articleBaseURL = c, u
+	}
+
+	h := handler.New(conn, calendar, articles, articleBaseURL)
 
 	appCheck := auth.AppCheckTokenVerifierFunc(func(token string) error {
 		_, err := appCheckClient.VerifyToken(token)
@@ -90,7 +102,7 @@ func main() {
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle(appv1connect.NewAnnouncementServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewArticleServiceHandler(h, opts))
 	mux.Handle(appv1connect.NewCancelledClassServiceHandler(h, opts))
 	mux.Handle(appv1connect.NewCourseRegistrationServiceHandler(h, opts))
 	mux.Handle(appv1connect.NewMakeupClassServiceHandler(h, opts))
