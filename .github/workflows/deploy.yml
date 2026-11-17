@@ -13,11 +13,11 @@ on:
         description: 実行内容
         required: true
         type: choice
-        default: build-push-deploy
+        default: deploy
         options:
+          - deploy
           - build-push-deploy
           - build-push
-          - deploy
       environment_name:
         description: デプロイ先の環境（build-push では無視、prd は deploy でのみ指定可）
         required: true
