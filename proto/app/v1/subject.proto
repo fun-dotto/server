@@ -46,84 +46,82 @@ message SubjectSyllabus {
   string lesson_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 年度。
   int32 year = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // 一覧: 表示順。
-  string display_order = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 授業名。
-  string name = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string name = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 授業名（英語）。Course。
-  string en_name = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string en_name = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 配当年次。
-  string grades = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string grades = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 開講期（一部の科目では「予定開講期」）。
-  string term = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string term = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 単位数（例: `2単位`）。
-  string credit = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string credit = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 担当教員名（改行区切り、主担当に `◎`）。
-  string faculty_names = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string faculty_names = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 実務家教員区分。
-  string practical_home_faculty_category = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string practical_home_faculty_category = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 複数人担当形式。
-  string multiple_person_teaching_form = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string multiple_person_teaching_form = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 授業形態。
-  string teaching_form = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string teaching_form = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 授業の概要。
-  string summary = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string summary = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 授業の到達目標。
-  string learning_outcomes = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string learning_outcomes = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 提出課題等。
-  string assignments = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string assignments = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 成績の評価方法・基準。
-  string evaluation_method = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string evaluation_method = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
   // テキスト。
-  string textbooks = 18 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string textbooks = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 参考書。
-  string reference_books = 19 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string reference_books = 18 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 履修条件。
-  string prerequisites = 20 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string prerequisites = 19 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 事前学習。
-  string pre_learning = 21 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string pre_learning = 20 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 事後学習。
-  string post_learning = 22 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string post_learning = 21 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 履修上の留意点。
-  string notes = 23 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string notes = 22 [(google.api.field_behavior) = OUTPUT_ONLY];
   // キーワード/keywords。
-  string keywords = 24 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string keywords = 23 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 対象コース・領域。
-  string target_courses = 25 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string target_courses = 24 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 科目群・科目区分。
-  string classifications = 26 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string classifications = 25 [(google.api.field_behavior) = OUTPUT_ONLY];
   // DSOP対象科目。
-  string dsop_subject = 27 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string dsop_subject = 26 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 教授言語。
-  string teaching_language = 28 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string teaching_language = 27 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 授業・試験の形式。
-  string teaching_and_exam_form = 29 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string teaching_and_exam_form = 28 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 授業内容とスケジュール。
-  string contents_and_schedule = 30 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string contents_and_schedule = 29 [(google.api.field_behavior) = OUTPUT_ONLY];
   // (E)Course outline。
-  string en_summary = 31 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string en_summary = 30 [(google.api.field_behavior) = OUTPUT_ONLY];
   // (E)Course Objectives。
-  string en_learning_outcomes = 32 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string en_learning_outcomes = 31 [(google.api.field_behavior) = OUTPUT_ONLY];
   // (E)Course Schedule。
-  string en_contents_and_schedule = 33 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string en_contents_and_schedule = 32 [(google.api.field_behavior) = OUTPUT_ONLY];
   // (E)Assessment。
-  string en_evaluation_method = 34 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string en_evaluation_method = 33 [(google.api.field_behavior) = OUTPUT_ONLY];
   // (E)Language of Instruction。
-  string en_teaching_language = 35 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string en_teaching_language = 34 [(google.api.field_behavior) = OUTPUT_ONLY];
   // (E)Requirements for registration。
-  string en_prerequisites = 36 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string en_prerequisites = 35 [(google.api.field_behavior) = OUTPUT_ONLY];
   // (E)Prior/Post Assignment。
-  string en_pre_post_learning = 37 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string en_pre_post_learning = 36 [(google.api.field_behavior) = OUTPUT_ONLY];
   // (E)Textbooks。
-  string en_textbooks = 38 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string en_textbooks = 37 [(google.api.field_behavior) = OUTPUT_ONLY];
   // (E)Note。
-  string en_notes = 39 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string en_notes = 38 [(google.api.field_behavior) = OUTPUT_ONLY];
   // (E)Type of class and exam。
-  string en_teaching_and_exam_form = 40 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string en_teaching_and_exam_form = 39 [(google.api.field_behavior) = OUTPUT_ONLY];
   // ディプロマポリシー。
-  string diploma_policies = 41 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string diploma_policies = 40 [(google.api.field_behavior) = OUTPUT_ONLY];
   // ディプロマポリシーとの対応（例: `DP2,DP4`）。
-  string diploma_policy_correspondence = 42 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string diploma_policy_correspondence = 41 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // 科目。

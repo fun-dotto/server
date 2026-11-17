@@ -17,7 +17,6 @@ ALTER TABLE "public"."syllabuses" ALTER COLUMN "year" SET NOT NULL;
 
 -- 4. 追加列（既存行は空文字）・credit の text 化・target_areas の削除
 ALTER TABLE "public"."syllabuses"
-  ADD COLUMN "display_order" text NOT NULL DEFAULT '',
   ADD COLUMN "term" text NOT NULL DEFAULT '',
   ADD COLUMN "en_summary" text NOT NULL DEFAULT '',
   ADD COLUMN "en_learning_outcomes" text NOT NULL DEFAULT '',
@@ -36,7 +35,6 @@ ALTER TABLE "public"."syllabuses"
   ALTER COLUMN "credit" TYPE text USING ("credit"::text || '単位'),
   DROP COLUMN "target_areas";
 ALTER TABLE "public"."syllabuses"
-  ALTER COLUMN "display_order" DROP DEFAULT,
   ALTER COLUMN "term" DROP DEFAULT,
   ALTER COLUMN "en_summary" DROP DEFAULT,
   ALTER COLUMN "en_learning_outcomes" DROP DEFAULT,

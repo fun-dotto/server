@@ -211,7 +211,6 @@ func toProtoSyllabus(s *model.Syllabus) *appv1.SubjectSyllabus {
 		Id:                           s.ID.String(),
 		LessonId:                     s.LessonID,
 		Year:                         int32(s.Year),
-		DisplayOrder:                 s.DisplayOrder,
 		Name:                         s.Name,
 		EnName:                       s.EnName,
 		Grades:                       s.Grades,

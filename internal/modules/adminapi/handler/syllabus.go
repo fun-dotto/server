@@ -39,7 +39,6 @@ func updateSyllabusColumns(db *gorm.DB, key map[string]any, v *model.Syllabus, c
 type syllabusInput interface {
 	GetLessonId() string
 	GetYear() int32
-	GetDisplayOrder() string
 	GetName() string
 	GetEnName() string
 	GetGrades() string
@@ -88,9 +87,6 @@ func syllabusFromProto(in syllabusInput, s fieldSet) (model.Syllabus, error) {
 	}
 	if s.has("year") {
 		m.Year = requirePositive(&v, "year", in.GetYear())
-	}
-	if s.has("display_order") {
-		m.DisplayOrder = in.GetDisplayOrder()
 	}
 	if s.has("name") {
 		m.Name = requireString(&v, "name", in.GetName())
@@ -214,7 +210,6 @@ func syllabusToProto(m model.Syllabus) *adminv1.Syllabus {
 		Id:                           m.ID.String(),
 		LessonId:                     m.LessonID,
 		Year:                         int32(m.Year),
-		DisplayOrder:                 m.DisplayOrder,
 		Name:                         m.Name,
 		EnName:                       m.EnName,
 		Grades:                       m.Grades,
