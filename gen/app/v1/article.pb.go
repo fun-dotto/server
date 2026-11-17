@@ -26,12 +26,14 @@ const (
 // 記事。
 type Article struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID。microCMS のコンテンツ ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// 記事ページの URL。
-	Url string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
 	// タイトル。
-	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Title string `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
 	// 公開日時。
-	PublishTime   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=publish_time,json=publishTime,proto3" json:"publish_time,omitempty"`
+	PublishTime   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=publish_time,json=publishTime,proto3" json:"publish_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -64,6 +66,13 @@ func (x *Article) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Article.ProtoReflect.Descriptor instead.
 func (*Article) Descriptor() ([]byte, []int) {
 	return file_app_v1_article_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *Article) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 func (x *Article) GetUrl() string {
@@ -174,11 +183,12 @@ var File_app_v1_article_proto protoreflect.FileDescriptor
 
 const file_app_v1_article_proto_rawDesc = "" +
 	"\n" +
-	"\x14app/v1/article.proto\x12\x06app.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x7f\n" +
-	"\aArticle\x12\x15\n" +
-	"\x03url\x18\x01 \x01(\tB\x03\xe0A\x03R\x03url\x12\x19\n" +
-	"\x05title\x18\x02 \x01(\tB\x03\xe0A\x03R\x05title\x12B\n" +
-	"\fpublish_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\vpublishTime\"\x15\n" +
+	"\x14app/v1/article.proto\x12\x06app.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x94\x01\n" +
+	"\aArticle\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x15\n" +
+	"\x03url\x18\x02 \x01(\tB\x03\xe0A\x03R\x03url\x12\x19\n" +
+	"\x05title\x18\x03 \x01(\tB\x03\xe0A\x03R\x05title\x12B\n" +
+	"\fpublish_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\vpublishTime\"\x15\n" +
 	"\x13ListArticlesRequest\"C\n" +
 	"\x14ListArticlesResponse\x12+\n" +
 	"\barticles\x18\x01 \x03(\v2\x0f.app.v1.ArticleR\barticles2[\n" +

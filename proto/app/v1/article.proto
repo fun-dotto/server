@@ -13,12 +13,14 @@ service ArticleService {
 
 // 記事。
 message Article {
+  // ID。microCMS のコンテンツ ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 記事ページの URL。
-  string url = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string url = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
   // タイトル。
-  string title = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string title = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 公開日時。
-  google.protobuf.Timestamp publish_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp publish_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ListArticles の Request。

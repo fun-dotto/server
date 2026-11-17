@@ -17,6 +17,7 @@ func (h *Handler) ListArticles(ctx context.Context, _ *connect.Request[appv1.Lis
 	return connect.NewResponse(&appv1.ListArticlesResponse{
 		Articles: mapSlice(articles, func(a microcms.Article) *appv1.Article {
 			return &appv1.Article{
+				Id:          a.ID,
 				Url:         microcms.ArticleURL(h.articleBaseURL, a.ID),
 				Title:       a.Title,
 				PublishTime: toTimestamp(a.PublishedAt),
