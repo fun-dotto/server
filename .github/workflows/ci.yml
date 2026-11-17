@@ -23,8 +23,7 @@ concurrency:
 permissions:
   contents: read
 
-# Go のキャッシュは main への push と定期実行でのみ保存する。
-# PR・merge queue で保存したキャッシュは他のブランチから使えず、リポジトリのキャッシュ容量を圧迫するため、復元だけ行う。
+# PR・merge queue で保存したキャッシュは他のブランチから使えないため、Go のキャッシュは main への push と定期実行でのみ保存する
 jobs:
   test:
     name: Test
@@ -85,7 +84,6 @@ jobs:
             exit 1
           fi
 
-      # CI では go.mod を書き換えないため、整理されていない go.mod / go.sum をここで検出する
       - name: go mod tidy
         run: |
           if ! go mod tidy -diff; then

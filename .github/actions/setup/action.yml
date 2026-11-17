@@ -1,14 +1,14 @@
 name: Setup
-description: mise でツールを入れ、Go のビルドキャッシュ・モジュールキャッシュを復元して依存モジュールをダウンロードする
+description: mise でツールを入れ、Go のキャッシュを復元して依存を取得する
 outputs:
   cache-hit:
-    description: Go のキャッシュがキーに完全一致したか（"true" / "false"）
+    description: Go のキャッシュがキーに完全一致したか
     value: ${{ steps.restore.outputs.cache-hit }}
   cache-key:
-    description: Go のキャッシュを保存するときのキー
+    description: Go のキャッシュのキー
     value: ${{ steps.restore.outputs.cache-primary-key }}
   cache-path:
-    description: Go のキャッシュ対象のディレクトリ（GOCACHE / GOMODCACHE、改行区切り）
+    description: Go のキャッシュ対象のディレクトリ（改行区切り）
     value: ${{ steps.go-env.outputs.paths }}
 runs:
   using: composite
@@ -30,8 +30,7 @@ runs:
           echo "EOF"
         } >> "$GITHUB_OUTPUT"
 
-    # ジョブごとにビルドするもの（テストバイナリ、vet、ビルドタグ付きのバイナリなど）が違うため、キーにジョブ名を含める。
-    # go.sum が同じならキーは変わらない。自前のパッケージは毎回ビルドし直すが、依存パッケージはキャッシュを使える
+    # ジョブごとにビルドするものが違うため、キーにジョブ名を含める
     - name: Restore Go cache
       id: restore
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -41,7 +40,7 @@ runs:
         restore-keys: |
           go-${{ runner.os }}-${{ runner.arch }}-${{ steps.go-env.outputs.version }}-${{ github.job }}-
 
-    # コミットされた go.mod / go.sum のまま依存を取得する（go.mod は書き換えない）
+    # mise bootstrap は go.mod を書き換えるため使わない
     - name: Download Go modules
       shell: bash
       run: go mod download
