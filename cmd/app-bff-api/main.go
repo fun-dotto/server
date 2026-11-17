@@ -12,6 +12,7 @@ import (
 	"github.com/fun-dotto/server/internal/modules/app/service"
 	"github.com/fun-dotto/server/internal/shared/apiclient"
 	"github.com/fun-dotto/server/internal/shared/logging"
+	"github.com/fun-dotto/server/internal/shared/microcms"
 	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/fun-dotto/server/internal/shared/strictgin"
 	"github.com/gin-gonic/gin"
@@ -51,7 +52,16 @@ func main() {
 		log.Fatalf("Failed to create external clients: %v", err)
 	}
 
-	announcementRepository := repository.NewAnnouncementRepository(clients.Announcement)
+	articles, err := microcms.NewClientFromEnv()
+	if err != nil {
+		log.Fatalf("Failed to initialize microCMS client: %v", err)
+	}
+	articleBaseURL, err := microcms.ArticleBaseURLFromEnv()
+	if err != nil {
+		log.Fatalf("Failed to load article base URL: %v", err)
+	}
+
+	announcementRepository := repository.NewAnnouncementRepository(articles, articleBaseURL)
 	announcementService := service.NewAnnouncementService(announcementRepository)
 
 	academicRepository := repository.NewAcademicRepository(clients.Academic)
