@@ -58,12 +58,12 @@ func (userHandler) GetUser(ctx context.Context, _ *connect.Request[appv1.GetUser
 	return connect.NewResponse(&appv1.GetUserResponse{User: &appv1.User{}}), nil
 }
 
-type announcementHandler struct {
-	appv1connect.UnimplementedAnnouncementServiceHandler
+type articleHandler struct {
+	appv1connect.UnimplementedArticleServiceHandler
 }
 
-func (announcementHandler) ListAnnouncements(ctx context.Context, _ *connect.Request[appv1.ListAnnouncementsRequest]) (*connect.Response[appv1.ListAnnouncementsResponse], error) {
-	return connect.NewResponse(&appv1.ListAnnouncementsResponse{}), nil
+func (articleHandler) ListArticles(ctx context.Context, _ *connect.Request[appv1.ListArticlesRequest]) (*connect.Response[appv1.ListArticlesResponse], error) {
+	return connect.NewResponse(&appv1.ListArticlesResponse{}), nil
 }
 
 func newServer(t *testing.T) *httptest.Server {
@@ -71,7 +71,7 @@ func newServer(t *testing.T) *httptest.Server {
 	opts := connect.WithInterceptors(NewInterceptor(appCheck, fakeCFAccess{}, fakeService{}, fakeIDToken{}))
 	mux := http.NewServeMux()
 	mux.Handle(appv1connect.NewUserServiceHandler(userHandler{}, opts))
-	mux.Handle(appv1connect.NewAnnouncementServiceHandler(announcementHandler{}, opts))
+	mux.Handle(appv1connect.NewArticleServiceHandler(articleHandler{}, opts))
 	srv := httptest.NewServer(mux)
 	t.Cleanup(srv.Close)
 	return srv
@@ -80,7 +80,7 @@ func newServer(t *testing.T) *httptest.Server {
 func TestInterceptor(t *testing.T) {
 	srv := newServer(t)
 	users := appv1connect.NewUserServiceClient(http.DefaultClient, srv.URL)
-	announcements := appv1connect.NewAnnouncementServiceClient(http.DefaultClient, srv.URL)
+	articles := appv1connect.NewArticleServiceClient(http.DefaultClient, srv.URL)
 
 	tests := []struct {
 		name     string
@@ -91,20 +91,20 @@ func TestInterceptor(t *testing.T) {
 		idToken  string
 		wantCode connect.Code
 	}{
-		{"ユーザー不要の RPC は App Check のみで通る", listAnnouncements(announcements), "Bearer valid-app", "", "", "", 0},
-		{"App Check がない場合は UNAUTHENTICATED", listAnnouncements(announcements), "", "", "", "", connect.CodeUnauthenticated},
-		{"App Check が不正な場合は UNAUTHENTICATED", listAnnouncements(announcements), "invalid", "", "", "", connect.CodeUnauthenticated},
+		{"ユーザー不要の RPC は App Check のみで通る", listArticles(articles), "Bearer valid-app", "", "", "", 0},
+		{"App Check がない場合は UNAUTHENTICATED", listArticles(articles), "", "", "", "", connect.CodeUnauthenticated},
+		{"App Check が不正な場合は UNAUTHENTICATED", listArticles(articles), "invalid", "", "", "", connect.CodeUnauthenticated},
 		{"ユーザーが必要な RPC は ID トークンで通る", getUser(users), "valid-app", "", "", "Bearer valid-id", 0},
 		{"ID トークンがない場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "", "", connect.CodeUnauthenticated},
 		{"ID トークンが不正な場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "", "Bearer invalid", connect.CodeUnauthenticated},
-		{"Cloudflare Access の JWT があれば App Check なしで通る", listAnnouncements(announcements), "", "valid-cf", "", "", 0},
-		{"Cloudflare Access の JWT が不正で App Check がない場合は UNAUTHENTICATED", listAnnouncements(announcements), "", "invalid", "", "", connect.CodeUnauthenticated},
-		{"Cloudflare Access の JWT が不正でも App Check があれば通る", listAnnouncements(announcements), "valid-app", "invalid", "", "", 0},
+		{"Cloudflare Access の JWT があれば App Check なしで通る", listArticles(articles), "", "valid-cf", "", "", 0},
+		{"Cloudflare Access の JWT が不正で App Check がない場合は UNAUTHENTICATED", listArticles(articles), "", "invalid", "", "", connect.CodeUnauthenticated},
+		{"Cloudflare Access の JWT が不正でも App Check があれば通る", listArticles(articles), "valid-app", "invalid", "", "", 0},
 		{"Cloudflare Access の JWT があってもユーザーが必要な RPC は ID トークンが必要", getUser(users), "", "valid-cf", "", "", connect.CodeUnauthenticated},
 		{"Cloudflare Access の JWT と ID トークンで通る", getUser(users), "", "valid-cf", "", "Bearer valid-id", 0},
-		{"許可されたサービスの ID トークンがあれば App Check なしで通る", listAnnouncements(announcements), "", "", "Bearer valid-svc", "", 0},
-		{"サービスの ID トークンが不正で App Check がない場合は UNAUTHENTICATED", listAnnouncements(announcements), "", "", "Bearer invalid", "", connect.CodeUnauthenticated},
-		{"サービスの ID トークンに Bearer がない場合は App Check が必要", listAnnouncements(announcements), "", "", "valid-svc", "", connect.CodeUnauthenticated},
+		{"許可されたサービスの ID トークンがあれば App Check なしで通る", listArticles(articles), "", "", "Bearer valid-svc", "", 0},
+		{"サービスの ID トークンが不正で App Check がない場合は UNAUTHENTICATED", listArticles(articles), "", "", "Bearer invalid", "", connect.CodeUnauthenticated},
+		{"サービスの ID トークンに Bearer がない場合は App Check が必要", listArticles(articles), "", "", "valid-svc", "", connect.CodeUnauthenticated},
 		{"サービスの ID トークンがあってもユーザーが必要な RPC は ID トークンが必要", getUser(users), "", "", "Bearer valid-svc", "", connect.CodeUnauthenticated},
 		{"サービスの ID トークンとユーザーの ID トークンで通る", getUser(users), "", "", "Bearer valid-svc", "Bearer valid-id", 0},
 		{"Bearer がない場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "", "valid-id", connect.CodeUnauthenticated},
@@ -138,11 +138,11 @@ func TestInterceptor(t *testing.T) {
 	}
 }
 
-func listAnnouncements(c appv1connect.AnnouncementServiceClient) func(func(http.Header)) error {
+func listArticles(c appv1connect.ArticleServiceClient) func(func(http.Header)) error {
 	return func(set func(http.Header)) error {
-		req := connect.NewRequest(&appv1.ListAnnouncementsRequest{})
+		req := connect.NewRequest(&appv1.ListArticlesRequest{})
 		set(req.Header())
-		_, err := c.ListAnnouncements(context.Background(), req)
+		_, err := c.ListArticles(context.Background(), req)
 		return err
 	}
 }
@@ -159,12 +159,12 @@ func getUser(c appv1connect.UserServiceClient) func(func(http.Header)) error {
 func TestInterceptorWithoutCFAccess(t *testing.T) {
 	opts := connect.WithInterceptors(NewInterceptor(appCheck, nil, fakeService{}, fakeIDToken{}))
 	mux := http.NewServeMux()
-	mux.Handle(appv1connect.NewAnnouncementServiceHandler(announcementHandler{}, opts))
+	mux.Handle(appv1connect.NewArticleServiceHandler(articleHandler{}, opts))
 	srv := httptest.NewServer(mux)
 	t.Cleanup(srv.Close)
-	announcements := appv1connect.NewAnnouncementServiceClient(http.DefaultClient, srv.URL)
+	articles := appv1connect.NewArticleServiceClient(http.DefaultClient, srv.URL)
 
-	call := listAnnouncements(announcements)
+	call := listArticles(articles)
 	if err := call(func(h http.Header) { h.Set(cfaccess.JWTHeader, "valid-cf") }); connect.CodeOf(err) != connect.CodeUnauthenticated {
 		t.Fatalf("Cloudflare Access を使わない場合は JWT があっても App Check が必要: err = %v", err)
 	}

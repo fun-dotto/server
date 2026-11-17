@@ -17,6 +17,7 @@ import (
 	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/interceptor"
 	"github.com/fun-dotto/server/internal/shared/logging"
+	"github.com/fun-dotto/server/internal/shared/microcms"
 	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/joho/godotenv"
 )
@@ -77,7 +78,16 @@ func main() {
 		log.Fatalf("Failed to load academic calendar: %v", err)
 	}
 
-	h := handler.New(conn, calendar)
+	articles, err := microcms.NewClientFromEnv()
+	if err != nil {
+		log.Fatalf("Failed to initialize microCMS client: %v", err)
+	}
+	articleBaseURL, err := microcms.ArticleBaseURLFromEnv()
+	if err != nil {
+		log.Fatalf("Failed to load article base URL: %v", err)
+	}
+
+	h := handler.New(conn, calendar, articles, articleBaseURL)
 
 	appCheck := auth.AppCheckTokenVerifierFunc(func(token string) error {
 		_, err := appCheckClient.VerifyToken(token)
@@ -90,7 +100,7 @@ func main() {
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle(appv1connect.NewAnnouncementServiceHandler(h, opts))
+	mux.Handle(appv1connect.NewArticleServiceHandler(h, opts))
 	mux.Handle(appv1connect.NewCancelledClassServiceHandler(h, opts))
 	mux.Handle(appv1connect.NewCourseRegistrationServiceHandler(h, opts))
 	mux.Handle(appv1connect.NewMakeupClassServiceHandler(h, opts))

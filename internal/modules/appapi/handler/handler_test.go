@@ -28,7 +28,7 @@ func wantCode(t *testing.T, err error, code connect.Code) {
 
 // DB に到達する前に返るエラーを検証する（db は nil）。
 func TestValidationBeforeDB(t *testing.T) {
-	h := New(nil, academiccalendar.Calendar{})
+	h := New(nil, academiccalendar.Calendar{}, nil, "")
 	ctx := userCtx("user1")
 	subjectID := uuid.New().String()
 
