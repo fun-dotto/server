@@ -81,9 +81,10 @@ type listArticlesResponse struct {
 
 // ListArticles は公開中の記事を全件返す。下書き・非公開の記事は microCMS が返さない。
 func (c *Client) ListArticles(ctx context.Context, order SortOrder) ([]Article, error) {
-	orders := "-publishedAt"
+	// publishedAt が同じ記事があっても offset ページングの境目で順序が揺れないよう、id を第 2 キーにする。
+	orders := "-publishedAt,id"
 	if order == PublishedAtAsc {
-		orders = "publishedAt"
+		orders = "publishedAt,id"
 	}
 	var articles []Article
 	for {
