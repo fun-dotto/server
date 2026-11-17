@@ -63,8 +63,9 @@
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Validate` | 環境に依存しない（1 回） | `atlas migrate validate` → モデル差分チェック → 破壊的なマイグレーションの検出（`pull_request` のみ） |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Dry Run` | dev, stg, prd（matrix） | `atlas migrate apply --dry-run`（PR にコメント） |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration` | — | `Migration Validate` / `Migration Dry Run` の結果を集約する（必須ステータスチェック） |
-| `push`（main） | `deploy.yml` の `migrate` → `migrate-apply.yml` | dev, stg | `atlas migrate apply`。完了後にアプリをデプロイ（`needs`） |
+| `push`（main） | なし | なし | 適用しない（環境ごとのデプロイ時に適用する） |
 | `workflow_dispatch`（Deploy） | `deploy.yml` の `migrate` → `migrate-apply.yml` | 選択した環境（`build-push` を除く） | `atlas migrate apply`（prd は GitHub Environment `prd` の承認が必須）。完了後にアプリをデプロイ |
+| `workflow_dispatch`（Migrate Apply） | `migrate-apply.yml` | 選択した環境 | 指定したコミット（既定は `latest` = main の先端。main に含まれる SHA のみ）の `atlas migrate apply`。デプロイはしない |
 
 補足:
 
@@ -110,7 +111,7 @@ env "dev" {
 ### 2. ワークフロー
 
 - `.github/workflows/migrate.yml`: 検証（`Migration Validate`）、dry-run（`Migration Dry Run`）。
-- `.github/workflows/migrate-apply.yml`: 適用の再利用ワークフロー（`workflow_call`）。入力の環境の配列を、環境ごとに GitHub Environment を指定して 1 つずつ適用する。`deploy.yml` から呼び出す。入力の `ref`（デプロイするイメージのコミット）をチェックアウトする。
+- `.github/workflows/migrate-apply.yml`: 適用の再利用ワークフロー（`workflow_call`）。入力の環境の配列を、環境ごとに GitHub Environment を指定して 1 つずつ適用する。`deploy.yml` から呼び出すほか、`workflow_dispatch` で環境とコミットを指定して単独で実行できる。入力の `ref`（デプロイするイメージのコミット）をチェックアウトする。
 - `.github/actions/atlas-migrate`: 共通処理の composite action。
   1. WIF でサービスアカウントを借用して GCP 認証
   2. mise で Atlas をセットアップ（`mise.toml` のバージョンと同一）
