@@ -60,7 +60,7 @@
 | トリガー | ワークフロー | 環境 | 実行内容 |
 | --- | --- | --- | --- |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Changes` | — | マイグレーションに関係するファイルの変更を判定する（変更がなければ validate / dry-run をスキップ） |
-| `pull_request` / `merge_group` | `migrate.yml` の `Migration Validate` | 環境に依存しない（1 回） | `atlas migrate validate` → モデル差分チェック |
+| `pull_request` / `merge_group` | `migrate.yml` の `Migration Validate` | 環境に依存しない（1 回） | `atlas migrate validate` → モデル差分チェック → 破壊的なマイグレーションの検出（`pull_request` のみ） |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Dry Run` | dev, stg, prd（matrix） | `atlas migrate apply --dry-run`（PR にコメント） |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration` | — | `Migration Validate` / `Migration Dry Run` の結果を集約する（必須ステータスチェック） |
 | `push`（main） | `deploy.yml` の `migrate` → `migrate-apply.yml` | dev, stg | `atlas migrate apply`。完了後にアプリをデプロイ（`needs`） |
@@ -72,10 +72,19 @@
 - 静的検証（validate / 差分チェック）は環境に依存しないため 1 回だけ実行し、環境ごとの matrix は `apply --dry-run` のみに絞る。
 - `merge_group` でも同じ検証を実行し、マージキュー上の最終状態を検証する。
 - validate / dry-run は、マイグレーションに関係するファイル（対象は `Migration Changes` の `paths`）を変更した場合のみ実行する。ワークフローの `paths` で起動を止めると必須ステータスチェックが報告されないため、ジョブの `if` でスキップする。
-- `atlas migrate lint` は Atlas v0.38 以降ログイン（有償機能の認証）が必要なため採用しない。破壊的変更はレビューで確認する。
+- `atlas migrate lint` は Atlas v0.38 以降ログイン（有償機能の認証）が必要なため採用しない。破壊的変更は「破壊的なマイグレーション」のチェックとレビューで確認する。
 - **prd のマイグレーションも `deploy.yml` から適用する。** `deploy.yml` の prd は検証済みのイメージタグを指定する `deploy` のみのため、デプロイするイメージとリポジトリの HEAD のマイグレーションがずれないよう、`migrations/` だけをイメージのタグ（コミット SHA）のコミットから取得して適用する（composite action と `atlas.hcl` はワークフローのコミットのものを使い、古いイメージへのロールバックでも適用できるようにする）。prd では `image_tag` の `latest` / 未指定を拒否する。`deploy` では適用前に `verify-image` ジョブで、タグのコミットが main に含まれること（未マージのマイグレーションを適用しないため）と、Artifact Registry にイメージが存在すること（マイグレーションだけ適用されるのを防ぐため）を確認する。
 - マイグレーション単体の手動適用ワークフローは設けない。適用が失敗した場合は、Deploy の失敗したジョブを再実行するか、同じイメージタグで `deploy` を再実行する。
 - アプリのデプロイより前にマイグレーションが完了するよう、`deploy.yml` の `deploy` ジョブは `migrate` ジョブに `needs` する。マイグレーションが失敗した場合はデプロイしない。
+
+### 破壊的なマイグレーション
+
+マイグレーションはデプロイより前に適用されるため、デプロイが終わるまでは古いコードが新しいスキーマで動く。マイグレーションは 1 つ前のコードと互換でなければならない。カラムの削除などは PR を分けて段階的に行う（expand / contract）。
+
+1. コードからカラムを使わなくする PR をリリースする。GORM のモデルのフィールドは残して `gorm:"->:false"` を付け、読み書きの対象から外す（スキーマは変わらない）
+2. モデルのフィールドの削除と DROP のマイグレーションだけの PR を出す
+
+`Migration Validate` は、PR で追加・変更したマイグレーションに `DROP TABLE` / `DROP COLUMN` / `RENAME` / 型の変更 / `SET NOT NULL` / `DROP DEFAULT` / DEFAULT なしの `ADD COLUMN ... NOT NULL` があれば警告し、同じ PR に Go のコードの変更（`gen/`・`internal/shared/model`・`cmd/atlas-loader` を除く）があれば失敗させる。モデル差分チェックにより DROP にはモデルの変更が必要で、削除したフィールドを使うコードはコンパイルできないため、この 2 つで 1 の後に 2 を出す順序がほぼ強制される。
 
 ## 実装
 

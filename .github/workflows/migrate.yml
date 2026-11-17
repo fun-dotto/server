@@ -79,7 +79,10 @@ jobs:
       group: migrate-validate-${{ github.ref }}
       cancel-in-progress: true
     steps:
+      # 破壊的なマイグレーションの検出で、マージコミットと第 1 親の差分を見るため、2 コミット分取得する
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
 
       - name: Setup mise
         uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
@@ -102,6 +105,30 @@ jobs:
             echo "::error::GORM モデルとマイグレーションに差分があります。mise run migrate:diff <name> でマイグレーションを生成してください"
             git status --porcelain migrations
             git diff migrations
+            exit 1
+          fi
+
+      # 1 つ前のコードと互換でない操作を警告する（判定は Atlas が生成する大文字の SQL を前提とした grep で、誤検知を許容する）。
+      # 破壊的なマイグレーションと Go のコードの変更が同じ PR にある場合は失敗させる。
+      # merge_group では複数の PR がまとまり「同じ PR」を判定できないため、pull_request でのみ実行する。
+      - name: Check destructive migrations
+        if: github.event_name == 'pull_request'
+        run: |
+          mapfile -t files < <(git diff --name-only --diff-filter=AM HEAD^1 HEAD -- 'migrations/*.sql')
+          if [ "${#files[@]}" -eq 0 ]; then
+            exit 0
+          fi
+          found="$(grep -nHoE 'DROP (TABLE|COLUMN)|RENAME (TO|COLUMN)|ALTER COLUMN "[^"]+" TYPE|SET NOT NULL|DROP DEFAULT|ADD COLUMN "[^"]+" [^,;]*NOT NULL[^,;]*' "${files[@]}" \
+            | grep -vE '^[^:]+:[0-9]+:ADD COLUMN .*(DEFAULT|GENERATED)' || true)"
+          if [ -z "$found" ]; then
+            exit 0
+          fi
+          while IFS=: read -r file line op; do
+            echo "::warning file=${file},line=${line},title=破壊的なマイグレーション::${op}: 1 つ前のコードと互換か確認してください（docs/design/20261110_atlas_migration.md）"
+          done <<< "$found"
+          mapfile -t go_files < <(git diff --name-only HEAD^1 HEAD -- '*.go' ':!gen/' ':!internal/shared/model/' ':!cmd/atlas-loader/')
+          if [ "${#go_files[@]}" -gt 0 ]; then
+            echo "::error::破壊的なマイグレーションは、Go のコードの変更（${go_files[*]}）と別の PR に分けてください"
             exit 1
           fi
 
