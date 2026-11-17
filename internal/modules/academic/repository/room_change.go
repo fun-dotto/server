@@ -42,7 +42,7 @@ func (r *RoomChangeRepository) List(ctx context.Context, filter domain.RoomChang
 
 	query = query.
 		Joins("JOIN subjects ON subjects.id = room_changes.subject_id").
-		Order("room_changes.date ASC, room_changes.period ASC, subjects.syllabus_id ASC")
+		Order("room_changes.date ASC, room_changes.period ASC, " + model.SubjectOrderByLessonID)
 
 	if err := query.Find(&records).Error; err != nil {
 		return nil, err
