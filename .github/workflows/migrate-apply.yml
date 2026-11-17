@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       ref:
-        description: マイグレーションを取得するコミット（デプロイするイメージのコミット）
+        description: migrations/ を取得するコミット（デプロイするイメージのコミット）。action と atlas.hcl はワークフローのコミットのものを使う
         required: true
         type: string
 
@@ -41,9 +41,18 @@ jobs:
       matrix:
         environment: ${{ fromJSON(inputs.environments) }}
     steps:
+      # composite action・atlas.hcl はワークフローのコミット（input や SA 名と揃える）のものを使い、
+      # migrations/ だけをイメージのコミットのものに差し替える。古いイメージへのロールバックでも適用できるようにするため。
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ inputs.ref }}
+      - name: Checkout migrations at ref
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$REF"
+          # ref にないマイグレーション（新しいもの）を残さないよう、ディレクトリごと差し替える
+          rm -rf migrations
+          git checkout FETCH_HEAD -- migrations
+          git log -1 --format='migrations: %H %s' FETCH_HEAD
       - uses: ./.github/actions/atlas-migrate
         with:
           environment: ${{ matrix.environment }}
