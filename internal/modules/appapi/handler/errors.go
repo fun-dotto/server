@@ -85,14 +85,14 @@ func userNotFound() error {
 }
 
 // unavailable は依存先（microCMS など）に到達できない、または未設定の場合のエラー。リトライ可能。
+// 依存先の HTTP クライアントのタイムアウトも context.DeadlineExceeded を満たすため、
+// err ではなくリクエストの ctx で、リクエスト側の期限切れ・キャンセルと区別する。
 func unavailable(ctx context.Context, operation string, err error) error {
-	switch {
-	case errors.Is(err, context.DeadlineExceeded), errors.Is(err, context.Canceled):
-		return internalError(ctx, operation, err)
-	default:
-		slog.WarnContext(ctx, "app-api dependency unavailable", "operation", operation, "error", err)
-		return newError(connect.CodeUnavailable, "UNAVAILABLE", "service temporarily unavailable", nil)
+	if ctx.Err() != nil {
+		return internalError(ctx, operation, ctx.Err())
 	}
+	slog.WarnContext(ctx, "app-api dependency unavailable", "operation", operation, "error", err)
+	return newError(connect.CodeUnavailable, "UNAVAILABLE", "service temporarily unavailable", nil)
 }
 
 // internalError は DB などのエラーを Connect のエラーに変換する。

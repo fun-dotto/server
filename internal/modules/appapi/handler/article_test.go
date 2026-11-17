@@ -35,6 +35,7 @@ func TestListArticles(t *testing.T) {
 			want:     &appv1.Article{Id: "abc", Url: "https://fun-dotto.com/articles/abc", Title: "t", PublishTime: toTimestamp(published)},
 		},
 		{name: "microCMS の障害は UNAVAILABLE", articles: fakeArticles{err: errors.New("boom")}, wantCode: connect.CodeUnavailable},
+		{name: "microCMS のタイムアウトは UNAVAILABLE", articles: fakeArticles{err: context.DeadlineExceeded}, wantCode: connect.CodeUnavailable},
 		{name: "microCMS が未設定なら UNAVAILABLE", articles: nil, wantCode: connect.CodeUnavailable},
 	}
 	for _, tt := range tests {
