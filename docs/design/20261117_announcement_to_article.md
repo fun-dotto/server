@@ -38,7 +38,7 @@
 - `id` / `publishedAt` / `createdAt` / `updatedAt` / `revisedAt` は microCMS の組み込みフィールドを使う。
 - 公開日時は `publishedAt`（初回公開日時）を使う。予約公開は microCMS の予約公開機能で行う。
 - 公開終了（旧 `available_until`）は microCMS の公開終了予約（非公開化）で代替する。
-- 環境（dev / stg / prd）ごとにサービスを分けるか、1 サービスを共有するかは運用に合わせて決める（実装は環境変数で切り替えるため、どちらでもよい）。
+- サービスは dev / stg / prd で **1 つを共有する**。記事 URL のホストだけを環境ごとの `ARTICLE_BASE_URL` で切り替える。
 
 #### 認証情報
 
@@ -119,8 +119,8 @@ message ListArticlesResponse {
 }
 ```
 
-- フィールドは `url` / `title` / `published_at` の 3 つのみとする（指定どおり）。ただし `api-linter`（AIP-142）は時刻フィールドに `_time` 接尾辞を要求するため、proto 上の名前は `publish_time` とする。`published_at` のままにする場合は linter の例外コメントを付ける。→ **要確認**
-- ページングは記事数が少ない前提で設けない（AIP-158 の linter 例外が必要なら付ける）。
+- フィールドは `url` / `title` / `publish_time` の 3 つのみとする。公開日時は AIP-142 に合わせて `publish_time` とする。
+- ページングは設けない（app-api-design.md の方針どおり）。
 
 #### 実装
 
@@ -140,7 +140,7 @@ OpenAPI スキーマ（`api/openapi/app/openapi.yaml` の `GET /v1/announcements
 
 | `domain.Announcement` | 取得元 |
 | --- | --- |
-| `ID` | 記事の `id` |
+| `ID` | 記事 URL から生成した UUIDv5（`uuidv5.NewSHA1(uuidv5.NamespaceURL, []byte(url))`） |
 | `Title` | `title` |
 | `AvailableFrom` | `publishedAt` |
 | `AvailableUntil` | 常に `nil` |
@@ -154,11 +154,11 @@ OpenAPI スキーマ（`api/openapi/app/openapi.yaml` の `GET /v1/announcements
 
 | 項目 | 変更前 | 変更後 |
 | --- | --- | --- |
-| `id` | UUID | microCMS のコンテンツ ID（英数字） |
+| `id` | DB の UUID | 記事 URL から生成した UUIDv5（同じ記事なら常に同じ値） |
 | `url` | 任意の外部 URL | `https://{env}fun-dotto.com/articles/<id>` |
 | `date` | `available_from` | `publishedAt` |
 
-スキーマ上の型（`string` / `uri` / `date-time`）は変わらない。アプリは `id` を表示・保存に使っていないことを確認する。→ **要確認**
+スキーマ上の型（`string` / `uri` / `date-time`）と `id` の UUID 形式は変わらない。`id` は記事 URL から決定的に生成するため、リクエストごとに変わらない。
 
 #### 起動処理
 
@@ -224,11 +224,6 @@ OpenAPI スキーマ（`api/openapi/app/openapi.yaml` の `GET /v1/announcements
 
 - `internal/shared/microcms`: 正常系、ページング（101 件以上）、非 2xx、タイムアウト。
 - App API `ListArticles`: URL の組み立て、並び順。
+- App BFF のリポジトリ: `ID` が UUID 形式で、同じ記事なら同じ値になること。
 - App BFF `AnnouncementsV1List`: microCMS のモックから既存スキーマどおりのレスポンスになること（既存の `announcement_v1_test.go` / `service/announcement_test.go` を書き換える）。
 - Web: 一覧・詳細・404 の表示を確認する。
-
-## 要確認事項
-
-- proto のフィールド名を `published_at` にするか、AIP に合わせて `publish_time` にするか。
-- アプリが Announcement の `id` の形式（UUID）に依存していないか。
-- microCMS のサービスを環境ごとに分けるか。
