@@ -1,5 +1,6 @@
 // Package handler は App API（app.v1）の Connect ハンドラーを実装する。
 // 他の API には依存せず、DB（internal/shared/model）を直接操作する。
+// 記事のみ microCMS から取得する。
 package handler
 
 import (
@@ -10,19 +11,27 @@ import (
 	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
 	"github.com/fun-dotto/server/internal/modules/appapi/auth"
 	"github.com/fun-dotto/server/internal/shared/academiccalendar"
+	"github.com/fun-dotto/server/internal/shared/microcms"
 	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 )
 
 // Handler は app.v1 の各サービスを実装する。
 type Handler struct {
-	db       *gorm.DB
-	calendar academiccalendar.Calendar
-	now      func() time.Time
+	db             *gorm.DB
+	calendar       academiccalendar.Calendar
+	articles       ArticleLister
+	articleBaseURL string
+	now            func() time.Time
+}
+
+// ArticleLister は公開中の記事を取得する。
+type ArticleLister interface {
+	ListArticles(ctx context.Context, order microcms.SortOrder) ([]microcms.Article, error)
 }
 
 var (
-	_ appv1connect.AnnouncementServiceHandler         = (*Handler)(nil)
+	_ appv1connect.ArticleServiceHandler              = (*Handler)(nil)
 	_ appv1connect.CancelledClassServiceHandler       = (*Handler)(nil)
 	_ appv1connect.CourseRegistrationServiceHandler   = (*Handler)(nil)
 	_ appv1connect.FcmTokenServiceHandler             = (*Handler)(nil)
@@ -35,9 +44,9 @@ var (
 	_ appv1connect.UserServiceHandler                 = (*Handler)(nil)
 )
 
-// New は Handler を返す。
-func New(db *gorm.DB, calendar academiccalendar.Calendar) *Handler {
-	return &Handler{db: db, calendar: calendar, now: time.Now}
+// New は Handler を返す。articleBaseURL は記事ページの URL のベース（https://fun-dotto.com など）。
+func New(db *gorm.DB, calendar academiccalendar.Calendar, articles ArticleLister, articleBaseURL string) *Handler {
+	return &Handler{db: db, calendar: calendar, articles: articles, articleBaseURL: articleBaseURL, now: time.Now}
 }
 
 // currentUserID は認証済みのユーザー ID を返す。
