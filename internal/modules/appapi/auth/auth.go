@@ -11,12 +11,12 @@ import (
 	"connectrpc.com/connect"
 	"firebase.google.com/go/v4/auth"
 	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
+	"github.com/fun-dotto/server/internal/shared/cfaccess"
 )
 
 const (
 	appCheckHeader      = "X-Firebase-AppCheck"
 	authorizationHeader = "Authorization"
-	cfAccessJWTHeader   = "Cf-Access-Jwt-Assertion"
 	// serviceAuthHeader は Web などのサービスが Google の ID トークンを付与するヘッダー。
 	// Authorization はユーザーの Firebase ID トークンに使うため別のヘッダーにする。
 	serviceAuthHeader = "X-Service-Authorization"
@@ -95,7 +95,7 @@ func NewInterceptor(appCheck AppCheckVerifier, cfAccess CFAccessVerifier, servic
 // verifyCFAccess は Cloudflare Access の JWT が有効かを返す。JWT がない、または不正な場合は false を返す。
 // v が nil（Cloudflare Access を使わない環境）の場合は常に false を返す。
 func verifyCFAccess(ctx context.Context, v CFAccessVerifier, h http.Header) bool {
-	token := h.Get(cfAccessJWTHeader)
+	token := h.Get(cfaccess.JWTHeader)
 	if v == nil || token == "" {
 		return false
 	}

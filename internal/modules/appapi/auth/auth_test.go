@@ -10,6 +10,7 @@ import (
 	"connectrpc.com/connect"
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
+	"github.com/fun-dotto/server/internal/shared/cfaccess"
 )
 
 type fakeIDToken struct{}
@@ -115,7 +116,7 @@ func TestInterceptor(t *testing.T) {
 					h.Set(appCheckHeader, tt.appCheck)
 				}
 				if tt.cfAccess != "" {
-					h.Set(cfAccessJWTHeader, tt.cfAccess)
+					h.Set(cfaccess.JWTHeader, tt.cfAccess)
 				}
 				if tt.service != "" {
 					h.Set(serviceAuthHeader, tt.service)
@@ -164,7 +165,7 @@ func TestInterceptorWithoutCFAccess(t *testing.T) {
 	announcements := appv1connect.NewAnnouncementServiceClient(http.DefaultClient, srv.URL)
 
 	call := listAnnouncements(announcements)
-	if err := call(func(h http.Header) { h.Set(cfAccessJWTHeader, "valid-cf") }); connect.CodeOf(err) != connect.CodeUnauthenticated {
+	if err := call(func(h http.Header) { h.Set(cfaccess.JWTHeader, "valid-cf") }); connect.CodeOf(err) != connect.CodeUnauthenticated {
 		t.Fatalf("Cloudflare Access を使わない場合は JWT があっても App Check が必要: err = %v", err)
 	}
 	if err := call(func(h http.Header) { h.Set(appCheckHeader, "valid-app") }); err != nil {

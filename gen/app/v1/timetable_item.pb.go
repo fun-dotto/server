@@ -155,9 +155,9 @@ func (x *TimetableItem) GetRooms() []*Room {
 type ListTimetableItemsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 開講年度。未設定の場合は今年度。
-	Year *int32 `protobuf:"varint,3,opt,name=year,proto3,oneof" json:"year,omitempty"`
+	Year *int32 `protobuf:"varint,1,opt,name=year,proto3,oneof" json:"year,omitempty"`
 	// 開講時期。
-	Semesters     []SubjectSemester `protobuf:"varint,4,rep,packed,name=semesters,proto3,enum=app.v1.SubjectSemester" json:"semesters,omitempty"`
+	Semesters     []SubjectSemester `protobuf:"varint,2,rep,packed,name=semesters,proto3,enum=app.v1.SubjectSemester" json:"semesters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -265,14 +265,13 @@ const file_app_v1_timetable_item_proto_rawDesc = "" +
 	"\asubject\x18\x02 \x01(\v2\x0f.app.v1.SubjectB\x03\xe0A\x03R\asubject\x127\n" +
 	"\x04slot\x18\x03 \x01(\v2\x19.app.v1.TimetableItemSlotB\x03\xe0A\x03H\x00R\x04slot\x88\x01\x01\x12'\n" +
 	"\x05rooms\x18\x04 \x03(\v2\f.app.v1.RoomB\x03\xe0A\x03R\x05roomsB\a\n" +
-	"\x05_slot\"\xa1\x01\n" +
+	"\x05_slot\"~\n" +
 	"\x19ListTimetableItemsRequest\x12\x1c\n" +
-	"\x04year\x18\x03 \x01(\x05B\x03\xe0A\x01H\x00R\x04year\x88\x01\x01\x12:\n" +
-	"\tsemesters\x18\x04 \x03(\x0e2\x17.app.v1.SubjectSemesterB\x03\xe0A\x02R\tsemestersB\a\n" +
-	"\x05_yearJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
-	"page_token\"s\n" +
+	"\x04year\x18\x01 \x01(\x05B\x03\xe0A\x01H\x00R\x04year\x88\x01\x01\x12:\n" +
+	"\tsemesters\x18\x02 \x03(\x0e2\x17.app.v1.SubjectSemesterB\x03\xe0A\x02R\tsemestersB\a\n" +
+	"\x05_year\"\\\n" +
 	"\x1aListTimetableItemsResponse\x12>\n" +
-	"\x0ftimetable_items\x18\x01 \x03(\v2\x15.app.v1.TimetableItemR\x0etimetableItemsJ\x04\b\x02\x10\x03R\x0fnext_page_token2s\n" +
+	"\x0ftimetable_items\x18\x01 \x03(\v2\x15.app.v1.TimetableItemR\x0etimetableItems2s\n" +
 	"\x14TimetableItemService\x12[\n" +
 	"\x12ListTimetableItems\x12!.app.v1.ListTimetableItemsRequest\x1a\".app.v1.ListTimetableItemsResponseB\x87\x01\n" +
 	"\n" +

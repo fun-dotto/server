@@ -25,15 +25,10 @@ message Announcement {
 
 // ListAnnouncements の Request。
 message ListAnnouncementsRequest {
-  reserved 1, 2;
-  reserved "page_size", "page_token";
 }
 
 // ListAnnouncements の Response。
 message ListAnnouncementsResponse {
   // おしらせの一覧。
   repeated Announcement announcements = 1;
-
-  reserved 2;
-  reserved "next_page_token";
 }

@@ -109,11 +109,11 @@ func (x *CancelledClass) GetComment() string {
 type ListCancelledClassesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 科目IDのリスト。指定した科目の休講のみを取得する。空の場合は全科目を対象とする。
-	SubjectIds []string `protobuf:"bytes,3,rep,name=subject_ids,json=subjectIds,proto3" json:"subject_ids,omitempty"`
+	SubjectIds []string `protobuf:"bytes,1,rep,name=subject_ids,json=subjectIds,proto3" json:"subject_ids,omitempty"`
 	// 検索対象の開始日付。未設定の場合は開始日付で絞り込まない。
-	FromDate *date.Date `protobuf:"bytes,4,opt,name=from_date,json=fromDate,proto3,oneof" json:"from_date,omitempty"`
+	FromDate *date.Date `protobuf:"bytes,2,opt,name=from_date,json=fromDate,proto3,oneof" json:"from_date,omitempty"`
 	// 検索対象の終了日付。未設定の場合は終了日付で絞り込まない。
-	UntilDate     *date.Date `protobuf:"bytes,5,opt,name=until_date,json=untilDate,proto3,oneof" json:"until_date,omitempty"`
+	UntilDate     *date.Date `protobuf:"bytes,3,opt,name=until_date,json=untilDate,proto3,oneof" json:"until_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -225,19 +225,18 @@ const file_app_v1_cancelled_class_proto_rawDesc = "" +
 	"\asubject\x18\x02 \x01(\v2\x0f.app.v1.SubjectB\x03\xe0A\x03R\asubject\x12*\n" +
 	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x03R\x04date\x12+\n" +
 	"\x06period\x18\x04 \x01(\x0e2\x0e.app.v1.PeriodB\x03\xe0A\x03R\x06period\x12\x1d\n" +
-	"\acomment\x18\x05 \x01(\tB\x03\xe0A\x03R\acomment\"\xf9\x01\n" +
+	"\acomment\x18\x05 \x01(\tB\x03\xe0A\x03R\acomment\"\xd6\x01\n" +
 	"\x1bListCancelledClassesRequest\x12$\n" +
-	"\vsubject_ids\x18\x03 \x03(\tB\x03\xe0A\x01R\n" +
+	"\vsubject_ids\x18\x01 \x03(\tB\x03\xe0A\x01R\n" +
 	"subjectIds\x128\n" +
-	"\tfrom_date\x18\x04 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x00R\bfromDate\x88\x01\x01\x12:\n" +
+	"\tfrom_date\x18\x02 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x00R\bfromDate\x88\x01\x01\x12:\n" +
 	"\n" +
-	"until_date\x18\x05 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x01R\tuntilDate\x88\x01\x01B\f\n" +
+	"until_date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x01R\tuntilDate\x88\x01\x01B\f\n" +
 	"\n" +
 	"_from_dateB\r\n" +
-	"\v_until_dateJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
-	"page_token\"z\n" +
+	"\v_until_date\"c\n" +
 	"\x1cListCancelledClassesResponse\x12C\n" +
-	"\x11cancelled_classes\x18\x01 \x03(\v2\x16.app.v1.CancelledClassR\x10cancelledClassesJ\x04\b\x02\x10\x03R\x0fnext_page_token2z\n" +
+	"\x11cancelled_classes\x18\x01 \x03(\v2\x16.app.v1.CancelledClassR\x10cancelledClasses2z\n" +
 	"\x15CancelledClassService\x12a\n" +
 	"\x14ListCancelledClasses\x12#.app.v1.ListCancelledClassesRequest\x1a$.app.v1.ListCancelledClassesResponseB\x88\x01\n" +
 	"\n" +

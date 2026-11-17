@@ -24,18 +24,12 @@ message BusTimetableStop {
 
 // ListBusTimetableStops の Request。
 message ListBusTimetableStopsRequest {
-  reserved 1, 2;
-  reserved "page_size", "page_token";
-
   // 運行ID。
-  string trip_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // ListBusTimetableStops の Response。
 message ListBusTimetableStopsResponse {
   // バスの停車情報の一覧。
   repeated BusTimetableStop bus_timetable_stops = 1;
-
-  reserved 2;
-  reserved "next_page_token";
 }

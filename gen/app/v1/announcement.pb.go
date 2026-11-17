@@ -188,11 +188,10 @@ const file_app_v1_announcement_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x19\n" +
 	"\x05title\x18\x02 \x01(\tB\x03\xe0A\x03R\x05title\x12\x15\n" +
 	"\x03url\x18\x03 \x01(\tB\x03\xe0A\x03R\x03url\x12F\n" +
-	"\x0eavailable_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\ravailableFrom\"=\n" +
-	"\x18ListAnnouncementsRequestJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
-	"page_token\"n\n" +
+	"\x0eavailable_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\ravailableFrom\"\x1a\n" +
+	"\x18ListAnnouncementsRequest\"W\n" +
 	"\x19ListAnnouncementsResponse\x12:\n" +
-	"\rannouncements\x18\x01 \x03(\v2\x14.app.v1.AnnouncementR\rannouncementsJ\x04\b\x02\x10\x03R\x0fnext_page_token2o\n" +
+	"\rannouncements\x18\x01 \x03(\v2\x14.app.v1.AnnouncementR\rannouncements2o\n" +
 	"\x13AnnouncementService\x12X\n" +
 	"\x11ListAnnouncements\x12 .app.v1.ListAnnouncementsRequest\x1a!.app.v1.ListAnnouncementsResponseB\x86\x01\n" +
 	"\n" +
