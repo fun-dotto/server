@@ -177,18 +177,21 @@ API ごとに互換性の要件が異なる。
 | --- | --- | --- |
 | app-bff-api（`api/openapi/app`） | リリース済みアプリ | **スキーマ変更なし** |
 | app-api（`proto/app/v1`） | 開発中のアプリ（未リリース） | 後方互換性を考慮せず変更してよい |
-| academic-api（`api/openapi/academic`） | app-bff-api（内部） | app-bff-api が旧値を返せるよう変更 |
+| academic-api（`api/openapi/academic`） | app-bff-api（内部） | **スキーマ・ドメインモデル変更なし**（repository の変換で旧値を返す） |
 | admin-api（`proto/admin/v1`） | 管理画面 | 変更する |
 
 #### app-bff-api（スキーマ変更なし）
 
 - `AcademicService.Syllabus.id` は、リリース済みアプリがレビュー（フィードバック）のキー `lessonId` として使っている。**引き続き教務システムの ID（= `lesson_id`）を返す。**
-- `internal/modules/app/external/subject_model.go` の `ToDomainSyllabus` で、`ID` に academic-api の `lessonId` を詰める。
-- そのほか、レスポンスに含まれる列が型変更（例: `credit` の text 化）の影響を受ける場合は、BFF 側で旧型へ変換する。
+- academic-api が旧値を返すため、BFF（`internal/modules/app/external/subject_model.go`）は変更しない。
 
-#### academic-api
+#### academic-api（スキーマ・ドメインモデル変更なし）
 
-- `api/openapi/academic/openapi.yaml` の `Syllabus` スキーマ: `id` を UUID にし、`lessonId` と追加列を加える。
+- `api/openapi/academic/openapi.yaml` と `internal/modules/academic/domain/syllabus.go` は変更しない。
+- `internal/modules/academic/repository/convert.go` の `syllabusToDomain` で旧値に変換する。
+  - `ID` に `syllabuses.lesson_id` を詰める（UUID の `syllabuses.id` は返さない）。
+  - `credit`（text、例: `2単位`）は `parseSyllabusCredit` で数値に戻す。取り出せない場合は `0`。
+- 追加した列（`term`、英語欄、ディプロマポリシーなど）は academic-api では返さない。
 - `/v1/subjects/{id}/syllabus` はそのまま（subject の id は UUID のまま変わらない）。
 
 #### app-api
@@ -202,4 +205,4 @@ API ごとに互換性の要件が異なる。
 
 #### 共通
 
-- `gen/` の再生成。
+- proto 変更に伴う `gen/` の再生成（OpenAPI は変更しないため対象外）。
