@@ -232,13 +232,16 @@ OpenAPI スキーマ（`api/openapi/app/openapi.yaml` の `GET /v1/announcements
 
 1. infra: microCMS の設定を追加し（fun-dotto/infra の microCMS 設定の PR）、`microcms-api-key` に API キーを登録する。必要な記事を microCMS に入稿しておく。
 2. web: `/articles` と `/articles/<id>` を追加し、`/setting/announcements` を削除する（`app.v1.AnnouncementService` を呼ばなくする）。
-3. app: `app.v1.AnnouncementService` から `app.v1.ArticleService` に移行する（未リリースのため、次のリリースまでに済ませる）。
-4. server: microCMS クライアント、App API の `ArticleService`（`AnnouncementService` の削除を含む）、App BFF のリポジトリ差し替えをデプロイする。ここで BFF の取得元が microCMS に切り替わる。
+3. server: microCMS クライアント、App API の `ArticleService`（`AnnouncementService` の削除を含む）、App BFF のリポジトリ差し替えをデプロイする。ここで BFF の取得元が microCMS に切り替わる。
+4. app: `app.v1.AnnouncementService` から `app.v1.ArticleService` に移行する（未リリースのため、次のリリースまでに済ませる）。
 5. admin-web: Announcement 画面を削除する。
 6. server: Announcement API・Admin API の Announcement・GORM モデルを削除し、`announcements` を DROP する。
 7. infra: announcement-service の各 root で `terraform destroy` を実行してから、announcement-service の Terraform 定義と参照を削除する。
 
-4 の時点で既存のおしらせはアプリに表示されなくなる（データは移行しない）。2 と 3 が 4 より後になると、Web の旧ページと開発中のアプリが `AnnouncementService` を呼べなくなる。
+3 の時点で既存のおしらせはアプリに表示されなくなる（データは移行しない）。
+
+- web は 3 より前に済ませる。3 より後になると、Web の旧ページが `AnnouncementService` を呼べなくなる。
+- app は 3 の後に移行する。アプリが使う生成コードは proto が main に push されたときに配布される（`release-proto`）ため、3 より前には `ArticleService` を使えない。3 から 4 までの間、開発中のアプリ（main）のおしらせは動かなくなるが、アプリは未リリースのため許容する。
 
 ## テスト
 
