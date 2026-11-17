@@ -49,14 +49,12 @@ jobs:
       image_tag: ${{ steps.set-env.outputs.image_tag }}
       matrix: ${{ steps.set-env.outputs.matrix }}
     steps:
-      # prd へは、検証済みのイメージタグ（コミット SHA）を指定する deploy でのみデプロイする。
-      # latest はビルド元のコミットとマイグレーションのコミット（github.sha）がずれうるため拒否する。
-      - if: >-
-          inputs.environment_name == 'prd'
-          && (inputs.action == 'build-push-deploy' || inputs.image_tag == '' || inputs.image_tag == 'latest')
+      # prd へは、main でビルド済みのイメージを指定する deploy でのみデプロイする。
+      # latest は verify-image でコミット SHA のタグに解決するため、マイグレーションとずれない。
+      - if: inputs.environment_name == 'prd' && inputs.action == 'build-push-deploy'
         name: Reject prd
         run: |
-          echo "prd は action: deploy で、image_tag にコミット SHA を指定した場合のみ実行できます" >&2
+          echo "prd は action: deploy でのみ実行できます" >&2
           exit 1
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: set-env
@@ -67,6 +65,8 @@ jobs:
           image_tag: ${{ inputs.action == 'deploy' && (inputs.image_tag || 'latest') || github.sha }}
 
   # deploy で指定したイメージタグを、マイグレーションの適用より前に検証する。
+  # - latest（未指定）の場合は、同じダイジェストを持つコミット SHA のタグに解決する。
+  #   以降のマイグレーション・デプロイは解決した SHA を使うため、latest が途中で更新されてもずれない
   # - タグ（コミット SHA）が main に含まれること。未マージのコミットのマイグレーションを適用しないため
   #   （Environment の保護ブランチ制限は github.ref しか見ない）
   # - Artifact Registry にイメージが存在すること。マイグレーションだけ適用されてデプロイが失敗するのを防ぐため
@@ -75,24 +75,13 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - set-env
+    outputs:
+      commit: ${{ steps.resolve.outputs.commit }}
+      image: ${{ steps.resolve.outputs.image }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - name: Verify commit is on main
-        if: inputs.image_tag != '' && inputs.image_tag != 'latest'
-        env:
-          IMAGE_TAG: ${{ inputs.image_tag }}
-        run: |
-          if ! [[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "::error::image_tag は 40 桁のコミット SHA を指定してください: $IMAGE_TAG"
-            exit 1
-          fi
-          git fetch --no-tags origin main
-          if ! git merge-base --is-ancestor "$IMAGE_TAG" origin/main; then
-            echo "::error::image_tag のコミットが main に含まれていません: $IMAGE_TAG"
-            exit 1
-          fi
       - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
@@ -100,9 +89,48 @@ jobs:
       - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
         with:
           project_id: ${{ vars.PROJECT_ID }}
-      - name: Verify image exists
+      - name: Resolve image tag
+        id: resolve
         env:
           IMAGE: ${{ needs.set-env.outputs.image_tag }}
+          IMAGE_TAG: ${{ inputs.image_tag || 'latest' }}
+        run: |
+          REPO="${IMAGE%:*}"
+          if [ "$IMAGE_TAG" = "latest" ]; then
+            DIGEST=$(gcloud artifacts docker images describe "$IMAGE" --format='value(image_summary.digest)')
+            if [ -z "$DIGEST" ]; then
+              echo "::error::Artifact Registry にイメージがありません: $IMAGE"
+              exit 1
+            fi
+            TAGS=$(gcloud artifacts docker images list "$REPO" --include-tags \
+              --filter="version=$DIGEST" --format='value(tags)')
+            COMMIT=$(echo "$TAGS" | tr ',; ' '\n\n\n' | grep -E '^[0-9a-f]{40}$' | head -n 1 || true)
+            if [ -z "$COMMIT" ]; then
+              echo "::error::latest ($DIGEST) に対応するコミット SHA のタグが見つかりません: $TAGS"
+              exit 1
+            fi
+            echo "latest -> $COMMIT ($DIGEST)"
+          else
+            COMMIT="$IMAGE_TAG"
+          fi
+          echo "commit=$COMMIT" >> "$GITHUB_OUTPUT"
+          echo "image=$REPO:$COMMIT" >> "$GITHUB_OUTPUT"
+      - name: Verify commit is on main
+        env:
+          COMMIT: ${{ steps.resolve.outputs.commit }}
+        run: |
+          if ! [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::image_tag は latest か 40 桁のコミット SHA を指定してください: $COMMIT"
+            exit 1
+          fi
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$COMMIT" origin/main; then
+            echo "::error::image_tag のコミットが main に含まれていません: $COMMIT"
+            exit 1
+          fi
+      - name: Verify image exists
+        env:
+          IMAGE: ${{ steps.resolve.outputs.image }}
         run: |
           if ! gcloud artifacts docker images describe "$IMAGE" > /dev/null; then
             echo "::error::Artifact Registry にイメージがありません: $IMAGE"
@@ -128,8 +156,8 @@ jobs:
   # set-env が明示列挙した matrix で各ターゲットを並列デプロイする。対象の増減は set-env の DEPLOY_TARGETS を編集する。
   # アプリのデプロイより前に DB マイグレーションを適用する。失敗した場合はデプロイしない。
   # main への push は dev / stg、手動実行は選択した環境（build-push を除く）。
-  # イメージのタグはコミット SHA のため、タグ指定の deploy ではそのコミットのマイグレーションを適用する
-  # （latest の場合は実行したコミット）。イメージとマイグレーションのずれを防ぐ。
+  # イメージのタグはコミット SHA のため、deploy ではそのコミットのマイグレーションを適用する
+  # （latest は verify-image で解決したコミット）。イメージとマイグレーションのずれを防ぐ。
   migrate:
     if: >-
       !cancelled()
@@ -143,7 +171,7 @@ jobs:
     uses: ./.github/workflows/migrate-apply.yml
     with:
       environments: ${{ github.event_name == 'push' && '["dev","stg"]' || format('["{0}"]', inputs.environment_name) }}
-      ref: ${{ (inputs.action == 'deploy' && inputs.image_tag != '' && inputs.image_tag != 'latest') && inputs.image_tag || github.sha }}
+      ref: ${{ inputs.action == 'deploy' && needs.verify-image.outputs.commit || github.sha }}
 
   deploy:
     # build-and-push / migrate がスキップされた場合もデプロイするため、結果を明示的に判定する。
@@ -170,7 +198,7 @@ jobs:
         with:
           name: ${{ matrix.name }}${{ needs.set-env.outputs.service_suffix }}
           type: ${{ matrix.type }}
-          image: ${{ needs.set-env.outputs.image_tag }}
+          image: ${{ needs.verify-image.outputs.image || needs.set-env.outputs.image_tag }}
           region: ${{ vars._DEPLOY_REGION }}
           project_id: ${{ vars.PROJECT_ID }}
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
