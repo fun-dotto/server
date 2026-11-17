@@ -9,10 +9,10 @@ ALTER TABLE "public"."syllabuses" DROP CONSTRAINT "syllabuses_pkey";
 ALTER TABLE "public"."syllabuses" RENAME COLUMN "id" TO "lesson_id";
 ALTER TABLE "public"."syllabuses" ADD COLUMN "id" uuid NOT NULL DEFAULT gen_random_uuid(), ADD PRIMARY KEY ("id");
 
--- 3. year を追加し、紐づく subjects.year から埋める（紐づく科目がない場合は作成年）
+-- 3. year を追加し、紐づく subjects.year から埋める（紐づく科目がない場合は作成年、作成日時もなければ更新年・現在年）
 ALTER TABLE "public"."syllabuses" ADD COLUMN "year" bigint;
 UPDATE "public"."syllabuses" AS sy SET "year" = su."year" FROM "public"."subjects" AS su WHERE su."syllabus_id" = sy."lesson_id";
-UPDATE "public"."syllabuses" SET "year" = EXTRACT(YEAR FROM "created_at") WHERE "year" IS NULL;
+UPDATE "public"."syllabuses" SET "year" = EXTRACT(YEAR FROM COALESCE("created_at", "updated_at", CURRENT_TIMESTAMP)) WHERE "year" IS NULL;
 ALTER TABLE "public"."syllabuses" ALTER COLUMN "year" SET NOT NULL;
 
 -- 4. 追加列（既存行は空文字）・credit の text 化・target_areas の削除
