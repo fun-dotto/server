@@ -161,9 +161,8 @@
   - **シラバス取得ジョブ**（`cmd/fetch-syllabuses-job`）: 年度を指定して一覧を全ページ取得し、各詳細ページを取得する。`content_hash` が既存行と一致すれば `fetched_at` のみ更新し、異なれば既存行を上書きする（行がなければ INSERT）。アクセス間隔を空ける。
     - 変更の通知（Slack など）は行わない。
   - **科目生成ジョブ**（`cmd/build-subjects-job`）: 年度を指定して実行する。
-    - 対象年度のすべてのシラバスから、`subjects` と子テーブルを無条件に作り直す。
-      - 科目が存在しない `(lesson_id, year)` は新規作成する。
-      - 既存の科目は `id` を保ったまま列を更新し、子テーブル（`subject_faculties`・`subject_eligible_attributes`・`subject_requirements`）は削除して作り直す。
+    - 科目が存在しない `(lesson_id, year)` は、シラバスから `subjects` と子テーブルを新規作成する。
+    - 既存の科目は更新しない。
     - 担当教員名が `faculties` に存在しない場合は、その教員を `subject_faculties` に入れずに警告ログを出す。
   - どちらも既存ジョブ（`build-class-change-notifications-job` など）と同じ形で `cmd/` に作り、`Dockerfile`・`mise.toml`・`.github/actions/set-env/action.yml` に追加して、同じ方法でデプロイ・スケジュール実行する。
   - スケジュール: **毎週日曜日**に、シラバス取得ジョブ → 科目生成ジョブの順で実行する（対象は当年度）。
