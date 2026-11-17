@@ -11,7 +11,7 @@ type Subject struct {
 	Credit                  int                        `gorm:"not null"`
 	Classification          string                     `gorm:"not null"`
 	CulturalSubjectCategory string                     `gorm:"not null"`
-	SyllabusID              string                     `gorm:"not null;uniqueIndex"`
+	SyllabusID              uuid.UUID                  `gorm:"type:uuid;not null;uniqueIndex"`
 	Syllabus                *Syllabus                  `gorm:"foreignKey:SyllabusID;constraint:OnUpdate:CASCADE"`
 	Faculties               []SubjectFaculty           `gorm:"foreignKey:SubjectID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	EligibleAttributes      []SubjectEligibleAttribute `gorm:"foreignKey:SubjectID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
