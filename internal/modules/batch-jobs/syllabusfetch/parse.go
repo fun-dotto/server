@@ -235,15 +235,23 @@ func normalizeLabel(s string) string {
 // 全角空白は氏名の区切りなど内容の一部のため残す。
 func textOf(n *html.Node) string {
 	var b strings.Builder
-	for d := range n.Descendants() {
-		switch {
-		case d.Type == html.TextNode:
-			// ソース上の改行はブラウザ同様に空白として扱い、改行は <br> だけで表す
-			b.WriteString(sourceNewline.Replace(d.Data))
-		case d.Type == html.ElementNode && d.DataAtom == atom.Br:
-			b.WriteString("\n")
+	var walk func(*html.Node)
+	walk = func(p *html.Node) {
+		for d := range p.ChildNodes() {
+			switch {
+			case d.Type == html.TextNode:
+				// ソース上の改行はブラウザ同様に空白として扱い、改行は <br> だけで表す
+				b.WriteString(sourceNewline.Replace(d.Data))
+			case d.Type == html.ElementNode && d.DataAtom == atom.Br:
+				b.WriteString("\n")
+			case d.Type == html.ElementNode && hasClass(d, "is-hidden"):
+				// セル内の非表示要素は画面に出ないため読まない
+			default:
+				walk(d)
+			}
 		}
 	}
+	walk(n)
 	lines := strings.Split(b.String(), "\n")
 	for i, l := range lines {
 		lines[i] = strings.Trim(l, " \t\r")

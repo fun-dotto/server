@@ -46,7 +46,14 @@ func (s *SubjectBuildService) BuildSubjects(ctx context.Context, year int) (Subj
 	}
 	facultyIDs := make(map[string]uuid.UUID, len(faculties))
 	for _, f := range faculties {
-		facultyIDs[NormalizeFacultyName(f.Name)] = f.ID
+		name := NormalizeFacultyName(f.Name)
+		if _, dup := facultyIDs[name]; dup {
+			// 同名の教員が複数いる場合はどちらか決められないため、ゼロ値にして紐付けない
+			slog.WarnContext(ctx, "duplicate faculty name", "faculty_name", name)
+			facultyIDs[name] = uuid.UUID{}
+			continue
+		}
+		facultyIDs[name] = f.ID
 	}
 
 	for _, syl := range syllabuses {
@@ -71,6 +78,10 @@ func buildSubjectModel(ctx context.Context, syl model.Syllabus, st StructuredSub
 	var faculties []model.SubjectFaculty
 	for _, f := range st.FacultyNames {
 		id, ok := facultyIDs[f.Name]
+		if ok && id == (uuid.UUID{}) {
+			slog.WarnContext(ctx, "faculty name is ambiguous", "lesson_id", syl.LessonID, "year", syl.Year, "faculty_name", f.Name)
+			continue
+		}
 		if !ok {
 			slog.WarnContext(ctx, "faculty not found", "lesson_id", syl.LessonID, "year", syl.Year, "faculty_name", f.Name)
 			continue

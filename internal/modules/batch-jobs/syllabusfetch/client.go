@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	listURL   = "https://students.fun.ac.jp/lesson/SyllabusList"
-	detailURL = "https://students.fun.ac.jp/lesson/Syllabus"
+	// DefaultBaseURL は教務システムのシラバスページのベース URL。
+	DefaultBaseURL = "https://students.fun.ac.jp/lesson"
 
 	yearFieldName   = "ctl00$MainContent$param_Syllabus_year_eq"
 	searchFieldName = "ctl00$MainContent$SearchButton"
@@ -24,15 +24,18 @@ const (
 // Client は教務システムのシラバスページを取得する。
 // 教務システムへの負荷を抑えるため、リクエストごとに Interval だけ間隔を空ける。
 type Client struct {
+	baseURL  string
 	http     *http.Client
 	interval time.Duration
 	last     time.Time
 }
 
-func NewClient(interval time.Duration) *Client {
+// NewClient は baseURL（末尾の / なし）配下の SyllabusList・Syllabus を取得するクライアントを返す。
+func NewClient(baseURL string, interval time.Duration) *Client {
 	// 一覧のページングは ASP.NET のセッションに依存しうるため Cookie を保持する
 	jar, _ := cookiejar.New(nil)
 	return &Client{
+		baseURL:  baseURL,
 		http:     &http.Client{Jar: jar, Timeout: 60 * time.Second},
 		interval: interval,
 	}
@@ -56,11 +59,18 @@ func (c *Client) ListLessonIDs(ctx context.Context, year int) ([]string, error) 
 	var ids []string
 	seen := map[string]bool{}
 	for current := 1; ; current++ {
+		added := 0
 		for _, id := range page.LessonIDs {
 			if !seen[id] {
 				seen[id] = true
 				ids = append(ids, id)
+				added++
 			}
+		}
+		// ViewState の期限切れなどで要求と違うページが返ると、既出の授業コードだけのページや 0 件のページになる。
+		// そのまま終えると一部の科目を取りこぼしたまま成功扱いになるため、エラーにする。
+		if added == 0 {
+			return nil, fmt.Errorf("list page %d has no new lesson ids", current)
 		}
 		next := current + 1
 		if !page.HasPage(next) {
@@ -78,7 +88,7 @@ func (c *Client) ListLessonIDs(ctx context.Context, year int) ([]string, error) 
 // FetchDetail は詳細ページの HTML を返す。
 func (c *Client) FetchDetail(ctx context.Context, lessonID string, year int) ([]byte, error) {
 	q := url.Values{"lesson_id": {lessonID}, "year": {strconv.Itoa(year)}}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, detailURL+"?"+q.Encode(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/Syllabus?"+q.Encode(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +100,7 @@ func (c *Client) fetchList(ctx context.Context, form url.Values) (ListPage, erro
 	if form != nil {
 		method, body = http.MethodPost, bytes.NewBufferString(form.Encode())
 	}
-	req, err := http.NewRequestWithContext(ctx, method, listURL, body)
+	req, err := http.NewRequestWithContext(ctx, method, c.baseURL+"/SyllabusList", body)
 	if err != nil {
 		return ListPage{}, err
 	}

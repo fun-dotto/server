@@ -47,7 +47,8 @@ func (s *Store) Save(ctx context.Context, syllabus model.Syllabus, fetchedAt tim
 			return err
 		case existing.ContentHash == syllabus.ContentHash:
 			result = SaveUnchanged
-			return tx.Model(&existing).Update("fetched_at", fetchedAt).Error
+			// Update だと autoUpdateTime で updated_at も変わり、内容の変化と区別できなくなるため UpdateColumn を使う
+			return tx.Model(&existing).UpdateColumn("fetched_at", fetchedAt).Error
 		default:
 			result = SaveUpdated
 			syllabus.ID = existing.ID

@@ -135,7 +135,8 @@ var (
 	nameGradeClassPattern = regexp.MustCompile(`([1-4])\s*-\s*([A-L]+)\s*$`)
 	// 授業名末尾の学年範囲（例: `xxx 1～4`）
 	nameGradeRangePattern = regexp.MustCompile(`\s([1-4])\s*[～~〜-]\s*([1-4])\s*$`)
-	gradeRangePattern     = regexp.MustCompile(`([1-4])\s*[～~〜-]\s*([1-4])`)
+	gradeRangePattern     = regexp.MustCompile(`([1-4])\s*年?\s*[～~〜-]\s*([1-4])`)
+	gradeAbovePattern     = regexp.MustCompile(`([1-4])\s*年?\s*次?\s*以上`)
 	gradeDigitPattern     = regexp.MustCompile(`[1-4]`)
 )
 
@@ -159,14 +160,20 @@ func ParseEligibleAttributes(name, grades string) []model.SubjectEligibleAttribu
 
 	g := fullWidthDigits.Replace(grades)
 	prefix := "B"
+	maxGrade := "4"
+	// この大学の修士課程の正式名は「博士（前期）課程」なので、前期・後期を先に判定する
+	gp := strings.NewReplacer("（", "(", "）", ")").Replace(g)
 	switch {
+	case strings.Contains(gp, "博士(前期)"), strings.Contains(gp, "博士前期"), strings.Contains(g, "修士"), strings.Contains(g, "大学院"):
+		prefix, maxGrade = "M", "2"
 	case strings.Contains(g, "博士"):
-		prefix = "D"
-	case strings.Contains(g, "修士"), strings.Contains(g, "大学院"):
-		prefix = "M"
+		prefix, maxGrade = "D", "3"
 	}
 	if m := gradeRangePattern.FindStringSubmatch(g); m != nil {
 		return gradeRange(prefix, m[1], m[2])
+	}
+	if m := gradeAbovePattern.FindStringSubmatch(g); m != nil {
+		return gradeRange(prefix, m[1], maxGrade)
 	}
 	var result []model.SubjectEligibleAttribute
 	seen := map[string]bool{}
@@ -204,6 +211,12 @@ var courseKeywords = []struct {
 func findCourses(s string) []academicdomain.CourseType {
 	s = strings.ToUpper(s)
 	var result []academicdomain.CourseType
+	if strings.Contains(s, "全コース") {
+		for _, k := range courseKeywords {
+			result = append(result, k.course)
+		}
+		return result
+	}
 	for _, k := range courseKeywords {
 		if strings.Contains(s, k.keyword) {
 			result = append(result, k.course)
@@ -228,7 +241,8 @@ func findRequirementType(s string) (academicdomain.SubjectRequirementType, bool)
 var segmentSeparator = regexp.MustCompile(`[\n、,，/／;；]+`)
 
 // ParseRequirements は対象コースと科目群・科目区分から、コースごとの必修・選択を求める。
-// 科目区分の各区切りにコース名があればそのコースに、なければ対象コース全体に必修・選択を割り当てる。
+// 対象コースと科目区分の各区切りにコース名があればそのコースに、なければ対象コース全体に必修・選択を割り当てる。
+// 「全コース」は 5 コースすべてとみなす。
 // 先に現れた割り当てを優先し、どの区切りにも必修・選択の記載がないコースは選択とみなす。
 func ParseRequirements(targetCourses, classifications string) []model.SubjectRequirement {
 	targets := findCourses(targetCourses)
@@ -242,7 +256,8 @@ func ParseRequirements(targetCourses, classifications string) []model.SubjectReq
 		order = append(order, c)
 	}
 
-	for _, seg := range segmentSeparator.Split(classifications, -1) {
+	// 対象コース欄にも「学部共通選択」のように必修・選択が書かれることがあるため、両方の区切りを見る
+	for _, seg := range segmentSeparator.Split(targetCourses+"\n"+classifications, -1) {
 		r, ok := findRequirementType(seg)
 		if !ok {
 			continue

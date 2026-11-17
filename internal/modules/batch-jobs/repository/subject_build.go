@@ -39,7 +39,6 @@ func (r *SubjectBuildRepository) ListFaculties(ctx context.Context) ([]model.Fac
 }
 
 func (r *SubjectBuildRepository) CreateSubject(ctx context.Context, subject *model.Subject) error {
-	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		return tx.Create(subject).Error
-	})
+	// GORM の Create は関連の作成も含めてトランザクション内で実行する
+	return r.db.WithContext(ctx).Create(subject).Error
 }

@@ -88,6 +88,10 @@ func TestParseEligibleAttributes(t *testing.T) {
 		{"配当年次の列挙", "認知科学", "2,3年", []model.SubjectEligibleAttribute{{Grade: "B2"}, {Grade: "B3"}}},
 		{"大学院修士", "特論", "修士1～2年", []model.SubjectEligibleAttribute{{Grade: "M1"}, {Grade: "M2"}}},
 		{"博士", "特論", "博士1年", []model.SubjectEligibleAttribute{{Grade: "D1"}}},
+		{"年の付いた範囲", "認知科学", "1年～4年", []model.SubjectEligibleAttribute{{Grade: "B1"}, {Grade: "B2"}, {Grade: "B3"}, {Grade: "B4"}}},
+		{"以上", "認知科学", "2年以上", []model.SubjectEligibleAttribute{{Grade: "B2"}, {Grade: "B3"}, {Grade: "B4"}}},
+		{"博士（前期）は修士", "特論", "博士（前期）1年", []model.SubjectEligibleAttribute{{Grade: "M1"}}},
+		{"博士（後期）", "特論", "博士(後期)1年", []model.SubjectEligibleAttribute{{Grade: "D1"}}},
 		{"解釈できない", "特論", "", nil},
 	}
 	for _, tt := range tests {
@@ -123,6 +127,13 @@ func TestParseRequirements(t *testing.T) {
 			req(d.CourseTypeComplexSystem, d.SubjectRequirementTypeOptional),
 		}},
 		{"対象コースなし", "", "教養科目 選択", []model.SubjectRequirement{}},
+		{"全コースと対象コース欄の必修・選択", "全コース\n学部共通選択", "共通教養科目", []model.SubjectRequirement{
+			req(d.CourseTypeInformationSystem, d.SubjectRequirementTypeOptional),
+			req(d.CourseTypeInformationDesign, d.SubjectRequirementTypeOptional),
+			req(d.CourseTypeAdvancedICT, d.SubjectRequirementTypeOptional),
+			req(d.CourseTypeComplexSystem, d.SubjectRequirementTypeOptional),
+			req(d.CourseTypeIntelligentSystem, d.SubjectRequirementTypeOptional),
+		}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
