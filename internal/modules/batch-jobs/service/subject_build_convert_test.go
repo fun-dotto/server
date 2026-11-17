@@ -1,0 +1,135 @@
+package service
+
+import (
+	"reflect"
+	"testing"
+
+	d "github.com/fun-dotto/server/internal/modules/academic/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
+)
+
+func TestParseSemester(t *testing.T) {
+	tests := []struct {
+		name string
+		in   string
+		want d.CourseSemester
+		ok   bool
+	}{
+		{"前期", "前期", d.CourseSemesterH1, true},
+		{"後期", "後期", d.CourseSemesterH2, true},
+		{"クォーター", "3Q", d.CourseSemesterQ3, true},
+		{"全角クォーター", "２Ｑ", d.CourseSemesterQ2, true},
+		{"通年", "通年", d.CourseSemesterAllYear, true},
+		{"前期集中は夏季集中", "前期集中", d.CourseSemesterSummerIntensive, true},
+		{"冬季集中", "冬季集中", d.CourseSemesterWinterIntensive, true},
+		{"空欄", "", "", false},
+		{"不明", "その他", "", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, ok := ParseSemester(tt.in)
+			if got != tt.want || ok != tt.ok {
+				t.Errorf("ParseSemester(%q) = %q, %v; want %q, %v", tt.in, got, ok, tt.want, tt.ok)
+			}
+		})
+	}
+}
+
+func TestParseClassification(t *testing.T) {
+	tests := []struct {
+		name         string
+		in           string
+		wantClass    d.SubjectClassification
+		wantCategory string
+	}{
+		{"専門科目", "専門科目 必修", d.SubjectClassificationSpecialized, ""},
+		{"教養科目のカテゴリ", "教養基礎科目群 社会と文化", d.SubjectClassificationCultural, string(d.CulturalSubjectCategorySociety)},
+		{"コミュニケーション", "教養科目 コミュニケーション", d.SubjectClassificationCultural, string(d.CulturalSubjectCategoryCommunication)},
+		{"教養でカテゴリ不明", "教養科目", d.SubjectClassificationCultural, ""},
+		{"研究指導", "研究指導科目", d.SubjectClassificationResearchInstruction, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c, cat := ParseClassification(tt.in)
+			if c != tt.wantClass || cat != tt.wantCategory {
+				t.Errorf("ParseClassification(%q) = %q, %q; want %q, %q", tt.in, c, cat, tt.wantClass, tt.wantCategory)
+			}
+		})
+	}
+}
+
+func TestParseFacultyNames(t *testing.T) {
+	got := ParseFacultyNames("◎函館　太郎\r\n未来 花子\n\n未来花子")
+	want := []SyllabusFacultyName{
+		{Name: "函館太郎", IsPrimary: true},
+		{Name: "未来花子", IsPrimary: false},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("ParseFacultyNames = %+v; want %+v", got, want)
+	}
+}
+
+func ptr(s string) *string { return &s }
+
+func TestParseEligibleAttributes(t *testing.T) {
+	tests := []struct {
+		name   string
+		inName string
+		grades string
+		want   []model.SubjectEligibleAttribute
+	}{
+		{"授業名末尾のクラス指定を優先", "解析学Ⅰ 2-GHI", "1年", []model.SubjectEligibleAttribute{
+			{Grade: "B2", Class: ptr("G")}, {Grade: "B2", Class: ptr("H")}, {Grade: "B2", Class: ptr("I")},
+		}},
+		{"授業名末尾の学年範囲", "英語 1～3", "", []model.SubjectEligibleAttribute{
+			{Grade: "B1"}, {Grade: "B2"}, {Grade: "B3"},
+		}},
+		{"配当年次の単一学年", "認知科学", "3年", []model.SubjectEligibleAttribute{{Grade: "B3"}}},
+		{"配当年次の列挙", "認知科学", "2,3年", []model.SubjectEligibleAttribute{{Grade: "B2"}, {Grade: "B3"}}},
+		{"大学院修士", "特論", "修士1～2年", []model.SubjectEligibleAttribute{{Grade: "M1"}, {Grade: "M2"}}},
+		{"博士", "特論", "博士1年", []model.SubjectEligibleAttribute{{Grade: "D1"}}},
+		{"解釈できない", "特論", "", nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ParseEligibleAttributes(tt.inName, tt.grades)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ParseEligibleAttributes(%q, %q) = %+v; want %+v", tt.inName, tt.grades, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestParseRequirements(t *testing.T) {
+	req := func(c d.CourseType, r d.SubjectRequirementType) model.SubjectRequirement {
+		return model.SubjectRequirement{Course: string(c), RequirementType: string(r)}
+	}
+	tests := []struct {
+		name    string
+		targets string
+		classes string
+		want    []model.SubjectRequirement
+	}{
+		{"コース指定なしは対象コース全体に適用", "情報システムコース、情報デザインコース", "専門科目 必修", []model.SubjectRequirement{
+			req(d.CourseTypeInformationSystem, d.SubjectRequirementTypeRequired),
+			req(d.CourseTypeInformationDesign, d.SubjectRequirementTypeRequired),
+		}},
+		{"コースごとの指定と選択必修", "情報システムコース、高度ICTコース", "情報システムコース 選択必修\n高度ICTコース 必修", []model.SubjectRequirement{
+			req(d.CourseTypeInformationSystem, d.SubjectRequirementTypeOptionalRequired),
+			req(d.CourseTypeAdvancedICT, d.SubjectRequirementTypeRequired),
+		}},
+		{"記載のない対象コースは選択", "複雑系コース、知能システムコース", "知能システムコース 必修", []model.SubjectRequirement{
+			req(d.CourseTypeIntelligentSystem, d.SubjectRequirementTypeRequired),
+			req(d.CourseTypeComplexSystem, d.SubjectRequirementTypeOptional),
+		}},
+		{"対象コースなし", "", "教養科目 選択", []model.SubjectRequirement{}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ParseRequirements(tt.targets, tt.classes)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ParseRequirements = %+v; want %+v", got, tt.want)
+			}
+		})
+	}
+}

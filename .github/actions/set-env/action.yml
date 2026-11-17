@@ -79,6 +79,7 @@ runs:
           app-bff-api
           user-api
           build-class-change-notifications-job
+          build-subjects-job
           dispatch-notifications-job
         "
         include=""
