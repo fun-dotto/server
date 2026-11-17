@@ -1,7 +1,7 @@
 ---
 root: false
 targets: ["*"]
-globs: ["proto/admin/**/*", "internal/modules/admin/**/*"]
+globs: ["proto/admin/**/*", "internal/modules/adminapi/**/*", "cmd/admin-api/**/*"]
 ---
 
 # Admin API デザインガイドライン

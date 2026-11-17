@@ -118,11 +118,11 @@ func (x *RoomChange) GetNewRoom() *Room {
 type ListRoomChangesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 科目IDのリスト。指定した科目の教室変更のみを取得する。空の場合は全科目を対象とする。
-	SubjectIds []string `protobuf:"bytes,3,rep,name=subject_ids,json=subjectIds,proto3" json:"subject_ids,omitempty"`
+	SubjectIds []string `protobuf:"bytes,1,rep,name=subject_ids,json=subjectIds,proto3" json:"subject_ids,omitempty"`
 	// 検索対象の開始日付。未設定の場合は開始日付で絞り込まない。
-	FromDate *date.Date `protobuf:"bytes,4,opt,name=from_date,json=fromDate,proto3,oneof" json:"from_date,omitempty"`
+	FromDate *date.Date `protobuf:"bytes,2,opt,name=from_date,json=fromDate,proto3,oneof" json:"from_date,omitempty"`
 	// 検索対象の終了日付。未設定の場合は終了日付で絞り込まない。
-	UntilDate     *date.Date `protobuf:"bytes,5,opt,name=until_date,json=untilDate,proto3,oneof" json:"until_date,omitempty"`
+	UntilDate     *date.Date `protobuf:"bytes,3,opt,name=until_date,json=untilDate,proto3,oneof" json:"until_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -236,19 +236,18 @@ const file_app_v1_room_change_proto_rawDesc = "" +
 	"\x04date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x03R\x04date\x12+\n" +
 	"\x06period\x18\x04 \x01(\x0e2\x0e.app.v1.PeriodB\x03\xe0A\x03R\x06period\x126\n" +
 	"\roriginal_room\x18\x05 \x01(\v2\f.app.v1.RoomB\x03\xe0A\x03R\foriginalRoom\x12,\n" +
-	"\bnew_room\x18\x06 \x01(\v2\f.app.v1.RoomB\x03\xe0A\x03R\anewRoom\"\xf4\x01\n" +
+	"\bnew_room\x18\x06 \x01(\v2\f.app.v1.RoomB\x03\xe0A\x03R\anewRoom\"\xd1\x01\n" +
 	"\x16ListRoomChangesRequest\x12$\n" +
-	"\vsubject_ids\x18\x03 \x03(\tB\x03\xe0A\x01R\n" +
+	"\vsubject_ids\x18\x01 \x03(\tB\x03\xe0A\x01R\n" +
 	"subjectIds\x128\n" +
-	"\tfrom_date\x18\x04 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x00R\bfromDate\x88\x01\x01\x12:\n" +
+	"\tfrom_date\x18\x02 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x00R\bfromDate\x88\x01\x01\x12:\n" +
 	"\n" +
-	"until_date\x18\x05 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x01R\tuntilDate\x88\x01\x01B\f\n" +
+	"until_date\x18\x03 \x01(\v2\x11.google.type.DateB\x03\xe0A\x01H\x01R\tuntilDate\x88\x01\x01B\f\n" +
 	"\n" +
 	"_from_dateB\r\n" +
-	"\v_until_dateJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
-	"page_token\"g\n" +
+	"\v_until_date\"P\n" +
 	"\x17ListRoomChangesResponse\x125\n" +
-	"\froom_changes\x18\x01 \x03(\v2\x12.app.v1.RoomChangeR\vroomChangesJ\x04\b\x02\x10\x03R\x0fnext_page_token2g\n" +
+	"\froom_changes\x18\x01 \x03(\v2\x12.app.v1.RoomChangeR\vroomChanges2g\n" +
 	"\x11RoomChangeService\x12R\n" +
 	"\x0fListRoomChanges\x12\x1e.app.v1.ListRoomChangesRequest\x1a\x1f.app.v1.ListRoomChangesResponseB\x84\x01\n" +
 	"\n" +

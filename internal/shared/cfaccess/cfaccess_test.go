@@ -1,4 +1,4 @@
-package middleware
+package cfaccess
 
 import (
 	"crypto/rand"
@@ -16,7 +16,7 @@ import (
 
 const testAud = "test-aud"
 
-func setup(t *testing.T) (*CFAccessVerifier, func(jwt.Claims) string) {
+func setup(t *testing.T) (*Verifier, func(jwt.Claims) string) {
 	t.Helper()
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -28,7 +28,7 @@ func setup(t *testing.T) (*CFAccessVerifier, func(jwt.Claims) string) {
 	}))
 	t.Cleanup(srv.Close)
 
-	v, err := NewCFAccessVerifier(srv.URL, testAud)
+	v, err := NewVerifier(srv.URL, testAud)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,7 +48,7 @@ func setup(t *testing.T) (*CFAccessVerifier, func(jwt.Claims) string) {
 	return v, sign
 }
 
-func TestCFAccessMiddleware(t *testing.T) {
+func TestMiddleware(t *testing.T) {
 	v, sign := setup(t)
 	now := time.Now()
 	valid := jwt.Claims{Issuer: v.issuer, Audience: jwt.Audience{testAud}, Expiry: jwt.NewNumericDate(now.Add(time.Hour)), IssuedAt: jwt.NewNumericDate(now)}
@@ -81,7 +81,7 @@ func TestCFAccessMiddleware(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPost, "/admin.v1.UserService/ListUsers", nil)
 			if tt.token != "" {
-				req.Header.Set(CFAccessJWTHeader, tt.token)
+				req.Header.Set(JWTHeader, tt.token)
 			}
 			rec := httptest.NewRecorder()
 			h.ServeHTTP(rec, req)
@@ -92,17 +92,17 @@ func TestCFAccessMiddleware(t *testing.T) {
 	}
 }
 
-func TestNewCFAccessVerifierRequiresConfig(t *testing.T) {
-	if _, err := NewCFAccessVerifier("", testAud); err == nil {
+func TestNewVerifierRequiresConfig(t *testing.T) {
+	if _, err := NewVerifier("", testAud); err == nil {
 		t.Error("expected error for empty issuer")
 	}
-	if _, err := NewCFAccessVerifier("team.cloudflareaccess.com", testAud); err == nil {
+	if _, err := NewVerifier("team.cloudflareaccess.com", testAud); err == nil {
 		t.Error("expected error for issuer without https://")
 	}
-	if _, err := NewCFAccessVerifier("https://team.cloudflareaccess.com", " "); err == nil {
+	if _, err := NewVerifier("https://team.cloudflareaccess.com", " "); err == nil {
 		t.Error("expected error for empty audience")
 	}
-	v, _ := NewCFAccessVerifier("https://team.cloudflareaccess.com/", testAud)
+	v, _ := NewVerifier("https://team.cloudflareaccess.com/", testAud)
 	if !strings.HasSuffix(v.certsURL, "team.cloudflareaccess.com/cdn-cgi/access/certs") || v.issuer != "https://team.cloudflareaccess.com" {
 		t.Errorf("unexpected urls: %s %s", v.issuer, v.certsURL)
 	}

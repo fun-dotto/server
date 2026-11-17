@@ -91,7 +91,7 @@ func (x *BusTimetableStop) GetDepartureTime() *timestamppb.Timestamp {
 type ListBusTimetableStopsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 運行ID。
-	TripId        string `protobuf:"bytes,3,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
+	TripId        string `protobuf:"bytes,1,opt,name=trip_id,json=tripId,proto3" json:"trip_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -187,12 +187,11 @@ const file_app_v1_bus_timetable_stop_proto_rawDesc = "" +
 	"\x10BusTimetableStop\x12\x1c\n" +
 	"\atrip_id\x18\x01 \x01(\tB\x03\xe0A\x03R\x06tripId\x12(\n" +
 	"\x04stop\x18\x02 \x01(\v2\x0f.app.v1.BusStopB\x03\xe0A\x03R\x04stop\x12F\n" +
-	"\x0edeparture_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\rdepartureTime\"_\n" +
+	"\x0edeparture_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\rdepartureTime\"<\n" +
 	"\x1cListBusTimetableStopsRequest\x12\x1c\n" +
-	"\atrip_id\x18\x03 \x01(\tB\x03\xe0A\x02R\x06tripIdJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03R\tpage_sizeR\n" +
-	"page_token\"\x80\x01\n" +
+	"\atrip_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06tripId\"i\n" +
 	"\x1dListBusTimetableStopsResponse\x12H\n" +
-	"\x13bus_timetable_stops\x18\x01 \x03(\v2\x18.app.v1.BusTimetableStopR\x11busTimetableStopsJ\x04\b\x02\x10\x03R\x0fnext_page_token2\x7f\n" +
+	"\x13bus_timetable_stops\x18\x01 \x03(\v2\x18.app.v1.BusTimetableStopR\x11busTimetableStops2\x7f\n" +
 	"\x17BusTimetableStopService\x12d\n" +
 	"\x15ListBusTimetableStops\x12$.app.v1.ListBusTimetableStopsRequest\x1a%.app.v1.ListBusTimetableStopsResponseB\x8a\x01\n" +
 	"\n" +

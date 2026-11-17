@@ -41,7 +41,7 @@ func main() {
 		}
 	}()
 
-	// マイグレーションは Atlas 専用 Cloud Run Job (cmd/migrate) で適用するため
+	// マイグレーションは GitHub Actions (.github/workflows/migrate-apply.yml) の Atlas で適用するため
 	// API プロセス起動時の AutoMigrate 呼び出しは廃止する。
 
 	spec, err := openapi3.NewLoader().LoadFromData(openapispec.Spec)

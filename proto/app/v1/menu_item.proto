@@ -37,20 +37,14 @@ message MenuItem {
 
 // ListMenuItems の Request。
 message ListMenuItemsRequest {
-  reserved 1, 2;
-  reserved "page_size", "page_token";
-
   // メニューを取得する日付。
-  google.type.Date date = 3 [(google.api.field_behavior) = REQUIRED];
+  google.type.Date date = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // ListMenuItems の Response。
 message ListMenuItemsResponse {
   // メニューの一覧。
   repeated MenuItem menu_items = 1;
-
-  reserved 2;
-  reserved "next_page_token";
 }
 
 // メニューのカテゴリ。

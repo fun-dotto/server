@@ -10,10 +10,10 @@ import (
 	"connectrpc.com/connect"
 	firebaseAdmin "firebase.google.com/go/v4"
 	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
-	"github.com/fun-dotto/server/internal/modules/adminapi/middleware"
 	"github.com/fun-dotto/server/internal/modules/appapi/auth"
 	"github.com/fun-dotto/server/internal/modules/appapi/handler"
 	"github.com/fun-dotto/server/internal/shared/academiccalendar"
+	"github.com/fun-dotto/server/internal/shared/cfaccess"
 	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/server"
@@ -48,7 +48,7 @@ func main() {
 	// Access をかけていない環境（prd）では検証しない。
 	var cfAccess auth.CFAccessVerifier
 	if os.Getenv("CF_ACCESS_ENABLED") == "true" {
-		v, err := middleware.NewCFAccessVerifier(os.Getenv("CF_ACCESS_ISSUER"), os.Getenv("CF_ACCESS_AUD"))
+		v, err := cfaccess.NewVerifier(os.Getenv("CF_ACCESS_ISSUER"), os.Getenv("CF_ACCESS_AUD"))
 		if err != nil {
 			log.Fatalf("Failed to initialize Cloudflare Access verifier: %v", err)
 		}

@@ -67,7 +67,7 @@ runs:
       shell: bash
       run: |
         # デプロイ対象を明示的に列挙する。ここに無い cmd/ ターゲット
-        # (例: atlas-loader, migrate, apply-table-privileges) はデプロイされない。
+        # (例: atlas-loader) はデプロイされない。
         # 末尾が "-api" のターゲットを Cloud Run Service、それ以外を Cloud Run Job として分類する。
         # 対象を増減するときはこの DEPLOY_TARGETS を編集する。
         # TODO: BFF廃止後は、admin-apiとapp-api、各Jobのみになる。
