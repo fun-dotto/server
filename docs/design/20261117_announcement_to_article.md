@@ -6,10 +6,12 @@
 
 | 提供元 | 経路 | 利用者 |
 | --- | --- | --- |
-| App API（Connect） | `app.v1.AnnouncementService/ListAnnouncements` → DB 直接参照 | Web（`/setting/announcements`） |
+| App API（Connect） | `app.v1.AnnouncementService/ListAnnouncements` → DB 直接参照 | Web（`/setting/announcements`）、モバイルアプリ（未リリース） |
 | App BFF API（OpenAPI） | `GET /v1/announcements` → Announcement API（HTTP） | モバイルアプリ |
 | Announcement API（OpenAPI） | CRUD → DB | App BFF API |
-| Admin API（Connect） | `admin.v1.AnnouncementService` の CRUD → DB | 管理画面 |
+| Admin API（Connect） | `admin.v1.AnnouncementService` の CRUD → DB | admin-web |
+
+App API を使うモバイルアプリはまだリリースされていないため、App API は後方互換性を保たずに置き換える。App BFF API はリリース済みのアプリが使うため、後方互換性を保つ。
 
 おしらせは外部 URL へのリンクを並べるだけで、本文を Dotto 側で持てない。また、入稿のために Admin API と Announcement API の 2 系統を保守している。
 
@@ -39,6 +41,7 @@
 - 公開日時は `publishedAt`（初回公開日時）を使う。予約公開は microCMS の予約公開機能で行う。
 - 公開終了（旧 `available_until`）は microCMS の公開終了予約（非公開化）で代替する。
 - サービスは dev / stg / prd で **1 つを共有する**。記事 URL のホストだけを環境ごとの `ARTICLE_BASE_URL` で切り替える。
+  - 記事は読み取り専用で全環境に同じものを見せるため、当面は共有で問題ない。dev で確認のために公開した記事は本番にも表示される点に注意する（詳細ページは draftKey で公開前にプレビューできるが、一覧は公開しないと確認できない）。
 
 #### 認証情報
 
@@ -100,12 +103,14 @@ service ArticleService {
 
 // 記事。
 message Article {
+  // ID。microCMS のコンテンツ ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 記事ページの URL。
-  string url = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string url = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
   // タイトル。
-  string title = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string title = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 公開日時。
-  google.protobuf.Timestamp publish_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp publish_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ListArticles の Request。
@@ -119,7 +124,7 @@ message ListArticlesResponse {
 }
 ```
 
-- フィールドは `url` / `title` / `publish_time` の 3 つのみとする。公開日時は AIP-142 に合わせて `publish_time` とする。
+- フィールドは `id` / `url` / `title` / `publish_time` とする。`id` は microCMS のコンテンツ ID をそのまま返す（アプリの詳細画面が `id` で記事を探すため）。公開日時は AIP-142 に合わせて `publish_time` とする。
 - ページングは設けない（app-api-design.md の方針どおり）。
 
 #### 実装
@@ -182,6 +187,16 @@ OpenAPI スキーマ（`api/openapi/app/openapi.yaml` の `GET /v1/announcements
 - `internal/modules/adminapi/handler/announcement.go` を削除する。
 - `cmd/admin-api/main.go` から `NewAnnouncementServiceHandler` の登録を削除する。
 - 入稿は microCMS の管理画面で行う。
+- admin-web の Announcement 画面を先に削除してから、Admin API の Announcement を削除する。
+
+### proto の破壊的変更
+
+`app/v1/announcement.proto` と `admin/v1/announcement.proto` の削除は `buf breaking`（FILE）に違反する。次の理由から例外として扱う。
+
+- `app.v1.AnnouncementService` を使うのは Web と未リリースのモバイルアプリだけで、どちらも削除前に `ArticleService` へ移行する。
+- `admin.v1.AnnouncementService` を使うのは admin-web だけで、削除前に画面を削除する。
+
+`buf breaking` は CI で実行していないため、CI への対応は不要。手元で実行した場合の失敗は、この 2 ファイルの削除によるものに限り許容する。
 
 ### 7. GORM モデル・DB
 
@@ -212,18 +227,21 @@ OpenAPI スキーマ（`api/openapi/app/openapi.yaml` の `GET /v1/announcements
 
 依存関係があるため、次の順で進める。
 
-1. microCMS に `articles` API を作成し、API キーを Secret Manager に登録する（infra）。
-2. server: microCMS クライアント、App API の `ArticleService`、App BFF のリポジトリ差し替えをデプロイする。ここで BFF の取得元が microCMS に切り替わる。
-3. web: `/articles` を追加し、`/setting/announcements` を削除する。
-4. server: Announcement API・Admin API の Announcement・GORM モデルを削除し、`announcements` を DROP する。
-5. infra: announcement-service のリソースを削除する。
+1. infra: microCMS の設定を追加し（fun-dotto/infra の microCMS 設定の PR）、`microcms-api-key` に API キーを登録する。必要な記事を microCMS に入稿しておく。
+2. web: `/articles` と `/articles/<id>` を追加し、`/setting/announcements` を削除する（`app.v1.AnnouncementService` を呼ばなくする）。
+3. app: `app.v1.AnnouncementService` から `app.v1.ArticleService` に移行する（未リリースのため、次のリリースまでに済ませる）。
+4. server: microCMS クライアント、App API の `ArticleService`（`AnnouncementService` の削除を含む）、App BFF のリポジトリ差し替えをデプロイする。ここで BFF の取得元が microCMS に切り替わる。
+5. admin-web: Announcement 画面を削除する。
+6. server: Announcement API・Admin API の Announcement・GORM モデルを削除し、`announcements` を DROP する。
+7. infra: announcement-service の各 root で `terraform destroy` を実行してから、announcement-service の Terraform 定義と参照を削除する。
 
-2 の時点で既存のおしらせはアプリに表示されなくなる（データは移行しない）。必要な記事は 2 の前に microCMS に入稿しておく。
+4 の時点で既存のおしらせはアプリに表示されなくなる（データは移行しない）。2 と 3 が 4 より後になると、Web の旧ページと開発中のアプリが `AnnouncementService` を呼べなくなる。
 
 ## テスト
 
 - `internal/shared/microcms`: 正常系、ページング（101 件以上）、非 2xx、タイムアウト。
 - App API `ListArticles`: URL の組み立て、並び順。
 - App BFF のリポジトリ: `ID` が UUID 形式で、同じ記事なら同じ値になること。
+- App API `ListArticles`: `id` に microCMS のコンテンツ ID が入ること。
 - App BFF `AnnouncementsV1List`: microCMS のモックから既存スキーマどおりのレスポンスになること（既存の `announcement_v1_test.go` / `service/announcement_test.go` を書き換える）。
 - Web: 一覧・詳細・404 の表示を確認する。
