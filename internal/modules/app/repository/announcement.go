@@ -27,12 +27,12 @@ func NewAnnouncementRepository(articles ArticleLister, articleBaseURL string) *A
 
 // GetAnnouncements は公開中の記事を返す。
 // microCMS は公開中の記事しか返さないため、query.FilterIsActive は常に満たされる。
-func (r *AnnouncementRepository) GetAnnouncements(query domain.AnnouncementQuery) ([]domain.Announcement, error) {
+func (r *AnnouncementRepository) GetAnnouncements(ctx context.Context, query domain.AnnouncementQuery) ([]domain.Announcement, error) {
 	order := microcms.PublishedAtDesc
 	if query.SortByDate != nil && *query.SortByDate == domain.SortDirectionAsc {
 		order = microcms.PublishedAtAsc
 	}
-	articles, err := r.articles.ListArticles(context.Background(), order)
+	articles, err := r.articles.ListArticles(ctx, order)
 	if err != nil {
 		return nil, err
 	}

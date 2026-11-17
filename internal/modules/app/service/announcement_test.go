@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"testing"
 
 	"github.com/fun-dotto/server/internal/modules/app/domain"
@@ -38,7 +39,7 @@ func TestAnnouncementService_GetAnnouncements(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := NewAnnouncementService(tt.repo)
-			announcements, err := svc.GetAnnouncements()
+			announcements, err := svc.GetAnnouncements(context.Background())
 			tt.validate(t, announcements, err)
 		})
 	}

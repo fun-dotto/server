@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"time"
 
 	"github.com/fun-dotto/server/internal/modules/app/domain"
@@ -31,7 +32,7 @@ func NewMockAnnouncementRepositoryWithError(err error) *MockAnnouncementReposito
 	return m
 }
 
-func (m *MockAnnouncementRepository) GetAnnouncements(_ domain.AnnouncementQuery) ([]domain.Announcement, error) {
+func (m *MockAnnouncementRepository) GetAnnouncements(_ context.Context, _ domain.AnnouncementQuery) ([]domain.Announcement, error) {
 	if m.getAnnouncementsErr != nil {
 		return nil, m.getAnnouncementsErr
 	}
