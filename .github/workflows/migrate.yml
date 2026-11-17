@@ -113,10 +113,12 @@ jobs:
       - name: Check destructive migrations
         if: github.event_name == 'pull_request'
         run: |
-          mapfile -t files < <(git diff --name-only --diff-filter=AM HEAD^1 HEAD -- 'migrations/*.sql')
-          if [ "${#files[@]}" -eq 0 ]; then
+          # git diff が失敗した場合に検査を省略しないよう、プロセス置換ではなくコマンド置換で受ける（bash -e で止まる）
+          sql_files="$(git diff --name-only --diff-filter=AM HEAD^1 HEAD -- 'migrations/*.sql')"
+          if [ -z "$sql_files" ]; then
             exit 0
           fi
+          mapfile -t files <<< "$sql_files"
           found="$(grep -nHoE 'DROP (TABLE|COLUMN)|RENAME (TO|COLUMN)|ALTER COLUMN "[^"]+" TYPE|SET NOT NULL|DROP DEFAULT|ADD COLUMN "[^"]+" [^,;]*NOT NULL[^,;]*' "${files[@]}" \
             | grep -vE '^[^:]+:[0-9]+:ADD COLUMN .*(DEFAULT|GENERATED)' || true)"
           if [ -z "$found" ]; then
@@ -125,9 +127,9 @@ jobs:
           while IFS=: read -r file line op; do
             echo "::warning file=${file},line=${line},title=破壊的なマイグレーション::${op}: 1 つ前のコードと互換か確認してください"
           done <<< "$found"
-          mapfile -t go_files < <(git diff --name-only HEAD^1 HEAD -- '*.go' ':!gen/' ':!internal/shared/model/' ':!cmd/atlas-loader/')
-          if [ "${#go_files[@]}" -gt 0 ]; then
-            echo "::error::破壊的なマイグレーションは、Go のコードの変更（${go_files[*]}）と別の PR に分けてください（docs/design/20261110_atlas_migration.md）"
+          go_files="$(git diff --name-only HEAD^1 HEAD -- '*.go' ':!gen/' ':!internal/shared/model/' ':!cmd/atlas-loader/')"
+          if [ -n "$go_files" ]; then
+            echo "::error::破壊的なマイグレーションは、Go のコードの変更（$(echo $go_files)）と別の PR に分けてください（docs/design/20261110_atlas_migration.md）"
             exit 1
           fi
 
