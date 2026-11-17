@@ -23,7 +23,6 @@ concurrency:
 permissions:
   contents: read
 
-# PR・merge queue で保存したキャッシュは他のブランチから使えないため、Go のキャッシュは main への push と定期実行でのみ保存する
 jobs:
   test:
     name: Test
@@ -32,18 +31,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup
-        id: setup
         uses: ./.github/actions/setup
 
       - name: Run unit tests
         run: mise run test
-
-      - name: Save Go cache
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && steps.setup.outputs.cache-hit != 'true'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ steps.setup.outputs.cache-path }}
-          key: ${{ steps.setup.outputs.cache-key }}
 
   build:
     name: Build
@@ -52,18 +43,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup
-        id: setup
         uses: ./.github/actions/setup
 
       - name: Build all binaries
         run: mise run build
-
-      - name: Save Go cache
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && steps.setup.outputs.cache-hit != 'true'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ steps.setup.outputs.cache-path }}
-          key: ${{ steps.setup.outputs.cache-key }}
 
   lint:
     name: Lint
@@ -71,9 +54,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # go mod tidy -diff が追加で取得するモジュールも含めるため、Lint で保存する
       - name: Setup
-        id: setup
         uses: ./.github/actions/setup
+        with:
+          save-mod-cache: true
 
       - name: gofmt
         run: |
@@ -94,13 +79,6 @@ jobs:
       - name: Lint
         run: mise run lint
 
-      - name: Save Go cache
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && steps.setup.outputs.cache-hit != 'true'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ steps.setup.outputs.cache-path }}
-          key: ${{ steps.setup.outputs.cache-key }}
-
   vulncheck:
     name: Vulncheck
     runs-on: ubuntu-latest
@@ -108,15 +86,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup
-        id: setup
         uses: ./.github/actions/setup
 
       - name: govulncheck
         run: mise run vulncheck
-
-      - name: Save Go cache
-        if: (github.event_name == 'push' || github.event_name == 'schedule') && steps.setup.outputs.cache-hit != 'true'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ steps.setup.outputs.cache-path }}
-          key: ${{ steps.setup.outputs.cache-key }}

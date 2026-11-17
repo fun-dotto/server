@@ -1,15 +1,10 @@
 name: Setup
 description: mise でツールを入れ、Go のキャッシュを復元して依存を取得する
-outputs:
-  cache-hit:
-    description: Go のキャッシュがキーに完全一致したか
-    value: ${{ steps.restore.outputs.cache-hit }}
-  cache-key:
-    description: Go のキャッシュのキー
-    value: ${{ steps.restore.outputs.cache-primary-key }}
-  cache-path:
-    description: Go のキャッシュ対象のディレクトリ（改行区切り）
-    value: ${{ steps.go-env.outputs.paths }}
+inputs:
+  save-mod-cache:
+    description: Go のモジュールのキャッシュを保存するか。全ジョブで同じキーになるため、1 ジョブだけ true にする
+    required: false
+    default: "false"
 runs:
   using: composite
   steps:
@@ -19,26 +14,58 @@ runs:
         github_token: ${{ github.token }}
         cache: true
 
-    - name: Get Go environment
+    # PR・merge queue で保存したキャッシュは他のブランチから使えないため、main への push と定期実行でのみ保存する
+    - name: Get Go cache settings
       id: go-env
       shell: bash
+      env:
+        GO_SUM_HASH: ${{ hashFiles('go.sum') }}
       run: |
+        build_prefix="go-build-${RUNNER_OS}-${RUNNER_ARCH}-$(go env GOVERSION)-${GITHUB_JOB}-"
+        save=false
+        if [ "$GITHUB_EVENT_NAME" = push ] || [ "$GITHUB_EVENT_NAME" = schedule ]; then
+          save=true
+        fi
         {
-          echo "version=$(go env GOVERSION)"
-          echo "paths<<EOF"
-          go env GOCACHE GOMODCACHE
-          echo "EOF"
+          echo "gocache=$(go env GOCACHE)"
+          echo "gomodcache=$(go env GOMODCACHE)"
+          echo "mod-key=go-mod-${RUNNER_OS}-${RUNNER_ARCH}-${GO_SUM_HASH}"
+          echo "build-key=${build_prefix}${GO_SUM_HASH}"
+          echo "build-restore-key=${build_prefix}"
+          echo "save=${save}"
         } >> "$GITHUB_OUTPUT"
 
-    # ジョブごとにビルドするものが違うため、キーにジョブ名を含める
-    - name: Restore Go cache
-      id: restore
+    # 中身は全ジョブで同じなので共有する。古い版のモジュールが残り続けないよう、restore-keys は使わない
+    - name: Cache Go modules
+      if: steps.go-env.outputs.save == 'true' && inputs.save-mod-cache == 'true'
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.go-env.outputs.gomodcache }}
+        key: ${{ steps.go-env.outputs.mod-key }}
+
+    - name: Restore Go modules
+      if: steps.go-env.outputs.save != 'true' || inputs.save-mod-cache != 'true'
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
-        path: ${{ steps.go-env.outputs.paths }}
-        key: go-${{ runner.os }}-${{ runner.arch }}-${{ steps.go-env.outputs.version }}-${{ github.job }}-${{ hashFiles('go.sum') }}
-        restore-keys: |
-          go-${{ runner.os }}-${{ runner.arch }}-${{ steps.go-env.outputs.version }}-${{ github.job }}-
+        path: ${{ steps.go-env.outputs.gomodcache }}
+        key: ${{ steps.go-env.outputs.mod-key }}
+
+    # ジョブごとにビルドするものが違うため、キーにジョブ名を含める
+    - name: Cache Go build
+      if: steps.go-env.outputs.save == 'true'
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.go-env.outputs.gocache }}
+        key: ${{ steps.go-env.outputs.build-key }}
+        restore-keys: ${{ steps.go-env.outputs.build-restore-key }}
+
+    - name: Restore Go build
+      if: steps.go-env.outputs.save != 'true'
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.go-env.outputs.gocache }}
+        key: ${{ steps.go-env.outputs.build-key }}
+        restore-keys: ${{ steps.go-env.outputs.build-restore-key }}
 
     # mise bootstrap は go.mod を書き換えるため使わない
     - name: Download Go modules
