@@ -47,12 +47,12 @@ App API を使うモバイルアプリはまだリリースされていないた
 
 | 環境変数 | 内容 | 利用者 |
 | --- | --- | --- |
-| `MICROCMS_SERVICE_DOMAIN` | サービスドメイン（`https://<domain>.microcms.io`） | app-api, app-bff-api, web |
+| `MICROCMS_SERVICE_DOMAIN` | サービスドメイン（`https://<domain>.microcms.io` の `<domain>` 部分。例: `dotto`） | app-api, app-bff-api, web |
 | `MICROCMS_API_KEY` | `articles` の GET 権限のみを持つ API キー | app-api, app-bff-api, web |
 | `ARTICLE_BASE_URL` | 記事 URL のベース（例: `https://dev.fun-dotto.com`） | app-api, app-bff-api |
 
 - API キーは Secret Manager に保存し、Cloud Run（server）と Web のデプロイ先に注入する（infra リポジトリで管理）。
-- 取得は `GET /api/v1/articles` で `fields=id,title,publishedAt`、`orders=-publishedAt` を指定する。下書き・非公開の記事は返らない。
+- 取得は `GET /api/v1/articles` で `fields=id,title,publishedAt`、`orders=-publishedAt,id` を指定する（同じ公開日時の記事があっても offset ページングで順序が安定するよう、`id` を加える）。下書き・非公開の記事は返らない。
 - `limit` の上限が 100 のため、全件取得は `offset` を進めて `totalCount` に達するまで繰り返す。
 
 ### 2. 共通 microCMS クライアント（`internal/shared/microcms`、新規）
@@ -134,6 +134,8 @@ message ListArticlesResponse {
 - `cmd/app-api/main.go`: `NewAnnouncementServiceHandler` を `NewArticleServiceHandler` に置き換える。
 - `internal/modules/appapi/auth/auth_test.go` のダミーハンドラーを Article に置き換える。
 - 認証は既存のサービスと同じ Interceptor を適用する。
+- microCMS の環境変数がない場合も app-api は起動し、`ListArticles` だけが `UNAVAILABLE` を返す（infra の設定より先にデプロイされても App API 全体が落ちないようにするため）。
+- microCMS への呼び出しの失敗は依存先の障害として `UNAVAILABLE` を返す。
 
 ### 4. App BFF API（OpenAPI）
 
@@ -167,7 +169,8 @@ OpenAPI スキーマ（`api/openapi/app/openapi.yaml` の `GET /v1/announcements
 
 #### 起動処理
 
-- `cmd/app-bff-api/main.go`: `clients.Announcement` の代わりに `microcms.NewClientFromEnv()` を渡す。
+- `cmd/app-bff-api/main.go`: `clients.Announcement` の代わりに `microcms.NewClientFromEnv()` を渡す。microCMS の環境変数がない場合は `WithAnnouncementService` を渡さず、既存の `errAnnouncementServiceNotConfigured` の経路でエラーを返す。
+- リクエストの `ctx` を Service・Repository の `GetAnnouncements` に渡し、クライアントの切断やタイムアウトで microCMS への呼び出しも止まるようにする。
 - `internal/shared/apiclient/clients.go` から Announcement API クライアントと `ANNOUNCEMENT_API_URL` を削除する。
 
 ### 5. Announcement API の削除
@@ -208,7 +211,7 @@ OpenAPI スキーマ（`api/openapi/app/openapi.yaml` の `GET /v1/announcements
 ### 8. Web（`fun-dotto/web`）
 
 - `src/lib/microcms.ts` を追加し、Server-side（Server Component）からのみ microCMS を呼ぶ。API キーをクライアントバンドルに含めない（`import "server-only"`）。
-- `/articles`（`src/app/articles/page.tsx`）: 一覧。`fields=id,title,publishedAt`、`orders=-publishedAt`。
+- `/articles`（`src/app/articles/page.tsx`）: 一覧。`fields=id,title,publishedAt`、`orders=-publishedAt,id`。
 - `/articles/[id]`（`src/app/articles/[id]/page.tsx`）: `GET /api/v1/articles/{id}` で `title` / `body` / `publishedAt` を取得してレンダリングする。存在しない ID は `notFound()`。
 - リッチエディタの HTML はサニタイズしてから描画する。
 - キャッシュは ISR（`revalidate`）で行い、必要なら microCMS の Webhook から On-demand Revalidation を叩く。
