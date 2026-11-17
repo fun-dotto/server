@@ -26,7 +26,7 @@
 
 ## 方針
 
-- **過去問のメタデータを Cloud SQL（`past_exams` テーブル）に持ち、試験が実施された年度の科目（`subjects`）に紐付ける。** `syllabus.db` の `過去問` 列は使わない。
+- **過去問のメタデータを Cloud SQL（`past_exam_files` テーブル）に持ち、試験が実施された年度の科目（`subjects`）に紐付ける。** `syllabus.db` の `過去問` 列は使わない。
   - [科目テーブル・シラバステーブル再設計](./20261109_subject_syllabus_redesign.md) により、`subjects` は `(lesson_id, year)` ごとに作られる。2024 年度の期末試験は 2024 年度の科目に紐付ける。毎年の紐付け直しは不要（過去の科目に紐付いたまま）。
   - 閲覧時は、紐付いたシラバスの `lesson_id` が同じ科目（= 同じ授業の他年度）の過去問もまとめて返す。担当教員の違いなどは科目ごとの情報で分かる。
 - **ファイルは GCS の非公開バケットに置く。** アプリは GCS に直接の資格情報を持たない。
@@ -62,60 +62,44 @@ IAM:
 #### オブジェクトキー
 
 ```
-past-exams/{past_exam_id}/{file_id}.pdf
+past-exams/{file_id}.pdf
 ```
 
-- ID はいずれも UUID。表示名・年度などはキーに含めず DB に持つ（リネームでオブジェクトを動かさない）。
-- `Content-Type: application/pdf`、`Content-Disposition` はダウンロード URL 発行時に `response-content-disposition` で元ファイル名を指定する。
+- `file_id` は UUID（`past_exam_files.id`）。表示名・年度などはキーに含めず DB に持つ（リネームでオブジェクトを動かさない）。
+- `Content-Type: application/pdf` で保存する。ダウンロード時のファイル名は URL 発行時に `response-content-disposition` で `title` から指定する。
 
 ### 2. DB スキーマ（server、Atlas マイグレーション追加）
 
-1 科目に「過去問セット」が複数（年度・試験ごと）あり、1 セットに複数ファイル（問題・解答・追試等）がある、という 2 階層にする。
-
-#### `past_exams`
-
-| 列 | 型 | 備考 |
-| --- | --- | --- |
-| `id` | uuid PK | `gen_random_uuid()` |
-| `subject_id` | uuid NOT NULL | FK → `subjects.id`（`ON DELETE CASCADE`）。インデックス。実施年度は `subjects.year` で決まるため `year` 列は持たない |
-| `exam_type` | text NOT NULL | `midterm` / `final` / `quiz` / `makeup` / `other` |
-| `title` | text NOT NULL | 表示名（例: `2024 期末`）。空なら年度・種別から生成して表示 |
-| `note` | text NOT NULL DEFAULT `''` | 補足 |
-| `created_at` / `updated_at` | timestamptz | `Common` |
-
-- 並び順: `subjects.year DESC, exam_type, title`
+過去問は構造化されたデータではないため、**1 科目に複数の過去問ファイルが所属する 1 階層** にする。テーブルは `past_exam_files` の 1 つだけ。
 
 #### `past_exam_files`
 
 | 列 | 型 | 備考 |
 | --- | --- | --- |
-| `id` | uuid PK | |
-| `past_exam_id` | uuid NOT NULL | FK → `past_exams.id`（`ON DELETE CASCADE`）。インデックス |
-| `kind` | text NOT NULL | `question` / `answer` / `other` |
-| `file_name` | text NOT NULL | 元のファイル名（表示・ダウンロード名） |
-| `object_key` | text NOT NULL UNIQUE | GCS のキー |
-| `content_type` | text NOT NULL | 当面 `application/pdf` のみ許可 |
+| `id` | uuid PK | `gen_random_uuid()` |
+| `subject_id` | uuid NOT NULL | FK → `subjects.id`（`ON DELETE CASCADE`）。インデックス。実施年度は `subjects.year` で決まる |
+| `title` | text NOT NULL | 表示名（例: `2024 期末 問題`）。ダウンロード時のファイル名にも使う |
+| `object_key` | text NOT NULL UNIQUE | GCS のキー。Content-Type などのオブジェクト属性が必要になれば、ここから GCS を引く |
 | `size_bytes` | bigint NOT NULL | |
 | `sha256` | text NOT NULL | 重複検出・移行検証用 |
-| `status` | text NOT NULL | `pending`（URL 発行済み・未アップロード） / `ready` |
-| `display_order` | bigint NOT NULL DEFAULT 0 | |
-| `created_at` / `updated_at` | timestamptz | |
+| `created_at` / `updated_at` | timestamptz | `Common` |
 
-- アプリには `status = 'ready'` のみ返す。
-- 同じ授業の他年度の過去問は、`subjects` → `syllabuses`（`syllabus_id`）を JOIN し、`syllabuses.lesson_id` が同じ科目の `past_exams` として引く。`subjects.syllabus_id` は UNIQUE で、付け替えも同じ `(lesson_id, year)` 内に限られる（再設計の admin-api バリデーション）ため、シラバスのバージョンが変わっても紐付けは崩れない。
+- 並び順: `subjects.year DESC, title`
+- 行は GCS へのアップロード完了後に作成するため、アップロード状態の列は持たない（「Admin API」参照）。
+- 同じ授業の他年度の過去問は、`subjects` → `syllabuses`（`syllabus_id`）を JOIN し、`syllabuses.lesson_id` が同じ科目の `past_exam_files` として引く。`subjects.syllabus_id` は UNIQUE で、付け替えも同じ `(lesson_id, year)` 内に限られる（再設計の admin-api バリデーション）ため、シラバスのバージョンが変わっても紐付けは崩れない。
 
 ```sql
-SELECT pe.*, s.year
-FROM past_exams pe
-JOIN subjects s ON s.id = pe.subject_id
+SELECT f.*, s.year
+FROM past_exam_files f
+JOIN subjects s ON s.id = f.subject_id
 JOIN syllabuses sy ON sy.id = s.syllabus_id
 WHERE sy.lesson_id = (
   SELECT sy2.lesson_id FROM subjects s2 JOIN syllabuses sy2 ON sy2.id = s2.syllabus_id WHERE s2.id = $1
 )
-ORDER BY s.year DESC, pe.exam_type, pe.title;
+ORDER BY s.year DESC, f.title;
 ```
 
-GORM モデルは `internal/shared/model/past_exam.go` に `PastExam` / `PastExamFile` として追加し、`cmd/atlas-loader` に登録、`mise run migrate:diff` でマイグレーションを生成する。ER 図（`docs/er-diagram.md`）も更新する。
+GORM モデルは `internal/shared/model/past_exam_file.go` に `PastExamFile` として追加し、`cmd/atlas-loader` に登録、`mise run migrate:diff` でマイグレーションを生成する。ER 図（`docs/er-diagram.md`）も更新する。
 
 ### 3. App API（Connect RPC）
 
@@ -125,31 +109,24 @@ GORM モデルは `internal/shared/model/past_exam.go` に `PastExam` / `PastExa
 // 過去問を提供する。大学アカウントでログインしたユーザーのみ利用できる。
 service PastExamService {
   // 科目の過去問を一覧する。
-  rpc ListPastExams(ListPastExamsRequest) returns (ListPastExamsResponse);
+  rpc ListPastExamFiles(ListPastExamFilesRequest) returns (ListPastExamFilesResponse);
   // 過去問ファイルのダウンロード URL を発行する。
   rpc GetPastExamFileDownloadUrl(GetPastExamFileDownloadUrlRequest) returns (GetPastExamFileDownloadUrlResponse);
 }
 
+// 過去問ファイル。
 message PastExamFile {
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-  PastExamFileKind kind = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-  string file_name = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-  int64 size_bytes = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-message PastExam {
-  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-  // 実施年度（紐付いた科目の年度）。
-  int32 year = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-  PastExamType exam_type = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-  string title = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
-  string note = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
-  repeated PastExamFile files = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 紐付いた科目の ID。
-  string subject_id = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string subject_id = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 実施年度（紐付いた科目の年度）。
+  int32 year = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 表示名。
+  string title = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  int64 size_bytes = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-message ListPastExamsRequest {
+message ListPastExamFilesRequest {
   // 対象の授業。どちらか一方を指定する。
   // 同じ授業（lesson_id）の全年度の科目に紐付いた過去問を返す。
   oneof target {
@@ -159,8 +136,8 @@ message ListPastExamsRequest {
     string lesson_id = 2;
   }
 }
-message ListPastExamsResponse {
-  repeated PastExam past_exams = 1;
+message ListPastExamFilesResponse {
+  repeated PastExamFile past_exam_files = 1;
 }
 
 message GetPastExamFileDownloadUrlRequest {
@@ -175,9 +152,9 @@ message GetPastExamFileDownloadUrlResponse {
 }
 ```
 
-- 列挙型 `PastExamType` / `PastExamFileKind` は既存の proto に倣い `*_UNSPECIFIED = 0` を置く。`buf lint` / `api-linter` を通す。
+- `buf lint` / `api-linter` を通す。
 - 一覧には URL を含めない（一覧表示のたびに署名を発行しない。期限切れ URL がキャッシュに残らない）。
-- `Subject` メッセージに `past_exam_count`（`int32`）を追加し、科目詳細で過去問タブの出し分けに使えるようにする（一覧 RPC を呼ぶ前に有無が分かる）。
+- `Subject` メッセージに `past_exam_file_count`（`int32`）を追加し、科目詳細で過去問タブの出し分けに使えるようにする（一覧 RPC を呼ぶ前に有無が分かる）。
 
 #### 認可
 
@@ -186,13 +163,13 @@ message GetPastExamFileDownloadUrlResponse {
   - `b` は学部生、`g` は大学院生のアカウント。教員・職員など、これ以外の `@fun.ac.jp` アカウントは閲覧できない。
   - 大文字小文字の揺れに備え、比較前に `email` を小文字にする。
   - `auth.User` に `EmailVerified` を追加し、`FirebaseIDTokenVerifier` でクレームから詰める。判定は `IsStudent()` などの関数に切り出してテストする。
-- 存在しない ID は `NotFound`。`status != ready` のファイルも `NotFound` とする。
+- 存在しない ID は `NotFound`。
 
 #### 署名付き URL
 
 - `cloud.google.com/go/storage` の `BucketHandle.SignedURL`（`SigningScheme: SigningSchemeV4`、`Method: GET`）。Cloud Run 上では鍵ファイルを使わず、`GoogleAccessID` に実行 SA を指定し IAM Credentials API の `signBlob` で署名する（ライブラリが自動で行う）。
 - 有効期限は **5 分**（`PAST_EXAM_SIGNED_URL_TTL`、既定 `5m`）。アプリは取得直後にダウンロードするので短くてよい。
-- `response-content-disposition=attachment; filename*=UTF-8''<file_name>` と `response-content-type=application/pdf` を付ける。
+- `response-content-disposition=attachment; filename*=UTF-8''<title>.pdf` と `response-content-type=application/pdf` を付ける。
 - 発行時に `slog` で `user_id` / `file_id` を記録する（監査用。GCS のデータアクセス監査ログはコストを見て stg で試してから prd で有効化を判断）。
 
 #### 実装配置
@@ -207,25 +184,25 @@ message GetPastExamFileDownloadUrlResponse {
 
 | RPC | 内容 |
 | --- | --- |
-| `ListPastExams` / `GetPastExam` | 科目 ID 等で検索 |
-| `CreatePastExam` / `UpdatePastExam` / `DeletePastExam` | メタデータの操作。削除時は配下のファイルの GCS オブジェクトも削除 |
-| `CreatePastExamFileUpload` | `past_exam_files` を `pending` で作成し、署名付き PUT URL（15 分、`Content-Type: application/pdf` 固定）を返す |
-| `CompletePastExamFileUpload` | GCS のオブジェクト属性（存在・サイズ・Content-Type）を確認し、`sha256` を計算して `ready` にする |
+| `ListPastExamFiles` / `GetPastExamFile` | 科目 ID 等で検索 |
+| `CreatePastExamFileUploadUrl` | 新しい `file_id` を採番し、`past-exams/{file_id}.pdf` への署名付き PUT URL（15 分、`Content-Type: application/pdf` 固定）を返す。DB には書かない |
+| `CreatePastExamFile` | `file_id`・`subject_id`・`title` を受け取り、GCS にオブジェクトが存在することを確認して `size_bytes`・`sha256` を計算し、行を作成する |
+| `UpdatePastExamFile` | `title`・`subject_id` の変更 |
 | `DeletePastExamFile` | DB 行と GCS オブジェクトを削除 |
 
 - サイズ上限 50 MB（PUT URL に `x-goog-content-length-range` を付ける）。
-- `pending` のまま 24 時間経過した行とオブジェクトは掃除する（既存の batch-jobs に追加するか、当面は手動。「未決事項」参照）。
+- PUT 後に `CreatePastExamFile` が呼ばれなかったオブジェクトは DB から参照されないまま残る。バケットのライフサイクルルールでは判別できないため、DB に行のないオブジェクトを当面は手動で掃除する（「未決事項」参照）。
 
 ### 5. アプリ（app リポジトリ）
 
 | 変更 | 内容 |
 | --- | --- |
 | データ層 | `PastExamDataSource` を Connect クライアント（`PastExamService`）に置き換える。`S3DataSource` / `s3ClientProvider` / `minio` 依存を削除 |
-| ドメイン | `PastExamRepository.fetchKeys(String)` → `fetchPastExams(subjectId)`（`PastExam` / `PastExamFile` エンティティを追加）と `fetchDownloadUrl(fileId)` |
+| ドメイン | `PastExamRepository.fetchKeys(String)` → `fetchPastExamFiles(subjectId)`（`PastExamFile` エンティティを追加）と `fetchDownloadUrl(fileId)` |
 | PDF | `PdfRepository.download` の `isPastExam` 分岐を削除。ダウンロード URL を取得してから既存の `_downloadWeb`（HTTP GET）で取得する。`CloudflarePdfViewer` は `PastExamPdfViewer` に改名し、URL 取得 → `WebPdfViewer` の順に呼ぶ |
-| 紐付け | `SubjectDataSource.readPastExamId` と `Subject.pastExamId` を削除。API の科目なら `subject_id`、`syllabus.db` 由来の科目なら `LessonId` を `lesson_id` に指定して一覧を取得する。API の科目では過去問タブを `pastExamCount > 0`（同じ授業の全年度分の件数）で表示 |
+| 紐付け | `SubjectDataSource.readPastExamId` と `Subject.pastExamId` を削除。API の科目なら `subject_id`、`syllabus.db` 由来の科目なら `LessonId` を `lesson_id` に指定して一覧を取得する。API の科目では過去問タブを `pastExamFileCount > 0`（同じ授業の全年度分の件数）で表示 |
 | ルーティング | `:pastExamId`（オブジェクトキー）→ `:fileId`（UUID）。ディープリンクの互換は不要（キーは外部共有していない想定） |
-| 画面 | 一覧を年度・試験種別でグルーピングし、ファイルごとに「問題 / 解答」を表示 |
+| 画面 | 一覧を年度でグルーピングし、`title` を表示 |
 | 認可エラー | `PermissionDenied` の場合は「学生の大学アカウント（b/g + 学籍番号）でログインしてください」を表示 |
 | 設定 | `CLOUDFLARE_R2_*` の `--dart-define` と CI シークレットを削除 |
 | テスト | `fake_past_exam_data_source.dart` を新インターフェースに合わせて更新 |
@@ -239,10 +216,10 @@ message GetPastExamFileDownloadUrlResponse {
 1. R2 のバケットを列挙し、`{pastExamId}/{ファイル名}` のキー一覧を作る。
 2. `syllabus.db` の `detail` から `過去問` → `LessonId` の対応を取る。ファイル名から実施年度を推定し、`syllabuses.lesson_id` と `subjects.year` が一致する科目に紐付ける。
    - 年度が推定できない、またはその年度の科目がない（シラバス取得ジョブで過去年度を取得していない等）ものはレポートに出す。必要な年度のシラバス取得・科目生成ジョブを実行してから再実行するか、手動で判断する。
-3. ファイル名から試験種別・問題 / 解答を推定する（推定できなければ `exam_type = other`、`kind = other`。管理画面で後から修正）。
-4. 各ファイルを R2 から取得し、`sha256` を計算して GCS（`past-exams/{past_exam_id}/{file_id}.pdf`）にアップロード、DB に `ready` で登録する。同一 `sha256` は重複として 1 つにまとめる。
+3. `title` は R2 のファイル名（拡張子なし）をそのまま使う（管理画面で後から修正できる）。
+4. 各ファイルを R2 から取得し、`sha256` を計算して GCS（`past-exams/{file_id}.pdf`）にアップロードしてから DB に登録する。同一 `sha256` は重複として 1 つにまとめる。
 5. 件数・合計サイズ・ハッシュを R2 側と突き合わせたレポートを出す。
-6. dev → stg → prd の順に実行する。スクリプトは冪等にする（`object_key` 生成を R2 キーからの UUIDv5（`internal/shared/uuidv5`）にし、再実行で重複しない）。
+6. dev → stg → prd の順に実行する。スクリプトは冪等にする（`file_id` を R2 キーからの UUIDv5（`internal/shared/uuidv5`）にし、再実行で重複しない）。
 
 ### 7. ロールアウト
 
@@ -269,6 +246,6 @@ R2 のキー失効までは課題 1 が残るため、段階 6 までの期間�
 
 ## 未決事項
 
-- `pending` ファイルの掃除をバッチジョブ化するか。
+- DB に行のない GCS オブジェクト（アップロード後に登録されなかったもの）の掃除をバッチジョブ化するか。
 - アプリ内でのダウンロード済み PDF のキャッシュ（現状は毎回取得）。
 - 学生からの過去問投稿機能（将来。Admin API のアップロードフローを App API に流用できる形にしておく）。
