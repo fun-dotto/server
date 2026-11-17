@@ -33,8 +33,9 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      # 復元したキャッシュのテスト結果で失敗を見逃さないよう、毎回実行する
       - name: Run unit tests
-        run: mise run test
+        run: mise run test -count=1
 
   build:
     name: Build
