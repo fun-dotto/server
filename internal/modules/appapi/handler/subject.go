@@ -61,7 +61,7 @@ func (h *Handler) ListSubjects(ctx context.Context, req *connect.Request[appv1.L
 	}
 
 	var records []model.Subject
-	if err := query.Order("syllabus_id ASC").Find(&records).Error; err != nil {
+	if err := query.Order(model.SubjectOrderByLessonID).Find(&records).Error; err != nil {
 		return nil, internalError(ctx, "ListSubjects", err)
 	}
 	return connect.NewResponse(&appv1.ListSubjectsResponse{

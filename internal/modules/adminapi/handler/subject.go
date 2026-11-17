@@ -149,7 +149,7 @@ func subjectFromProto(in subjectInput, s fieldSet) (model.Subject, error) {
 		m.CulturalSubjectCategory = subjectCulturalSubjectCategoryEnum.toDB(&v, "cultural_subject_category", in.GetCulturalSubjectCategory(), false)
 	}
 	if s.has("syllabus_id") {
-		m.SyllabusID = requireString(&v, "syllabus_id", in.GetSyllabusId())
+		m.SyllabusID = parseUUID(&v, "syllabus_id", in.GetSyllabusId())
 	}
 	if s.has("faculties") {
 		for i, f := range in.GetFaculties() {
@@ -190,7 +190,7 @@ func subjectToProto(m model.Subject) *adminv1.Subject {
 		Credit:                  int32(m.Credit),
 		Classification:          subjectClassificationEnum.fromDB(m.Classification),
 		CulturalSubjectCategory: subjectCulturalSubjectCategoryEnum.fromDB(m.CulturalSubjectCategory),
-		SyllabusId:              m.SyllabusID,
+		SyllabusId:              m.SyllabusID.String(),
 		CreatedAt:               toTimestamp(m.CreatedAt),
 		UpdatedAt:               toTimestamp(m.UpdatedAt),
 	}

@@ -466,7 +466,7 @@ type Subject struct {
 	Classification SubjectClassification `protobuf:"varint,6,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
 	// 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
 	CulturalSubjectCategory SubjectCulturalSubjectCategory `protobuf:"varint,7,opt,name=cultural_subject_category,json=culturalSubjectCategory,proto3,enum=admin.v1.SubjectCulturalSubjectCategory" json:"cultural_subject_category,omitempty"`
-	// シラバスID。
+	// 紐付けるシラバスのバージョンID（UUID）。1 つのバージョンは 1 科目からのみ参照できる。
 	SyllabusId string `protobuf:"bytes,8,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
 	// 担当教員。
 	Faculties []*SubjectFaculty `protobuf:"bytes,9,rep,name=faculties,proto3" json:"faculties,omitempty"`
@@ -820,7 +820,7 @@ type CreateSubjectRequest struct {
 	Classification SubjectClassification `protobuf:"varint,5,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
 	// 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
 	CulturalSubjectCategory SubjectCulturalSubjectCategory `protobuf:"varint,6,opt,name=cultural_subject_category,json=culturalSubjectCategory,proto3,enum=admin.v1.SubjectCulturalSubjectCategory" json:"cultural_subject_category,omitempty"`
-	// シラバスID。
+	// 紐付けるシラバスのバージョンID（UUID）。1 つのバージョンは 1 科目からのみ参照できる。
 	SyllabusId string `protobuf:"bytes,7,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
 	// 担当教員。
 	Faculties []*SubjectFaculty `protobuf:"bytes,8,rep,name=faculties,proto3" json:"faculties,omitempty"`
@@ -995,7 +995,7 @@ type UpdateSubjectRequest struct {
 	Classification SubjectClassification `protobuf:"varint,6,opt,name=classification,proto3,enum=admin.v1.SubjectClassification" json:"classification,omitempty"`
 	// 教養科目カテゴリ。教養科目以外では UNSPECIFIED。
 	CulturalSubjectCategory SubjectCulturalSubjectCategory `protobuf:"varint,7,opt,name=cultural_subject_category,json=culturalSubjectCategory,proto3,enum=admin.v1.SubjectCulturalSubjectCategory" json:"cultural_subject_category,omitempty"`
-	// シラバスID。
+	// 紐付けるシラバスのバージョンID（UUID）。1 つのバージョンは 1 科目からのみ参照できる。
 	SyllabusId string `protobuf:"bytes,8,opt,name=syllabus_id,json=syllabusId,proto3" json:"syllabus_id,omitempty"`
 	// 担当教員。
 	Faculties []*SubjectFaculty `protobuf:"bytes,9,rep,name=faculties,proto3" json:"faculties,omitempty"`
