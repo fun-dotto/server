@@ -134,8 +134,11 @@ jobs:
     if: >-
       !cancelled()
       && (github.event_name == 'push' || inputs.action != 'build-push')
+      && needs.set-env.result == 'success'
       && (needs.verify-image.result == 'success' || needs.verify-image.result == 'skipped')
+    # verify-image の skipped は set-env の失敗（Reject prd など）でも起きるため、set-env の成功も明示的に確認する。
     needs:
+      - set-env
       - verify-image
     uses: ./.github/workflows/migrate-apply.yml
     with:
