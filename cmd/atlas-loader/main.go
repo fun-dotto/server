@@ -26,6 +26,7 @@ func main() {
 		&model.NotificationTargetUser{},
 		&model.Room{},
 		&model.RoomChange{},
+		&model.RoomReservation{},
 		&model.Route{},
 		&model.Stop{},
 		&model.StopTime{},
