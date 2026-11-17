@@ -78,13 +78,15 @@ func main() {
 		log.Fatalf("Failed to load academic calendar: %v", err)
 	}
 
-	articles, err := microcms.NewClientFromEnv()
-	if err != nil {
-		log.Fatalf("Failed to initialize microCMS client: %v", err)
-	}
-	articleBaseURL, err := microcms.ArticleBaseURLFromEnv()
-	if err != nil {
-		log.Fatalf("Failed to load article base URL: %v", err)
+	// microCMS が未設定でも App API 全体は起動させ、ListArticles だけ UNAVAILABLE にする。
+	var articles handler.ArticleLister
+	var articleBaseURL string
+	if c, err := microcms.NewClientFromEnv(); err != nil {
+		log.Printf("Warning: articles are unavailable: %v", err)
+	} else if u, err := microcms.ArticleBaseURLFromEnv(); err != nil {
+		log.Printf("Warning: articles are unavailable: %v", err)
+	} else {
+		articles, articleBaseURL = c, u
 	}
 
 	h := handler.New(conn, calendar, articles, articleBaseURL)

@@ -84,6 +84,17 @@ func userNotFound() error {
 		"user not found; create the user with UpdateUser first", nil)
 }
 
+// unavailable は依存先（microCMS など）に到達できない、または未設定の場合のエラー。リトライ可能。
+func unavailable(ctx context.Context, operation string, err error) error {
+	switch {
+	case errors.Is(err, context.DeadlineExceeded), errors.Is(err, context.Canceled):
+		return internalError(ctx, operation, err)
+	default:
+		slog.WarnContext(ctx, "app-api dependency unavailable", "operation", operation, "error", err)
+		return newError(connect.CodeUnavailable, "UNAVAILABLE", "service temporarily unavailable", nil)
+	}
+}
+
 // internalError は DB などのエラーを Connect のエラーに変換する。
 func internalError(ctx context.Context, operation string, err error) error {
 	switch {
