@@ -45,7 +45,6 @@ func main() {
 	opts := connect.WithInterceptors(interceptor.Timeout(handlerTimeout), interceptor.RecordError())
 
 	mux := http.NewServeMux()
-	mux.Handle(adminv1connect.NewAnnouncementServiceHandler(handler.NewAnnouncementHandler(conn), opts))
 	mux.Handle(adminv1connect.NewCalendarServiceHandler(handler.NewCalendarHandler(conn), opts))
 	mux.Handle(adminv1connect.NewCalendarDateServiceHandler(handler.NewCalendarDateHandler(conn), opts))
 	mux.Handle(adminv1connect.NewCancelledClassServiceHandler(handler.NewCancelledClassHandler(conn), opts))
