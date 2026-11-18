@@ -91,10 +91,11 @@ func main() {
 
 	h := handler.New(conn, calendar, articles, articleBaseURL)
 
-	appCheck := auth.AppCheckTokenVerifierFunc(func(token string) error {
-		_, err := appCheckClient.VerifyToken(token)
-		return err
-	})
+	// App Check トークンは使い捨てとして検証し、許可したアプリ（iOS / Android）のものだけを受け付ける。
+	appCheck, err := auth.NewAppCheck(appCheckClient, os.Getenv("APP_CHECK_ALLOWED_APP_IDS"))
+	if err != nil {
+		log.Fatalf("Failed to initialize App Check verifier: %v", err)
+	}
 	opts := connect.WithInterceptors(
 		interceptor.Timeout(handlerTimeout),
 		interceptor.RecordError(),
