@@ -1,111 +1,30 @@
 package main
 
 import (
-	"archive/zip"
 	"context"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
-	"path/filepath"
 
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/gtfs/service"
 	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	scheduleURL := os.Getenv("GTFS_SCHEDULE_URL")
-	if scheduleURL == "" {
-		log.Fatal("GTFS_SCHEDULE_URL is not set")
-	}
-	if err := downloadAndExtract(scheduleURL); err != nil {
+	if err := run(); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func downloadAndExtract(url string) error {
-	tempDir, err := os.MkdirTemp("", "gtfs-import-")
-	if err != nil {
-		return fmt.Errorf("create temporary directory: %w", err)
-	}
-	defer os.RemoveAll(tempDir)
-
-	response, err := http.Get(url)
-	if err != nil {
-		return fmt.Errorf("download ZIP: %w", err)
-	}
-	defer response.Body.Close()
-	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-		return fmt.Errorf("download ZIP: unexpected HTTP status %s", response.Status)
-	}
-
-	archivePath := filepath.Join(tempDir, "feed.zip")
-	archive, err := os.Create(archivePath)
-	if err != nil {
-		return fmt.Errorf("create temporary ZIP file: %w", err)
-	}
-	if _, err := io.Copy(archive, response.Body); err != nil {
-		archive.Close()
-		return fmt.Errorf("save downloaded ZIP: %w", err)
-	}
-	if err := archive.Close(); err != nil {
-		return fmt.Errorf("close downloaded ZIP: %w", err)
-	}
-
-	reader, err := zip.OpenReader(archivePath)
-	if err != nil {
-		return fmt.Errorf("open downloaded ZIP: %w", err)
-	}
-	defer reader.Close()
-
-	extractDir := filepath.Join(tempDir, "extracted")
-	for _, file := range reader.File {
-		if !filepath.IsLocal(file.Name) {
-			return fmt.Errorf("ZIP contains an unsafe file path: %q", file.Name)
-		}
-
-		path := filepath.Join(extractDir, file.Name)
-		if file.FileInfo().IsDir() {
-			if err := os.MkdirAll(path, 0755); err != nil {
-				return fmt.Errorf("create directory %q: %w", file.Name, err)
-			}
-			continue
-		}
-
-		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-			return fmt.Errorf("create parent directory for %q: %w", file.Name, err)
-		}
-		source, err := file.Open()
-		if err != nil {
-			return fmt.Errorf("open ZIP entry %q: %w", file.Name, err)
-		}
-		destination, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
-		if err != nil {
-			source.Close()
-			return fmt.Errorf("create extracted file %q: %w", file.Name, err)
-		}
-		_, copyErr := io.Copy(destination, source)
-		sourceErr := source.Close()
-		destinationErr := destination.Close()
-		if copyErr != nil {
-			return fmt.Errorf("extract file %q: %w", file.Name, copyErr)
-		}
-		if sourceErr != nil {
-			return fmt.Errorf("close ZIP entry %q: %w", file.Name, sourceErr)
-		}
-		if destinationErr != nil {
-			return fmt.Errorf("close extracted file %q: %w", file.Name, destinationErr)
-		}
-		fmt.Println(file.Name)
-	}
-
-	models, err := loadGTFSModels(extractDir)
-	if err != nil {
-		return fmt.Errorf("convert GTFS files to models: %w", err)
-	}
+func run() error {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found: %v", err)
+	}
+
+	scheduleURL := os.Getenv("GTFS_SCHEDULE_URL")
+	if scheduleURL == "" {
+		return fmt.Errorf("GTFS_SCHEDULE_URL is not set")
 	}
 
 	conn, err := db.ConnectWithConnectorIAMAuthN()
@@ -118,22 +37,5 @@ func downloadAndExtract(url string) error {
 		}
 	}()
 
-	if err := storeGTFSModels(context.Background(), conn, models); err != nil {
-		return fmt.Errorf("store GTFS models: %w", err)
-	}
-	fmt.Println("stored GTFS models:")
-	fmt.Printf(
-		"calendars=%d\ncalendar_dates=%d\nzones=%d\nfare_attributes=%d\nfare_rules=%d\nroutes=%d\nstops=%d\ntrips=%d\nstop_times=%d\n",
-		len(models.calendars),
-		len(models.calendarDates),
-		len(models.zones),
-		len(models.fareAttributes),
-		len(models.fareRules),
-		len(models.routes),
-		len(models.stops),
-		len(models.trips),
-		len(models.stopTimes),
-	)
-
-	return nil
+	return service.New(conn).Import(context.Background(), scheduleURL)
 }
