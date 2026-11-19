@@ -1,7 +1,6 @@
-package main
+package parser
 
 import (
-	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -13,9 +12,9 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/fun-dotto/server/internal/modules/batch-jobs/gtfs/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/shopspring/decimal"
-	"gorm.io/gorm"
 )
 
 type gtfsModels struct {
@@ -28,6 +27,24 @@ type gtfsModels struct {
 	stops          []model.Stop
 	trips          []model.Trip
 	stopTimes      []model.StopTime
+}
+
+func Parse(directory string) (domain.Schedule, error) {
+	models, err := loadGTFSModels(directory)
+	if err != nil {
+		return domain.Schedule{}, err
+	}
+	return domain.Schedule{
+		Calendars:      models.calendars,
+		CalendarDates:  models.calendarDates,
+		Zones:          models.zones,
+		FareAttributes: models.fareAttributes,
+		FareRules:      models.fareRules,
+		Routes:         models.routes,
+		Stops:          models.stops,
+		Trips:          models.trips,
+		StopTimes:      models.stopTimes,
+	}, nil
 }
 
 func loadGTFSModels(directory string) (gtfsModels, error) {
@@ -315,68 +332,4 @@ func parseGTFSDate(value, filename, field string, line int) (time.Time, error) {
 		return time.Time{}, fmt.Errorf("%s line %d: invalid %s %q: %w", filename, line, field, value, err)
 	}
 	return date, nil
-}
-
-func storeGTFSModels(ctx context.Context, db *gorm.DB, models gtfsModels) error {
-	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := clearGTFSData(tx); err != nil {
-			return err
-		}
-		if err := createGTFSBatch(tx, "calendars", models.calendars); err != nil {
-			return err
-		}
-		if err := createGTFSBatch(tx, "zones", models.zones); err != nil {
-			return err
-		}
-		if err := createGTFSBatch(tx, "fare_attributes", models.fareAttributes); err != nil {
-			return err
-		}
-		if err := createGTFSBatch(tx, "routes", models.routes); err != nil {
-			return err
-		}
-		if err := createGTFSBatch(tx, "stops", models.stops); err != nil {
-			return err
-		}
-		if err := createGTFSBatch(tx, "trips", models.trips); err != nil {
-			return err
-		}
-		if err := createGTFSBatch(tx, "calendar_dates", models.calendarDates); err != nil {
-			return err
-		}
-		if err := createGTFSBatch(tx, "fare_rules", models.fareRules); err != nil {
-			return err
-		}
-		return createGTFSBatch(tx, "stop_times", models.stopTimes)
-	})
-}
-
-func clearGTFSData(tx *gorm.DB) error {
-	tables := []string{
-		"stop_times",
-		"calendar_dates",
-		"fare_rules",
-		"trips",
-		"stops",
-		"fare_attributes",
-		"routes",
-		"zones",
-		"calendars",
-	}
-	for _, table := range tables {
-		if err := tx.Exec("DELETE FROM " + table).Error; err != nil {
-			return fmt.Errorf("delete %s: %w", table, err)
-		}
-	}
-	fmt.Println("Deleted existing GTFS data")
-	return nil
-}
-
-func createGTFSBatch[T any](tx *gorm.DB, table string, rows []T) error {
-	if len(rows) == 0 {
-		return nil
-	}
-	if err := tx.CreateInBatches(&rows, 1000).Error; err != nil {
-		return fmt.Errorf("create %s: %w", table, err)
-	}
-	return nil
 }
