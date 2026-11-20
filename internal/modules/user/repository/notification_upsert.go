@@ -5,10 +5,11 @@ import (
 	"errors"
 	"uuid"
 
-	"github.com/fun-dotto/server/internal/modules/user/domain"
-	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+
+	"github.com/fun-dotto/server/internal/modules/user/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 )
 
 func (r *NotificationRepository) UpsertNotification(ctx context.Context, notification domain.Notification) (domain.Notification, error) {

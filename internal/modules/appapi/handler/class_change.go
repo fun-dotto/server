@@ -1,15 +1,15 @@
 package handler
 
 import (
+	"context"
 	"time"
 
-	"context"
-
 	"connectrpc.com/connect"
-	appv1 "github.com/fun-dotto/server/gen/app/v1"
-	"github.com/fun-dotto/server/internal/shared/model"
 	"google.golang.org/genproto/googleapis/type/date"
 	"gorm.io/gorm"
+
+	appv1 "github.com/fun-dotto/server/gen/app/v1"
+	"github.com/fun-dotto/server/internal/shared/model"
 )
 
 type classChangeRequest interface {

@@ -4,11 +4,12 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/modules/appapi/auth"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 // GetUser はログイン中のユーザーを返す。

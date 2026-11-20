@@ -4,12 +4,13 @@ import (
 	"context"
 	"log"
 
+	"github.com/joho/godotenv"
+
 	academicrepository "github.com/fun-dotto/server/internal/modules/academic/repository"
 	"github.com/fun-dotto/server/internal/modules/batch-jobs/service"
 	userrepository "github.com/fun-dotto/server/internal/modules/user/repository"
 	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/logging"
-	"github.com/joho/godotenv"
 )
 
 func main() {

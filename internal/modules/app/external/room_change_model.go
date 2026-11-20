@@ -1,9 +1,10 @@
 package external
 
 import (
+	openapi_types "github.com/oapi-codegen/runtime/types"
+
 	academic_api "github.com/fun-dotto/server/gen/academic"
 	"github.com/fun-dotto/server/internal/modules/app/domain"
-	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 // ToDomainRoomChange は外部APIのRoomChangeをDomainに変換する

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
+
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
 	"github.com/fun-dotto/server/internal/shared/cfaccess"

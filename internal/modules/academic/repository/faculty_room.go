@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 
-	"github.com/fun-dotto/server/internal/modules/academic/domain"
-	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
+
+	"github.com/fun-dotto/server/internal/modules/academic/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 )
 
 // ErrFacultyRoomAlreadyExists は、同一年度で同じ (Faculty, Room) の組み合わせが

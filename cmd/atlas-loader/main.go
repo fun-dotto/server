@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"ariga.io/atlas-provider-gorm/gormschema"
+
 	"github.com/fun-dotto/server/internal/shared/model"
 )
 

@@ -6,10 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	api "github.com/fun-dotto/server/gen/app"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	api "github.com/fun-dotto/server/gen/app"
 )
 
 func TestAuthMiddleware(t *testing.T) {

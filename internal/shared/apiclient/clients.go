@@ -10,10 +10,11 @@ import (
 	"os"
 	"time"
 
+	"google.golang.org/api/idtoken"
+
 	academic_api "github.com/fun-dotto/server/gen/academic"
 	user_api "github.com/fun-dotto/server/gen/user"
 	"github.com/fun-dotto/server/internal/shared/logging"
-	"google.golang.org/api/idtoken"
 )
 
 const httpClientTimeout = 30 * time.Second

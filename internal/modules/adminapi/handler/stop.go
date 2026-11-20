@@ -4,12 +4,13 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
-	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/shopspring/decimal"
 	"google.golang.org/genproto/googleapis/type/latlng"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
+
+	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
+	"github.com/fun-dotto/server/internal/shared/model"
 )
 
 type StopHandler struct {

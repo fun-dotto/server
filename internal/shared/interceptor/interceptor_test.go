@@ -14,8 +14,9 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	"github.com/fun-dotto/server/internal/shared/logging"
 	"google.golang.org/protobuf/types/known/emptypb"
+
+	"github.com/fun-dotto/server/internal/shared/logging"
 )
 
 // captureLog は slog の既定ロガーの出力を JSON 形式でバッファに書き出すよう差し替え、

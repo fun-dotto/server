@@ -2,10 +2,11 @@ package repository
 
 import (
 	"testing"
+	"uuid"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/fun-dotto/server/internal/shared/microcms"
-	"github.com/stretchr/testify/assert"
-	"uuid"
 )
 
 func TestToDomainAnnouncementID(t *testing.T) {

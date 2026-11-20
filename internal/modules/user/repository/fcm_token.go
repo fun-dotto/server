@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 
-	"github.com/fun-dotto/server/internal/modules/user/domain"
-	"github.com/fun-dotto/server/internal/shared/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+
+	"github.com/fun-dotto/server/internal/modules/user/domain"
+	"github.com/fun-dotto/server/internal/shared/model"
 )
 
 type FCMTokenRepository struct {

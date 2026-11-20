@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 
-	api "github.com/fun-dotto/server/gen/academic"
 	"gorm.io/gorm"
+
+	api "github.com/fun-dotto/server/gen/academic"
 )
 
 func (h *Handler) FacultiesV1Update(ctx context.Context, request api.FacultiesV1UpdateRequestObject) (api.FacultiesV1UpdateResponseObject, error) {

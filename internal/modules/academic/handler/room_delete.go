@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 
+	"gorm.io/gorm"
+
 	api "github.com/fun-dotto/server/gen/academic"
 	"github.com/fun-dotto/server/internal/modules/academic/repository"
-	"gorm.io/gorm"
 )
 
 func (h *Handler) RoomsV1Delete(ctx context.Context, request api.RoomsV1DeleteRequestObject) (api.RoomsV1DeleteResponseObject, error) {
