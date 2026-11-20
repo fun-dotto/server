@@ -258,41 +258,70 @@ func findRequirementType(s string) (academicdomain.SubjectRequirementType, bool)
 
 var segmentSeparator = regexp.MustCompile(`[\n、,，/／;；]+`)
 
-// splitByCourse は 1 つの区切りを、コース名の出現位置ごとに分ける。
-// 「情報システムコース 必修 情報デザインコース 選択」のように空白区切りで複数のコースが並ぶ場合に、
-// 各コースへそれぞれの必修・選択を割り当てるため。
-func splitByCourse(seg string) []string {
-	upper := strings.ToUpper(seg)
-	var starts []int
-	for _, k := range append([]string{"全コース"}, courseKeywordList()...) {
-		for off := 0; ; {
-			i := strings.Index(upper[off:], k)
-			if i < 0 {
-				break
-			}
-			starts = append(starts, off+i)
-			off += i + len(k)
-		}
-	}
-	if len(starts) <= 1 {
-		return []string{seg}
-	}
-	slices.Sort(starts)
-	parts := []string{seg[:starts[0]]}
-	for i, st := range starts {
-		end := len(seg)
-		if i+1 < len(starts) {
-			end = starts[i+1]
-		}
-		parts = append(parts, seg[st:end])
-	}
-	return parts
+var (
+	coursePattern      = regexp.MustCompile(`全コース|情報システム|情報デザイン|高度ICT|複雑系|知能システム`)
+	requirementPattern = regexp.MustCompile(`選択必修|必修|選択`)
+)
+
+type courseRequirement struct {
+	courses     []academicdomain.CourseType
+	requirement academicdomain.SubjectRequirementType
 }
 
-func courseKeywordList() []string {
-	result := make([]string, 0, len(courseKeywords))
-	for _, k := range courseKeywords {
-		result = append(result, k.keyword)
+// parseSegment は 1 つの区切りの中のコース名と必修・選択を、出てくる順に組にする。
+// 「A B 必修 C 選択」のようにコース名が先なら、区分はその前に並んだコースすべてに付く。
+// 「必修 A 選択 B」のように区分が先なら、区分はその後に並んだコースに付く。
+// 組になるコースがない区分は、targets（対象コース全体）に付く。
+func parseSegment(seg string, targets []academicdomain.CourseType) []courseRequirement {
+	upper := strings.ToUpper(seg)
+	type token struct {
+		pos     int
+		courses []academicdomain.CourseType
+		req     academicdomain.SubjectRequirementType
+	}
+	var tokens []token
+	for _, m := range coursePattern.FindAllStringIndex(upper, -1) {
+		tokens = append(tokens, token{pos: m[0], courses: findCourses(upper[m[0]:m[1]])})
+	}
+	for _, m := range requirementPattern.FindAllStringIndex(seg, -1) {
+		r, _ := findRequirementType(seg[m[0]:m[1]])
+		tokens = append(tokens, token{pos: m[0], req: r})
+	}
+	slices.SortFunc(tokens, func(a, b token) int { return a.pos - b.pos })
+	if len(tokens) == 0 {
+		return nil
+	}
+
+	reqFirst := tokens[0].req != ""
+	var result []courseRequirement
+	var pending []academicdomain.CourseType
+	var current academicdomain.SubjectRequirementType
+	flush := func() {
+		if current == "" {
+			return
+		}
+		courses := pending
+		if len(courses) == 0 {
+			courses = targets
+		}
+		result = append(result, courseRequirement{courses: courses, requirement: current})
+		pending, current = nil, ""
+	}
+	for _, t := range tokens {
+		switch {
+		case t.req == "":
+			pending = append(pending, t.courses...)
+		case reqFirst:
+			// 区分が先の書き方では、新しい区分が出たところで直前の区分とコースの組を確定する
+			flush()
+			current = t.req
+		default:
+			current = t.req
+			flush()
+		}
+	}
+	if reqFirst {
+		flush()
 	}
 	return result
 }
@@ -315,17 +344,9 @@ func ParseRequirements(targetCourses, classifications string) []model.SubjectReq
 
 	for _, field := range []string{classifications, targetCourses} {
 		for _, seg := range segmentSeparator.Split(field, -1) {
-			for _, part := range splitByCourse(seg) {
-				r, ok := findRequirementType(part)
-				if !ok {
-					continue
-				}
-				courses := findCourses(part)
-				if len(courses) == 0 {
-					courses = targets
-				}
-				for _, c := range courses {
-					assign(c, r)
+			for _, cr := range parseSegment(seg, targets) {
+				for _, c := range cr.courses {
+					assign(c, cr.requirement)
 				}
 			}
 		}

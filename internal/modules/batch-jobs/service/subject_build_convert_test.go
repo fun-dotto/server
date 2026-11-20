@@ -141,6 +141,18 @@ func TestParseRequirements(t *testing.T) {
 			req(d.CourseTypeInformationSystem, d.SubjectRequirementTypeRequired),
 			req(d.CourseTypeInformationDesign, d.SubjectRequirementTypeOptional),
 		}},
+		{"複数コースの後ろにまとめた区分", "情報システムコース、情報デザインコース", "情報システムコース・情報デザインコース 必修", []model.SubjectRequirement{
+			req(d.CourseTypeInformationSystem, d.SubjectRequirementTypeRequired),
+			req(d.CourseTypeInformationDesign, d.SubjectRequirementTypeRequired),
+		}},
+		{"空白区切りの複数コースの後ろにまとめた区分", "情報システムコース、情報デザインコース", "情報システムコース 情報デザインコース 必修", []model.SubjectRequirement{
+			req(d.CourseTypeInformationSystem, d.SubjectRequirementTypeRequired),
+			req(d.CourseTypeInformationDesign, d.SubjectRequirementTypeRequired),
+		}},
+		{"区分がコース名より前", "情報システムコース、情報デザインコース", "必修 情報システムコース 選択 情報デザインコース", []model.SubjectRequirement{
+			req(d.CourseTypeInformationSystem, d.SubjectRequirementTypeRequired),
+			req(d.CourseTypeInformationDesign, d.SubjectRequirementTypeOptional),
+		}},
 		{"科目区分欄を対象コース欄より優先", "全コース\n学部共通選択", "専門科目 必修", []model.SubjectRequirement{
 			req(d.CourseTypeInformationSystem, d.SubjectRequirementTypeRequired),
 			req(d.CourseTypeInformationDesign, d.SubjectRequirementTypeRequired),
