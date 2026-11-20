@@ -157,7 +157,7 @@ func UserFromContext(ctx context.Context) (User, bool) {
 }
 
 func unauthenticated(reason, message string) error {
-	return newError(connect.CodeUnauthenticated, reason, message)
+	return errorDomain.New(connect.CodeUnauthenticated, reason, message, nil)
 }
 
 // FirebaseIDTokenVerifier は Firebase Authentication のクライアントで ID トークンを検証する。
