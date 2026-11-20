@@ -6,6 +6,7 @@ import (
 	"connectrpc.com/connect"
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"github.com/shopspring/decimal"
 	"google.golang.org/genproto/googleapis/type/latlng"
 	"google.golang.org/protobuf/proto"
@@ -37,7 +38,7 @@ type stopInput interface {
 }
 
 func stopFromProto(in stopInput, s fieldSet) (model.Stop, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.Stop
 	if s.has("stop_id") {
 		m.StopID = requireString(&v, "stop_id", in.GetStopId())
@@ -49,11 +50,11 @@ func stopFromProto(in stopInput, s fieldSet) (model.Stop, error) {
 		loc := in.GetStopLocation()
 		switch {
 		case loc == nil:
-			v.add("stop_location", "must be set")
+			v.Add("stop_location", "must be set")
 		case loc.GetLatitude() < -90 || loc.GetLatitude() > 90:
-			v.add("stop_location.latitude", "must be in the range [-90.0, +90.0]")
+			v.Add("stop_location.latitude", "must be in the range [-90.0, +90.0]")
 		case loc.GetLongitude() < -180 || loc.GetLongitude() > 180:
-			v.add("stop_location.longitude", "must be in the range [-180.0, +180.0]")
+			v.Add("stop_location.longitude", "must be in the range [-180.0, +180.0]")
 		}
 		m.StopLat = decimal.NewFromFloat(loc.GetLatitude()).Round(7)
 		m.StopLon = decimal.NewFromFloat(loc.GetLongitude()).Round(7)
@@ -61,7 +62,7 @@ func stopFromProto(in stopInput, s fieldSet) (model.Stop, error) {
 	if s.has("zone_id") {
 		m.ZoneID = optional(in, "zone_id", in.GetZoneId())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func stopToProto(m model.Stop) *adminv1.Stop {

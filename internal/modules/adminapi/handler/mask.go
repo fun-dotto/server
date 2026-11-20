@@ -3,6 +3,7 @@ package handler
 import (
 	"slices"
 
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -30,16 +31,16 @@ func updateFields(req proto.Message, mask *fieldmaskpb.FieldMask, keyFields ...s
 		}
 		return set, nil
 	}
-	var v violations
+	var v rpcerror.Violations
 	for _, p := range mask.GetPaths() {
 		fd := fields.ByName(protoreflect.Name(p))
 		if fd == nil || slices.Contains(fixed, p) {
-			v.add("update_mask", "unknown or immutable field: "+p)
+			v.Add("update_mask", "unknown or immutable field: "+p)
 			continue
 		}
 		set[p] = true
 	}
-	if err := v.err(); err != nil {
+	if err := v.Err(errorDomain); err != nil {
 		return nil, err
 	}
 	return set, nil

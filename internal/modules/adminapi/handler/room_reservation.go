@@ -6,6 +6,7 @@ import (
 	"connectrpc.com/connect"
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 )
@@ -30,7 +31,7 @@ type roomReservationInput interface {
 }
 
 func roomReservationFromProto(in roomReservationInput, s fieldSet) (model.RoomReservation, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.RoomReservation
 	if s.has("title") {
 		m.Title = requireString(&v, "title", in.GetTitle())
@@ -45,9 +46,9 @@ func roomReservationFromProto(in roomReservationInput, s fieldSet) (model.RoomRe
 		m.EndTime = requireTimestamp(&v, "end_time", in.GetEndTime())
 	}
 	if s.has("start_time") && s.has("end_time") && len(v) == 0 && !m.EndTime.After(m.StartTime) {
-		v.add("end_time", "must be after start_time")
+		v.Add("end_time", "must be after start_time")
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func roomReservationToProto(m model.RoomReservation) *adminv1.RoomReservation {

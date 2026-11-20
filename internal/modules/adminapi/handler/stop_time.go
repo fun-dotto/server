@@ -7,6 +7,7 @@ import (
 	"connectrpc.com/connect"
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 )
@@ -39,7 +40,7 @@ type stopTimeInput interface {
 }
 
 func stopTimeFromProto(in stopTimeInput, s fieldSet) (model.StopTime, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.StopTime
 	if s.has("trip_id") {
 		m.TripID = requireString(&v, "trip_id", in.GetTripId())
@@ -59,12 +60,12 @@ func stopTimeFromProto(in stopTimeInput, s fieldSet) (model.StopTime, error) {
 	if s.has("stop_headsign") {
 		m.StopHeadsign = optional(in, "stop_headsign", in.GetStopHeadsign())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
-func requireGTFSTime(v *violations, field, s string) string {
+func requireGTFSTime(v *rpcerror.Violations, field, s string) string {
 	if !gtfsTimePattern.MatchString(s) {
-		v.add(field, "must be in HH:MM:SS format")
+		v.Add(field, "must be in HH:MM:SS format")
 	}
 	return s
 }

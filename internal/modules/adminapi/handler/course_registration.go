@@ -7,6 +7,7 @@ import (
 	"connectrpc.com/connect"
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +31,7 @@ type courseRegistrationInput interface {
 }
 
 func courseRegistrationFromProto(in courseRegistrationInput, s fieldSet) (model.CourseRegistration, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.CourseRegistration
 	if s.has("user_id") {
 		m.UserID = requireString(&v, "user_id", in.GetUserId())
@@ -38,7 +39,7 @@ func courseRegistrationFromProto(in courseRegistrationInput, s fieldSet) (model.
 	if s.has("subject_id") {
 		m.SubjectID = parseUUID(&v, "subject_id", in.GetSubjectId())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func courseRegistrationToProto(m model.CourseRegistration) *adminv1.CourseRegistration {

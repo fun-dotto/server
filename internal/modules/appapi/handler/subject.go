@@ -8,12 +8,13 @@ import (
 	"connectrpc.com/connect"
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 // ListSubjects は科目を検索する。同一項目同士は OR、異なる項目同士は AND で絞り込む。
 func (h *Handler) ListSubjects(ctx context.Context, req *connect.Request[appv1.ListSubjectsRequest]) (*connect.Response[appv1.ListSubjectsResponse], error) {
 	m := req.Msg
-	var v violations
+	var v rpcerror.Violations
 	grades := gradeMap.fromProtoList(m.GetGrades(), "grades", &v)
 	courses := courseMap.fromProtoList(m.GetCourses(), "courses", &v)
 	classes := classMap.fromProtoList(m.GetClasses(), "classes", &v)
@@ -21,7 +22,7 @@ func (h *Handler) ListSubjects(ctx context.Context, req *connect.Request[appv1.L
 	semesters := semesterMap.fromProtoList(m.GetSemesters(), "semesters", &v)
 	requirementTypes := requirementTypeMap.fromProtoList(m.GetRequirementTypes(), "requirement_types", &v)
 	culturalCategories := culturalCategoryMap.fromProtoList(m.GetCulturalSubjectCategories(), "cultural_subject_categories", &v)
-	if err := v.err(); err != nil {
+	if err := v.Err(errorDomain); err != nil {
 		return nil, err
 	}
 

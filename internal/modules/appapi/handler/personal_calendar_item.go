@@ -9,6 +9,7 @@ import (
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/shared/academiccalendar"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 // ListPersonalCalendarItems はログイン中のユーザーの個人カレンダーアイテムの一覧を返す。
@@ -18,20 +19,20 @@ func (h *Handler) ListPersonalCalendarItems(ctx context.Context, req *connect.Re
 	if err != nil {
 		return nil, err
 	}
-	var v violations
+	var v rpcerror.Violations
 	if len(req.Msg.GetDates()) == 0 {
-		v.add("dates", "is required")
+		v.Add("dates", "is required")
 	}
 	dates := make([]time.Time, 0, len(req.Msg.GetDates()))
 	for _, d := range req.Msg.GetDates() {
 		t, ok := fromProtoDate(d)
 		if !ok {
-			v.add("dates", "must contain only valid dates")
+			v.Add("dates", "must contain only valid dates")
 			continue
 		}
 		dates = append(dates, t)
 	}
-	if err := v.err(); err != nil {
+	if err := v.Err(errorDomain); err != nil {
 		return nil, err
 	}
 

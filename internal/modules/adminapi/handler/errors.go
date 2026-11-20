@@ -8,57 +8,17 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	"github.com/jackc/pgx/v5/pgconn"
+	shareddb "github.com/fun-dotto/server/internal/shared/db"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
+	"github.com/jackc/pgerrcode"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
-	"google.golang.org/protobuf/protoadapt"
 	"gorm.io/gorm"
 )
 
-const errorDomain = "admin.dotto"
-
-func newError(code connect.Code, reason, message string, metadata map[string]string, details ...protoadapt.MessageV1) *connect.Error {
-	err := connect.NewError(code, errors.New(message))
-	if d, derr := connect.NewErrorDetail(&errdetails.ErrorInfo{
-		Reason:   reason,
-		Domain:   errorDomain,
-		Metadata: metadata,
-	}); derr == nil {
-		err.AddDetail(d)
-	}
-	for _, detail := range details {
-		if d, derr := connect.NewErrorDetail(protoadapt.MessageV2Of(detail)); derr == nil {
-			err.AddDetail(d)
-		}
-	}
-	return err
-}
-
-// violations は INVALID_ARGUMENT の BadRequest.field_violations を集める。
-type violations []*errdetails.BadRequest_FieldViolation
-
-func (v *violations) add(field, description string) {
-	*v = append(*v, &errdetails.BadRequest_FieldViolation{Field: field, Description: description})
-}
-
-func (v violations) err() error {
-	if len(v) == 0 {
-		return nil
-	}
-	fields := make([]string, 0, len(v))
-	for _, fv := range v {
-		fields = append(fields, fv.GetField())
-	}
-	return newError(
-		connect.CodeInvalidArgument,
-		"INVALID_ARGUMENT",
-		"request has invalid fields: "+strings.Join(fields, ", "),
-		nil,
-		&errdetails.BadRequest{FieldViolations: v},
-	)
-}
+const errorDomain rpcerror.Domain = "admin.dotto"
 
 func invalidArgument(reason, field, description string) error {
-	return newError(
+	return errorDomain.New(
 		connect.CodeInvalidArgument,
 		reason,
 		fmt.Sprintf("invalid %s: %s", field, description),
@@ -73,37 +33,28 @@ func toConnectError(ctx context.Context, r resourceName, keys []keyField, err er
 	for _, k := range keys {
 		metadata[r.metadataKey(k.name)] = k.String()
 	}
-	code := postgresErrorCode(err)
-	switch {
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return newError(connect.CodeNotFound, r.upper()+"_NOT_FOUND", r.human()+" not found", metadata)
-	case code == "23505":
-		return newError(connect.CodeAlreadyExists, r.upper()+"_ALREADY_EXISTS",
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errorDomain.New(connect.CodeNotFound, r.upper()+"_NOT_FOUND", r.human()+" not found", metadata)
+	}
+	switch shareddb.PostgresErrorCode(err) {
+	case pgerrcode.UniqueViolation:
+		return errorDomain.New(connect.CodeAlreadyExists, r.upper()+"_ALREADY_EXISTS",
 			r.human()+" already exists; use a different identifier or update the existing one", metadata)
-	case code == "23503":
-		return newError(connect.CodeFailedPrecondition, r.upper()+"_REFERENCE_VIOLATION",
+	case pgerrcode.ForeignKeyViolation:
+		return errorDomain.New(connect.CodeFailedPrecondition, r.upper()+"_REFERENCE_VIOLATION",
 			r.human()+" references a resource that does not exist, or is referenced by another resource", metadata)
-	// 22P02, 22007, 22008 は不正な UUID・日付など、DB が値を解釈できなかった場合
-	case code == "23514" || code == "22P02" || code == "22007" || code == "22008":
-		return newError(connect.CodeInvalidArgument, r.upper()+"_INVALID",
+	// CHECK 制約違反に加え、不正な UUID・日付など DB が値を解釈できなかった場合も含む
+	case pgerrcode.CheckViolation, pgerrcode.InvalidTextRepresentation,
+		pgerrcode.InvalidDatetimeFormat, pgerrcode.DatetimeFieldOverflow:
+		return errorDomain.New(connect.CodeInvalidArgument, r.upper()+"_INVALID",
 			r.human()+" has a value that violates a constraint; check the request fields", metadata,
 			&errdetails.BadRequest{})
-	case errors.Is(err, context.DeadlineExceeded):
-		return newError(connect.CodeDeadlineExceeded, "DEADLINE_EXCEEDED", "request deadline exceeded", nil)
-	case errors.Is(err, context.Canceled):
-		return newError(connect.CodeCanceled, "CANCELED", "request canceled", nil)
-	default:
-		slog.ErrorContext(ctx, "admin-api internal error", "resource", string(r), "error", err)
-		return newError(connect.CodeInternal, "INTERNAL", "internal error", nil)
 	}
-}
-
-func postgresErrorCode(err error) string {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		return pgErr.Code
+	if cerr := errorDomain.ContextError(err); cerr != nil {
+		return cerr
 	}
-	return ""
+	slog.ErrorContext(ctx, "admin-api internal error", "resource", string(r), "error", err)
+	return errorDomain.New(connect.CodeInternal, "INTERNAL", "internal error", nil)
 }
 
 // keyField はリソースを特定する識別子のフィールド（proto のフィールド名 = DB の列名）。

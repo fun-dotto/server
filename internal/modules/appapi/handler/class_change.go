@@ -8,6 +8,7 @@ import (
 	"connectrpc.com/connect"
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"google.golang.org/genproto/googleapis/type/date"
 	"gorm.io/gorm"
 )
@@ -20,7 +21,7 @@ type classChangeRequest interface {
 
 // classChangeQuery は休講・補講・教室変更の一覧に共通する絞り込みを行う。table はテーブル名。
 func (h *Handler) classChangeQuery(ctx context.Context, req classChangeRequest, table string) (*gorm.DB, error) {
-	var v violations
+	var v rpcerror.Violations
 	subjectIDs := parseUUIDs(req.GetSubjectIds(), "subject_ids", &v)
 	query := preload(h.db.WithContext(ctx), subjectPreloads("Subject.")...).
 		Joins("JOIN subjects ON subjects.id = " + table + ".subject_id")
@@ -30,18 +31,18 @@ func (h *Handler) classChangeQuery(ctx context.Context, req classChangeRequest, 
 	if d := req.GetFromDate(); d != nil {
 		t, ok := fromProtoDate(d)
 		if !ok {
-			v.add("from_date", "must be a valid date")
+			v.Add("from_date", "must be a valid date")
 		}
 		query = query.Where(table+".date >= ?", t.Format(dateLayout))
 	}
 	if d := req.GetUntilDate(); d != nil {
 		t, ok := fromProtoDate(d)
 		if !ok {
-			v.add("until_date", "must be a valid date")
+			v.Add("until_date", "must be a valid date")
 		}
 		query = query.Where(table+".date <= ?", t.Format(dateLayout))
 	}
-	if err := v.err(); err != nil {
+	if err := v.Err(errorDomain); err != nil {
 		return nil, err
 	}
 	return query.Order(table + ".date ASC, " + table + ".period ASC, " + model.SubjectOrderByLessonID), nil
