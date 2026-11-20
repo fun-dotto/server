@@ -54,7 +54,6 @@ func structureSyllabus(s model.Syllabus) (structuredSubject, bool) {
 // dashVariants はハイフンとして書かれうる文字。width.Fold では半角にならない。
 var dashVariants = strings.NewReplacer("ー", "-", "−", "-", "‐", "-", "–", "-", "―", "-")
 
-// normalizeWidth は全角の英数字・記号を半角に揃え、ハイフンの異体字を `-` にする。
 func normalizeWidth(s string) string {
 	return dashVariants.Replace(width.Fold.String(s))
 }
@@ -215,10 +214,7 @@ func gradeRange(prefix, from, to string) []model.SubjectEligibleAttribute {
 	return result
 }
 
-var courseKeywords = []struct {
-	keyword string
-	course  academicdomain.CourseType
-}{
+var courseKeywords = []courseKeyword{
 	{"情報システム", academicdomain.CourseTypeInformationSystem},
 	{"情報デザイン", academicdomain.CourseTypeInformationDesign},
 	{"高度ICT", academicdomain.CourseTypeAdvancedICT},
@@ -229,7 +225,7 @@ var courseKeywords = []struct {
 func findCourses(s string) []academicdomain.CourseType {
 	s = strings.ToUpper(s)
 	var result []academicdomain.CourseType
-	if strings.Contains(s, "全コース") {
+	if strings.Contains(s, allCoursesKeyword) {
 		for _, k := range courseKeywords {
 			result = append(result, k.course)
 		}
@@ -243,25 +239,57 @@ func findCourses(s string) []academicdomain.CourseType {
 	return result
 }
 
+// 「選択必修」は「必修」「選択」の両方を含むため最初に置く
+var requirementKeywords = []requirementKeyword{
+	{"選択必修", academicdomain.SubjectRequirementTypeOptionalRequired},
+	{"必修", academicdomain.SubjectRequirementTypeRequired},
+	{"選択", academicdomain.SubjectRequirementTypeOptional},
+}
+
+const allCoursesKeyword = "全コース"
+
+var (
+	coursePattern      = keywordPattern(append([]string{allCoursesKeyword}, keywordsOf(courseKeywords, func(k courseKeyword) string { return k.keyword })...))
+	requirementPattern = keywordPattern(keywordsOf(requirementKeywords, func(k requirementKeyword) string { return k.keyword }))
+)
+
+type courseKeyword struct {
+	keyword string
+	course  academicdomain.CourseType
+}
+
+type requirementKeyword struct {
+	keyword     string
+	requirement academicdomain.SubjectRequirementType
+}
+
+func keywordsOf[T any](items []T, key func(T) string) []string {
+	result := make([]string, 0, len(items))
+	for _, it := range items {
+		result = append(result, key(it))
+	}
+	return result
+}
+
+// keywordPattern は keywords のいずれかに一致する正規表現を作る。Go の正規表現の | は左から順に試すため、keywords の順が優先順になる。
+func keywordPattern(keywords []string) *regexp.Regexp {
+	quoted := make([]string, len(keywords))
+	for i, k := range keywords {
+		quoted[i] = regexp.QuoteMeta(k)
+	}
+	return regexp.MustCompile(strings.Join(quoted, "|"))
+}
+
 func findRequirementType(s string) (academicdomain.SubjectRequirementType, bool) {
-	// 「選択必修」は「必修」「選択」の両方を含むため最初に判定する
-	switch {
-	case strings.Contains(s, "選択必修"):
-		return academicdomain.SubjectRequirementTypeOptionalRequired, true
-	case strings.Contains(s, "必修"):
-		return academicdomain.SubjectRequirementTypeRequired, true
-	case strings.Contains(s, "選択"):
-		return academicdomain.SubjectRequirementTypeOptional, true
+	for _, k := range requirementKeywords {
+		if strings.Contains(s, k.keyword) {
+			return k.requirement, true
+		}
 	}
 	return "", false
 }
 
 var segmentSeparator = regexp.MustCompile(`[\n、,，/／;；]+`)
-
-var (
-	coursePattern      = regexp.MustCompile(`全コース|情報システム|情報デザイン|高度ICT|複雑系|知能システム`)
-	requirementPattern = regexp.MustCompile(`選択必修|必修|選択`)
-)
 
 type courseRequirement struct {
 	courses     []academicdomain.CourseType
@@ -283,8 +311,8 @@ func parseSegment(seg string, targets []academicdomain.CourseType) []courseRequi
 	for _, m := range coursePattern.FindAllStringIndex(upper, -1) {
 		tokens = append(tokens, token{pos: m[0], courses: findCourses(upper[m[0]:m[1]])})
 	}
-	for _, m := range requirementPattern.FindAllStringIndex(seg, -1) {
-		r, _ := findRequirementType(seg[m[0]:m[1]])
+	for _, m := range requirementPattern.FindAllStringIndex(upper, -1) {
+		r, _ := findRequirementType(upper[m[0]:m[1]])
 		tokens = append(tokens, token{pos: m[0], req: r})
 	}
 	slices.SortFunc(tokens, func(a, b token) int { return a.pos - b.pos })
