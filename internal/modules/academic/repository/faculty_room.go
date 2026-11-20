@@ -5,8 +5,9 @@ import (
 	"errors"
 
 	"github.com/fun-dotto/server/internal/modules/academic/domain"
+	shareddb "github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgerrcode"
 	"gorm.io/gorm"
 )
 
@@ -50,8 +51,7 @@ func (r *FacultyRoomRepository) Create(ctx context.Context, fr domain.FacultyRoo
 	record := facultyRoomFromDomain(fr)
 
 	if err := r.db.WithContext(ctx).Create(&record).Error; err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+		if shareddb.PostgresErrorCode(err) == pgerrcode.UniqueViolation {
 			return domain.FacultyRoom{}, ErrFacultyRoomAlreadyExists
 		}
 		return domain.FacultyRoom{}, err
