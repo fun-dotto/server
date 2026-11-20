@@ -28,31 +28,14 @@ const listPageHTML = `<html><body>
 </form></body></html>`
 
 func TestParseListPage(t *testing.T) {
-	got, err := ParseListPage(strings.NewReader(listPageHTML))
+	got, err := parseListPage(strings.NewReader(listPageHTML))
 	require.NoError(t, err)
-	want := ListPage{
+	want := listPage{
 		LessonIDs:    []string{"100101", "100201"},
 		HiddenFields: map[string]string{"__VIEWSTATE": "vs+/=", "__EVENTVALIDATION": "ev"},
 		PageNumbers:  []int{1, 3, 18},
 	}
 	assert.Equal(t, want, got)
-}
-
-func TestListPageHasPage(t *testing.T) {
-	page := ListPage{PageNumbers: []int{1, 3, 18}}
-	tests := []struct {
-		name string
-		n    int
-		want bool
-	}{
-		{name: "ページャーにある", n: 3, want: true},
-		{name: "ページャーにない（最終ページの次）", n: 19, want: false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, page.HasPage(tt.n))
-		})
-	}
 }
 
 // 教務システムの詳細ページ（2026-11 時点）の構造を縮めたもの。実際のページは <br /> の後にソース上の改行（CRLF）が続く。
@@ -128,7 +111,7 @@ const detailPageHTML = `<html><body>
 </body></html>`
 
 func TestParseDetailPage(t *testing.T) {
-	got, unknown, err := ParseDetailPage(strings.NewReader(detailPageHTML))
+	got, unknown, err := parseDetailPage(strings.NewReader(detailPageHTML))
 	require.NoError(t, err)
 	want := model.Syllabus{
 		Name:                         "認知科学1～4",

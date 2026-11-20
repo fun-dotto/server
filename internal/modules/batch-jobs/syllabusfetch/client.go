@@ -97,23 +97,23 @@ func (c *Client) FetchDetail(ctx context.Context, lessonID string, year int) ([]
 	return c.do(req)
 }
 
-func (c *Client) fetchList(ctx context.Context, form url.Values) (ListPage, error) {
+func (c *Client) fetchList(ctx context.Context, form url.Values) (listPage, error) {
 	method, body := http.MethodGet, io.Reader(nil)
 	if form != nil {
 		method, body = http.MethodPost, bytes.NewBufferString(form.Encode())
 	}
 	req, err := http.NewRequestWithContext(ctx, method, c.baseURL+"/SyllabusList", body)
 	if err != nil {
-		return ListPage{}, err
+		return listPage{}, err
 	}
 	if form != nil {
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
 	b, err := c.do(req)
 	if err != nil {
-		return ListPage{}, err
+		return listPage{}, err
 	}
-	return ParseListPage(bytes.NewReader(b))
+	return parseListPage(bytes.NewReader(b))
 }
 
 func (c *Client) do(req *http.Request) ([]byte, error) {
@@ -132,7 +132,7 @@ func (c *Client) do(req *http.Request) ([]byte, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return nil, &StatusError{Method: req.Method, URL: req.URL.String(), Code: res.StatusCode}
+		return nil, &statusError{Method: req.Method, URL: req.URL.String(), Code: res.StatusCode}
 	}
 	return io.ReadAll(res.Body)
 }
@@ -146,20 +146,20 @@ func formFrom(hidden map[string]string, year int) url.Values {
 	return form
 }
 
-// StatusError は 200 以外のステータスが返ったことを表す。
-type StatusError struct {
+// statusError は 200 以外のステータスが返ったことを表す。
+type statusError struct {
 	Method string
 	URL    string
 	Code   int
 }
 
-func (e *StatusError) Error() string {
+func (e *statusError) Error() string {
 	return fmt.Sprintf("%s %s: unexpected status %d", e.Method, e.URL, e.Code)
 }
 
 // isRetryable は一時的な失敗（5xx・タイムアウト）かを返す。
 func isRetryable(err error) bool {
-	var se *StatusError
+	var se *statusError
 	if errors.As(err, &se) {
 		return se.Code >= 500
 	}

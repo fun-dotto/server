@@ -12,8 +12,8 @@ import (
 	"golang.org/x/net/html/atom"
 )
 
-// ListPage は一覧ページ 1 ページ分の解析結果。
-type ListPage struct {
+// listPage は一覧ページ 1 ページ分の解析結果。
+type listPage struct {
 	// LessonIDs はこのページに載っている授業コード（表示順）。
 	LessonIDs []string
 	// HiddenFields は次のポストバックにそのまま送り返す ASP.NET の hidden 項目（__VIEWSTATE など）。
@@ -23,7 +23,7 @@ type ListPage struct {
 }
 
 // HasPage は指定したページへのリンクがページャーにあるかを返す。
-func (p ListPage) HasPage(n int) bool {
+func (p listPage) HasPage(n int) bool {
 	return slices.Contains(p.PageNumbers, n)
 }
 
@@ -33,13 +33,13 @@ var (
 	sourceNewline     = strings.NewReplacer("\r\n", " ", "\r", " ", "\n", " ")
 )
 
-// ParseListPage は一覧ページ（SyllabusList）の HTML を解析する。
-func ParseListPage(r io.Reader) (ListPage, error) {
+// parseListPage は一覧ページ（SyllabusList）の HTML を解析する。
+func parseListPage(r io.Reader) (listPage, error) {
 	doc, err := html.Parse(r)
 	if err != nil {
-		return ListPage{}, err
+		return listPage{}, err
 	}
-	page := ListPage{HiddenFields: map[string]string{}}
+	page := listPage{HiddenFields: map[string]string{}}
 	seenPage := map[int]bool{}
 	for n := range doc.Descendants() {
 		if n.Type != html.ElementNode {
@@ -71,10 +71,10 @@ func ParseListPage(r io.Reader) (ListPage, error) {
 	return page, nil
 }
 
-// ParseDetailPage は詳細ページ（Syllabus）の HTML から見出しごとの値を取り出し、Syllabus に詰める。
+// parseDetailPage は詳細ページ（Syllabus）の HTML から見出しごとの値を取り出し、Syllabus に詰める。
 // LessonID・Year・ContentHash は呼び出し側で設定する。
 // 対応する列のない見出しは unknownLabels として返す（取得元に項目が増えたことに気づくため）。
-func ParseDetailPage(r io.Reader) (s model.Syllabus, unknownLabels []string, err error) {
+func parseDetailPage(r io.Reader) (s model.Syllabus, unknownLabels []string, err error) {
 	doc, err := html.Parse(r)
 	if err != nil {
 		return model.Syllabus{}, nil, err

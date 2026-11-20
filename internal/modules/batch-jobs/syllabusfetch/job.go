@@ -70,7 +70,7 @@ func (j *Job) fetchAndSave(ctx context.Context, lessonID string, year int) (Save
 	if err != nil {
 		return 0, err
 	}
-	syllabus, unknown, err := ParseDetailPage(bytes.NewReader(body))
+	syllabus, unknown, err := parseDetailPage(bytes.NewReader(body))
 	if err != nil {
 		return 0, err
 	}

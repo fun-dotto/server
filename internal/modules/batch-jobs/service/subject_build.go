@@ -46,7 +46,7 @@ func (s *SubjectBuildService) BuildSubjects(ctx context.Context, year int) (Subj
 	}
 	facultyIDs := make(map[string]uuid.UUID, len(faculties))
 	for _, f := range faculties {
-		name := NormalizeFacultyName(f.Name)
+		name := normalizeFacultyName(f.Name)
 		if _, dup := facultyIDs[name]; dup {
 			// 同名の教員が複数いる場合はどちらか決められないため、ゼロ値にして紐付けない
 			slog.WarnContext(ctx, "duplicate faculty name", "faculty_name", name)
@@ -57,7 +57,7 @@ func (s *SubjectBuildService) BuildSubjects(ctx context.Context, year int) (Subj
 	}
 
 	for _, syl := range syllabuses {
-		structured, ok := StructureSyllabus(syl)
+		structured, ok := structureSyllabus(syl)
 		if !ok {
 			slog.WarnContext(ctx, "skip syllabus: unknown term", "lesson_id", syl.LessonID, "year", syl.Year, "term", syl.Term)
 			summary.Skipped++
@@ -74,7 +74,7 @@ func (s *SubjectBuildService) BuildSubjects(ctx context.Context, year int) (Subj
 	return summary, nil
 }
 
-func buildSubjectModel(ctx context.Context, syl model.Syllabus, st StructuredSubject, facultyIDs map[string]uuid.UUID) model.Subject {
+func buildSubjectModel(ctx context.Context, syl model.Syllabus, st structuredSubject, facultyIDs map[string]uuid.UUID) model.Subject {
 	var faculties []model.SubjectFaculty
 	for _, f := range st.FacultyNames {
 		id, ok := facultyIDs[f.Name]
