@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -23,18 +24,28 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// フロア。
 type RoomFloor int32
 
 const (
+	// 未指定。
 	RoomFloor_ROOM_FLOOR_UNSPECIFIED RoomFloor = 0
-	RoomFloor_ROOM_FLOOR_1           RoomFloor = 1
-	RoomFloor_ROOM_FLOOR_2           RoomFloor = 2
-	RoomFloor_ROOM_FLOOR_3           RoomFloor = 3
-	RoomFloor_ROOM_FLOOR_4           RoomFloor = 4
-	RoomFloor_ROOM_FLOOR_5           RoomFloor = 5
-	RoomFloor_ROOM_FLOOR_6           RoomFloor = 6
-	RoomFloor_ROOM_FLOOR_7           RoomFloor = 7
-	RoomFloor_ROOM_FLOOR_VIRTUAL     RoomFloor = 8
+	// 1F。
+	RoomFloor_ROOM_FLOOR_1 RoomFloor = 1
+	// 2F。
+	RoomFloor_ROOM_FLOOR_2 RoomFloor = 2
+	// 3F。
+	RoomFloor_ROOM_FLOOR_3 RoomFloor = 3
+	// 4F。
+	RoomFloor_ROOM_FLOOR_4 RoomFloor = 4
+	// 5F。
+	RoomFloor_ROOM_FLOOR_5 RoomFloor = 5
+	// R6F。
+	RoomFloor_ROOM_FLOOR_6 RoomFloor = 6
+	// R7F。
+	RoomFloor_ROOM_FLOOR_7 RoomFloor = 7
+	// 仮想教室（オンラインなど）。
+	RoomFloor_ROOM_FLOOR_VIRTUAL RoomFloor = 8
 )
 
 // Enum value maps for RoomFloor.
@@ -90,12 +101,18 @@ func (RoomFloor) EnumDescriptor() ([]byte, []int) {
 	return file_admin_v1_room_proto_rawDescGZIP(), []int{0}
 }
 
+// 教室。
 type Room struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Floor         RoomFloor              `protobuf:"varint,3,opt,name=floor,proto3,enum=admin.v1.RoomFloor" json:"floor,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 部屋名。
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
+	Floor RoomFloor `protobuf:"varint,3,opt,name=floor,proto3,enum=admin.v1.RoomFloor" json:"floor,omitempty"`
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -166,10 +183,13 @@ func (x *Room) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListRooms の Request。
 type ListRoomsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -218,10 +238,13 @@ func (x *ListRoomsRequest) GetPageToken() string {
 	return ""
 }
 
+// ListRooms の Response。
 type ListRoomsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rooms         []*Room                `protobuf:"bytes,1,rep,name=rooms,proto3" json:"rooms,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 教室の一覧。
+	Rooms []*Room `protobuf:"bytes,1,rep,name=rooms,proto3" json:"rooms,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -270,9 +293,11 @@ func (x *ListRoomsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetRoom の Request。
 type GetRoomRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得する教室ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -314,9 +339,11 @@ func (x *GetRoomRequest) GetId() string {
 	return ""
 }
 
+// GetRoom の Response。
 type GetRoomResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Room          *Room                  `protobuf:"bytes,1,opt,name=room,proto3" json:"room,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した教室。
+	Room          *Room `protobuf:"bytes,1,opt,name=room,proto3" json:"room,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -358,10 +385,13 @@ func (x *GetRoomResponse) GetRoom() *Room {
 	return nil
 }
 
+// CreateRoom の Request。
 type CreateRoomRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Floor         RoomFloor              `protobuf:"varint,2,opt,name=floor,proto3,enum=admin.v1.RoomFloor" json:"floor,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 部屋名。
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
+	Floor         RoomFloor `protobuf:"varint,2,opt,name=floor,proto3,enum=admin.v1.RoomFloor" json:"floor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -410,9 +440,11 @@ func (x *CreateRoomRequest) GetFloor() RoomFloor {
 	return RoomFloor_ROOM_FLOOR_UNSPECIFIED
 }
 
+// CreateRoom の Response。
 type CreateRoomResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Room          *Room                  `protobuf:"bytes,1,opt,name=room,proto3" json:"room,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した教室。
+	Room          *Room `protobuf:"bytes,1,opt,name=room,proto3" json:"room,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -454,11 +486,16 @@ func (x *CreateRoomResponse) GetRoom() *Room {
 	return nil
 }
 
+// UpdateRoom の Request。
 type UpdateRoomRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Floor         RoomFloor              `protobuf:"varint,3,opt,name=floor,proto3,enum=admin.v1.RoomFloor" json:"floor,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新する教室ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 部屋名。
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
+	Floor RoomFloor `protobuf:"varint,3,opt,name=floor,proto3,enum=admin.v1.RoomFloor" json:"floor,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -522,9 +559,11 @@ func (x *UpdateRoomRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateRoom の Response。
 type UpdateRoomResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Room          *Room                  `protobuf:"bytes,1,opt,name=room,proto3" json:"room,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した教室。
+	Room          *Room `protobuf:"bytes,1,opt,name=room,proto3" json:"room,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -566,9 +605,11 @@ func (x *UpdateRoomResponse) GetRoom() *Room {
 	return nil
 }
 
+// DeleteRoom の Request。
 type DeleteRoomRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 削除する教室ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -610,6 +651,7 @@ func (x *DeleteRoomRequest) GetId() string {
 	return ""
 }
 
+// DeleteRoom の Response。
 type DeleteRoomResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -650,41 +692,41 @@ var File_admin_v1_room_proto protoreflect.FileDescriptor
 
 const file_admin_v1_room_proto_rawDesc = "" +
 	"\n" +
-	"\x13admin/v1/room.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcb\x01\n" +
-	"\x04Room\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12)\n" +
-	"\x05floor\x18\x03 \x01(\x0e2\x13.admin.v1.RoomFloorR\x05floor\x129\n" +
+	"\x13admin/v1/room.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe4\x01\n" +
+	"\x04Room\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x02R\x04name\x12.\n" +
+	"\x05floor\x18\x03 \x01(\x0e2\x13.admin.v1.RoomFloorB\x03\xe0A\x02R\x05floor\x12>\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"N\n" +
-	"\x10ListRoomsRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\"X\n" +
+	"\x10ListRoomsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"a\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"a\n" +
 	"\x11ListRoomsResponse\x12$\n" +
 	"\x05rooms\x18\x01 \x03(\v2\x0e.admin.v1.RoomR\x05rooms\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\" \n" +
-	"\x0eGetRoomRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"5\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"%\n" +
+	"\x0eGetRoomRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"5\n" +
 	"\x0fGetRoomResponse\x12\"\n" +
-	"\x04room\x18\x01 \x01(\v2\x0e.admin.v1.RoomR\x04room\"R\n" +
-	"\x11CreateRoomRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12)\n" +
-	"\x05floor\x18\x02 \x01(\x0e2\x13.admin.v1.RoomFloorR\x05floor\"8\n" +
+	"\x04room\x18\x01 \x01(\v2\x0e.admin.v1.RoomR\x04room\"\\\n" +
+	"\x11CreateRoomRequest\x12\x17\n" +
+	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x02R\x04name\x12.\n" +
+	"\x05floor\x18\x02 \x01(\x0e2\x13.admin.v1.RoomFloorB\x03\xe0A\x02R\x05floor\"8\n" +
 	"\x12CreateRoomResponse\x12\"\n" +
-	"\x04room\x18\x01 \x01(\v2\x0e.admin.v1.RoomR\x04room\"\x9f\x01\n" +
-	"\x11UpdateRoomRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12)\n" +
-	"\x05floor\x18\x03 \x01(\x0e2\x13.admin.v1.RoomFloorR\x05floor\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"\x04room\x18\x01 \x01(\v2\x0e.admin.v1.RoomR\x04room\"\xb3\x01\n" +
+	"\x11UpdateRoomRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tB\x03\xe0A\x01R\x04name\x12.\n" +
+	"\x05floor\x18\x03 \x01(\x0e2\x13.admin.v1.RoomFloorB\x03\xe0A\x01R\x05floor\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"8\n" +
 	"\x12UpdateRoomResponse\x12\"\n" +
-	"\x04room\x18\x01 \x01(\v2\x0e.admin.v1.RoomR\x04room\"#\n" +
-	"\x11DeleteRoomRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x14\n" +
+	"\x04room\x18\x01 \x01(\v2\x0e.admin.v1.RoomR\x04room\"(\n" +
+	"\x11DeleteRoomRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x14\n" +
 	"\x12DeleteRoomResponse*\xbd\x01\n" +
 	"\tRoomFloor\x12\x1a\n" +
 	"\x16ROOM_FLOOR_UNSPECIFIED\x10\x00\x12\x10\n" +

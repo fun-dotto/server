@@ -1,12 +1,14 @@
+// Package assets は学年暦の JSON を academic モジュールに提供する。
+// データ本体は internal/shared/academiccalendar にあり、app-api と共有する。
 package assets
 
-import _ "embed"
+import "github.com/fun-dotto/server/internal/shared/academiccalendar"
 
-//go:embed events.json
-var EventsJSON []byte
+// EventsJSON は行事予定の JSON。
+var EventsJSON = academiccalendar.EventsJSON
 
-//go:embed holidays.json
-var HolidaysJSON []byte
+// HolidaysJSON は休日の JSON。
+var HolidaysJSON = academiccalendar.HolidaysJSON
 
-//go:embed terms.json
-var TermsJSON []byte
+// TermsJSON は開講時期ごとの期間の JSON。
+var TermsJSON = academiccalendar.TermsJSON

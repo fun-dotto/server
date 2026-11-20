@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "google/api/field_behavior.proto";
+
+// バスの路線。
+message BusRoute {
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 路線名。
+  string name = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

@@ -52,10 +52,15 @@ const (
 
 // RoomChangeServiceClient is a client for the admin.v1.RoomChangeService service.
 type RoomChangeServiceClient interface {
+	// 教室変更の一覧を取得する。
 	ListRoomChanges(context.Context, *connect.Request[v1.ListRoomChangesRequest]) (*connect.Response[v1.ListRoomChangesResponse], error)
+	// 教室変更を取得する。
 	GetRoomChange(context.Context, *connect.Request[v1.GetRoomChangeRequest]) (*connect.Response[v1.GetRoomChangeResponse], error)
+	// 教室変更を作成する。
 	CreateRoomChange(context.Context, *connect.Request[v1.CreateRoomChangeRequest]) (*connect.Response[v1.CreateRoomChangeResponse], error)
+	// 教室変更を更新する。
 	UpdateRoomChange(context.Context, *connect.Request[v1.UpdateRoomChangeRequest]) (*connect.Response[v1.UpdateRoomChangeResponse], error)
+	// 教室変更を削除する。
 	DeleteRoomChange(context.Context, *connect.Request[v1.DeleteRoomChangeRequest]) (*connect.Response[v1.DeleteRoomChangeResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *roomChangeServiceClient) DeleteRoomChange(ctx context.Context, req *con
 
 // RoomChangeServiceHandler is an implementation of the admin.v1.RoomChangeService service.
 type RoomChangeServiceHandler interface {
+	// 教室変更の一覧を取得する。
 	ListRoomChanges(context.Context, *connect.Request[v1.ListRoomChangesRequest]) (*connect.Response[v1.ListRoomChangesResponse], error)
+	// 教室変更を取得する。
 	GetRoomChange(context.Context, *connect.Request[v1.GetRoomChangeRequest]) (*connect.Response[v1.GetRoomChangeResponse], error)
+	// 教室変更を作成する。
 	CreateRoomChange(context.Context, *connect.Request[v1.CreateRoomChangeRequest]) (*connect.Response[v1.CreateRoomChangeResponse], error)
+	// 教室変更を更新する。
 	UpdateRoomChange(context.Context, *connect.Request[v1.UpdateRoomChangeRequest]) (*connect.Response[v1.UpdateRoomChangeResponse], error)
+	// 教室変更を削除する。
 	DeleteRoomChange(context.Context, *connect.Request[v1.DeleteRoomChangeRequest]) (*connect.Response[v1.DeleteRoomChangeResponse], error)
 }
 

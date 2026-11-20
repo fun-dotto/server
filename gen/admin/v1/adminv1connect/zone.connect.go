@@ -47,10 +47,15 @@ const (
 
 // ZoneServiceClient is a client for the admin.v1.ZoneService service.
 type ZoneServiceClient interface {
+	// 運賃エリア（GTFS の zone_id）の一覧を取得する。
 	ListZones(context.Context, *connect.Request[v1.ListZonesRequest]) (*connect.Response[v1.ListZonesResponse], error)
+	// 運賃エリア（GTFS の zone_id）を取得する。
 	GetZone(context.Context, *connect.Request[v1.GetZoneRequest]) (*connect.Response[v1.GetZoneResponse], error)
+	// 運賃エリア（GTFS の zone_id）を作成する。
 	CreateZone(context.Context, *connect.Request[v1.CreateZoneRequest]) (*connect.Response[v1.CreateZoneResponse], error)
+	// 運賃エリア（GTFS の zone_id）を更新する。
 	UpdateZone(context.Context, *connect.Request[v1.UpdateZoneRequest]) (*connect.Response[v1.UpdateZoneResponse], error)
+	// 運賃エリア（GTFS の zone_id）を削除する。
 	DeleteZone(context.Context, *connect.Request[v1.DeleteZoneRequest]) (*connect.Response[v1.DeleteZoneResponse], error)
 }
 
@@ -134,10 +139,15 @@ func (c *zoneServiceClient) DeleteZone(ctx context.Context, req *connect.Request
 
 // ZoneServiceHandler is an implementation of the admin.v1.ZoneService service.
 type ZoneServiceHandler interface {
+	// 運賃エリア（GTFS の zone_id）の一覧を取得する。
 	ListZones(context.Context, *connect.Request[v1.ListZonesRequest]) (*connect.Response[v1.ListZonesResponse], error)
+	// 運賃エリア（GTFS の zone_id）を取得する。
 	GetZone(context.Context, *connect.Request[v1.GetZoneRequest]) (*connect.Response[v1.GetZoneResponse], error)
+	// 運賃エリア（GTFS の zone_id）を作成する。
 	CreateZone(context.Context, *connect.Request[v1.CreateZoneRequest]) (*connect.Response[v1.CreateZoneResponse], error)
+	// 運賃エリア（GTFS の zone_id）を更新する。
 	UpdateZone(context.Context, *connect.Request[v1.UpdateZoneRequest]) (*connect.Response[v1.UpdateZoneResponse], error)
+	// 運賃エリア（GTFS の zone_id）を削除する。
 	DeleteZone(context.Context, *connect.Request[v1.DeleteZoneRequest]) (*connect.Response[v1.DeleteZoneResponse], error)
 }
 

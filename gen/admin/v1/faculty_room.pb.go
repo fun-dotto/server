@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -22,12 +23,18 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 教員室。
 type FacultyRoom struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FacultyId     string                 `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
-	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	Year          int32                  `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 教員ID。
+	FacultyId string `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
+	// 教室ID。
+	RoomId string `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	// 年度。
+	Year int32 `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -98,10 +105,13 @@ func (x *FacultyRoom) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListFacultyRooms の Request。
 type ListFacultyRoomsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -150,10 +160,13 @@ func (x *ListFacultyRoomsRequest) GetPageToken() string {
 	return ""
 }
 
+// ListFacultyRooms の Response。
 type ListFacultyRoomsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FacultyRooms  []*FacultyRoom         `protobuf:"bytes,1,rep,name=faculty_rooms,json=facultyRooms,proto3" json:"faculty_rooms,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 教員室の一覧。
+	FacultyRooms []*FacultyRoom `protobuf:"bytes,1,rep,name=faculty_rooms,json=facultyRooms,proto3" json:"faculty_rooms,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -202,11 +215,15 @@ func (x *ListFacultyRoomsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetFacultyRoom の Request。
 type GetFacultyRoomRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FacultyId     string                 `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
-	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	Year          int32                  `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 教員ID。
+	FacultyId string `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
+	// 教室ID。
+	RoomId string `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	// 年度。
+	Year          int32 `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -262,9 +279,11 @@ func (x *GetFacultyRoomRequest) GetYear() int32 {
 	return 0
 }
 
+// GetFacultyRoom の Response。
 type GetFacultyRoomResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FacultyRoom   *FacultyRoom           `protobuf:"bytes,1,opt,name=faculty_room,json=facultyRoom,proto3" json:"faculty_room,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した教員室。
+	FacultyRoom   *FacultyRoom `protobuf:"bytes,1,opt,name=faculty_room,json=facultyRoom,proto3" json:"faculty_room,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -306,11 +325,15 @@ func (x *GetFacultyRoomResponse) GetFacultyRoom() *FacultyRoom {
 	return nil
 }
 
+// CreateFacultyRoom の Request。
 type CreateFacultyRoomRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FacultyId     string                 `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
-	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	Year          int32                  `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 教員ID。
+	FacultyId string `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
+	// 教室ID。
+	RoomId string `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	// 年度。
+	Year          int32 `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -366,9 +389,11 @@ func (x *CreateFacultyRoomRequest) GetYear() int32 {
 	return 0
 }
 
+// CreateFacultyRoom の Response。
 type CreateFacultyRoomResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FacultyRoom   *FacultyRoom           `protobuf:"bytes,1,opt,name=faculty_room,json=facultyRoom,proto3" json:"faculty_room,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した教員室。
+	FacultyRoom   *FacultyRoom `protobuf:"bytes,1,opt,name=faculty_room,json=facultyRoom,proto3" json:"faculty_room,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -410,11 +435,15 @@ func (x *CreateFacultyRoomResponse) GetFacultyRoom() *FacultyRoom {
 	return nil
 }
 
+// DeleteFacultyRoom の Request。
 type DeleteFacultyRoomRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FacultyId     string                 `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
-	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
-	Year          int32                  `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 教員ID。
+	FacultyId string `protobuf:"bytes,1,opt,name=faculty_id,json=facultyId,proto3" json:"faculty_id,omitempty"`
+	// 教室ID。
+	RoomId string `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	// 年度。
+	Year          int32 `protobuf:"varint,3,opt,name=year,proto3" json:"year,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -470,6 +499,7 @@ func (x *DeleteFacultyRoomRequest) GetYear() int32 {
 	return 0
 }
 
+// DeleteFacultyRoom の Response。
 type DeleteFacultyRoomResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -510,42 +540,42 @@ var File_admin_v1_faculty_room_proto protoreflect.FileDescriptor
 
 const file_admin_v1_faculty_room_proto_rawDesc = "" +
 	"\n" +
-	"\x1badmin/v1/faculty_room.proto\x12\badmin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcf\x01\n" +
-	"\vFacultyRoom\x12\x1d\n" +
+	"\x1badmin/v1/faculty_room.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe8\x01\n" +
+	"\vFacultyRoom\x12\"\n" +
 	"\n" +
-	"faculty_id\x18\x01 \x01(\tR\tfacultyId\x12\x17\n" +
-	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x12\n" +
-	"\x04year\x18\x03 \x01(\x05R\x04year\x129\n" +
+	"faculty_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tfacultyId\x12\x1c\n" +
+	"\aroom_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06roomId\x12\x17\n" +
+	"\x04year\x18\x03 \x01(\x05B\x03\xe0A\x02R\x04year\x12>\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"U\n" +
-	"\x17ListFacultyRoomsRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\"_\n" +
+	"\x17ListFacultyRoomsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"~\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"~\n" +
 	"\x18ListFacultyRoomsResponse\x12:\n" +
 	"\rfaculty_rooms\x18\x01 \x03(\v2\x15.admin.v1.FacultyRoomR\ffacultyRooms\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"c\n" +
-	"\x15GetFacultyRoomRequest\x12\x1d\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"r\n" +
+	"\x15GetFacultyRoomRequest\x12\"\n" +
 	"\n" +
-	"faculty_id\x18\x01 \x01(\tR\tfacultyId\x12\x17\n" +
-	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x12\n" +
-	"\x04year\x18\x03 \x01(\x05R\x04year\"R\n" +
+	"faculty_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tfacultyId\x12\x1c\n" +
+	"\aroom_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06roomId\x12\x17\n" +
+	"\x04year\x18\x03 \x01(\x05B\x03\xe0A\x02R\x04year\"R\n" +
 	"\x16GetFacultyRoomResponse\x128\n" +
-	"\ffaculty_room\x18\x01 \x01(\v2\x15.admin.v1.FacultyRoomR\vfacultyRoom\"f\n" +
-	"\x18CreateFacultyRoomRequest\x12\x1d\n" +
+	"\ffaculty_room\x18\x01 \x01(\v2\x15.admin.v1.FacultyRoomR\vfacultyRoom\"u\n" +
+	"\x18CreateFacultyRoomRequest\x12\"\n" +
 	"\n" +
-	"faculty_id\x18\x01 \x01(\tR\tfacultyId\x12\x17\n" +
-	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x12\n" +
-	"\x04year\x18\x03 \x01(\x05R\x04year\"U\n" +
+	"faculty_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tfacultyId\x12\x1c\n" +
+	"\aroom_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06roomId\x12\x17\n" +
+	"\x04year\x18\x03 \x01(\x05B\x03\xe0A\x02R\x04year\"U\n" +
 	"\x19CreateFacultyRoomResponse\x128\n" +
-	"\ffaculty_room\x18\x01 \x01(\v2\x15.admin.v1.FacultyRoomR\vfacultyRoom\"f\n" +
-	"\x18DeleteFacultyRoomRequest\x12\x1d\n" +
+	"\ffaculty_room\x18\x01 \x01(\v2\x15.admin.v1.FacultyRoomR\vfacultyRoom\"u\n" +
+	"\x18DeleteFacultyRoomRequest\x12\"\n" +
 	"\n" +
-	"faculty_id\x18\x01 \x01(\tR\tfacultyId\x12\x17\n" +
-	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x12\n" +
-	"\x04year\x18\x03 \x01(\x05R\x04year\"\x1b\n" +
+	"faculty_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tfacultyId\x12\x1c\n" +
+	"\aroom_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06roomId\x12\x17\n" +
+	"\x04year\x18\x03 \x01(\x05B\x03\xe0A\x02R\x04year\"\x1b\n" +
 	"\x19DeleteFacultyRoomResponse2\x80\x03\n" +
 	"\x12FacultyRoomService\x12Y\n" +
 	"\x10ListFacultyRooms\x12!.admin.v1.ListFacultyRoomsRequest\x1a\".admin.v1.ListFacultyRoomsResponse\x12S\n" +

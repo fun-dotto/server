@@ -155,15 +155,6 @@ erDiagram
         timestamp UpdatedAt
     }
 
-    Announcement {
-        uuid ID PK
-        string Title
-        string URL
-        timestamp AvailableFrom
-        timestamp AvailableUntil "nullable"
-        timestamp CreatedAt
-        timestamp UpdatedAt
-    }
 
     Notification {
         string ID PK

@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	latlng "google.golang.org/genproto/googleapis/type/latlng"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -23,12 +24,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 停留所・標柱情報（GTFS の stops）。
 type Stop struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	StopId        string                 `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
-	StopName      string                 `protobuf:"bytes,2,opt,name=stop_name,json=stopName,proto3" json:"stop_name,omitempty"`
-	StopLocation  *latlng.LatLng         `protobuf:"bytes,3,opt,name=stop_location,json=stopLocation,proto3" json:"stop_location,omitempty"`
-	ZoneId        *string                `protobuf:"bytes,4,opt,name=zone_id,json=zoneId,proto3,oneof" json:"zone_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 停留所・標柱ID（GTFS の stop_id）。
+	StopId string `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
+	// 停留所・標柱名称（GTFS の stop_name）。
+	StopName string `protobuf:"bytes,2,opt,name=stop_name,json=stopName,proto3" json:"stop_name,omitempty"`
+	// 緯度・経度（GTFS の stop_lat / stop_lon）。
+	StopLocation *latlng.LatLng `protobuf:"bytes,3,opt,name=stop_location,json=stopLocation,proto3" json:"stop_location,omitempty"`
+	// 運賃エリアID（GTFS の zone_id）。
+	ZoneId        *string `protobuf:"bytes,4,opt,name=zone_id,json=zoneId,proto3,oneof" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -91,10 +97,13 @@ func (x *Stop) GetZoneId() string {
 	return ""
 }
 
+// ListStops の Request。
 type ListStopsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -143,10 +152,13 @@ func (x *ListStopsRequest) GetPageToken() string {
 	return ""
 }
 
+// ListStops の Response。
 type ListStopsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Stops         []*Stop                `protobuf:"bytes,1,rep,name=stops,proto3" json:"stops,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 停留所・標柱情報（GTFS の stops）の一覧。
+	Stops []*Stop `protobuf:"bytes,1,rep,name=stops,proto3" json:"stops,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -195,9 +207,11 @@ func (x *ListStopsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetStop の Request。
 type GetStopRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	StopId        string                 `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 停留所・標柱ID（GTFS の stop_id）。
+	StopId        string `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -239,9 +253,11 @@ func (x *GetStopRequest) GetStopId() string {
 	return ""
 }
 
+// GetStop の Response。
 type GetStopResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Stop          *Stop                  `protobuf:"bytes,1,opt,name=stop,proto3" json:"stop,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した停留所・標柱情報（GTFS の stops）。
+	Stop          *Stop `protobuf:"bytes,1,opt,name=stop,proto3" json:"stop,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -283,12 +299,17 @@ func (x *GetStopResponse) GetStop() *Stop {
 	return nil
 }
 
+// CreateStop の Request。
 type CreateStopRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	StopId        string                 `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
-	StopName      string                 `protobuf:"bytes,2,opt,name=stop_name,json=stopName,proto3" json:"stop_name,omitempty"`
-	StopLocation  *latlng.LatLng         `protobuf:"bytes,3,opt,name=stop_location,json=stopLocation,proto3" json:"stop_location,omitempty"`
-	ZoneId        *string                `protobuf:"bytes,4,opt,name=zone_id,json=zoneId,proto3,oneof" json:"zone_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 停留所・標柱ID（GTFS の stop_id）。
+	StopId string `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
+	// 停留所・標柱名称（GTFS の stop_name）。
+	StopName string `protobuf:"bytes,2,opt,name=stop_name,json=stopName,proto3" json:"stop_name,omitempty"`
+	// 緯度・経度（GTFS の stop_lat / stop_lon）。
+	StopLocation *latlng.LatLng `protobuf:"bytes,3,opt,name=stop_location,json=stopLocation,proto3" json:"stop_location,omitempty"`
+	// 運賃エリアID（GTFS の zone_id）。
+	ZoneId        *string `protobuf:"bytes,4,opt,name=zone_id,json=zoneId,proto3,oneof" json:"zone_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -351,9 +372,11 @@ func (x *CreateStopRequest) GetZoneId() string {
 	return ""
 }
 
+// CreateStop の Response。
 type CreateStopResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Stop          *Stop                  `protobuf:"bytes,1,opt,name=stop,proto3" json:"stop,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した停留所・標柱情報（GTFS の stops）。
+	Stop          *Stop `protobuf:"bytes,1,opt,name=stop,proto3" json:"stop,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -395,12 +418,18 @@ func (x *CreateStopResponse) GetStop() *Stop {
 	return nil
 }
 
+// UpdateStop の Request。
 type UpdateStopRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	StopId        string                 `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
-	StopName      string                 `protobuf:"bytes,2,opt,name=stop_name,json=stopName,proto3" json:"stop_name,omitempty"`
-	StopLocation  *latlng.LatLng         `protobuf:"bytes,3,opt,name=stop_location,json=stopLocation,proto3" json:"stop_location,omitempty"`
-	ZoneId        *string                `protobuf:"bytes,4,opt,name=zone_id,json=zoneId,proto3,oneof" json:"zone_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 停留所・標柱ID（GTFS の stop_id）。
+	StopId string `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
+	// 停留所・標柱名称（GTFS の stop_name）。
+	StopName string `protobuf:"bytes,2,opt,name=stop_name,json=stopName,proto3" json:"stop_name,omitempty"`
+	// 緯度・経度（GTFS の stop_lat / stop_lon）。
+	StopLocation *latlng.LatLng `protobuf:"bytes,3,opt,name=stop_location,json=stopLocation,proto3" json:"stop_location,omitempty"`
+	// 運賃エリアID（GTFS の zone_id）。
+	ZoneId *string `protobuf:"bytes,4,opt,name=zone_id,json=zoneId,proto3,oneof" json:"zone_id,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -471,9 +500,11 @@ func (x *UpdateStopRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateStop の Response。
 type UpdateStopResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Stop          *Stop                  `protobuf:"bytes,1,opt,name=stop,proto3" json:"stop,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した停留所・標柱情報（GTFS の stops）。
+	Stop          *Stop `protobuf:"bytes,1,opt,name=stop,proto3" json:"stop,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -515,9 +546,11 @@ func (x *UpdateStopResponse) GetStop() *Stop {
 	return nil
 }
 
+// DeleteStop の Request。
 type DeleteStopRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	StopId        string                 `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 停留所・標柱ID（GTFS の stop_id）。
+	StopId        string `protobuf:"bytes,1,opt,name=stop_id,json=stopId,proto3" json:"stop_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -559,6 +592,7 @@ func (x *DeleteStopRequest) GetStopId() string {
 	return ""
 }
 
+// DeleteStop の Response。
 type DeleteStopResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -599,47 +633,47 @@ var File_admin_v1_stop_proto protoreflect.FileDescriptor
 
 const file_admin_v1_stop_proto_rawDesc = "" +
 	"\n" +
-	"\x13admin/v1/stop.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\x1a\x18google/type/latlng.proto\"\xa0\x01\n" +
-	"\x04Stop\x12\x17\n" +
-	"\astop_id\x18\x01 \x01(\tR\x06stopId\x12\x1b\n" +
-	"\tstop_name\x18\x02 \x01(\tR\bstopName\x128\n" +
-	"\rstop_location\x18\x03 \x01(\v2\x13.google.type.LatLngR\fstopLocation\x12\x1c\n" +
-	"\azone_id\x18\x04 \x01(\tH\x00R\x06zoneId\x88\x01\x01B\n" +
+	"\x13admin/v1/stop.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x18google/type/latlng.proto\"\xb4\x01\n" +
+	"\x04Stop\x12\x1c\n" +
+	"\astop_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06stopId\x12 \n" +
+	"\tstop_name\x18\x02 \x01(\tB\x03\xe0A\x02R\bstopName\x12=\n" +
+	"\rstop_location\x18\x03 \x01(\v2\x13.google.type.LatLngB\x03\xe0A\x02R\fstopLocation\x12!\n" +
+	"\azone_id\x18\x04 \x01(\tB\x03\xe0A\x01H\x00R\x06zoneId\x88\x01\x01B\n" +
 	"\n" +
-	"\b_zone_id\"N\n" +
-	"\x10ListStopsRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\b_zone_id\"X\n" +
+	"\x10ListStopsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"a\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"a\n" +
 	"\x11ListStopsResponse\x12$\n" +
 	"\x05stops\x18\x01 \x03(\v2\x0e.admin.v1.StopR\x05stops\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\")\n" +
-	"\x0eGetStopRequest\x12\x17\n" +
-	"\astop_id\x18\x01 \x01(\tR\x06stopId\"5\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\".\n" +
+	"\x0eGetStopRequest\x12\x1c\n" +
+	"\astop_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06stopId\"5\n" +
 	"\x0fGetStopResponse\x12\"\n" +
-	"\x04stop\x18\x01 \x01(\v2\x0e.admin.v1.StopR\x04stop\"\xad\x01\n" +
-	"\x11CreateStopRequest\x12\x17\n" +
-	"\astop_id\x18\x01 \x01(\tR\x06stopId\x12\x1b\n" +
-	"\tstop_name\x18\x02 \x01(\tR\bstopName\x128\n" +
-	"\rstop_location\x18\x03 \x01(\v2\x13.google.type.LatLngR\fstopLocation\x12\x1c\n" +
-	"\azone_id\x18\x04 \x01(\tH\x00R\x06zoneId\x88\x01\x01B\n" +
+	"\x04stop\x18\x01 \x01(\v2\x0e.admin.v1.StopR\x04stop\"\xc1\x01\n" +
+	"\x11CreateStopRequest\x12\x1c\n" +
+	"\astop_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06stopId\x12 \n" +
+	"\tstop_name\x18\x02 \x01(\tB\x03\xe0A\x02R\bstopName\x12=\n" +
+	"\rstop_location\x18\x03 \x01(\v2\x13.google.type.LatLngB\x03\xe0A\x02R\fstopLocation\x12!\n" +
+	"\azone_id\x18\x04 \x01(\tB\x03\xe0A\x01H\x00R\x06zoneId\x88\x01\x01B\n" +
 	"\n" +
 	"\b_zone_id\"8\n" +
 	"\x12CreateStopResponse\x12\"\n" +
-	"\x04stop\x18\x01 \x01(\v2\x0e.admin.v1.StopR\x04stop\"\xea\x01\n" +
-	"\x11UpdateStopRequest\x12\x17\n" +
-	"\astop_id\x18\x01 \x01(\tR\x06stopId\x12\x1b\n" +
-	"\tstop_name\x18\x02 \x01(\tR\bstopName\x128\n" +
-	"\rstop_location\x18\x03 \x01(\v2\x13.google.type.LatLngR\fstopLocation\x12\x1c\n" +
-	"\azone_id\x18\x04 \x01(\tH\x00R\x06zoneId\x88\x01\x01\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"\x04stop\x18\x01 \x01(\v2\x0e.admin.v1.StopR\x04stop\"\x83\x02\n" +
+	"\x11UpdateStopRequest\x12\x1c\n" +
+	"\astop_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06stopId\x12 \n" +
+	"\tstop_name\x18\x02 \x01(\tB\x03\xe0A\x01R\bstopName\x12=\n" +
+	"\rstop_location\x18\x03 \x01(\v2\x13.google.type.LatLngB\x03\xe0A\x01R\fstopLocation\x12!\n" +
+	"\azone_id\x18\x04 \x01(\tB\x03\xe0A\x01H\x00R\x06zoneId\x88\x01\x01\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMaskB\n" +
 	"\n" +
 	"\b_zone_id\"8\n" +
 	"\x12UpdateStopResponse\x12\"\n" +
-	"\x04stop\x18\x01 \x01(\v2\x0e.admin.v1.StopR\x04stop\",\n" +
-	"\x11DeleteStopRequest\x12\x17\n" +
-	"\astop_id\x18\x01 \x01(\tR\x06stopId\"\x14\n" +
+	"\x04stop\x18\x01 \x01(\v2\x0e.admin.v1.StopR\x04stop\"1\n" +
+	"\x11DeleteStopRequest\x12\x1c\n" +
+	"\astop_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06stopId\"\x14\n" +
 	"\x12DeleteStopResponse2\xee\x02\n" +
 	"\vStopService\x12D\n" +
 	"\tListStops\x12\x1a.admin.v1.ListStopsRequest\x1a\x1b.admin.v1.ListStopsResponse\x12>\n" +

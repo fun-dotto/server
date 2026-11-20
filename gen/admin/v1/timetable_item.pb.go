@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	dayofweek "google.golang.org/genproto/googleapis/type/dayofweek"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -24,14 +25,22 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 時間割。
 type TimetableItem struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	SubjectId     string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	DayOfWeek     *dayofweek.DayOfWeek   `protobuf:"varint,3,opt,name=day_of_week,json=dayOfWeek,proto3,enum=google.type.DayOfWeek,oneof" json:"day_of_week,omitempty"`
-	Period        *Period                `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period,oneof" json:"period,omitempty"`
-	RoomIds       []string               `protobuf:"bytes,5,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 科目ID。
+	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	// 曜日。集中講義など、時間割に含まれていない場合は未設定。
+	DayOfWeek *dayofweek.DayOfWeek `protobuf:"varint,3,opt,name=day_of_week,json=dayOfWeek,proto3,enum=google.type.DayOfWeek,oneof" json:"day_of_week,omitempty"`
+	// 時限。集中講義など、時間割に含まれていない場合は未設定。
+	Period *Period `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period,oneof" json:"period,omitempty"`
+	// 使う教室ID。
+	RoomIds []string `protobuf:"bytes,5,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -116,10 +125,13 @@ func (x *TimetableItem) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListTimetableItems の Request。
 type ListTimetableItemsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -168,12 +180,15 @@ func (x *ListTimetableItemsRequest) GetPageToken() string {
 	return ""
 }
 
+// ListTimetableItems の Response。
 type ListTimetableItemsResponse struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	TimetableItems []*TimetableItem       `protobuf:"bytes,1,rep,name=timetable_items,json=timetableItems,proto3" json:"timetable_items,omitempty"`
-	NextPageToken  string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 時間割の一覧。
+	TimetableItems []*TimetableItem `protobuf:"bytes,1,rep,name=timetable_items,json=timetableItems,proto3" json:"timetable_items,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListTimetableItemsResponse) Reset() {
@@ -220,9 +235,11 @@ func (x *ListTimetableItemsResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetTimetableItem の Request。
 type GetTimetableItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得する時間割ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -264,9 +281,11 @@ func (x *GetTimetableItemRequest) GetId() string {
 	return ""
 }
 
+// GetTimetableItem の Response。
 type GetTimetableItemResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimetableItem *TimetableItem         `protobuf:"bytes,1,opt,name=timetable_item,json=timetableItem,proto3" json:"timetable_item,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した時間割。
+	TimetableItem *TimetableItem `protobuf:"bytes,1,opt,name=timetable_item,json=timetableItem,proto3" json:"timetable_item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -308,12 +327,17 @@ func (x *GetTimetableItemResponse) GetTimetableItem() *TimetableItem {
 	return nil
 }
 
+// CreateTimetableItem の Request。
 type CreateTimetableItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SubjectId     string                 `protobuf:"bytes,1,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	DayOfWeek     *dayofweek.DayOfWeek   `protobuf:"varint,2,opt,name=day_of_week,json=dayOfWeek,proto3,enum=google.type.DayOfWeek,oneof" json:"day_of_week,omitempty"`
-	Period        *Period                `protobuf:"varint,3,opt,name=period,proto3,enum=admin.v1.Period,oneof" json:"period,omitempty"`
-	RoomIds       []string               `protobuf:"bytes,4,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 科目ID。
+	SubjectId string `protobuf:"bytes,1,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	// 曜日。集中講義など、時間割に含まれていない場合は未設定。
+	DayOfWeek *dayofweek.DayOfWeek `protobuf:"varint,2,opt,name=day_of_week,json=dayOfWeek,proto3,enum=google.type.DayOfWeek,oneof" json:"day_of_week,omitempty"`
+	// 時限。集中講義など、時間割に含まれていない場合は未設定。
+	Period *Period `protobuf:"varint,3,opt,name=period,proto3,enum=admin.v1.Period,oneof" json:"period,omitempty"`
+	// 使う教室ID。
+	RoomIds       []string `protobuf:"bytes,4,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -376,9 +400,11 @@ func (x *CreateTimetableItemRequest) GetRoomIds() []string {
 	return nil
 }
 
+// CreateTimetableItem の Response。
 type CreateTimetableItemResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimetableItem *TimetableItem         `protobuf:"bytes,1,opt,name=timetable_item,json=timetableItem,proto3" json:"timetable_item,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した時間割。
+	TimetableItem *TimetableItem `protobuf:"bytes,1,opt,name=timetable_item,json=timetableItem,proto3" json:"timetable_item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -420,13 +446,20 @@ func (x *CreateTimetableItemResponse) GetTimetableItem() *TimetableItem {
 	return nil
 }
 
+// UpdateTimetableItem の Request。
 type UpdateTimetableItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	SubjectId     string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
-	DayOfWeek     *dayofweek.DayOfWeek   `protobuf:"varint,3,opt,name=day_of_week,json=dayOfWeek,proto3,enum=google.type.DayOfWeek,oneof" json:"day_of_week,omitempty"`
-	Period        *Period                `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period,oneof" json:"period,omitempty"`
-	RoomIds       []string               `protobuf:"bytes,5,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新する時間割ID。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 科目ID。
+	SubjectId string `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
+	// 曜日。集中講義など、時間割に含まれていない場合は未設定。
+	DayOfWeek *dayofweek.DayOfWeek `protobuf:"varint,3,opt,name=day_of_week,json=dayOfWeek,proto3,enum=google.type.DayOfWeek,oneof" json:"day_of_week,omitempty"`
+	// 時限。集中講義など、時間割に含まれていない場合は未設定。
+	Period *Period `protobuf:"varint,4,opt,name=period,proto3,enum=admin.v1.Period,oneof" json:"period,omitempty"`
+	// 使う教室ID。
+	RoomIds []string `protobuf:"bytes,5,rep,name=room_ids,json=roomIds,proto3" json:"room_ids,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -504,9 +537,11 @@ func (x *UpdateTimetableItemRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateTimetableItem の Response。
 type UpdateTimetableItemResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimetableItem *TimetableItem         `protobuf:"bytes,1,opt,name=timetable_item,json=timetableItem,proto3" json:"timetable_item,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した時間割。
+	TimetableItem *TimetableItem `protobuf:"bytes,1,opt,name=timetable_item,json=timetableItem,proto3" json:"timetable_item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -548,9 +583,11 @@ func (x *UpdateTimetableItemResponse) GetTimetableItem() *TimetableItem {
 	return nil
 }
 
+// DeleteTimetableItem の Request。
 type DeleteTimetableItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 削除する時間割ID。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -592,6 +629,7 @@ func (x *DeleteTimetableItemRequest) GetId() string {
 	return ""
 }
 
+// DeleteTimetableItem の Response。
 type DeleteTimetableItemResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -632,56 +670,56 @@ var File_admin_v1_timetable_item_proto protoreflect.FileDescriptor
 
 const file_admin_v1_timetable_item_proto_rawDesc = "" +
 	"\n" +
-	"\x1dadmin/v1/timetable_item.proto\x12\badmin.v1\x1a\x15admin/v1/common.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/type/dayofweek.proto\"\xd6\x02\n" +
-	"\rTimetableItem\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x1dadmin/v1/timetable_item.proto\x12\badmin.v1\x1a\x15admin/v1/common.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/type/dayofweek.proto\"\xf9\x02\n" +
+	"\rTimetableItem\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x02 \x01(\tR\tsubjectId\x12;\n" +
-	"\vday_of_week\x18\x03 \x01(\x0e2\x16.google.type.DayOfWeekH\x00R\tdayOfWeek\x88\x01\x01\x12-\n" +
-	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodH\x01R\x06period\x88\x01\x01\x12\x19\n" +
-	"\broom_ids\x18\x05 \x03(\tR\aroomIds\x129\n" +
+	"subject_id\x18\x02 \x01(\tB\x03\xe0A\x02R\tsubjectId\x12@\n" +
+	"\vday_of_week\x18\x03 \x01(\x0e2\x16.google.type.DayOfWeekB\x03\xe0A\x01H\x00R\tdayOfWeek\x88\x01\x01\x122\n" +
+	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodB\x03\xe0A\x01H\x01R\x06period\x88\x01\x01\x12\x1e\n" +
+	"\broom_ids\x18\x05 \x03(\tB\x03\xe0A\x01R\aroomIds\x12>\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x0e\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAtB\x0e\n" +
 	"\f_day_of_weekB\t\n" +
-	"\a_period\"W\n" +
-	"\x19ListTimetableItemsRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\a_period\"a\n" +
+	"\x19ListTimetableItemsRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"\x86\x01\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"\x86\x01\n" +
 	"\x1aListTimetableItemsResponse\x12@\n" +
 	"\x0ftimetable_items\x18\x01 \x03(\v2\x17.admin.v1.TimetableItemR\x0etimetableItems\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\")\n" +
-	"\x17GetTimetableItemRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"Z\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\".\n" +
+	"\x17GetTimetableItemRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"Z\n" +
 	"\x18GetTimetableItemResponse\x12>\n" +
-	"\x0etimetable_item\x18\x01 \x01(\v2\x17.admin.v1.TimetableItemR\rtimetableItem\"\xdd\x01\n" +
-	"\x1aCreateTimetableItemRequest\x12\x1d\n" +
+	"\x0etimetable_item\x18\x01 \x01(\v2\x17.admin.v1.TimetableItemR\rtimetableItem\"\xf1\x01\n" +
+	"\x1aCreateTimetableItemRequest\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x01 \x01(\tR\tsubjectId\x12;\n" +
-	"\vday_of_week\x18\x02 \x01(\x0e2\x16.google.type.DayOfWeekH\x00R\tdayOfWeek\x88\x01\x01\x12-\n" +
-	"\x06period\x18\x03 \x01(\x0e2\x10.admin.v1.PeriodH\x01R\x06period\x88\x01\x01\x12\x19\n" +
-	"\broom_ids\x18\x04 \x03(\tR\aroomIdsB\x0e\n" +
+	"subject_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tsubjectId\x12@\n" +
+	"\vday_of_week\x18\x02 \x01(\x0e2\x16.google.type.DayOfWeekB\x03\xe0A\x01H\x00R\tdayOfWeek\x88\x01\x01\x122\n" +
+	"\x06period\x18\x03 \x01(\x0e2\x10.admin.v1.PeriodB\x03\xe0A\x01H\x01R\x06period\x88\x01\x01\x12\x1e\n" +
+	"\broom_ids\x18\x04 \x03(\tB\x03\xe0A\x01R\aroomIdsB\x0e\n" +
 	"\f_day_of_weekB\t\n" +
 	"\a_period\"]\n" +
 	"\x1bCreateTimetableItemResponse\x12>\n" +
-	"\x0etimetable_item\x18\x01 \x01(\v2\x17.admin.v1.TimetableItemR\rtimetableItem\"\xaa\x02\n" +
-	"\x1aUpdateTimetableItemRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x0etimetable_item\x18\x01 \x01(\v2\x17.admin.v1.TimetableItemR\rtimetableItem\"\xc8\x02\n" +
+	"\x1aUpdateTimetableItemRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\x12\"\n" +
 	"\n" +
-	"subject_id\x18\x02 \x01(\tR\tsubjectId\x12;\n" +
-	"\vday_of_week\x18\x03 \x01(\x0e2\x16.google.type.DayOfWeekH\x00R\tdayOfWeek\x88\x01\x01\x12-\n" +
-	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodH\x01R\x06period\x88\x01\x01\x12\x19\n" +
-	"\broom_ids\x18\x05 \x03(\tR\aroomIds\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"subject_id\x18\x02 \x01(\tB\x03\xe0A\x01R\tsubjectId\x12@\n" +
+	"\vday_of_week\x18\x03 \x01(\x0e2\x16.google.type.DayOfWeekB\x03\xe0A\x01H\x00R\tdayOfWeek\x88\x01\x01\x122\n" +
+	"\x06period\x18\x04 \x01(\x0e2\x10.admin.v1.PeriodB\x03\xe0A\x01H\x01R\x06period\x88\x01\x01\x12\x1e\n" +
+	"\broom_ids\x18\x05 \x03(\tB\x03\xe0A\x01R\aroomIds\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMaskB\x0e\n" +
 	"\f_day_of_weekB\t\n" +
 	"\a_period\"]\n" +
 	"\x1bUpdateTimetableItemResponse\x12>\n" +
-	"\x0etimetable_item\x18\x01 \x01(\v2\x17.admin.v1.TimetableItemR\rtimetableItem\",\n" +
-	"\x1aDeleteTimetableItemRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x1d\n" +
+	"\x0etimetable_item\x18\x01 \x01(\v2\x17.admin.v1.TimetableItemR\rtimetableItem\"1\n" +
+	"\x1aDeleteTimetableItemRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x02R\x02id\"\x1d\n" +
 	"\x1bDeleteTimetableItemResponse2\xfe\x03\n" +
 	"\x14TimetableItemService\x12_\n" +
 	"\x12ListTimetableItems\x12#.admin.v1.ListTimetableItemsRequest\x1a$.admin.v1.ListTimetableItemsResponse\x12Y\n" +

@@ -2,77 +2,125 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
-enum RoomFloor {
-  ROOM_FLOOR_UNSPECIFIED = 0;
-  ROOM_FLOOR_1 = 1;
-  ROOM_FLOOR_2 = 2;
-  ROOM_FLOOR_3 = 3;
-  ROOM_FLOOR_4 = 4;
-  ROOM_FLOOR_5 = 5;
-  ROOM_FLOOR_6 = 6;
-  ROOM_FLOOR_7 = 7;
-  ROOM_FLOOR_VIRTUAL = 8;
+// 教室を管理する。
+service RoomService {
+  // 教室の一覧を取得する。
+  rpc ListRooms(ListRoomsRequest) returns (ListRoomsResponse);
+  // 教室を取得する。
+  rpc GetRoom(GetRoomRequest) returns (GetRoomResponse);
+  // 教室を作成する。
+  rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
+  // 教室を更新する。
+  rpc UpdateRoom(UpdateRoomRequest) returns (UpdateRoomResponse);
+  // 教室を削除する。
+  rpc DeleteRoom(DeleteRoomRequest) returns (DeleteRoomResponse);
 }
 
+// 教室。
 message Room {
-  string id = 1;
-  string name = 2;
-  RoomFloor floor = 3;
-  google.protobuf.Timestamp created_at = 4;
-  google.protobuf.Timestamp updated_at = 5;
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 部屋名。
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  // フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
+  RoomFloor floor = 3 [(google.api.field_behavior) = REQUIRED];
+  // 作成日時。
+  google.protobuf.Timestamp created_at = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 更新日時。
+  google.protobuf.Timestamp updated_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ListRooms の Request。
 message ListRoomsRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListRooms の Response。
 message ListRoomsResponse {
+  // 教室の一覧。
   repeated Room rooms = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetRoom の Request。
 message GetRoomRequest {
-  string id = 1;
+  // 取得する教室ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetRoom の Response。
 message GetRoomResponse {
+  // 取得した教室。
   Room room = 1;
 }
 
+// CreateRoom の Request。
 message CreateRoomRequest {
-  string name = 1;
-  RoomFloor floor = 2;
+  // 部屋名。
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  // フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
+  RoomFloor floor = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// CreateRoom の Response。
 message CreateRoomResponse {
+  // 作成した教室。
   Room room = 1;
 }
 
+// UpdateRoom の Request。
 message UpdateRoomRequest {
-  string id = 1;
-  string name = 2;
-  RoomFloor floor = 3;
-  google.protobuf.FieldMask update_mask = 99;
+  // 更新する教室ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 部屋名。
+  string name = 2 [(google.api.field_behavior) = OPTIONAL];
+  // フロア。オンラインなどの仮想教室の場合は VIRTUAL を使用する。
+  RoomFloor floor = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateRoom の Response。
 message UpdateRoomResponse {
+  // 更新した教室。
   Room room = 1;
 }
 
+// DeleteRoom の Request。
 message DeleteRoomRequest {
-  string id = 1;
+  // 削除する教室ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteRoom の Response。
 message DeleteRoomResponse {}
 
-service RoomService {
-  rpc ListRooms(ListRoomsRequest) returns (ListRoomsResponse);
-  rpc GetRoom(GetRoomRequest) returns (GetRoomResponse);
-  rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
-  rpc UpdateRoom(UpdateRoomRequest) returns (UpdateRoomResponse);
-  rpc DeleteRoom(DeleteRoomRequest) returns (DeleteRoomResponse);
+// フロア。
+enum RoomFloor {
+  // 未指定。
+  ROOM_FLOOR_UNSPECIFIED = 0;
+  // 1F。
+  ROOM_FLOOR_1 = 1;
+  // 2F。
+  ROOM_FLOOR_2 = 2;
+  // 3F。
+  ROOM_FLOOR_3 = 3;
+  // 4F。
+  ROOM_FLOOR_4 = 4;
+  // 5F。
+  ROOM_FLOOR_5 = 5;
+  // R6F。
+  ROOM_FLOOR_6 = 6;
+  // R7F。
+  ROOM_FLOOR_7 = 7;
+  // 仮想教室（オンラインなど）。
+  ROOM_FLOOR_VIRTUAL = 8;
 }

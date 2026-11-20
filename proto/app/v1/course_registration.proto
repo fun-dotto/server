@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "app/v1/subject.proto";
+import "google/api/field_behavior.proto";
+
+// ログイン中のユーザーの履修情報を管理する。
+service CourseRegistrationService {
+  // 履修情報の一覧を取得する。
+  rpc ListCourseRegistrations(ListCourseRegistrationsRequest) returns (ListCourseRegistrationsResponse);
+  // 履修情報を作成する。
+  rpc CreateCourseRegistration(CreateCourseRegistrationRequest) returns (CreateCourseRegistrationResponse);
+  // 履修情報を削除する。ログイン中のユーザーの履修情報でない場合は PERMISSION_DENIED を返す。
+  rpc DeleteCourseRegistration(DeleteCourseRegistrationRequest) returns (DeleteCourseRegistrationResponse);
+}
+
+// 履修情報。
+message CourseRegistration {
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 科目。
+  Subject subject = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListCourseRegistrations の Request。
+message ListCourseRegistrationsRequest {
+  // 開講年度。未設定の場合は今年度。
+  optional int32 year = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 開講時期。
+  repeated SubjectSemester semesters = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListCourseRegistrations の Response。
+message ListCourseRegistrationsResponse {
+  // 履修情報の一覧。
+  repeated CourseRegistration course_registrations = 1;
+}
+
+// CreateCourseRegistration の Request。
+message CreateCourseRegistrationRequest {
+  // 履修する科目ID。
+  string subject_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CreateCourseRegistration の Response。
+message CreateCourseRegistrationResponse {
+  // 作成した履修情報。
+  CourseRegistration course_registration = 1;
+}
+
+// DeleteCourseRegistration の Request。
+message DeleteCourseRegistrationRequest {
+  // 削除する履修情報ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// DeleteCourseRegistration の Response。
+message DeleteCourseRegistrationResponse {}

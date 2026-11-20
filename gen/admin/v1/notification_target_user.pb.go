@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -23,13 +24,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 通知の対象ユーザー。
 type NotificationTargetUser struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	NotificationId string                 `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
-	UserId         string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	NotifiedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=notified_at,json=notifiedAt,proto3,oneof" json:"notified_at,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 通知ID。
+	NotificationId string `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
+	// ユーザーID。
+	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// 通知送信日時。送信前は未設定。
+	NotifiedAt    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=notified_at,json=notifiedAt,proto3,oneof" json:"notified_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *NotificationTargetUser) Reset() {
@@ -83,10 +88,13 @@ func (x *NotificationTargetUser) GetNotifiedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListNotificationTargetUsers の Request。
 type ListNotificationTargetUsersRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -135,12 +143,15 @@ func (x *ListNotificationTargetUsersRequest) GetPageToken() string {
 	return ""
 }
 
+// ListNotificationTargetUsers の Response。
 type ListNotificationTargetUsersResponse struct {
-	state                   protoimpl.MessageState    `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 通知の対象ユーザーの一覧。
 	NotificationTargetUsers []*NotificationTargetUser `protobuf:"bytes,1,rep,name=notification_target_users,json=notificationTargetUsers,proto3" json:"notification_target_users,omitempty"`
-	NextPageToken           string                    `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListNotificationTargetUsersResponse) Reset() {
@@ -187,12 +198,15 @@ func (x *ListNotificationTargetUsersResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetNotificationTargetUser の Request。
 type GetNotificationTargetUserRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	NotificationId string                 `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
-	UserId         string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 通知ID。
+	NotificationId string `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
+	// ユーザーID。
+	UserId        string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetNotificationTargetUserRequest) Reset() {
@@ -239,8 +253,10 @@ func (x *GetNotificationTargetUserRequest) GetUserId() string {
 	return ""
 }
 
+// GetNotificationTargetUser の Response。
 type GetNotificationTargetUserResponse struct {
-	state                  protoimpl.MessageState  `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得した通知の対象ユーザー。
 	NotificationTargetUser *NotificationTargetUser `protobuf:"bytes,1,opt,name=notification_target_user,json=notificationTargetUser,proto3" json:"notification_target_user,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -283,13 +299,17 @@ func (x *GetNotificationTargetUserResponse) GetNotificationTargetUser() *Notific
 	return nil
 }
 
+// CreateNotificationTargetUser の Request。
 type CreateNotificationTargetUserRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	NotificationId string                 `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
-	UserId         string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	NotifiedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=notified_at,json=notifiedAt,proto3,oneof" json:"notified_at,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 通知ID。
+	NotificationId string `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
+	// ユーザーID。
+	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// 通知送信日時。送信前は未設定。
+	NotifiedAt    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=notified_at,json=notifiedAt,proto3,oneof" json:"notified_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateNotificationTargetUserRequest) Reset() {
@@ -343,8 +363,10 @@ func (x *CreateNotificationTargetUserRequest) GetNotifiedAt() *timestamppb.Times
 	return nil
 }
 
+// CreateNotificationTargetUser の Response。
 type CreateNotificationTargetUserResponse struct {
-	state                  protoimpl.MessageState  `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成した通知の対象ユーザー。
 	NotificationTargetUser *NotificationTargetUser `protobuf:"bytes,1,opt,name=notification_target_user,json=notificationTargetUser,proto3" json:"notification_target_user,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -387,14 +409,19 @@ func (x *CreateNotificationTargetUserResponse) GetNotificationTargetUser() *Noti
 	return nil
 }
 
+// UpdateNotificationTargetUser の Request。
 type UpdateNotificationTargetUserRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	NotificationId string                 `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
-	UserId         string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	NotifiedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=notified_at,json=notifiedAt,proto3,oneof" json:"notified_at,omitempty"`
-	UpdateMask     *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 通知ID。
+	NotificationId string `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
+	// ユーザーID。
+	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// 通知送信日時。送信前は未設定。
+	NotifiedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=notified_at,json=notifiedAt,proto3,oneof" json:"notified_at,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateNotificationTargetUserRequest) Reset() {
@@ -455,8 +482,10 @@ func (x *UpdateNotificationTargetUserRequest) GetUpdateMask() *fieldmaskpb.Field
 	return nil
 }
 
+// UpdateNotificationTargetUser の Response。
 type UpdateNotificationTargetUserResponse struct {
-	state                  protoimpl.MessageState  `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新した通知の対象ユーザー。
 	NotificationTargetUser *NotificationTargetUser `protobuf:"bytes,1,opt,name=notification_target_user,json=notificationTargetUser,proto3" json:"notification_target_user,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -499,12 +528,15 @@ func (x *UpdateNotificationTargetUserResponse) GetNotificationTargetUser() *Noti
 	return nil
 }
 
+// DeleteNotificationTargetUser の Request。
 type DeleteNotificationTargetUserRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	NotificationId string                 `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
-	UserId         string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 通知ID。
+	NotificationId string `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
+	// ユーザーID。
+	UserId        string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteNotificationTargetUserRequest) Reset() {
@@ -551,6 +583,7 @@ func (x *DeleteNotificationTargetUserRequest) GetUserId() string {
 	return ""
 }
 
+// DeleteNotificationTargetUser の Response。
 type DeleteNotificationTargetUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -591,46 +624,46 @@ var File_admin_v1_notification_target_user_proto protoreflect.FileDescriptor
 
 const file_admin_v1_notification_target_user_proto_rawDesc = "" +
 	"\n" +
-	"'admin/v1/notification_target_user.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xac\x01\n" +
-	"\x16NotificationTargetUser\x12'\n" +
-	"\x0fnotification_id\x18\x01 \x01(\tR\x0enotificationId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12@\n" +
-	"\vnotified_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
+	"'admin/v1/notification_target_user.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbb\x01\n" +
+	"\x16NotificationTargetUser\x12,\n" +
+	"\x0fnotification_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x0enotificationId\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06userId\x12E\n" +
+	"\vnotified_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x00R\n" +
 	"notifiedAt\x88\x01\x01B\x0e\n" +
-	"\f_notified_at\"`\n" +
-	"\"ListNotificationTargetUsersRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\f_notified_at\"j\n" +
+	"\"ListNotificationTargetUsersRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"\xab\x01\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"\xab\x01\n" +
 	"#ListNotificationTargetUsersResponse\x12\\\n" +
 	"\x19notification_target_users\x18\x01 \x03(\v2 .admin.v1.NotificationTargetUserR\x17notificationTargetUsers\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"d\n" +
-	" GetNotificationTargetUserRequest\x12'\n" +
-	"\x0fnotification_id\x18\x01 \x01(\tR\x0enotificationId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"\x7f\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"n\n" +
+	" GetNotificationTargetUserRequest\x12,\n" +
+	"\x0fnotification_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x0enotificationId\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06userId\"\x7f\n" +
 	"!GetNotificationTargetUserResponse\x12Z\n" +
-	"\x18notification_target_user\x18\x01 \x01(\v2 .admin.v1.NotificationTargetUserR\x16notificationTargetUser\"\xb9\x01\n" +
-	"#CreateNotificationTargetUserRequest\x12'\n" +
-	"\x0fnotification_id\x18\x01 \x01(\tR\x0enotificationId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12@\n" +
-	"\vnotified_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
+	"\x18notification_target_user\x18\x01 \x01(\v2 .admin.v1.NotificationTargetUserR\x16notificationTargetUser\"\xc8\x01\n" +
+	"#CreateNotificationTargetUserRequest\x12,\n" +
+	"\x0fnotification_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x0enotificationId\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06userId\x12E\n" +
+	"\vnotified_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x00R\n" +
 	"notifiedAt\x88\x01\x01B\x0e\n" +
 	"\f_notified_at\"\x82\x01\n" +
 	"$CreateNotificationTargetUserResponse\x12Z\n" +
-	"\x18notification_target_user\x18\x01 \x01(\v2 .admin.v1.NotificationTargetUserR\x16notificationTargetUser\"\xf6\x01\n" +
-	"#UpdateNotificationTargetUserRequest\x12'\n" +
-	"\x0fnotification_id\x18\x01 \x01(\tR\x0enotificationId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12@\n" +
-	"\vnotified_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
-	"notifiedAt\x88\x01\x01\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"\x18notification_target_user\x18\x01 \x01(\v2 .admin.v1.NotificationTargetUserR\x16notificationTargetUser\"\x8a\x02\n" +
+	"#UpdateNotificationTargetUserRequest\x12,\n" +
+	"\x0fnotification_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x0enotificationId\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06userId\x12E\n" +
+	"\vnotified_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01H\x00R\n" +
+	"notifiedAt\x88\x01\x01\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMaskB\x0e\n" +
 	"\f_notified_at\"\x82\x01\n" +
 	"$UpdateNotificationTargetUserResponse\x12Z\n" +
-	"\x18notification_target_user\x18\x01 \x01(\v2 .admin.v1.NotificationTargetUserR\x16notificationTargetUser\"g\n" +
-	"#DeleteNotificationTargetUserRequest\x12'\n" +
-	"\x0fnotification_id\x18\x01 \x01(\tR\x0enotificationId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"&\n" +
+	"\x18notification_target_user\x18\x01 \x01(\v2 .admin.v1.NotificationTargetUserR\x16notificationTargetUser\"q\n" +
+	"#DeleteNotificationTargetUserRequest\x12,\n" +
+	"\x0fnotification_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x0enotificationId\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06userId\"&\n" +
 	"$DeleteNotificationTargetUserResponse2\x8e\x05\n" +
 	"\x1dNotificationTargetUserService\x12z\n" +
 	"\x1bListNotificationTargetUsers\x12,.admin.v1.ListNotificationTargetUsersRequest\x1a-.admin.v1.ListNotificationTargetUsersResponse\x12t\n" +

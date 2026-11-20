@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "app/v1/bus_stop.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+// バスの停車情報を提供する。
+service BusTimetableStopService {
+  // 運行ごとのバスの停車情報の一覧を取得する。
+  rpc ListBusTimetableStops(ListBusTimetableStopsRequest) returns (ListBusTimetableStopsResponse);
+}
+
+// バスの停車情報。
+message BusTimetableStop {
+  // 運行ID。
+  string trip_id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // バス停。
+  BusStop stop = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 出発日時。
+  google.protobuf.Timestamp departure_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ListBusTimetableStops の Request。
+message ListBusTimetableStopsRequest {
+  // 運行ID。
+  string trip_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ListBusTimetableStops の Response。
+message ListBusTimetableStopsResponse {
+  // バスの停車情報の一覧。
+  repeated BusTimetableStop bus_timetable_stops = 1;
+}

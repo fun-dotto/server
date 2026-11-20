@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "app/v1/common.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/field_mask.proto";
+
+// ログイン中のユーザーを管理する。
+service UserService {
+  // ログイン中のユーザーを取得する。
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  // ログイン中のユーザーを更新する。存在しない場合は作成する。
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+}
+
+// ユーザー。
+message User {
+  // 学年。
+  optional Grade grade = 1 [(google.api.field_behavior) = OPTIONAL];
+  // コース。
+  optional Course course = 2 [(google.api.field_behavior) = OPTIONAL];
+  // クラス。
+  optional Class class = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// GetUser の Request。対象は認証情報から決まる。
+message GetUserRequest {}
+
+// GetUser の Response。
+message GetUserResponse {
+  // 取得したユーザー。
+  User user = 1;
+}
+
+// UpdateUser の Request。対象は認証情報から決まる。
+message UpdateUserRequest {
+  // 学年。
+  optional Grade grade = 1 [(google.api.field_behavior) = OPTIONAL];
+  // コース。
+  optional Course course = 2 [(google.api.field_behavior) = OPTIONAL];
+  // クラス。
+  optional Class class = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// UpdateUser の Response。
+message UpdateUserResponse {
+  // 更新したユーザー。
+  User user = 1;
+}

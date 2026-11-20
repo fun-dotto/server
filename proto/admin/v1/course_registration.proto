@@ -2,53 +2,84 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
+// 履修情報を管理する。
+service CourseRegistrationService {
+  // 履修情報の一覧を取得する。
+  rpc ListCourseRegistrations(ListCourseRegistrationsRequest) returns (ListCourseRegistrationsResponse);
+  // 履修情報を取得する。
+  rpc GetCourseRegistration(GetCourseRegistrationRequest) returns (GetCourseRegistrationResponse);
+  // 履修情報を作成する。
+  rpc CreateCourseRegistration(CreateCourseRegistrationRequest) returns (CreateCourseRegistrationResponse);
+  // 履修情報を削除する。
+  rpc DeleteCourseRegistration(DeleteCourseRegistrationRequest) returns (DeleteCourseRegistrationResponse);
+}
+
+// 履修情報。
 message CourseRegistration {
-  string user_id = 1;
-  string subject_id = 2;
-  google.protobuf.Timestamp created_at = 3;
-  google.protobuf.Timestamp updated_at = 4;
+  // ユーザーID。
+  string user_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 科目ID。
+  string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 作成日時。
+  google.protobuf.Timestamp created_at = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 更新日時。
+  google.protobuf.Timestamp updated_at = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ListCourseRegistrations の Request。
 message ListCourseRegistrationsRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListCourseRegistrations の Response。
 message ListCourseRegistrationsResponse {
+  // 履修情報の一覧。
   repeated CourseRegistration course_registrations = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetCourseRegistration の Request。
 message GetCourseRegistrationRequest {
-  string user_id = 1;
-  string subject_id = 2;
+  // ユーザーID。
+  string user_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 科目ID。
+  string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetCourseRegistration の Response。
 message GetCourseRegistrationResponse {
+  // 取得した履修情報。
   CourseRegistration course_registration = 1;
 }
 
+// CreateCourseRegistration の Request。
 message CreateCourseRegistrationRequest {
-  string user_id = 1;
-  string subject_id = 2;
+  // ユーザーID。
+  string user_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 科目ID。
+  string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// CreateCourseRegistration の Response。
 message CreateCourseRegistrationResponse {
+  // 作成した履修情報。
   CourseRegistration course_registration = 1;
 }
 
+// DeleteCourseRegistration の Request。
 message DeleteCourseRegistrationRequest {
-  string user_id = 1;
-  string subject_id = 2;
+  // ユーザーID。
+  string user_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 科目ID。
+  string subject_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteCourseRegistration の Response。
 message DeleteCourseRegistrationResponse {}
-
-service CourseRegistrationService {
-  rpc ListCourseRegistrations(ListCourseRegistrationsRequest) returns (ListCourseRegistrationsResponse);
-  rpc GetCourseRegistration(GetCourseRegistrationRequest) returns (GetCourseRegistrationResponse);
-  rpc CreateCourseRegistration(CreateCourseRegistrationRequest) returns (CreateCourseRegistrationResponse);
-  rpc DeleteCourseRegistration(DeleteCourseRegistrationRequest) returns (DeleteCourseRegistrationResponse);
-}

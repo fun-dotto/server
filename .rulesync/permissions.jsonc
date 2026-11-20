@@ -1,126 +1,91 @@
 {
   "permission": {
     "bash": {
-      "mise setup": "allow",
-      "rm *": "ask",
-      "bash *": "deny",
-      "brew install *": "deny",
-      "chmod *": "deny",
-      "chown *": "deny",
-      "curl *": "deny",
-      "env *": "deny",
-      "eval *": "deny",
-      "export *": "deny",
-      "firebase *": "deny",
-      "gcloud *": "deny",
-      "git push * --delete *": "deny",
-      "git push * --force *": "deny",
-      "git push * -d *": "deny",
-      "git push * -f *": "deny",
-      "history:*": "deny",
-      "rm -rf *": "deny",
-      "sh *": "deny",
-      "source:*": "deny",
-      "sudo:*": "deny",
-      "telnet:*": "deny",
-      "wget *": "deny",
-      "zsh *": "deny"
+      "mise run *": "allow",
     },
     "edit": {
       "*": "allow",
       "**/.env": "deny",
-      "**/.env.*": "deny",
-      "**/.envrc": "deny",
       "**/.claude/settings.json": "deny",
       "**/.claude/settings.local.json": "deny",
-      "**/.codex/config.toml": "deny"
+      "**/.codex/config.toml": "deny",
+      "**/.rulesync/hooks.jsonc": "deny",
+      "**/.rulesync/mcp.jsonc": "deny",
+      "**/.rulesync/permissions.jsonc": "deny",
     },
     "read": {
       "*": "allow",
-      "**/*.cer": "deny",
-      "**/*.cert": "deny",
-      "**/*.jks": "deny",
-      "**/*.key": "deny",
-      "**/*.keystore": "deny",
-      "**/*.p8": "deny",
-      "**/*.p12": "deny",
-      "**/*.pem": "deny",
-      "**/*.pfx": "deny",
       "**/.env": "deny",
-      "**/.env.*": "deny",
-      "**/.envrc": "deny"
+      "**/mise.local.toml": "deny",
     },
     "write": {
-      "*": "allow"
+      "*": "allow",
     },
     "webfetch": {
       "domain:github.com": "allow",
-      "domain:api.github.com": "allow",
-      "domain:raw.githubusercontent.com": "allow",
-      "domain:gist.github.com": "allow",
-      "domain:gist.githubusercontent.com": "allow",
-      "domain:objects.githubusercontent.com": "allow"
+      "domain:*.github.com": "allow",
+      "domain:*.githubusercontent.com": "allow",
+      "domain:fun-dotto.com": "allow",
+      "domain:*.fun-dotto.com": "allow",
     },
     "mcp__dotto-notion__notion-fetch": {
-      "*": "allow"
+      "*": "allow",
     },
     "mcp__dotto-notion__notion-get-comments": {
-      "*": "allow"
+      "*": "allow",
     },
     "mcp__dotto-notion__notion-get-teams": {
-      "*": "allow"
+      "*": "allow",
     },
     "mcp__dotto-notion__notion-get-users": {
-      "*": "allow"
+      "*": "allow",
     },
     "mcp__dotto-notion__notion-search": {
-      "*": "allow"
+      "*": "allow",
     },
     "mcp__plugin_context7_context7__resolve-library-id": {
-      "*": "allow"
+      "*": "allow",
     },
     "mcp__plugin_context7_context7__query-docs": {
-      "*": "allow"
+      "*": "allow",
     },
     "mcp__dotto-notion__notion-create-comment": {
-      "*": "ask"
+      "*": "ask",
     },
     "mcp__dotto-notion__notion-create-database": {
-      "*": "ask"
+      "*": "ask",
     },
     "mcp__dotto-notion__notion-create-pages": {
-      "*": "ask"
+      "*": "ask",
     },
     "mcp__dotto-notion__notion-create-view": {
-      "*": "ask"
+      "*": "ask",
     },
     "mcp__dotto-notion__notion-duplicate-page": {
-      "*": "ask"
+      "*": "ask",
     },
     "mcp__dotto-notion__notion-move-pages": {
-      "*": "ask"
+      "*": "ask",
     },
     "mcp__dotto-notion__notion-update-data-source": {
-      "*": "ask"
+      "*": "ask",
     },
     "mcp__dotto-notion__notion-update-page": {
-      "*": "ask"
+      "*": "ask",
     },
     "mcp__dotto-notion__notion-update-view": {
-      "*": "ask"
-    }
+      "*": "ask",
+    },
   },
   "claudecode": {
     "defaultMode": "default",
-    "enabledMcpjsonServers": [
-      "dotto-notion"
-    ],
+    "enabledMcpjsonServers": ["dotto-notion"],
     "enabledPlugins": {
       "code-review@claude-plugins-official": true,
       "codex@openai-codex": true,
       "context7@claude-plugins-official": true,
       "gopls-lsp@claude-plugins-official": true,
-      "pr-review-toolkit@claude-plugins-official": true
-    }
-  }
+      "pr-review-toolkit@claude-plugins-official": true,
+    },
+  },
 }

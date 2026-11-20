@@ -2,65 +2,103 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
+// 教員を管理する。
+service FacultyService {
+  // 教員の一覧を取得する。
+  rpc ListFaculties(ListFacultiesRequest) returns (ListFacultiesResponse);
+  // 教員を取得する。
+  rpc GetFaculty(GetFacultyRequest) returns (GetFacultyResponse);
+  // 教員を作成する。
+  rpc CreateFaculty(CreateFacultyRequest) returns (CreateFacultyResponse);
+  // 教員を更新する。
+  rpc UpdateFaculty(UpdateFacultyRequest) returns (UpdateFacultyResponse);
+  // 教員を削除する。
+  rpc DeleteFaculty(DeleteFacultyRequest) returns (DeleteFacultyResponse);
+}
+
+// 教員。
 message Faculty {
-  string id = 1;
-  string name = 2;
-  string email = 3;
-  google.protobuf.Timestamp created_at = 4;
-  google.protobuf.Timestamp updated_at = 5;
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 名前。
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  // メールアドレス。
+  string email = 3 [(google.api.field_behavior) = REQUIRED];
+  // 作成日時。
+  google.protobuf.Timestamp created_at = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 更新日時。
+  google.protobuf.Timestamp updated_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ListFaculties の Request。
 message ListFacultiesRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListFaculties の Response。
 message ListFacultiesResponse {
+  // 教員の一覧。
   repeated Faculty faculties = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetFaculty の Request。
 message GetFacultyRequest {
-  string id = 1;
+  // 取得する教員ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetFaculty の Response。
 message GetFacultyResponse {
+  // 取得した教員。
   Faculty faculty = 1;
 }
 
+// CreateFaculty の Request。
 message CreateFacultyRequest {
-  string name = 1;
-  string email = 2;
+  // 名前。
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  // メールアドレス。
+  string email = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
+// CreateFaculty の Response。
 message CreateFacultyResponse {
+  // 作成した教員。
   Faculty faculty = 1;
 }
 
+// UpdateFaculty の Request。
 message UpdateFacultyRequest {
-  string id = 1;
-  string name = 2;
-  string email = 3;
-  google.protobuf.FieldMask update_mask = 99;
+  // 更新する教員ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 名前。
+  string name = 2 [(google.api.field_behavior) = OPTIONAL];
+  // メールアドレス。
+  string email = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateFaculty の Response。
 message UpdateFacultyResponse {
+  // 更新した教員。
   Faculty faculty = 1;
 }
 
+// DeleteFaculty の Request。
 message DeleteFacultyRequest {
-  string id = 1;
+  // 削除する教員ID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteFaculty の Response。
 message DeleteFacultyResponse {}
-
-service FacultyService {
-  rpc ListFaculties(ListFacultiesRequest) returns (ListFacultiesResponse);
-  rpc GetFaculty(GetFacultyRequest) returns (GetFacultyResponse);
-  rpc CreateFaculty(CreateFacultyRequest) returns (CreateFacultyResponse);
-  rpc UpdateFaculty(UpdateFacultyRequest) returns (UpdateFacultyResponse);
-  rpc DeleteFaculty(DeleteFacultyRequest) returns (DeleteFacultyResponse);
-}

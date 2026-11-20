@@ -50,10 +50,15 @@ const (
 
 // RouteServiceClient is a client for the admin.v1.RouteService service.
 type RouteServiceClient interface {
+	// 経路情報（GTFS の routes）の一覧を取得する。
 	ListRoutes(context.Context, *connect.Request[v1.ListRoutesRequest]) (*connect.Response[v1.ListRoutesResponse], error)
+	// 経路情報（GTFS の routes）を取得する。
 	GetRoute(context.Context, *connect.Request[v1.GetRouteRequest]) (*connect.Response[v1.GetRouteResponse], error)
+	// 経路情報（GTFS の routes）を作成する。
 	CreateRoute(context.Context, *connect.Request[v1.CreateRouteRequest]) (*connect.Response[v1.CreateRouteResponse], error)
+	// 経路情報（GTFS の routes）を更新する。
 	UpdateRoute(context.Context, *connect.Request[v1.UpdateRouteRequest]) (*connect.Response[v1.UpdateRouteResponse], error)
+	// 経路情報（GTFS の routes）を削除する。
 	DeleteRoute(context.Context, *connect.Request[v1.DeleteRouteRequest]) (*connect.Response[v1.DeleteRouteResponse], error)
 }
 
@@ -137,10 +142,15 @@ func (c *routeServiceClient) DeleteRoute(ctx context.Context, req *connect.Reque
 
 // RouteServiceHandler is an implementation of the admin.v1.RouteService service.
 type RouteServiceHandler interface {
+	// 経路情報（GTFS の routes）の一覧を取得する。
 	ListRoutes(context.Context, *connect.Request[v1.ListRoutesRequest]) (*connect.Response[v1.ListRoutesResponse], error)
+	// 経路情報（GTFS の routes）を取得する。
 	GetRoute(context.Context, *connect.Request[v1.GetRouteRequest]) (*connect.Response[v1.GetRouteResponse], error)
+	// 経路情報（GTFS の routes）を作成する。
 	CreateRoute(context.Context, *connect.Request[v1.CreateRouteRequest]) (*connect.Response[v1.CreateRouteResponse], error)
+	// 経路情報（GTFS の routes）を更新する。
 	UpdateRoute(context.Context, *connect.Request[v1.UpdateRouteRequest]) (*connect.Response[v1.UpdateRouteResponse], error)
+	// 経路情報（GTFS の routes）を削除する。
 	DeleteRoute(context.Context, *connect.Request[v1.DeleteRouteRequest]) (*connect.Response[v1.DeleteRouteResponse], error)
 }
 

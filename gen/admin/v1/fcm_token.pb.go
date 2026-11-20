@@ -7,6 +7,7 @@
 package adminv1
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -23,11 +24,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// FCMトークン。
 type FcmToken struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// FCMトークン。
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	// ユーザーID。
+	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// 作成日時。
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// 更新日時。
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -91,10 +97,13 @@ func (x *FcmToken) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListFcmTokens の Request。
 type ListFcmTokensRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      int32                  `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -143,10 +152,13 @@ func (x *ListFcmTokensRequest) GetPageToken() string {
 	return ""
 }
 
+// ListFcmTokens の Response。
 type ListFcmTokensResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FcmTokens     []*FcmToken            `protobuf:"bytes,1,rep,name=fcm_tokens,json=fcmTokens,proto3" json:"fcm_tokens,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// FCMトークンの一覧。
+	FcmTokens []*FcmToken `protobuf:"bytes,1,rep,name=fcm_tokens,json=fcmTokens,proto3" json:"fcm_tokens,omitempty"`
+	// 次のページを取得するためのトークン。最終ページの場合は空文字。
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -195,9 +207,11 @@ func (x *ListFcmTokensResponse) GetNextPageToken() string {
 	return ""
 }
 
+// GetFcmToken の Request。
 type GetFcmTokenRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// FCMトークン。
+	Token         string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -239,9 +253,11 @@ func (x *GetFcmTokenRequest) GetToken() string {
 	return ""
 }
 
+// GetFcmToken の Response。
 type GetFcmTokenResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FcmToken      *FcmToken              `protobuf:"bytes,1,opt,name=fcm_token,json=fcmToken,proto3" json:"fcm_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 取得したFCMトークン。
+	FcmToken      *FcmToken `protobuf:"bytes,1,opt,name=fcm_token,json=fcmToken,proto3" json:"fcm_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -283,10 +299,13 @@ func (x *GetFcmTokenResponse) GetFcmToken() *FcmToken {
 	return nil
 }
 
+// CreateFcmToken の Request。
 type CreateFcmTokenRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// FCMトークン。
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	// ユーザーID。
+	UserId        string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -335,9 +354,11 @@ func (x *CreateFcmTokenRequest) GetUserId() string {
 	return ""
 }
 
+// CreateFcmToken の Response。
 type CreateFcmTokenResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FcmToken      *FcmToken              `protobuf:"bytes,1,opt,name=fcm_token,json=fcmToken,proto3" json:"fcm_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 作成したFCMトークン。
+	FcmToken      *FcmToken `protobuf:"bytes,1,opt,name=fcm_token,json=fcmToken,proto3" json:"fcm_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -379,10 +400,14 @@ func (x *CreateFcmTokenResponse) GetFcmToken() *FcmToken {
 	return nil
 }
 
+// UpdateFcmToken の Request。
 type UpdateFcmTokenRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// FCMトークン。
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	// ユーザーID。
+	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,99,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -439,9 +464,11 @@ func (x *UpdateFcmTokenRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+// UpdateFcmToken の Response。
 type UpdateFcmTokenResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FcmToken      *FcmToken              `protobuf:"bytes,1,opt,name=fcm_token,json=fcmToken,proto3" json:"fcm_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 更新したFCMトークン。
+	FcmToken      *FcmToken `protobuf:"bytes,1,opt,name=fcm_token,json=fcmToken,proto3" json:"fcm_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -483,9 +510,11 @@ func (x *UpdateFcmTokenResponse) GetFcmToken() *FcmToken {
 	return nil
 }
 
+// DeleteFcmToken の Request。
 type DeleteFcmTokenRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// FCMトークン。
+	Token         string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -527,6 +556,7 @@ func (x *DeleteFcmTokenRequest) GetToken() string {
 	return ""
 }
 
+// DeleteFcmToken の Response。
 type DeleteFcmTokenResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -567,40 +597,40 @@ var File_admin_v1_fcm_token_proto protoreflect.FileDescriptor
 
 const file_admin_v1_fcm_token_proto_rawDesc = "" +
 	"\n" +
-	"\x18admin/v1/fcm_token.proto\x12\badmin.v1\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xaf\x01\n" +
-	"\bFcmToken\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x129\n" +
+	"\x18admin/v1/fcm_token.proto\x12\badmin.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc3\x01\n" +
+	"\bFcmToken\x12\x19\n" +
+	"\x05token\x18\x01 \x01(\tB\x03\xe0A\x02R\x05token\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06userId\x12>\n" +
 	"\n" +
-	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"R\n" +
-	"\x14ListFcmTokensRequest\x12\x1b\n" +
-	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\"\\\n" +
+	"\x14ListFcmTokensRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05B\x03\xe0A\x01R\bpageSize\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"r\n" +
+	"page_token\x18\x02 \x01(\tB\x03\xe0A\x01R\tpageToken\"r\n" +
 	"\x15ListFcmTokensResponse\x121\n" +
 	"\n" +
 	"fcm_tokens\x18\x01 \x03(\v2\x12.admin.v1.FcmTokenR\tfcmTokens\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"*\n" +
-	"\x12GetFcmTokenRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"F\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"/\n" +
+	"\x12GetFcmTokenRequest\x12\x19\n" +
+	"\x05token\x18\x01 \x01(\tB\x03\xe0A\x02R\x05token\"F\n" +
 	"\x13GetFcmTokenResponse\x12/\n" +
-	"\tfcm_token\x18\x01 \x01(\v2\x12.admin.v1.FcmTokenR\bfcmToken\"F\n" +
-	"\x15CreateFcmTokenRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\"I\n" +
+	"\tfcm_token\x18\x01 \x01(\v2\x12.admin.v1.FcmTokenR\bfcmToken\"P\n" +
+	"\x15CreateFcmTokenRequest\x12\x19\n" +
+	"\x05token\x18\x01 \x01(\tB\x03\xe0A\x02R\x05token\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x06userId\"I\n" +
 	"\x16CreateFcmTokenResponse\x12/\n" +
-	"\tfcm_token\x18\x01 \x01(\v2\x12.admin.v1.FcmTokenR\bfcmToken\"\x83\x01\n" +
-	"\x15UpdateFcmTokenRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12;\n" +
-	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"\tfcm_token\x18\x01 \x01(\v2\x12.admin.v1.FcmTokenR\bfcmToken\"\x92\x01\n" +
+	"\x15UpdateFcmTokenRequest\x12\x19\n" +
+	"\x05token\x18\x01 \x01(\tB\x03\xe0A\x02R\x05token\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\tB\x03\xe0A\x01R\x06userId\x12@\n" +
+	"\vupdate_mask\x18c \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"I\n" +
 	"\x16UpdateFcmTokenResponse\x12/\n" +
-	"\tfcm_token\x18\x01 \x01(\v2\x12.admin.v1.FcmTokenR\bfcmToken\"-\n" +
-	"\x15DeleteFcmTokenRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"\x18\n" +
+	"\tfcm_token\x18\x01 \x01(\v2\x12.admin.v1.FcmTokenR\bfcmToken\"2\n" +
+	"\x15DeleteFcmTokenRequest\x12\x19\n" +
+	"\x05token\x18\x01 \x01(\tB\x03\xe0A\x02R\x05token\"\x18\n" +
 	"\x16DeleteFcmTokenResponse2\xae\x03\n" +
 	"\x0fFcmTokenService\x12P\n" +
 	"\rListFcmTokens\x12\x1e.admin.v1.ListFcmTokensRequest\x1a\x1f.admin.v1.ListFcmTokensResponse\x12J\n" +

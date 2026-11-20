@@ -47,10 +47,15 @@ const (
 
 // UserServiceClient is a client for the admin.v1.UserService service.
 type UserServiceClient interface {
+	// ユーザーの一覧を取得する。
 	ListUsers(context.Context, *connect.Request[v1.ListUsersRequest]) (*connect.Response[v1.ListUsersResponse], error)
+	// ユーザーを取得する。
 	GetUser(context.Context, *connect.Request[v1.GetUserRequest]) (*connect.Response[v1.GetUserResponse], error)
+	// ユーザーを作成する。
 	CreateUser(context.Context, *connect.Request[v1.CreateUserRequest]) (*connect.Response[v1.CreateUserResponse], error)
+	// ユーザーを更新する。
 	UpdateUser(context.Context, *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error)
+	// ユーザーを削除する。
 	DeleteUser(context.Context, *connect.Request[v1.DeleteUserRequest]) (*connect.Response[v1.DeleteUserResponse], error)
 }
 
@@ -134,10 +139,15 @@ func (c *userServiceClient) DeleteUser(ctx context.Context, req *connect.Request
 
 // UserServiceHandler is an implementation of the admin.v1.UserService service.
 type UserServiceHandler interface {
+	// ユーザーの一覧を取得する。
 	ListUsers(context.Context, *connect.Request[v1.ListUsersRequest]) (*connect.Response[v1.ListUsersResponse], error)
+	// ユーザーを取得する。
 	GetUser(context.Context, *connect.Request[v1.GetUserRequest]) (*connect.Response[v1.GetUserResponse], error)
+	// ユーザーを作成する。
 	CreateUser(context.Context, *connect.Request[v1.CreateUserRequest]) (*connect.Response[v1.CreateUserResponse], error)
+	// ユーザーを更新する。
 	UpdateUser(context.Context, *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error)
+	// ユーザーを削除する。
 	DeleteUser(context.Context, *connect.Request[v1.DeleteUserRequest]) (*connect.Response[v1.DeleteUserResponse], error)
 }
 

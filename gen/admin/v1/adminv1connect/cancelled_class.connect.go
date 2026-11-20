@@ -52,10 +52,15 @@ const (
 
 // CancelledClassServiceClient is a client for the admin.v1.CancelledClassService service.
 type CancelledClassServiceClient interface {
+	// 休講の一覧を取得する。
 	ListCancelledClasses(context.Context, *connect.Request[v1.ListCancelledClassesRequest]) (*connect.Response[v1.ListCancelledClassesResponse], error)
+	// 休講を取得する。
 	GetCancelledClass(context.Context, *connect.Request[v1.GetCancelledClassRequest]) (*connect.Response[v1.GetCancelledClassResponse], error)
+	// 休講を作成する。
 	CreateCancelledClass(context.Context, *connect.Request[v1.CreateCancelledClassRequest]) (*connect.Response[v1.CreateCancelledClassResponse], error)
+	// 休講を更新する。
 	UpdateCancelledClass(context.Context, *connect.Request[v1.UpdateCancelledClassRequest]) (*connect.Response[v1.UpdateCancelledClassResponse], error)
+	// 休講を削除する。
 	DeleteCancelledClass(context.Context, *connect.Request[v1.DeleteCancelledClassRequest]) (*connect.Response[v1.DeleteCancelledClassResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *cancelledClassServiceClient) DeleteCancelledClass(ctx context.Context, 
 
 // CancelledClassServiceHandler is an implementation of the admin.v1.CancelledClassService service.
 type CancelledClassServiceHandler interface {
+	// 休講の一覧を取得する。
 	ListCancelledClasses(context.Context, *connect.Request[v1.ListCancelledClassesRequest]) (*connect.Response[v1.ListCancelledClassesResponse], error)
+	// 休講を取得する。
 	GetCancelledClass(context.Context, *connect.Request[v1.GetCancelledClassRequest]) (*connect.Response[v1.GetCancelledClassResponse], error)
+	// 休講を作成する。
 	CreateCancelledClass(context.Context, *connect.Request[v1.CreateCancelledClassRequest]) (*connect.Response[v1.CreateCancelledClassResponse], error)
+	// 休講を更新する。
 	UpdateCancelledClass(context.Context, *connect.Request[v1.UpdateCancelledClassRequest]) (*connect.Response[v1.UpdateCancelledClassResponse], error)
+	// 休講を削除する。
 	DeleteCancelledClass(context.Context, *connect.Request[v1.DeleteCancelledClassRequest]) (*connect.Response[v1.DeleteCancelledClassResponse], error)
 }
 

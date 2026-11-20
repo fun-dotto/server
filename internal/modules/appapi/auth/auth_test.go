@@ -1,0 +1,177 @@
+package auth
+
+import (
+	"context"
+	"errors"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"connectrpc.com/connect"
+	appv1 "github.com/fun-dotto/server/gen/app/v1"
+	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
+	"github.com/fun-dotto/server/internal/shared/cfaccess"
+)
+
+type fakeIDToken struct{}
+
+func (fakeIDToken) VerifyIDToken(_ context.Context, token string) (User, error) {
+	if token != "valid-id" {
+		return User{}, errors.New("invalid")
+	}
+	return User{ID: "user1", Email: "user1@example.com"}, nil
+}
+
+var appCheck = AppCheckTokenVerifierFunc(func(token string) error {
+	if token != "valid-app" {
+		return errors.New("invalid")
+	}
+	return nil
+})
+
+type fakeCFAccess struct{}
+
+func (fakeCFAccess) Verify(_ context.Context, token string) error {
+	if token != "valid-cf" {
+		return errors.New("invalid")
+	}
+	return nil
+}
+
+type fakeService struct{}
+
+func (fakeService) Verify(_ context.Context, token string) error {
+	if token != "valid-svc" {
+		return errors.New("invalid")
+	}
+	return nil
+}
+
+type userHandler struct {
+	appv1connect.UnimplementedUserServiceHandler
+}
+
+func (userHandler) GetUser(ctx context.Context, _ *connect.Request[appv1.GetUserRequest]) (*connect.Response[appv1.GetUserResponse], error) {
+	if u, ok := UserFromContext(ctx); !ok || u.ID != "user1" {
+		return nil, connect.NewError(connect.CodeInternal, errors.New("user not in context"))
+	}
+	return connect.NewResponse(&appv1.GetUserResponse{User: &appv1.User{}}), nil
+}
+
+type articleHandler struct {
+	appv1connect.UnimplementedArticleServiceHandler
+}
+
+func (articleHandler) ListArticles(ctx context.Context, _ *connect.Request[appv1.ListArticlesRequest]) (*connect.Response[appv1.ListArticlesResponse], error) {
+	return connect.NewResponse(&appv1.ListArticlesResponse{}), nil
+}
+
+func newServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	opts := connect.WithInterceptors(NewInterceptor(appCheck, fakeCFAccess{}, fakeService{}, fakeIDToken{}))
+	mux := http.NewServeMux()
+	mux.Handle(appv1connect.NewUserServiceHandler(userHandler{}, opts))
+	mux.Handle(appv1connect.NewArticleServiceHandler(articleHandler{}, opts))
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	return srv
+}
+
+func TestInterceptor(t *testing.T) {
+	srv := newServer(t)
+	users := appv1connect.NewUserServiceClient(http.DefaultClient, srv.URL)
+	articles := appv1connect.NewArticleServiceClient(http.DefaultClient, srv.URL)
+
+	tests := []struct {
+		name     string
+		call     func(req func(http.Header)) error
+		appCheck string
+		cfAccess string
+		service  string
+		idToken  string
+		wantCode connect.Code
+	}{
+		{"ユーザー不要の RPC は App Check のみで通る", listArticles(articles), "Bearer valid-app", "", "", "", 0},
+		{"App Check がない場合は UNAUTHENTICATED", listArticles(articles), "", "", "", "", connect.CodeUnauthenticated},
+		{"App Check が不正な場合は UNAUTHENTICATED", listArticles(articles), "invalid", "", "", "", connect.CodeUnauthenticated},
+		{"ユーザーが必要な RPC は ID トークンで通る", getUser(users), "valid-app", "", "", "Bearer valid-id", 0},
+		{"ID トークンがない場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "", "", connect.CodeUnauthenticated},
+		{"ID トークンが不正な場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "", "Bearer invalid", connect.CodeUnauthenticated},
+		{"Cloudflare Access の JWT があれば App Check なしで通る", listArticles(articles), "", "valid-cf", "", "", 0},
+		{"Cloudflare Access の JWT が不正で App Check がない場合は UNAUTHENTICATED", listArticles(articles), "", "invalid", "", "", connect.CodeUnauthenticated},
+		{"Cloudflare Access の JWT が不正でも App Check があれば通る", listArticles(articles), "valid-app", "invalid", "", "", 0},
+		{"Cloudflare Access の JWT があってもユーザーが必要な RPC は ID トークンが必要", getUser(users), "", "valid-cf", "", "", connect.CodeUnauthenticated},
+		{"Cloudflare Access の JWT と ID トークンで通る", getUser(users), "", "valid-cf", "", "Bearer valid-id", 0},
+		{"許可されたサービスの ID トークンがあれば App Check なしで通る", listArticles(articles), "", "", "Bearer valid-svc", "", 0},
+		{"サービスの ID トークンが不正で App Check がない場合は UNAUTHENTICATED", listArticles(articles), "", "", "Bearer invalid", "", connect.CodeUnauthenticated},
+		{"サービスの ID トークンに Bearer がない場合は App Check が必要", listArticles(articles), "", "", "valid-svc", "", connect.CodeUnauthenticated},
+		{"サービスの ID トークンがあってもユーザーが必要な RPC は ID トークンが必要", getUser(users), "", "", "Bearer valid-svc", "", connect.CodeUnauthenticated},
+		{"サービスの ID トークンとユーザーの ID トークンで通る", getUser(users), "", "", "Bearer valid-svc", "Bearer valid-id", 0},
+		{"Bearer がない場合は UNAUTHENTICATED", getUser(users), "valid-app", "", "", "valid-id", connect.CodeUnauthenticated},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.call(func(h http.Header) {
+				if tt.appCheck != "" {
+					h.Set(appCheckHeader, tt.appCheck)
+				}
+				if tt.cfAccess != "" {
+					h.Set(cfaccess.JWTHeader, tt.cfAccess)
+				}
+				if tt.service != "" {
+					h.Set(serviceAuthHeader, tt.service)
+				}
+				if tt.idToken != "" {
+					h.Set(authorizationHeader, tt.idToken)
+				}
+			})
+			if tt.wantCode == 0 {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				return
+			}
+			if got := connect.CodeOf(err); got != tt.wantCode {
+				t.Fatalf("code = %v, want %v (err: %v)", got, tt.wantCode, err)
+			}
+		})
+	}
+}
+
+func listArticles(c appv1connect.ArticleServiceClient) func(func(http.Header)) error {
+	return func(set func(http.Header)) error {
+		req := connect.NewRequest(&appv1.ListArticlesRequest{})
+		set(req.Header())
+		_, err := c.ListArticles(context.Background(), req)
+		return err
+	}
+}
+
+func getUser(c appv1connect.UserServiceClient) func(func(http.Header)) error {
+	return func(set func(http.Header)) error {
+		req := connect.NewRequest(&appv1.GetUserRequest{})
+		set(req.Header())
+		_, err := c.GetUser(context.Background(), req)
+		return err
+	}
+}
+
+func TestInterceptorWithoutCFAccess(t *testing.T) {
+	opts := connect.WithInterceptors(NewInterceptor(appCheck, nil, fakeService{}, fakeIDToken{}))
+	mux := http.NewServeMux()
+	mux.Handle(appv1connect.NewArticleServiceHandler(articleHandler{}, opts))
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	articles := appv1connect.NewArticleServiceClient(http.DefaultClient, srv.URL)
+
+	call := listArticles(articles)
+	if err := call(func(h http.Header) { h.Set(cfaccess.JWTHeader, "valid-cf") }); connect.CodeOf(err) != connect.CodeUnauthenticated {
+		t.Fatalf("Cloudflare Access を使わない場合は JWT があっても App Check が必要: err = %v", err)
+	}
+	if err := call(func(h http.Header) { h.Set(appCheckHeader, "valid-app") }); err != nil {
+		t.Fatalf("App Check で通るはず: %v", err)
+	}
+	if err := call(func(h http.Header) { h.Set(serviceAuthHeader, "Bearer valid-svc") }); err != nil {
+		t.Fatalf("サービスの ID トークンで通るはず: %v", err)
+	}
+}

@@ -2,68 +2,110 @@ syntax = "proto3";
 
 package admin.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 
+// 運賃定義情報（GTFS の fare_rules）を管理する。
+service FareRuleService {
+  // 運賃定義情報（GTFS の fare_rules）の一覧を取得する。
+  rpc ListFareRules(ListFareRulesRequest) returns (ListFareRulesResponse);
+  // 運賃定義情報（GTFS の fare_rules）を取得する。
+  rpc GetFareRule(GetFareRuleRequest) returns (GetFareRuleResponse);
+  // 運賃定義情報（GTFS の fare_rules）を作成する。
+  rpc CreateFareRule(CreateFareRuleRequest) returns (CreateFareRuleResponse);
+  // 運賃定義情報（GTFS の fare_rules）を更新する。
+  rpc UpdateFareRule(UpdateFareRuleRequest) returns (UpdateFareRuleResponse);
+  // 運賃定義情報（GTFS の fare_rules）を削除する。
+  rpc DeleteFareRule(DeleteFareRuleRequest) returns (DeleteFareRuleResponse);
+}
+
+// 運賃定義情報（GTFS の fare_rules）。
 message FareRule {
-  string id = 1;
-  string fare_id = 2;
-  optional string route_id = 3;
-  optional string origin_id = 4;
-  optional string destination_id = 5;
+  // ID。
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // 運賃ID（GTFS の fare_id）。
+  string fare_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // 経路ID（GTFS の route_id）。未設定の場合はすべての経路。
+  optional string route_id = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 乗車地ゾーン（GTFS の origin_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
+  optional string origin_id = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 降車地ゾーン（GTFS の destination_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
+  optional string destination_id = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListFareRules の Request。
 message ListFareRulesRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // 1 ページあたりの最大件数。0 の場合はサーバーの既定値（50）を使い、上限（1000）を超えた値は上限に丸める。
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+  // 前回の List で返された next_page_token。最初のページを取得する場合は空文字。
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// ListFareRules の Response。
 message ListFareRulesResponse {
+  // 運賃定義情報（GTFS の fare_rules）の一覧。
   repeated FareRule fare_rules = 1;
+  // 次のページを取得するためのトークン。最終ページの場合は空文字。
   string next_page_token = 2;
 }
 
+// GetFareRule の Request。
 message GetFareRuleRequest {
-  string id = 1;
+  // 取得する運賃定義情報（GTFS の fare_rules）のID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// GetFareRule の Response。
 message GetFareRuleResponse {
+  // 取得した運賃定義情報（GTFS の fare_rules）。
   FareRule fare_rule = 1;
 }
 
+// CreateFareRule の Request。
 message CreateFareRuleRequest {
-  string fare_id = 1;
-  optional string route_id = 2;
-  optional string origin_id = 3;
-  optional string destination_id = 4;
+  // 運賃ID（GTFS の fare_id）。
+  string fare_id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 経路ID（GTFS の route_id）。未設定の場合はすべての経路。
+  optional string route_id = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 乗車地ゾーン（GTFS の origin_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
+  optional string origin_id = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 降車地ゾーン（GTFS の destination_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
+  optional string destination_id = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// CreateFareRule の Response。
 message CreateFareRuleResponse {
+  // 作成した運賃定義情報（GTFS の fare_rules）。
   FareRule fare_rule = 1;
 }
 
+// UpdateFareRule の Request。
 message UpdateFareRuleRequest {
-  string id = 1;
-  string fare_id = 2;
-  optional string route_id = 3;
-  optional string origin_id = 4;
-  optional string destination_id = 5;
-  google.protobuf.FieldMask update_mask = 99;
+  // 更新する運賃定義情報（GTFS の fare_rules）のID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  // 運賃ID（GTFS の fare_id）。
+  string fare_id = 2 [(google.api.field_behavior) = OPTIONAL];
+  // 経路ID（GTFS の route_id）。未設定の場合はすべての経路。
+  optional string route_id = 3 [(google.api.field_behavior) = OPTIONAL];
+  // 乗車地ゾーン（GTFS の origin_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
+  optional string origin_id = 4 [(google.api.field_behavior) = OPTIONAL];
+  // 降車地ゾーン（GTFS の destination_id）。運賃エリアID を指定する。未設定の場合はすべての運賃エリア。
+  optional string destination_id = 5 [(google.api.field_behavior) = OPTIONAL];
+  // 更新するフィールド。空の場合は値が入っているフィールドをすべて更新する。
+  google.protobuf.FieldMask update_mask = 99 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// UpdateFareRule の Response。
 message UpdateFareRuleResponse {
+  // 更新した運賃定義情報（GTFS の fare_rules）。
   FareRule fare_rule = 1;
 }
 
+// DeleteFareRule の Request。
 message DeleteFareRuleRequest {
-  string id = 1;
+  // 削除する運賃定義情報（GTFS の fare_rules）のID。
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// DeleteFareRule の Response。
 message DeleteFareRuleResponse {}
-
-service FareRuleService {
-  rpc ListFareRules(ListFareRulesRequest) returns (ListFareRulesResponse);
-  rpc GetFareRule(GetFareRuleRequest) returns (GetFareRuleResponse);
-  rpc CreateFareRule(CreateFareRuleRequest) returns (CreateFareRuleResponse);
-  rpc UpdateFareRule(UpdateFareRuleRequest) returns (UpdateFareRuleResponse);
-  rpc DeleteFareRule(DeleteFareRuleRequest) returns (DeleteFareRuleResponse);
-}

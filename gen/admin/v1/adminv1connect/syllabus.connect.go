@@ -52,10 +52,15 @@ const (
 
 // SyllabusServiceClient is a client for the admin.v1.SyllabusService service.
 type SyllabusServiceClient interface {
+	// シラバスの一覧を取得する。
 	ListSyllabi(context.Context, *connect.Request[v1.ListSyllabiRequest]) (*connect.Response[v1.ListSyllabiResponse], error)
+	// シラバスを取得する。
 	GetSyllabus(context.Context, *connect.Request[v1.GetSyllabusRequest]) (*connect.Response[v1.GetSyllabusResponse], error)
+	// シラバスを作成する。
 	CreateSyllabus(context.Context, *connect.Request[v1.CreateSyllabusRequest]) (*connect.Response[v1.CreateSyllabusResponse], error)
+	// シラバスを更新する。
 	UpdateSyllabus(context.Context, *connect.Request[v1.UpdateSyllabusRequest]) (*connect.Response[v1.UpdateSyllabusResponse], error)
+	// シラバスを削除する。
 	DeleteSyllabus(context.Context, *connect.Request[v1.DeleteSyllabusRequest]) (*connect.Response[v1.DeleteSyllabusResponse], error)
 }
 
@@ -139,10 +144,15 @@ func (c *syllabusServiceClient) DeleteSyllabus(ctx context.Context, req *connect
 
 // SyllabusServiceHandler is an implementation of the admin.v1.SyllabusService service.
 type SyllabusServiceHandler interface {
+	// シラバスの一覧を取得する。
 	ListSyllabi(context.Context, *connect.Request[v1.ListSyllabiRequest]) (*connect.Response[v1.ListSyllabiResponse], error)
+	// シラバスを取得する。
 	GetSyllabus(context.Context, *connect.Request[v1.GetSyllabusRequest]) (*connect.Response[v1.GetSyllabusResponse], error)
+	// シラバスを作成する。
 	CreateSyllabus(context.Context, *connect.Request[v1.CreateSyllabusRequest]) (*connect.Response[v1.CreateSyllabusResponse], error)
+	// シラバスを更新する。
 	UpdateSyllabus(context.Context, *connect.Request[v1.UpdateSyllabusRequest]) (*connect.Response[v1.UpdateSyllabusResponse], error)
+	// シラバスを削除する。
 	DeleteSyllabus(context.Context, *connect.Request[v1.DeleteSyllabusRequest]) (*connect.Response[v1.DeleteSyllabusResponse], error)
 }
 
