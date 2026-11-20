@@ -47,7 +47,7 @@ func TestTimeout(t *testing.T) {
 	}
 
 	res, err := Timeout(time.Minute)(next)(context.Background(), connect.NewRequest(&emptypb.Empty{}))
-	if res != wantRes || err != wantErr {
+	if res != wantRes || !errors.Is(err, wantErr) {
 		t.Errorf("Timeout() = (%v, %v), want (%v, %v)", res, err, wantRes, wantErr)
 	}
 	if _, ok := gotCtx.Deadline(); !ok {
@@ -82,7 +82,7 @@ func TestRecordError(t *testing.T) {
 	)
 
 	buf := captureLog(t)
-	req := httptest.NewRequest(http.MethodPost, procedure, strings.NewReader("{}"))
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, procedure, strings.NewReader("{}"))
 	req.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
 	logging.Middleware(handler).ServeHTTP(rec, req)

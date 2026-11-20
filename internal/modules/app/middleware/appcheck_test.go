@@ -23,7 +23,7 @@ func TestAppCheckMiddleware(t *testing.T) {
 			c.Status(http.StatusOK)
 		})
 
-		req := httptest.NewRequest(http.MethodGet, "/test", nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/test", nil)
 		rec := httptest.NewRecorder()
 		router.ServeHTTP(rec, req)
 
@@ -41,7 +41,7 @@ func TestAppCheckMiddleware(t *testing.T) {
 			c.Status(http.StatusOK)
 		})
 
-		req := httptest.NewRequest(http.MethodGet, "/test", nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/test", nil)
 		rec := httptest.NewRecorder()
 		router.ServeHTTP(rec, req)
 

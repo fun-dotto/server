@@ -115,7 +115,7 @@ func (h *Handler) ListRoomChanges(ctx context.Context, req *connect.Request[appv
 	})
 	rooms := make([]*appv1.Room, 0, len(changes)*2)
 	for _, c := range changes {
-		rooms = append(rooms, c.OriginalRoom, c.NewRoom)
+		rooms = append(rooms, c.GetOriginalRoom(), c.GetNewRoom())
 	}
 	if err := h.attachRoomFaculties(ctx, rooms...); err != nil {
 		return nil, internalError(ctx, "ListRoomChanges", err)
