@@ -1,11 +1,9 @@
 name: Migrate
 
-# DB マイグレーション（Atlas）の検証と手動適用。
+# DB マイグレーション（Atlas）の検証。
 # - pull_request / merge_group: 静的検証と、dev / stg / prd への dry-run（DB は変更しない）。
 #   マイグレーションに関係するファイルを変更した場合のみ実行し、結果は集約ジョブ Migration で報告する
-# - workflow_dispatch: 選択した環境へ手動で適用（prd は GitHub Environment の承認が必要）
-# main への push 時の dev / stg への適用は、デプロイより前に完了させるため deploy.yml から
-# migrate-apply.yml を呼び出して行う。
+# 適用はデプロイより前に完了させるため、deploy.yml から migrate-apply.yml を呼び出して行う（全環境）。
 # 設計: docs/design/20261110_atlas_migration.md
 on:
   pull_request:
@@ -17,16 +15,6 @@ on:
   merge_group:
     types:
       - checks_requested
-  workflow_dispatch:
-    inputs:
-      environment_name:
-        description: 適用先の環境（prd は dev / stg で適用済みのコミットのみ）
-        required: true
-        type: choice
-        options:
-          - dev
-          - stg
-          - prd
 
 permissions:
   contents: read
@@ -91,7 +79,10 @@ jobs:
       group: migrate-validate-${{ github.ref }}
       cancel-in-progress: true
     steps:
+      # Check destructive migrations で PR の差分（HEAD^1..HEAD）を見るため
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
 
       - name: Setup mise
         uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
@@ -114,6 +105,31 @@ jobs:
             echo "::error::GORM モデルとマイグレーションに差分があります。mise run migrate:diff <name> でマイグレーションを生成してください"
             git status --porcelain migrations
             git diff migrations
+            exit 1
+          fi
+
+      # 破壊的な操作を警告し、Go のコードの変更と同じ PR にあれば失敗させる（Atlas が出力する大文字の SQL を grep する）。
+      # merge_group は複数の PR をまとめるため対象外。
+      - name: Check destructive migrations
+        if: github.event_name == 'pull_request'
+        run: |
+          # git diff が失敗した場合に検査を省略しないよう、プロセス置換ではなくコマンド置換で受ける（bash -e で止まる）
+          sql_files="$(git diff --name-only --diff-filter=AM HEAD^1 HEAD -- 'migrations/*.sql')"
+          if [ -z "$sql_files" ]; then
+            exit 0
+          fi
+          mapfile -t files <<< "$sql_files"
+          found="$(grep -nHoE 'DROP (TABLE|COLUMN)|RENAME (TO|COLUMN)|ALTER COLUMN "[^"]+" TYPE|SET NOT NULL|DROP DEFAULT|ADD COLUMN "[^"]+" [^,;]*NOT NULL[^,;]*' "${files[@]}" \
+            | grep -vE '^[^:]+:[0-9]+:ADD COLUMN .*(DEFAULT|GENERATED)' || true)"
+          if [ -z "$found" ]; then
+            exit 0
+          fi
+          while IFS=: read -r file line op; do
+            echo "::warning file=${file},line=${line},title=破壊的なマイグレーション::${op}: 1 つ前のコードと互換か確認してください"
+          done <<< "$found"
+          go_files="$(git diff --name-only HEAD^1 HEAD -- '*.go' ':!gen/' ':!internal/shared/model/' ':!cmd/atlas-loader/')"
+          if [ -n "$go_files" ]; then
+            echo "::error::破壊的なマイグレーションは、Go のコードの変更（$(echo $go_files)）と別の PR に分けてください（docs/design/20261110_atlas_migration.md）"
             exit 1
           fi
 
@@ -224,14 +240,3 @@ jobs:
                 ;;
             esac
           done
-
-  # 選択した環境に手動で適用する。prd は dev / stg で適用済みのコミットのみを想定する。
-  apply:
-    name: Migration Apply
-    if: github.event_name == 'workflow_dispatch'
-    uses: ./.github/workflows/migrate-apply.yml
-    permissions:
-      contents: read
-      id-token: write
-    with:
-      environments: ${{ format('["{0}"]', inputs.environment_name) }}

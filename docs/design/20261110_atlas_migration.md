@@ -11,9 +11,9 @@
 | --- | --- | --- |
 | dev / stg / prd | `pull_request`, `merge_group` | dry-run（適用予定の SQL を表示するのみ。DB は変更しない） |
 | dev / stg | `push`（main） | 適用 |
-| prd | `workflow_dispatch` | 適用 |
+| prd | `workflow_dispatch`（Deploy） | 適用 |
 
-実装では、dev / stg の `push`（main）の適用は、アプリのデプロイより前に完了させるため `deploy.yml` から呼び出す（「ワークフロー」参照）。
+実装では、適用はアプリのデプロイより前に完了させるため、全環境とも `deploy.yml` から呼び出す（「ワークフロー」参照）。
 
 ## 移行前の現状
 
@@ -60,12 +60,12 @@
 | トリガー | ワークフロー | 環境 | 実行内容 |
 | --- | --- | --- | --- |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Changes` | — | マイグレーションに関係するファイルの変更を判定する（変更がなければ validate / dry-run をスキップ） |
-| `pull_request` / `merge_group` | `migrate.yml` の `Migration Validate` | 環境に依存しない（1 回） | `atlas migrate validate` → モデル差分チェック |
+| `pull_request` / `merge_group` | `migrate.yml` の `Migration Validate` | 環境に依存しない（1 回） | `atlas migrate validate` → モデル差分チェック → 破壊的なマイグレーションの検出（`pull_request` のみ） |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration Dry Run` | dev, stg, prd（matrix） | `atlas migrate apply --dry-run`（PR にコメント） |
 | `pull_request` / `merge_group` | `migrate.yml` の `Migration` | — | `Migration Validate` / `Migration Dry Run` の結果を集約する（必須ステータスチェック） |
-| `push`（main） | `deploy.yml` の `migrate` → `migrate-apply.yml` | dev, stg | `atlas migrate apply`。完了後にアプリをデプロイ（`needs`） |
-| `workflow_dispatch`（Deploy） | `deploy.yml` の `migrate` → `migrate-apply.yml` | 選択した環境（`build-push` と prd を除く） | `atlas migrate apply`。完了後にアプリをデプロイ |
-| `workflow_dispatch`（Migrate） | `migrate.yml` の `apply` → `migrate-apply.yml` | 入力で選択（prd 用） | `atlas migrate apply`（GitHub Environment `prd` の承認が必須） |
+| `push`（main） | なし | なし | 適用しない（環境ごとのデプロイ時に適用する） |
+| `workflow_dispatch`（Deploy） | `deploy.yml` の `migrate` → `migrate-apply.yml` | 選択した環境（`build-push` を除く） | `atlas migrate apply`（prd は GitHub Environment `prd` の承認が必須）。完了後にアプリをデプロイ |
+| `workflow_dispatch`（Migrate Apply） | `migrate-apply.yml` | 選択した環境 | 指定したコミット（既定は `latest` = main の先端。main に含まれる SHA のみ）の `atlas migrate apply`。デプロイはしない |
 
 補足:
 
@@ -73,9 +73,19 @@
 - 静的検証（validate / 差分チェック）は環境に依存しないため 1 回だけ実行し、環境ごとの matrix は `apply --dry-run` のみに絞る。
 - `merge_group` でも同じ検証を実行し、マージキュー上の最終状態を検証する。
 - validate / dry-run は、マイグレーションに関係するファイル（対象は `Migration Changes` の `paths`）を変更した場合のみ実行する。ワークフローの `paths` で起動を止めると必須ステータスチェックが報告されないため、ジョブの `if` でスキップする。
-- `atlas migrate lint` は Atlas v0.38 以降ログイン（有償機能の認証）が必要なため採用しない。破壊的変更はレビューで確認する。
-- **prd のマイグレーションは `deploy.yml` からは適用しない。** `deploy.yml` の prd は検証済みのイメージタグを指定する `deploy` のみで、デプロイするイメージとリポジトリの HEAD のマイグレーションがずれる可能性があるため。prd は `Migrate` の `workflow_dispatch` で、dev / stg で適用済みのコミットに対して、デプロイより前に手動で適用する。
+- `atlas migrate lint` は Atlas v0.38 以降ログイン（有償機能の認証）が必要なため採用しない。破壊的変更は警告（「破壊的なマイグレーション」参照）とレビューで確認する。
+- **prd のマイグレーションも `deploy.yml` から適用する。** `deploy.yml` の prd は検証済みのイメージタグを指定する `deploy` のみのため、デプロイするイメージとリポジトリの HEAD のマイグレーションがずれないよう、`migrations/` だけをイメージのタグ（コミット SHA）のコミットから取得して適用する（composite action と `atlas.hcl` はワークフローのコミットのものを使い、古いイメージへのロールバックでも適用できるようにする）。prd では `image_tag` の `latest` / 未指定を拒否する。`deploy` では適用前に `verify-image` ジョブで、タグのコミットが main に含まれること（未マージのマイグレーションを適用しないため）と、Artifact Registry にイメージが存在すること（マイグレーションだけ適用されるのを防ぐため）を確認する。
+- マイグレーション単体の手動適用ワークフローは設けない。適用が失敗した場合は、Deploy の失敗したジョブを再実行するか、同じイメージタグで `deploy` を再実行する。
 - アプリのデプロイより前にマイグレーションが完了するよう、`deploy.yml` の `deploy` ジョブは `migrate` ジョブに `needs` する。マイグレーションが失敗した場合はデプロイしない。
+
+### 破壊的なマイグレーション
+
+デプロイが終わるまでは古いコードが新しいスキーマで動くため、マイグレーションは 1 つ前のコードと互換にする。カラムの削除などは PR を分ける（expand / contract）。
+
+1. コードからカラムを使わなくする PR をリリースする。モデルのフィールドは `gorm:"->:false"` を付けて残す（モデル差分チェックを通すため）。`->:false` のフィールドには書き込まないため、カラムが NOT NULL で DEFAULT もない場合は、同じ PR でモデルとマイグレーションを NULL 許容（または DEFAULT あり）に変える
+2. フィールドの削除と DROP のマイグレーションだけの PR を出す
+
+`Migration Validate` は破壊的な操作（DROP・RENAME・型の変更・NOT NULL の追加など）を警告し、同じ PR に Go のコードの変更（`gen/`・モデル・`cmd/atlas-loader` を除く）があれば失敗させる。
 
 ## 実装
 
@@ -100,8 +110,8 @@ env "dev" {
 
 ### 2. ワークフロー
 
-- `.github/workflows/migrate.yml`: 検証（`Migration Validate`）、dry-run（`Migration Dry Run`）、手動適用（`apply`）。
-- `.github/workflows/migrate-apply.yml`: 適用の再利用ワークフロー（`workflow_call`）。入力の環境の配列を、環境ごとに GitHub Environment を指定して 1 つずつ適用する。`deploy.yml` と `migrate.yml` から呼び出す。
+- `.github/workflows/migrate.yml`: 検証（`Migration Validate`）、dry-run（`Migration Dry Run`）。
+- `.github/workflows/migrate-apply.yml`: 適用の再利用ワークフロー（`workflow_call`）。入力の環境の配列を、環境ごとに GitHub Environment を指定して 1 つずつ適用する。`deploy.yml` から呼び出すほか、`workflow_dispatch` で環境とコミットを指定して単独で実行できる。入力の `ref`（デプロイするイメージのコミット）をチェックアウトする。
 - `.github/actions/atlas-migrate`: 共通処理の composite action。
   1. WIF でサービスアカウントを借用して GCP 認証
   2. mise で Atlas をセットアップ（`mise.toml` のバージョンと同一）
@@ -208,6 +218,6 @@ atlas migrate apply --env <env> [--dry-run]
 
 ### 8. 残課題
 
-- prd への適用（`Migrate` の `workflow_dispatch`）と、prd の権限の手動対応（`dotto_developer` を `SELECT` のみにする）。
+- prd への適用（Deploy の `deploy`）と、prd の権限の手動対応（`dotto_developer` を `SELECT` のみにする）。
 - GCP 上の旧 Cloud Run Job（`migrate` / `apply-table-privileges`）の実在確認と削除。
 - マイグレーションファイル名の不揃い（名前なしのものがある）。履歴の書き換えは不要で、今後は `mise run migrate:diff <name>` で名前を付ける運用にする。

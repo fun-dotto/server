@@ -11,7 +11,7 @@
 - **科目テーブル**: シラバステーブルを元に生成し、**構造化したデータ** を保存する（アプリが利用する正本）。
 - シラバスの `id` は教務システムの ID から `lesson_id` に改名し、`id` は UUID で採番し直す。
 - `subjects.syllabus_id` は新しい UUID の `syllabuses.id` を参照する。
-- `syllabuses` は複数バージョンを保持し、どのバージョンを使うかは `subjects.syllabus_id` の紐付けで決める（シラバスバージョンと科目は 1:1）。
+- `syllabuses` はスキーマ上は複数バージョンを保持できるが、シラバス取得ジョブは新しいバージョンを作らず、既存の行を上書きする（シラバスと科目は 1:1）。
 - 実装範囲: DB + server、シラバス取得ジョブ、科目生成ジョブ。
 
 ## 変更点
@@ -64,10 +64,10 @@
 取得元の写しとして、値は加工せず文字列のまま保存する（空欄・非表示は `''`）。
 
 - 主キー: `id uuid DEFAULT gen_random_uuid()`
-- **バージョン管理**: 取得した内容が前回と異なる場合は既存行を更新せず、新しい行（新しい `id`）として追加する。同じ `(lesson_id, year)` に複数バージョンが存在しうる。
-- どのバージョンを使うかは `subjects.syllabus_id` の紐付けで決まる。
+- **上書き**: 取得した内容が前回と異なる場合は、同じ `(lesson_id, year)` の既存行を上書きする（`id` は変わらないため `subjects.syllabus_id` の紐付けも変わらない）。存在しない場合のみ INSERT する。
 - 内容比較のため `content_hash`（取得値から計算したハッシュ）を持ち、`(lesson_id, year, content_hash)` をユニークキーにする。
 - インデックス: `(lesson_id, year, fetched_at)`（最新バージョンの検索用）
+- 複数バージョンを保持できるスキーマ（`content_hash`、上記ユニークキー）は導入済みのため残す。上書き運用では同じ `(lesson_id, year)` の行は 1 つになる。
 
 | 列 | 型 | 取得元 | 既存列からの変更 |
 | --- | --- | --- | --- |
@@ -138,7 +138,6 @@
 | `subject_eligible_attributes` | `grades`、`name` の末尾（例: `1-EFGH`, `2-GHI`, `1～4`） | 学年・クラスに分解 |
 | `subject_requirements` | `target_courses`、`classifications` | コース × 必修/選択 |
 
-- 異なる `(lesson_id, year)` のバージョンへの付け替えは許可しない（admin-api でバリデーション）。
 - 表示順: 現在 `syllabus_id`（= 授業コード）で並べている箇所は、`syllabuses` を JOIN して `syllabuses.lesson_id` で並べる。
 
 #### データ移行 SQL
@@ -159,12 +158,11 @@
 - `internal/modules/adminapi/handler/syllabus.go`: キーを UUID に変更し、`lesson_id`・`year` と追加列を扱う。
 - `internal/modules/adminapi/handler/subject.go`: `syllabus_id` の型・バリデーション変更。
 - 新規ジョブ:
-  - **シラバス取得ジョブ**（`cmd/fetch-syllabuses-job`）: 年度を指定して一覧を全ページ取得し、各詳細ページを取得する。`content_hash` が既存バージョンと一致すれば `fetched_at` のみ更新し、異なれば新しいバージョンとして INSERT する。アクセス間隔を空ける。
-    - 新しいバージョンを追加した授業のうち、既存の科目が古いバージョンに紐付いているものを集計し、**差分（授業コード・年度・授業名・変更された項目名）を Slack に通知する**。付け替えは通知を見て admin-api から手動で行う。
-    - Slack への送信は Incoming Webhook を使い、URL は環境変数（Secret Manager 経由）で渡す。現在リポジトリに Slack 連携はないため新規に追加する。
+  - **シラバス取得ジョブ**（`cmd/fetch-syllabuses-job`）: 年度を指定して一覧を全ページ取得し、各詳細ページを取得する。`content_hash` が既存行と一致すれば `fetched_at` のみ更新し、異なれば既存行を上書きする（行がなければ INSERT）。アクセス間隔を空ける。
+    - 変更の通知（Slack など）は行わない。
   - **科目生成ジョブ**（`cmd/build-subjects-job`）: 年度を指定して実行する。
-    - 科目が存在しない `(lesson_id, year)` は、最新バージョンから `subjects` と子テーブルを新規作成する。
-    - 既存の科目は更新しない（紐付いているバージョンを使い続ける）。新しいバージョンへの付け替えは admin-api で行い、付け替え時に紐付け先のシラバスから構造化データを再生成する。
+    - 科目が存在しない `(lesson_id, year)` は、シラバスから `subjects` と子テーブルを新規作成する。
+    - 既存の科目は更新しない。
     - 担当教員名が `faculties` に存在しない場合は、その教員を `subject_faculties` に入れずに警告ログを出す。
   - どちらも既存ジョブ（`build-class-change-notifications-job` など）と同じ形で `cmd/` に作り、`Dockerfile`・`mise.toml`・`.github/actions/set-env/action.yml` に追加して、同じ方法でデプロイ・スケジュール実行する。
   - スケジュール: **毎週日曜日**に、シラバス取得ジョブ → 科目生成ジョブの順で実行する（対象は当年度）。
@@ -177,18 +175,21 @@ API ごとに互換性の要件が異なる。
 | --- | --- | --- |
 | app-bff-api（`api/openapi/app`） | リリース済みアプリ | **スキーマ変更なし** |
 | app-api（`proto/app/v1`） | 開発中のアプリ（未リリース） | 後方互換性を考慮せず変更してよい |
-| academic-api（`api/openapi/academic`） | app-bff-api（内部） | app-bff-api が旧値を返せるよう変更 |
+| academic-api（`api/openapi/academic`） | app-bff-api（内部） | **スキーマ・ドメインモデル変更なし**（repository の変換で旧値を返す） |
 | admin-api（`proto/admin/v1`） | 管理画面 | 変更する |
 
 #### app-bff-api（スキーマ変更なし）
 
 - `AcademicService.Syllabus.id` は、リリース済みアプリがレビュー（フィードバック）のキー `lessonId` として使っている。**引き続き教務システムの ID（= `lesson_id`）を返す。**
-- `internal/modules/app/external/subject_model.go` の `ToDomainSyllabus` で、`ID` に academic-api の `lessonId` を詰める。
-- そのほか、レスポンスに含まれる列が型変更（例: `credit` の text 化）の影響を受ける場合は、BFF 側で旧型へ変換する。
+- academic-api が旧値を返すため、BFF（`internal/modules/app/external/subject_model.go`）は変更しない。
 
-#### academic-api
+#### academic-api（スキーマ・ドメインモデル変更なし）
 
-- `api/openapi/academic/openapi.yaml` の `Syllabus` スキーマ: `id` を UUID にし、`lessonId` と追加列を加える。
+- `api/openapi/academic/openapi.yaml` と `internal/modules/academic/domain/syllabus.go` は変更しない。
+- `internal/modules/academic/repository/convert.go` の `syllabusToDomain` で旧値に変換する。
+  - `ID` に `syllabuses.lesson_id` を詰める（UUID の `syllabuses.id` は返さない）。
+  - `credit`（text、例: `2単位`）は `parseSyllabusCredit` で数値に戻す。取り出せない場合は `0`。
+- 追加した列（`term`、英語欄、ディプロマポリシーなど）は academic-api では返さない。
 - `/v1/subjects/{id}/syllabus` はそのまま（subject の id は UUID のまま変わらない）。
 
 #### app-api
@@ -202,4 +203,4 @@ API ごとに互換性の要件が異なる。
 
 #### 共通
 
-- `gen/` の再生成。
+- proto 変更に伴う `gen/` の再生成（OpenAPI は変更しないため対象外）。

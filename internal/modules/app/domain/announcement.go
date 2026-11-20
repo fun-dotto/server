@@ -9,10 +9,3 @@ type Announcement struct {
 	AvailableUntil *time.Time
 	URL            string
 }
-
-type AnnouncementRequest struct {
-	Title          string
-	AvailableFrom  time.Time
-	AvailableUntil *time.Time
-	URL            string
-}
