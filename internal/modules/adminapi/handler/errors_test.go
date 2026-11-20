@@ -39,6 +39,7 @@ func TestToConnectError(t *testing.T) {
 		{name: "日時の形式が不正", err: pgError(pgerrcode.InvalidDatetimeFormat), code: connect.CodeInvalidArgument, want: invalid},
 		{name: "日時のフィールドが範囲外", err: pgError(pgerrcode.DatetimeFieldOverflow), code: connect.CodeInvalidArgument, want: invalid},
 		{name: "タイムアウト", err: fmt.Errorf("query: %w", context.DeadlineExceeded), code: connect.CodeDeadlineExceeded, want: []proto.Message{errorInfo("DEADLINE_EXCEEDED", nil)}},
+		{name: "キャンセル", err: fmt.Errorf("query: %w", context.Canceled), code: connect.CodeCanceled, want: []proto.Message{errorInfo("CANCELED", nil)}},
 		{name: "それ以外は INTERNAL", err: errors.New("boom"), code: connect.CodeInternal, want: []proto.Message{errorInfo("INTERNAL", nil)}},
 	}
 	for _, tt := range tests {
