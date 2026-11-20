@@ -6,7 +6,7 @@ globs: ["**/*"]
 
 # API デザインガイドライン
 
-`proto/` 配下の Protobuf 定義は以下の規約に従う。`mise run lint:proto`（`buf lint`（STANDARD）と [Google API Linter](https://linter.aip.dev/)）と `buf breaking`（FILE）を通過させること。Lint で検査できる規約は本ガイドには書かず、`buf.yaml` と `api-linter.yaml` で管理する。AIP からの逸脱に伴って Google API Linter のルールを無効化する場合は、`api-linter.yaml` に理由を書く。
+`proto/` 配下の Protobuf 定義は以下の規約に従う。`mise run lint:proto`（`buf format`、`buf lint`（STANDARD）、[Google API Linter](https://linter.aip.dev/)）と `buf breaking`（FILE）を通過させること。Lint で検査できる規約は本ガイドには書かず、`buf.yaml` と `api-linter.yaml` で管理する。AIP からの逸脱に伴って Google API Linter のルールを無効化する場合は、`api-linter.yaml` に理由を書く。
 
 ## 基本方針
 
