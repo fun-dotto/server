@@ -14,11 +14,11 @@ import (
 )
 
 func main() {
+	logging.Setup()
+
 	year := flag.Int("year", academicdomain.CurrentAcademicYear(time.Now()), "Academic year of syllabuses to fetch (default: current academic year in JST)")
 	interval := flag.Duration("interval", time.Second, "Minimum interval between requests to the academic affairs system")
 	flag.Parse()
-
-	logging.Setup()
 
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found: %v", err)

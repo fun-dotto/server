@@ -3,8 +3,10 @@ package syllabusfetch
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -130,7 +132,7 @@ func (c *Client) do(req *http.Request) ([]byte, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("%s %s: unexpected status %d", req.Method, req.URL, res.StatusCode)
+		return nil, &StatusError{Method: req.Method, URL: req.URL.String(), Code: res.StatusCode}
 	}
 	return io.ReadAll(res.Body)
 }
@@ -142,4 +144,25 @@ func formFrom(hidden map[string]string, year int) url.Values {
 	}
 	form.Set(yearFieldName, strconv.Itoa(year))
 	return form
+}
+
+// StatusError は 200 以外のステータスが返ったことを表す。
+type StatusError struct {
+	Method string
+	URL    string
+	Code   int
+}
+
+func (e *StatusError) Error() string {
+	return fmt.Sprintf("%s %s: unexpected status %d", e.Method, e.URL, e.Code)
+}
+
+// isRetryable は一時的な失敗（5xx・タイムアウト）かを返す。
+func isRetryable(err error) bool {
+	var se *StatusError
+	if errors.As(err, &se) {
+		return se.Code >= 500
+	}
+	var ne net.Error
+	return errors.As(err, &ne) && ne.Timeout()
 }

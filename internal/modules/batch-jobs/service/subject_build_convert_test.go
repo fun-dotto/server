@@ -22,6 +22,9 @@ func TestParseSemester(t *testing.T) {
 		{"通年", "通年", d.CourseSemesterAllYear, true},
 		{"前期集中は夏季集中", "前期集中", d.CourseSemesterSummerIntensive, true},
 		{"冬季集中", "冬季集中", d.CourseSemesterWinterIntensive, true},
+		{"前期・後期の併記は通年", "前期・後期", d.CourseSemesterAllYear, true},
+		{"1Q・2Q は前期", "1Q・2Q", d.CourseSemesterH1, true},
+		{"3Q・4Q は後期", "3Q・4Q", d.CourseSemesterH2, true},
 		{"空欄", "", "", false},
 		{"不明", "その他", "", false},
 	}
@@ -88,6 +91,13 @@ func TestParseEligibleAttributes(t *testing.T) {
 		{"配当年次の列挙", "認知科学", "2,3年", []model.SubjectEligibleAttribute{{Grade: "B2"}, {Grade: "B3"}}},
 		{"大学院修士", "特論", "修士1～2年", []model.SubjectEligibleAttribute{{Grade: "M1"}, {Grade: "M2"}}},
 		{"博士", "特論", "博士1年", []model.SubjectEligibleAttribute{{Grade: "D1"}}},
+		{"授業名の半角ハイフンは範囲とみなさない", "情報処理演習Ⅱ 2-3", "2年", []model.SubjectEligibleAttribute{{Grade: "B2"}}},
+		{"空白のない授業名末尾の範囲", "認知科学1～4", "", []model.SubjectEligibleAttribute{
+			{Grade: "B1"}, {Grade: "B2"}, {Grade: "B3"}, {Grade: "B4"},
+		}},
+		{"全角のクラス指定", "解析学Ⅰ　１－ＥＦＧＨ", "", []model.SubjectEligibleAttribute{
+			{Grade: "B1", Class: ptr("E")}, {Grade: "B1", Class: ptr("F")}, {Grade: "B1", Class: ptr("G")}, {Grade: "B1", Class: ptr("H")},
+		}},
 		{"年の付いた範囲", "認知科学", "1年～4年", []model.SubjectEligibleAttribute{{Grade: "B1"}, {Grade: "B2"}, {Grade: "B3"}, {Grade: "B4"}}},
 		{"以上", "認知科学", "2年以上", []model.SubjectEligibleAttribute{{Grade: "B2"}, {Grade: "B3"}, {Grade: "B4"}}},
 		{"博士（前期）は修士", "特論", "博士（前期）1年", []model.SubjectEligibleAttribute{{Grade: "M1"}}},
@@ -127,6 +137,17 @@ func TestParseRequirements(t *testing.T) {
 			req(d.CourseTypeComplexSystem, d.SubjectRequirementTypeOptional),
 		}},
 		{"対象コースなし", "", "教養科目 選択", []model.SubjectRequirement{}},
+		{"空白区切りで複数コース", "情報システムコース、情報デザインコース", "情報システムコース 必修 情報デザインコース 選択", []model.SubjectRequirement{
+			req(d.CourseTypeInformationSystem, d.SubjectRequirementTypeRequired),
+			req(d.CourseTypeInformationDesign, d.SubjectRequirementTypeOptional),
+		}},
+		{"科目区分欄を対象コース欄より優先", "全コース\n学部共通選択", "専門科目 必修", []model.SubjectRequirement{
+			req(d.CourseTypeInformationSystem, d.SubjectRequirementTypeRequired),
+			req(d.CourseTypeInformationDesign, d.SubjectRequirementTypeRequired),
+			req(d.CourseTypeAdvancedICT, d.SubjectRequirementTypeRequired),
+			req(d.CourseTypeComplexSystem, d.SubjectRequirementTypeRequired),
+			req(d.CourseTypeIntelligentSystem, d.SubjectRequirementTypeRequired),
+		}},
 		{"全コースと対象コース欄の必修・選択", "全コース\n学部共通選択", "共通教養科目", []model.SubjectRequirement{
 			req(d.CourseTypeInformationSystem, d.SubjectRequirementTypeOptional),
 			req(d.CourseTypeInformationDesign, d.SubjectRequirementTypeOptional),

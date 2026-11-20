@@ -17,14 +17,18 @@ type Summary struct {
 	Failed    int
 }
 
+// detailRetryWait は詳細ページの取得が一時的に失敗したとき、やり直すまでに待つ時間。
+const detailRetryWait = 10 * time.Second
+
 type Job struct {
-	client *Client
-	store  *Store
-	now    func() time.Time
+	client    *Client
+	store     *Store
+	now       func() time.Time
+	retryWait time.Duration
 }
 
 func NewJob(client *Client, store *Store) *Job {
-	return &Job{client: client, store: store, now: time.Now}
+	return &Job{client: client, store: store, now: time.Now, retryWait: detailRetryWait}
 }
 
 // Run は指定年度のシラバスを全件取得して保存する。
@@ -62,7 +66,7 @@ func (j *Job) Run(ctx context.Context, year int) (Summary, error) {
 }
 
 func (j *Job) fetchAndSave(ctx context.Context, lessonID string, year int) (SaveResult, error) {
-	body, err := j.client.FetchDetail(ctx, lessonID, year)
+	body, err := j.fetchDetailWithRetry(ctx, lessonID, year)
 	if err != nil {
 		return 0, err
 	}
@@ -80,4 +84,20 @@ func (j *Job) fetchAndSave(ctx context.Context, lessonID string, year int) (Save
 	syllabus.LessonID = lessonID
 	syllabus.Year = year
 	return j.store.Save(ctx, syllabus, j.now())
+}
+
+// fetchDetailWithRetry は詳細ページを取得する。5xx やタイムアウトのときだけ、間隔を空けて 1 回やり直す。
+// 一時的な失敗 1 件でジョブ全体が失敗扱いになり、毎週アラートが鳴るのを避けるため。
+func (j *Job) fetchDetailWithRetry(ctx context.Context, lessonID string, year int) ([]byte, error) {
+	body, err := j.client.FetchDetail(ctx, lessonID, year)
+	if err == nil || !isRetryable(err) {
+		return body, err
+	}
+	slog.WarnContext(ctx, "retry fetching syllabus", "lesson_id", lessonID, "year", year, "error", err)
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case <-time.After(j.retryWait):
+	}
+	return j.client.FetchDetail(ctx, lessonID, year)
 }

@@ -2,11 +2,13 @@ package service
 
 import (
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
 	academicdomain "github.com/fun-dotto/server/internal/modules/academic/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"golang.org/x/text/width"
 )
 
 // SyllabusFacultyName はシラバスの担当教員名を 1 人分に分解したもの。
@@ -49,16 +51,32 @@ func StructureSyllabus(s model.Syllabus) (StructuredSubject, bool) {
 	}, true
 }
 
-var fullWidthDigits = strings.NewReplacer("０", "0", "１", "1", "２", "2", "３", "3", "４", "4", "５", "5", "６", "6", "７", "7", "８", "8", "９", "9", "Ｑ", "Q", "ｑ", "Q")
+// dashVariants はハイフンとして書かれうる文字。width.Fold では半角にならない。
+var dashVariants = strings.NewReplacer("ー", "-", "−", "-", "‐", "-", "–", "-", "―", "-")
+
+// normalizeWidth は全角の英数字・記号を半角に揃え、ハイフンの異体字を `-` にする。
+func normalizeWidth(s string) string {
+	return dashVariants.Replace(width.Fold.String(s))
+}
 
 // ParseSemester は開講期（`前期`/`後期`/`1Q`〜`4Q`/`通年`/集中）を enum に変換する。
 func ParseSemester(term string) (academicdomain.CourseSemester, bool) {
-	t := strings.ToUpper(fullWidthDigits.Replace(strings.Join(strings.Fields(term), "")))
+	t := strings.ToUpper(normalizeWidth(strings.Join(strings.Fields(term), "")))
+	isIntensive := strings.Contains(t, "集中")
+	hasQ := func(n string) bool { return strings.Contains(t, n+"Q") }
 	switch {
 	case t == "":
 		return "", false
 	case strings.Contains(t, "通年"):
 		return academicdomain.CourseSemesterAllYear, true
+	// 開講期が併記されている場合は、併記した期間全体を表す値にする
+	case !isIntensive && strings.Contains(t, "前期") && strings.Contains(t, "後期"),
+		hasQ("1") && hasQ("2") && hasQ("3") && hasQ("4"):
+		return academicdomain.CourseSemesterAllYear, true
+	case hasQ("1") && hasQ("2") && !hasQ("3") && !hasQ("4"):
+		return academicdomain.CourseSemesterH1, true
+	case hasQ("3") && hasQ("4") && !hasQ("1") && !hasQ("2"):
+		return academicdomain.CourseSemesterH2, true
 	// 集中講義は「前期集中」のように前期・後期と併記されうるため先に判定する
 	case strings.Contains(t, "集中") && (strings.Contains(t, "夏") || strings.Contains(t, "前期")):
 		return academicdomain.CourseSemesterSummerIntensive, true
@@ -133,8 +151,8 @@ func NormalizeFacultyName(s string) string {
 var (
 	// 授業名末尾のクラス指定（例: `解析学Ⅰ 1-EFGH`）
 	nameGradeClassPattern = regexp.MustCompile(`([1-4])\s*-\s*([A-L]+)\s*$`)
-	// 授業名末尾の学年範囲（例: `xxx 1～4`）
-	nameGradeRangePattern = regexp.MustCompile(`\s([1-4])\s*[～~〜-]\s*([1-4])\s*$`)
+	// 授業名末尾の学年範囲（例: `認知科学1～4`）。`2-3` のような半角ハイフンは授業の番号と区別できないため範囲とみなさない
+	nameGradeRangePattern = regexp.MustCompile(`([1-4])\s*[～~〜]\s*([1-4])\s*$`)
 	gradeRangePattern     = regexp.MustCompile(`([1-4])\s*年?\s*[～~〜-]\s*([1-4])`)
 	gradeAbovePattern     = regexp.MustCompile(`([1-4])\s*年?\s*次?\s*以上`)
 	gradeDigitPattern     = regexp.MustCompile(`[1-4]`)
@@ -144,7 +162,7 @@ var (
 // 授業名末尾のクラス指定が最も具体的なので優先し、なければ配当年次を使う。
 // 大学院（修士・博士）はクラスがないため Class は nil。
 func ParseEligibleAttributes(name, grades string) []model.SubjectEligibleAttribute {
-	name = fullWidthDigits.Replace(strings.TrimSpace(name))
+	name = strings.TrimSpace(normalizeWidth(name))
 	if m := nameGradeClassPattern.FindStringSubmatch(name); m != nil {
 		grade := "B" + m[1]
 		var result []model.SubjectEligibleAttribute
@@ -158,7 +176,7 @@ func ParseEligibleAttributes(name, grades string) []model.SubjectEligibleAttribu
 		return gradeRange("B", m[1], m[2])
 	}
 
-	g := fullWidthDigits.Replace(grades)
+	g := normalizeWidth(grades)
 	prefix := "B"
 	maxGrade := "4"
 	// この大学の修士課程の正式名は「博士（前期）課程」なので、前期・後期を先に判定する
@@ -240,10 +258,49 @@ func findRequirementType(s string) (academicdomain.SubjectRequirementType, bool)
 
 var segmentSeparator = regexp.MustCompile(`[\n、,，/／;；]+`)
 
+// splitByCourse は 1 つの区切りを、コース名の出現位置ごとに分ける。
+// 「情報システムコース 必修 情報デザインコース 選択」のように空白区切りで複数のコースが並ぶ場合に、
+// 各コースへそれぞれの必修・選択を割り当てるため。
+func splitByCourse(seg string) []string {
+	upper := strings.ToUpper(seg)
+	var starts []int
+	for _, k := range append([]string{"全コース"}, courseKeywordList()...) {
+		for off := 0; ; {
+			i := strings.Index(upper[off:], k)
+			if i < 0 {
+				break
+			}
+			starts = append(starts, off+i)
+			off += i + len(k)
+		}
+	}
+	if len(starts) <= 1 {
+		return []string{seg}
+	}
+	slices.Sort(starts)
+	parts := []string{seg[:starts[0]]}
+	for i, st := range starts {
+		end := len(seg)
+		if i+1 < len(starts) {
+			end = starts[i+1]
+		}
+		parts = append(parts, seg[st:end])
+	}
+	return parts
+}
+
+func courseKeywordList() []string {
+	result := make([]string, 0, len(courseKeywords))
+	for _, k := range courseKeywords {
+		result = append(result, k.keyword)
+	}
+	return result
+}
+
 // ParseRequirements は対象コースと科目群・科目区分から、コースごとの必修・選択を求める。
-// 対象コースと科目区分の各区切りにコース名があればそのコースに、なければ対象コース全体に必修・選択を割り当てる。
-// 「全コース」は 5 コースすべてとみなす。
-// 先に現れた割り当てを優先し、どの区切りにも必修・選択の記載がないコースは選択とみなす。
+// 区切りごとにコース名があればそのコースに、なければ対象コース全体に必修・選択を割り当てる。「全コース」は 5 コースすべてとみなす。
+// 科目区分欄の記載を対象コース欄（「学部共通選択」など）より優先し、同じ欄の中では先に現れた割り当てを優先する。
+// どの区切りにも必修・選択の記載がない対象コースは選択とみなす。
 func ParseRequirements(targetCourses, classifications string) []model.SubjectRequirement {
 	targets := findCourses(targetCourses)
 	assigned := map[academicdomain.CourseType]academicdomain.SubjectRequirementType{}
@@ -256,18 +313,21 @@ func ParseRequirements(targetCourses, classifications string) []model.SubjectReq
 		order = append(order, c)
 	}
 
-	// 対象コース欄にも「学部共通選択」のように必修・選択が書かれることがあるため、両方の区切りを見る
-	for _, seg := range segmentSeparator.Split(targetCourses+"\n"+classifications, -1) {
-		r, ok := findRequirementType(seg)
-		if !ok {
-			continue
-		}
-		courses := findCourses(seg)
-		if len(courses) == 0 {
-			courses = targets
-		}
-		for _, c := range courses {
-			assign(c, r)
+	for _, field := range []string{classifications, targetCourses} {
+		for _, seg := range segmentSeparator.Split(field, -1) {
+			for _, part := range splitByCourse(seg) {
+				r, ok := findRequirementType(part)
+				if !ok {
+					continue
+				}
+				courses := findCourses(part)
+				if len(courses) == 0 {
+					courses = targets
+				}
+				for _, c := range courses {
+					assign(c, r)
+				}
+			}
 		}
 	}
 	for _, c := range targets {
