@@ -3,7 +3,7 @@ module github.com/fun-dotto/server
 go 1.27.4
 
 require (
-	ariga.io/atlas-provider-gorm v0.6.0
+	ariga.io/atlas-provider-gorm v0.6.1
 	cloud.google.com/go/cloudsqlconn v1.21.0
 	cloud.google.com/go/compute/metadata v0.9.0
 	connectrpc.com/connect v1.21.0
