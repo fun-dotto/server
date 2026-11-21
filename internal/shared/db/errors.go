@@ -14,3 +14,12 @@ func PostgresErrorCode(err error) string {
 	}
 	return ""
 }
+
+// PostgresConstraintName は err に含まれる PostgreSQL のエラーで違反した制約の名前を返す。
+// PostgreSQL のエラーでない場合や、制約違反でない場合は空文字列を返す。
+func PostgresConstraintName(err error) string {
+	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok {
+		return pgErr.ConstraintName
+	}
+	return ""
+}
