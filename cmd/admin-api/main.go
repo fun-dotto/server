@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/joho/godotenv"
+
 	"github.com/fun-dotto/server/gen/admin/v1/adminv1connect"
 	"github.com/fun-dotto/server/internal/modules/adminapi/handler"
 	"github.com/fun-dotto/server/internal/shared/cfaccess"
@@ -14,7 +16,6 @@ import (
 	"github.com/fun-dotto/server/internal/shared/interceptor"
 	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/server"
-	"github.com/joho/godotenv"
 )
 
 const handlerTimeout = 15 * time.Second

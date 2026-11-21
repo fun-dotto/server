@@ -4,9 +4,10 @@ import (
 	"context"
 	"uuid"
 
+	"gorm.io/gorm"
+
 	"github.com/fun-dotto/server/internal/modules/academic/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"gorm.io/gorm"
 )
 
 type TimetableItemRepository struct {

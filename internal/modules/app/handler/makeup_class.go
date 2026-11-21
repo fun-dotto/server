@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	openapi_types "github.com/oapi-codegen/runtime/types"
+
 	api "github.com/fun-dotto/server/gen/app"
 	"github.com/fun-dotto/server/internal/modules/app/domain"
-	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 func (h *Handler) MakeupClassesV1List(ctx context.Context, request api.MakeupClassesV1ListRequestObject) (api.MakeupClassesV1ListResponseObject, error) {

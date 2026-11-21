@@ -32,7 +32,7 @@ func Middleware(next http.Handler) http.Handler {
 
 		defer func() {
 			if rec := recover(); rec != nil {
-				if rec == http.ErrAbortHandler {
+				if err, ok := rec.(error); ok && errors.Is(err, http.ErrAbortHandler) {
 					panic(rec)
 				}
 				slog.ErrorContext(ctx, fmt.Sprintf("panic recovered: %v", rec),

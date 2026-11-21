@@ -10,6 +10,7 @@ import (
 
 	"connectrpc.com/connect"
 	"firebase.google.com/go/v4/auth"
+
 	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
 	"github.com/fun-dotto/server/internal/shared/cfaccess"
 )

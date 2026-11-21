@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 
-	api "github.com/fun-dotto/server/gen/academic"
 	"gorm.io/gorm"
+
+	api "github.com/fun-dotto/server/gen/academic"
 )
 
 func (h *Handler) CancelledClassesV1Delete(ctx context.Context, request api.CancelledClassesV1DeleteRequestObject) (api.CancelledClassesV1DeleteResponseObject, error) {

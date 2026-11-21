@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	openapi_types "github.com/oapi-codegen/runtime/types"
+
 	api "github.com/fun-dotto/server/gen/academic"
 	"github.com/fun-dotto/server/internal/modules/academic/domain"
-	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 func cancelledClassToAPI(d domain.CancelledClass) (api.CancelledClass, error) {

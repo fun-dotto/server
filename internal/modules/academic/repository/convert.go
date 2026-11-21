@@ -378,37 +378,6 @@ func timetableItemToDomain(m model.TimetableItem) domain.TimetableItem {
 	}
 }
 
-func timetableItemFromDomain(d domain.TimetableItem) model.TimetableItem {
-	var dayOfWeek *string
-	var period *string
-	if d.Slot != nil {
-		dow := string(d.Slot.DayOfWeek)
-		p := string(d.Slot.Period)
-		dayOfWeek = &dow
-		period = &p
-	}
-
-	rooms := make([]model.TimetableItemRoom, len(d.Rooms))
-	for i, room := range d.Rooms {
-		rm := roomFromDomain(room)
-		rooms[i] = model.TimetableItemRoom{
-			RoomID: rm.ID.String(),
-			Room:   &rm,
-		}
-	}
-
-	m := model.TimetableItem{
-		SubjectID: parseUUIDOrNil(d.Subject.ID),
-		DayOfWeek: dayOfWeek,
-		Period:    period,
-		Rooms:     rooms,
-	}
-	if d.ID != "" {
-		m.ID = parseUUIDOrNil(d.ID)
-	}
-	return m
-}
-
 // parseSyllabusCredit はシラバスの単位数（例: `2単位`）から数値を取り出す。取り出せない場合は 0。
 func parseSyllabusCredit(s string) int {
 	n, err := strconv.Atoi(strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(s), "単位")))

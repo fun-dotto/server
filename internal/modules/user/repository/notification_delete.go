@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 
+	"gorm.io/gorm"
+
 	"github.com/fun-dotto/server/internal/modules/user/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"gorm.io/gorm"
 )
 
 func (r *NotificationRepository) DeleteNotification(ctx context.Context, id string) error {

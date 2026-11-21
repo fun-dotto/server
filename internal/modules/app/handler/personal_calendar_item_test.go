@@ -6,12 +6,13 @@ import (
 	"testing"
 	"time"
 
-	api "github.com/fun-dotto/server/gen/app"
-	"github.com/fun-dotto/server/internal/modules/app/repository"
-	"github.com/fun-dotto/server/internal/modules/app/service"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	api "github.com/fun-dotto/server/gen/app"
+	"github.com/fun-dotto/server/internal/modules/app/repository"
+	"github.com/fun-dotto/server/internal/modules/app/service"
 )
 
 func TestPersonalCalendarItemsV1List(t *testing.T) {

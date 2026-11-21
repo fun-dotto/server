@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
+
+	"github.com/fun-dotto/server/internal/shared/db"
 )
 
 func TestPostgresErrorCode(t *testing.T) {

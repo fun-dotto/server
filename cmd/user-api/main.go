@@ -6,6 +6,11 @@ import (
 	"time"
 
 	firebase "firebase.google.com/go/v4"
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	oapimw "github.com/oapi-codegen/gin-middleware"
+
 	api "github.com/fun-dotto/server/gen/user"
 	"github.com/fun-dotto/server/internal/modules/user/handler"
 	"github.com/fun-dotto/server/internal/modules/user/middleware"
@@ -16,10 +21,6 @@ import (
 	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/fun-dotto/server/internal/shared/strictgin"
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	oapimw "github.com/oapi-codegen/gin-middleware"
 )
 
 const handlerTimeout = 15 * time.Second

@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 
-	api "github.com/fun-dotto/server/gen/academic"
 	"gorm.io/gorm"
+
+	api "github.com/fun-dotto/server/gen/academic"
 )
 
 func (h *Handler) SyllabusV1Detail(ctx context.Context, request api.SyllabusV1DetailRequestObject) (api.SyllabusV1DetailResponseObject, error) {

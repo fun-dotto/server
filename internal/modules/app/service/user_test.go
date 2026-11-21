@@ -4,10 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/fun-dotto/server/internal/modules/app/domain"
-	"github.com/fun-dotto/server/internal/modules/app/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/fun-dotto/server/internal/modules/app/domain"
+	"github.com/fun-dotto/server/internal/modules/app/repository"
 )
 
 func TestUserService_GetUser(t *testing.T) {

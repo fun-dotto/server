@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"firebase.google.com/go/v4/messaging"
+
 	"github.com/fun-dotto/server/internal/modules/user/domain"
 )
 
@@ -22,15 +23,19 @@ type stubNotificationRepo struct {
 func (s *stubNotificationRepo) ListNotifications(context.Context, domain.NotificationListFilter) ([]domain.Notification, error) {
 	return nil, errors.New("not implemented")
 }
+
 func (s *stubNotificationRepo) CreateNotification(context.Context, domain.Notification) (domain.Notification, error) {
 	return domain.Notification{}, errors.New("not implemented")
 }
+
 func (s *stubNotificationRepo) UpdateNotification(context.Context, domain.Notification) (domain.Notification, error) {
 	return domain.Notification{}, errors.New("not implemented")
 }
+
 func (s *stubNotificationRepo) DeleteNotification(context.Context, string) error {
 	return errors.New("not implemented")
 }
+
 func (s *stubNotificationRepo) GetNotificationsByIDs(ctx context.Context, ids []string) ([]domain.Notification, error) {
 	s.getByIDsCalledWith = ids
 	if s.getByIDs == nil {
@@ -38,6 +43,7 @@ func (s *stubNotificationRepo) GetNotificationsByIDs(ctx context.Context, ids []
 	}
 	return s.getByIDs(ctx, ids)
 }
+
 func (s *stubNotificationRepo) DispatchNotifications(ctx context.Context, deliveries map[string][]string) ([]domain.Notification, error) {
 	s.dispatchCalled = true
 	s.lastDeliveriesArg = deliveries
@@ -46,9 +52,11 @@ func (s *stubNotificationRepo) DispatchNotifications(ctx context.Context, delive
 	}
 	return s.dispatch(ctx, deliveries)
 }
+
 func (s *stubNotificationRepo) ListPendingNotifications(context.Context, time.Time) ([]domain.Notification, error) {
 	return nil, errors.New("not implemented")
 }
+
 func (s *stubNotificationRepo) MarkUsersAsNotified(context.Context, map[string][]string) error {
 	return errors.New("not implemented")
 }

@@ -6,11 +6,13 @@ import (
 	"uuid"
 
 	"connectrpc.com/connect"
+
+	"github.com/jackc/pgerrcode"
+
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	shareddb "github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/fun-dotto/server/internal/shared/rpcerror"
-	"github.com/jackc/pgerrcode"
 )
 
 // courseRegistrationIDSep は履修情報ID（ユーザーIDと科目IDの複合キー）の区切り文字。

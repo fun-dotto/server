@@ -1,16 +1,16 @@
 package handler
 
 import (
+	"context"
 	"time"
 
-	"context"
-
 	"connectrpc.com/connect"
+	"google.golang.org/genproto/googleapis/type/date"
+	"gorm.io/gorm"
+
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/fun-dotto/server/internal/shared/rpcerror"
-	"google.golang.org/genproto/googleapis/type/date"
-	"gorm.io/gorm"
 )
 
 type classChangeRequest interface {
@@ -116,7 +116,7 @@ func (h *Handler) ListRoomChanges(ctx context.Context, req *connect.Request[appv
 	})
 	rooms := make([]*appv1.Room, 0, len(changes)*2)
 	for _, c := range changes {
-		rooms = append(rooms, c.OriginalRoom, c.NewRoom)
+		rooms = append(rooms, c.GetOriginalRoom(), c.GetNewRoom())
 	}
 	if err := h.attachRoomFaculties(ctx, rooms...); err != nil {
 		return nil, internalError(ctx, "ListRoomChanges", err)

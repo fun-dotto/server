@@ -1,9 +1,10 @@
 package handler
 
 import (
+	openapi_types "github.com/oapi-codegen/runtime/types"
+
 	api "github.com/fun-dotto/server/gen/academic"
 	"github.com/fun-dotto/server/internal/modules/academic/domain"
-	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 func personalCalendarItemToAPI(d domain.PersonalCalendarItem) api.PersonalCalendarItem {

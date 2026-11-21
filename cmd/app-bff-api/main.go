@@ -5,6 +5,9 @@ import (
 	"log"
 
 	firebaseAdmin "firebase.google.com/go/v4"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+
 	api "github.com/fun-dotto/server/gen/app"
 	"github.com/fun-dotto/server/internal/modules/app/handler"
 	"github.com/fun-dotto/server/internal/modules/app/middleware"
@@ -15,8 +18,6 @@ import (
 	"github.com/fun-dotto/server/internal/shared/microcms"
 	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/fun-dotto/server/internal/shared/strictgin"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {

@@ -4,10 +4,11 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
+	"gorm.io/gorm"
+
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/fun-dotto/server/internal/shared/rpcerror"
-	"gorm.io/gorm"
 )
 
 type SyllabusHandler struct {
