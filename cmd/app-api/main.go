@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"connectrpc.com/connect"
@@ -92,10 +93,7 @@ func main() {
 
 	h := handler.New(conn, calendar, articles, articleBaseURL)
 
-	appCheck := auth.AppCheckTokenVerifierFunc(func(token string) error {
-		_, err := appCheckClient.VerifyToken(token)
-		return err
-	})
+	appCheck := auth.FirebaseAppCheckVerifier{Client: appCheckClient, AllowedAppIDs: allowedAppIDs()}
 	opts := connect.WithInterceptors(
 		interceptor.Timeout(handlerTimeout),
 		interceptor.RecordError(),
@@ -122,4 +120,19 @@ func main() {
 	if err := server.Run(logging.Middleware(mux), server.Addr()); err != nil {
 		log.Fatalf("Server exited with error: %v", err)
 	}
+}
+
+// allowedAppIDs は APP_CHECK_ALLOWED_APP_IDS のカンマ区切りの Firebase アプリ ID を集合にして返す。
+// 未設定の場合はアプリ ID の制限をかけない。
+func allowedAppIDs() map[string]bool {
+	var ids map[string]bool
+	for id := range strings.SplitSeq(os.Getenv("APP_CHECK_ALLOWED_APP_IDS"), ",") {
+		if id = strings.TrimSpace(id); id != "" {
+			if ids == nil {
+				ids = map[string]bool{}
+			}
+			ids[id] = true
+		}
+	}
+	return ids
 }
