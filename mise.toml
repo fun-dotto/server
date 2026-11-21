@@ -7,6 +7,7 @@ npm.package_manager = "bun"
 GOTOOLCHAIN = "local"
 
 [tools]
+actionlint = "1.7.12"
 atlas = "1.3.0"
 buf = "1.75.0"
 bun = "1.4.5"
@@ -17,6 +18,7 @@ golangci-lint = "2.15.0"
 node = "26.13.1"
 "npm:portless" = "0.17.0"
 "npm:rulesync" = "43.8.0"
+zizmor = "1.32.0"
 
 [tasks.bootstrap]
 description = "依存関係をセットアップする"
@@ -55,6 +57,7 @@ run = [
 description = "静的解析を実行する"
 run = [
   { task = "lint:proto" },
+  { task = "lint:actions" },
   "golangci-lint fmt --diff",
   "golangci-lint run",
   "go build -o ./bin/gormuuidlint ./cmd/gormuuidlint",
@@ -76,6 +79,14 @@ run = [
   "buf lint",
   "mkdir -p ./bin && buf build -o ./bin/proto.binpb",
   "cd proto && go tool api-linter --config ../api-linter.yaml --descriptor-set-in ../bin/proto.binpb --set-exit-status $(find . -name '*.proto' | sed 's|^./||' | sort)",
+]
+
+[tasks."lint:actions"]
+description = "GitHub Actions のワークフローと composite action を actionlint・zizmor で検査する"
+run = [
+  "actionlint",
+  # GH_TOKEN がなければオフラインの監査だけを行う
+  "zizmor .github",
 ]
 
 [tasks.test]

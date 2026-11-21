@@ -73,4 +73,5 @@ mise.local.toml
 !.github/actions/
 !.github/workflows/
 !.github/PULL_REQUEST_TEMPLATE.md
+!.github/zizmor.yml
 .mcp.json
