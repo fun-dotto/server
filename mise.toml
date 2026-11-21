@@ -16,7 +16,7 @@ go = "1.27.4"
 "go:golang.org/x/vuln/cmd/govulncheck" = "1.9.0"
 golangci-lint = "2.15.0"
 node = "26.13.1"
-"npm:portless" = "0.17.0"
+"npm:portless" = "0.18.1"
 "npm:rulesync" = "43.8.0"
 zizmor = "1.32.0"
 
