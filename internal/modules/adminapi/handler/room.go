@@ -8,6 +8,7 @@ import (
 
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type RoomHandler struct {
@@ -39,7 +40,7 @@ type roomInput interface {
 }
 
 func roomFromProto(in roomInput, s fieldSet) (model.Room, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.Room
 	if s.has("name") {
 		m.Name = requireString(&v, "name", in.GetName())
@@ -47,7 +48,7 @@ func roomFromProto(in roomInput, s fieldSet) (model.Room, error) {
 	if s.has("floor") {
 		m.Floor = roomFloorEnum.toDB(&v, "floor", in.GetFloor(), true)
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func roomToProto(m model.Room) *adminv1.Room {

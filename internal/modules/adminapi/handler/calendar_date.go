@@ -9,6 +9,7 @@ import (
 
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type CalendarDateHandler struct {
@@ -38,7 +39,7 @@ type calendarDateInput interface {
 }
 
 func calendarDateFromProto(in calendarDateInput, s fieldSet) (model.CalendarDate, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.CalendarDate
 	if s.has("service_id") {
 		m.ServiceID = requireString(&v, "service_id", in.GetServiceId())
@@ -49,11 +50,11 @@ func calendarDateFromProto(in calendarDateInput, s fieldSet) (model.CalendarDate
 	if s.has("exception_type") {
 		t, ok := calendarDateExceptionTypeEnum[in.GetExceptionType()]
 		if !ok {
-			v.add("exception_type", "must be a valid enum value other than UNSPECIFIED")
+			v.Add("exception_type", "must be a valid enum value other than UNSPECIFIED")
 		}
 		m.ExceptionType = t
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func calendarDateToProto(m model.CalendarDate) *adminv1.CalendarDate {

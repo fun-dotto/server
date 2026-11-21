@@ -9,6 +9,7 @@ import (
 
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type FacultyRoomHandler struct {
@@ -32,7 +33,7 @@ type facultyRoomInput interface {
 }
 
 func facultyRoomFromProto(in facultyRoomInput, s fieldSet) (model.FacultyRoom, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.FacultyRoom
 	if s.has("faculty_id") {
 		m.FacultyID = parseUUID(&v, "faculty_id", in.GetFacultyId())
@@ -43,7 +44,7 @@ func facultyRoomFromProto(in facultyRoomInput, s fieldSet) (model.FacultyRoom, e
 	if s.has("year") {
 		m.Year = requirePositive(&v, "year", in.GetYear())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func facultyRoomToProto(m model.FacultyRoom) *adminv1.FacultyRoom {

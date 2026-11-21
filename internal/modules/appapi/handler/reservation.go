@@ -7,12 +7,13 @@ import (
 
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 // ListReservations は教室の予約の一覧を返す。検索対象期間に一部でも重複する予約を返す。
 func (h *Handler) ListReservations(ctx context.Context, req *connect.Request[appv1.ListReservationsRequest]) (*connect.Response[appv1.ListReservationsResponse], error) {
 	m := req.Msg
-	var v violations
+	var v rpcerror.Violations
 	roomIDs := parseUUIDs(m.GetRoomIds(), "room_ids", &v)
 	query := h.db.WithContext(ctx).Preload("Room")
 	if len(roomIDs) > 0 {
@@ -20,17 +21,17 @@ func (h *Handler) ListReservations(ctx context.Context, req *connect.Request[app
 	}
 	if m.GetFromTime() != nil {
 		if err := m.GetFromTime().CheckValid(); err != nil {
-			v.add("from_time", "must be a valid timestamp")
+			v.Add("from_time", "must be a valid timestamp")
 		}
 		query = query.Where("end_time > ?", m.GetFromTime().AsTime())
 	}
 	if m.GetUntilTime() != nil {
 		if err := m.GetUntilTime().CheckValid(); err != nil {
-			v.add("until_time", "must be a valid timestamp")
+			v.Add("until_time", "must be a valid timestamp")
 		}
 		query = query.Where("start_time < ?", m.GetUntilTime().AsTime())
 	}
-	if err := v.err(); err != nil {
+	if err := v.Err(errorDomain); err != nil {
 		return nil, err
 	}
 	var records []model.RoomReservation

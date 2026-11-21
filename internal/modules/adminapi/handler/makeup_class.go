@@ -10,6 +10,7 @@ import (
 
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type MakeupClassHandler struct {
@@ -33,7 +34,7 @@ type makeupClassInput interface {
 }
 
 func makeupClassFromProto(in makeupClassInput, s fieldSet) (model.MakeupClass, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.MakeupClass
 	if s.has("subject_id") {
 		m.SubjectID = parseUUID(&v, "subject_id", in.GetSubjectId())
@@ -47,7 +48,7 @@ func makeupClassFromProto(in makeupClassInput, s fieldSet) (model.MakeupClass, e
 	if s.has("comment") {
 		m.Comment = optional(in, "comment", in.GetComment())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func makeupClassToProto(m model.MakeupClass) *adminv1.MakeupClass {

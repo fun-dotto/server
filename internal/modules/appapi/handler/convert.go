@@ -10,6 +10,7 @@ import (
 
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 const dateLayout = time.DateOnly
@@ -40,12 +41,12 @@ func toTimestamp(t time.Time) *timestamppb.Timestamp {
 }
 
 // parseUUIDs は ID のリストを UUID 文字列にする。不正な ID がある場合は違反として記録する。
-func parseUUIDs(ids []string, field string, v *violations) []string {
+func parseUUIDs(ids []string, field string, v *rpcerror.Violations) []string {
 	result := make([]string, 0, len(ids))
 	for _, id := range ids {
 		u, err := uuid.Parse(id)
 		if err != nil {
-			v.add(field, "must contain only valid IDs")
+			v.Add(field, "must contain only valid IDs")
 			continue
 		}
 		result = append(result, u.String())
@@ -68,12 +69,12 @@ func newEnumMap[P comparable](pairs map[string]P) enumMap[P] {
 }
 
 // fromProtoList は proto の enum のリストを DB の文字列に変換する。未知の値（UNSPECIFIED を含む）は違反として記録する。
-func (m enumMap[P]) fromProtoList(values []P, field string, v *violations) []string {
+func (m enumMap[P]) fromProtoList(values []P, field string, v *rpcerror.Violations) []string {
 	result := make([]string, 0, len(values))
 	for _, p := range values {
 		s, ok := m.fromProto[p]
 		if !ok {
-			v.add(field, "must not contain unspecified or unknown values")
+			v.Add(field, "must not contain unspecified or unknown values")
 			continue
 		}
 		result = append(result, s)

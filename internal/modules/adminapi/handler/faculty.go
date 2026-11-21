@@ -8,6 +8,7 @@ import (
 
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type FacultyHandler struct {
@@ -28,7 +29,7 @@ type facultyInput interface {
 }
 
 func facultyFromProto(in facultyInput, s fieldSet) (model.Faculty, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.Faculty
 	if s.has("name") {
 		m.Name = requireString(&v, "name", in.GetName())
@@ -36,7 +37,7 @@ func facultyFromProto(in facultyInput, s fieldSet) (model.Faculty, error) {
 	if s.has("email") {
 		m.Email = requireString(&v, "email", in.GetEmail())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func facultyToProto(m model.Faculty) *adminv1.Faculty {

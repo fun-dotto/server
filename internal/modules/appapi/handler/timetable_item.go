@@ -7,6 +7,7 @@ import (
 
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 // timetableOrder は曜日・時限・シラバスIDの順に並べる。
@@ -31,9 +32,9 @@ func (h *Handler) findTimetableItems(ctx context.Context, year *int, semesters [
 }
 
 // requiredSemesters は必須の semesters を DB の文字列に変換する。
-func requiredSemesters(values []appv1.SubjectSemester, v *violations) []string {
+func requiredSemesters(values []appv1.SubjectSemester, v *rpcerror.Violations) []string {
 	if len(values) == 0 {
-		v.add("semesters", "is required")
+		v.Add("semesters", "is required")
 		return nil
 	}
 	return semesterMap.fromProtoList(values, "semesters", v)
@@ -41,9 +42,9 @@ func requiredSemesters(values []appv1.SubjectSemester, v *violations) []string {
 
 // ListTimetableItems は時間割の一覧を返す。
 func (h *Handler) ListTimetableItems(ctx context.Context, req *connect.Request[appv1.ListTimetableItemsRequest]) (*connect.Response[appv1.ListTimetableItemsResponse], error) {
-	var v violations
+	var v rpcerror.Violations
 	semesters := requiredSemesters(req.Msg.GetSemesters(), &v)
-	if err := v.err(); err != nil {
+	if err := v.Err(errorDomain); err != nil {
 		return nil, err
 	}
 	year := h.defaultYear(req.Msg.Year)

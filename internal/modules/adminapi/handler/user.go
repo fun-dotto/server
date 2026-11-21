@@ -9,6 +9,7 @@ import (
 
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type UserHandler struct {
@@ -33,7 +34,7 @@ type userInput interface {
 }
 
 func userFromProto(in userInput, s fieldSet) (model.User, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.User
 	if s.has("id") {
 		m.ID = requireString(&v, "id", in.GetId())
@@ -50,7 +51,7 @@ func userFromProto(in userInput, s fieldSet) (model.User, error) {
 	if s.has("class") {
 		m.Class = classEnum.toOptionalDB(&v, "class", optional(in, "class", in.GetClass()))
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func userToProto(m model.User) *adminv1.User {

@@ -10,6 +10,7 @@ import (
 
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type FareAttributeHandler struct {
@@ -38,7 +39,7 @@ type fareAttributeInput interface {
 }
 
 func fareAttributeFromProto(in fareAttributeInput, s fieldSet) (model.FareAttribute, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.FareAttribute
 	if s.has("fare_id") {
 		m.FareID = requireString(&v, "fare_id", in.GetFareId())
@@ -50,17 +51,17 @@ func fareAttributeFromProto(in fareAttributeInput, s fieldSet) (model.FareAttrib
 		p := in.GetPrice()
 		switch {
 		case p == nil:
-			v.add("price", "must be set")
+			v.Add("price", "must be set")
 		case p.GetCurrencyCode() != fareCurrencyCode:
-			v.add("price.currency_code", "must be "+fareCurrencyCode)
+			v.Add("price.currency_code", "must be "+fareCurrencyCode)
 		case p.GetUnits() < 0 || p.GetNanos() < 0:
-			v.add("price", "must not be negative")
+			v.Add("price", "must not be negative")
 		case p.GetNanos() >= 1_000_000_000:
-			v.add("price.nanos", "must be less than 1,000,000,000")
+			v.Add("price.nanos", "must be less than 1,000,000,000")
 		}
 		m.Price = decimal.New(p.GetUnits(), 0).Add(decimal.New(int64(p.GetNanos()), -9))
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func fareAttributeToProto(m model.FareAttribute) *adminv1.FareAttribute {

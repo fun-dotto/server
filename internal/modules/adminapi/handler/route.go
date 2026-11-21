@@ -8,6 +8,7 @@ import (
 
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type RouteHandler struct {
@@ -28,7 +29,7 @@ type routeInput interface {
 }
 
 func routeFromProto(in routeInput, s fieldSet) (model.Route, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.Route
 	if s.has("route_id") {
 		m.RouteID = requireString(&v, "route_id", in.GetRouteId())
@@ -36,7 +37,7 @@ func routeFromProto(in routeInput, s fieldSet) (model.Route, error) {
 	if s.has("route_short_name") {
 		m.RouteShortName = requireString(&v, "route_short_name", in.GetRouteShortName())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func routeToProto(m model.Route) *adminv1.Route {
