@@ -43,7 +43,11 @@ runs:
     - if: inputs.type == 'job'
       name: Deploy Cloud Run Job
       shell: bash
+      env:
+        JOB_NAME: ${{ inputs.name }}
+        IMAGE: ${{ inputs.image }}
+        REGION: ${{ inputs.region }}
       run: |
-        gcloud run jobs deploy "${{ inputs.name }}" \
-          --image "${{ inputs.image }}" \
-          --region "${{ inputs.region }}"
+        gcloud run jobs deploy "$JOB_NAME" \
+          --image "$IMAGE" \
+          --region "$REGION"

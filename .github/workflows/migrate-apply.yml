@@ -50,6 +50,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: github.event_name == 'workflow_dispatch'
         with:
+          persist-credentials: false
           fetch-depth: 0
       - name: Resolve inputs
         id: resolve
@@ -99,6 +100,8 @@ jobs:
       # composite action・atlas.hcl はワークフローのコミット（input や SA 名と揃える）のものを使い、
       # migrations/ だけをイメージのコミットのものに差し替える。古いイメージへのロールバックでも適用できるようにするため。
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Checkout migrations at ref
         env:
           REF: ${{ needs.prepare.outputs.ref }}

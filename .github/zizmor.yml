@@ -1,0 +1,4 @@
+rules:
+  # GitHub の self-repository 構文（$/...）は actionlint が未対応でエラーになるため、./... のまま使う
+  self-repository:
+    disable: true
