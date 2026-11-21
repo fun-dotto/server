@@ -93,7 +93,13 @@ func (h *Handler) CreateCourseRegistration(ctx context.Context, req *connect.Req
 			return nil, errorDomain.New(connect.CodeAlreadyExists, "COURSE_REGISTRATION_ALREADY_EXISTS",
 				"course registration already exists for the subject", metadata)
 		case pgerrcode.ForeignKeyViolation:
-			return nil, userNotFound()
+			// 科目の存在確認の後に科目が削除された場合も外部キー違反になるため、制約名で参照先を区別する。
+			switch shareddb.PostgresConstraintName(err) {
+			case "fk_course_registrations_user":
+				return nil, userNotFound()
+			case "fk_course_registrations_subject":
+				return nil, notFound("subject", metadata)
+			}
 		}
 		return nil, internalError(ctx, "CreateCourseRegistration", err)
 	}

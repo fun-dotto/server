@@ -29,3 +29,21 @@ func TestPostgresErrorCode(t *testing.T) {
 		})
 	}
 }
+
+func TestPostgresConstraintName(t *testing.T) {
+	tests := []struct {
+		name string
+		err  error
+		want string
+	}{
+		{name: "ラップされた PgError", err: fmt.Errorf("create course registration: %w", &pgconn.PgError{Code: pgerrcode.ForeignKeyViolation, ConstraintName: "fk_course_registrations_subject"}), want: "fk_course_registrations_subject"},
+		{name: "PostgreSQL のエラーでなければ空文字列", err: errors.New("boom"), want: ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := db.PostgresConstraintName(tt.err); got != tt.want {
+				t.Errorf("PostgresConstraintName() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
