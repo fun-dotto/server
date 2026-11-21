@@ -126,19 +126,24 @@ func (h *Handler) RegisterFcmToken(ctx context.Context, req *connect.Request[app
 
 	var record model.FCMToken
 	err = h.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&record, "token = ?", token).Error
-		switch {
-		case err == nil:
-			if record.UserID != userID {
-				return permissionDenied("fcm_token", nil)
-			}
-			return tx.Model(&record).Update("updated_at", h.now()).Error
-		case isNotFound(err):
-			record = model.FCMToken{Token: token, UserID: userID}
-			return tx.Omit("User").Create(&record).Error
-		default:
+		// 存在しない行は SELECT ... FOR UPDATE でロックできず、同じトークンで同時に呼ばれると
+		// 両方が INSERT して一方が一意制約違反になる。先に ON CONFLICT DO NOTHING で行を確保してからロックする。
+		inserted := tx.Omit("User").
+			Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "token"}}, DoNothing: true}).
+			Create(&model.FCMToken{Token: token, UserID: userID})
+		if inserted.Error != nil {
+			return inserted.Error
+		}
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&record, "token = ?", token).Error; err != nil {
 			return err
 		}
+		if record.UserID != userID {
+			return permissionDenied("fcm_token", nil)
+		}
+		if inserted.RowsAffected > 0 {
+			return nil
+		}
+		return tx.Model(&record).Update("updated_at", h.now()).Error
 	})
 	if err != nil {
 		if connect.CodeOf(err) == connect.CodePermissionDenied {
