@@ -6,8 +6,8 @@ import (
 )
 
 type FacultyRoom struct {
-	// Deprecated: Id field is no longer used
-	Id        uuid.UUID `gorm:"type:uuid"`
+	// Deprecated: 列を DROP するまでモデル差分チェックを通すために残している。読み書きしない
+	Id        uuid.UUID `gorm:"type:uuid;->:false"`
 	FacultyID uuid.UUID `gorm:"type:uuid;primaryKey"`
 	Faculty   *Faculty  `gorm:"foreignKey:FacultyID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	RoomID    uuid.UUID `gorm:"type:uuid;primaryKey"`
