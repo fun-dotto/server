@@ -50,10 +50,6 @@ linters:
         text: SA1029
         linters:
           - staticcheck
-      # internal/shared/model の Deprecated は DB の列を残したまま移行中のもので、利用箇所の置き換えは別途行う
-      - text: 'SA1019: \(github\.com/fun-dotto/server/internal/shared/model\.'
-        linters:
-          - staticcheck
 
 formatters:
   enable:

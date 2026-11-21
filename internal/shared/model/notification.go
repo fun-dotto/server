@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Notification struct {
-	// Deprecated: Use Common instead
+	// TODO: notifications.id を uuid に変え、Common を埋め込む
 	ID        string    `gorm:"primaryKey"`
 	CreatedAt time.Time `gorm:"autoCreateTime;default:current_timestamp"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime;default:current_timestamp"`
