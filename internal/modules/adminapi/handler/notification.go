@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"uuid"
 
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/proto"
@@ -22,7 +21,7 @@ func NewNotificationHandler(db *gorm.DB) *NotificationHandler {
 	return &NotificationHandler{c: crud[model.Notification]{
 		name: "notification",
 		db:   db,
-		keys: func(m model.Notification) []keyField { return []keyField{{"id", m.ID}} },
+		keys: func(m model.Notification) []keyField { return []keyField{{"id", m.ID.String()}} },
 	}}
 }
 
@@ -108,7 +107,7 @@ func notificationFromProto(in notificationInput, s fieldSet) (model.Notification
 
 func notificationToProto(m model.Notification) *adminv1.Notification {
 	return &adminv1.Notification{
-		Id:                   m.ID,
+		Id:                   m.ID.String(),
 		Title:                m.Title,
 		Body:                 m.Body,
 		ImageUrl:             m.ImageURL,
@@ -157,7 +156,6 @@ func (h *NotificationHandler) CreateNotification(ctx context.Context, req *conne
 	if err != nil {
 		return nil, err
 	}
-	m.ID = uuid.New().String()
 	created, err := h.c.create(ctx, &m)
 	if err != nil {
 		return nil, err

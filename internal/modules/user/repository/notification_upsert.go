@@ -22,6 +22,7 @@ func (r *NotificationRepository) UpsertNotification(ctx context.Context, notific
 	}
 
 	dbNotification := notificationFromDomain(notification)
+	dbNotification.ID = notificationID
 	uniqueTargets := uniqueTargetUsers(notification.TargetUsers)
 
 	err = r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -34,7 +35,7 @@ func (r *NotificationRepository) UpsertNotification(ctx context.Context, notific
 		}
 
 		if len(uniqueTargets) == 0 {
-			return tx.Where("notification_id = ?", dbNotification.ID).
+			return tx.Where("notification_id = ?", notificationID.String()).
 				Delete(&model.NotificationTargetUser{}).Error
 		}
 
@@ -42,7 +43,7 @@ func (r *NotificationRepository) UpsertNotification(ctx context.Context, notific
 		for _, t := range uniqueTargets {
 			userIDs = append(userIDs, t.UserID)
 		}
-		if err := tx.Where("notification_id = ? AND user_id NOT IN ?", dbNotification.ID, userIDs).
+		if err := tx.Where("notification_id = ? AND user_id NOT IN ?", notificationID.String(), userIDs).
 			Delete(&model.NotificationTargetUser{}).Error; err != nil {
 			return err
 		}

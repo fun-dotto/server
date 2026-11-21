@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"uuid"
 
 	"gorm.io/gorm"
 
@@ -11,16 +12,20 @@ import (
 )
 
 func (r *NotificationRepository) DeleteNotification(ctx context.Context, id string) error {
+	notificationID, err := uuid.Parse(id)
+	if err != nil {
+		return domain.ErrNotFound
+	}
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var existing model.Notification
-		if err := tx.First(&existing, "id = ?", id).Error; err != nil {
+		if err := tx.First(&existing, "id = ?", notificationID.String()).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return domain.ErrNotFound
 			}
 			return err
 		}
 
-		if err := tx.Where("notification_id = ?", id).Delete(&model.NotificationTargetUser{}).Error; err != nil {
+		if err := tx.Where("notification_id = ?", notificationID.String()).Delete(&model.NotificationTargetUser{}).Error; err != nil {
 			return err
 		}
 
