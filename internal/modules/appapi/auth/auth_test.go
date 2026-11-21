@@ -139,6 +139,29 @@ func TestInterceptor(t *testing.T) {
 	}
 }
 
+func TestInterceptorAppIDNotAllowed(t *testing.T) {
+	appCheck := AppCheckTokenVerifierFunc(func(token string) error {
+		if token == "unallowed-app" {
+			return ErrAppIDNotAllowed
+		}
+		return nil
+	})
+	opts := connect.WithInterceptors(NewInterceptor(appCheck, nil, fakeService{}, fakeIDToken{}))
+	mux := http.NewServeMux()
+	mux.Handle(appv1connect.NewArticleServiceHandler(articleHandler{}, opts))
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	articles := appv1connect.NewArticleServiceClient(http.DefaultClient, srv.URL)
+
+	call := listArticles(articles)
+	if err := call(func(h http.Header) { h.Set(appCheckHeader, "unallowed-app") }); connect.CodeOf(err) != connect.CodeUnauthenticated {
+		t.Fatalf("許可されていないアプリは UNAUTHENTICATED のはず: err = %v", err)
+	}
+	if err := call(func(h http.Header) { h.Set(appCheckHeader, "any-app") }); err != nil {
+		t.Fatalf("許可されたアプリは通るはず: %v", err)
+	}
+}
+
 func listArticles(c appv1connect.ArticleServiceClient) func(func(http.Header)) error {
 	return func(set func(http.Header)) error {
 		req := connect.NewRequest(&appv1.ListArticlesRequest{})

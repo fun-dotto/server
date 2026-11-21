@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
+	"firebase.google.com/go/v4/appcheck"
 	"firebase.google.com/go/v4/auth"
 
 	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
@@ -126,6 +127,9 @@ func verifyAppCheck(v AppCheckVerifier, h http.Header) error {
 		return unauthenticated("APP_CHECK_TOKEN_MISSING", appCheckHeader+" header is required")
 	}
 	if err := v.VerifyToken(token); err != nil {
+		if errors.Is(err, ErrAppIDNotAllowed) {
+			return unauthenticated("APP_CHECK_APP_ID_NOT_ALLOWED", "app check token is from an app that is not allowed")
+		}
 		return unauthenticated("APP_CHECK_TOKEN_INVALID", appCheckHeader+" header value is invalid")
 	}
 	return nil
@@ -159,6 +163,31 @@ func UserFromContext(ctx context.Context) (User, bool) {
 
 func unauthenticated(reason, message string) error {
 	return errorDomain.New(connect.CodeUnauthenticated, reason, message, nil)
+}
+
+// ErrAppIDNotAllowed は App Check トークンが許可されていないアプリのものであることを表す。
+var ErrAppIDNotAllowed = errors.New("app id is not allowed")
+
+// FirebaseAppCheckVerifier は Firebase App Check のクライアントでトークンを検証し、
+// AllowedAppIDs が空でない場合はトークンの発行元アプリが許可リストに含まれるかも確認する。
+type FirebaseAppCheckVerifier struct {
+	Client        *appcheck.Client
+	AllowedAppIDs map[string]bool
+}
+
+// VerifyToken は App Check トークンを検証する。
+func (v FirebaseAppCheckVerifier) VerifyToken(token string) error {
+	if v.Client == nil {
+		return errors.New("app check client is not configured")
+	}
+	decoded, err := v.Client.VerifyToken(token)
+	if err != nil {
+		return err
+	}
+	if len(v.AllowedAppIDs) > 0 && !v.AllowedAppIDs[decoded.AppID] {
+		return ErrAppIDNotAllowed
+	}
+	return nil
 }
 
 // FirebaseIDTokenVerifier は Firebase Authentication のクライアントで ID トークンを検証する。
