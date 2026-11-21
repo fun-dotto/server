@@ -26,6 +26,7 @@ func (r *CourseRegistrationRepository) courseRegistrationPreload(db *gorm.DB) *g
 
 func (r *CourseRegistrationRepository) List(ctx context.Context, filter domain.CourseRegistrationListFilter) ([]domain.CourseRegistration, error) {
 	query := r.courseRegistrationPreload(r.db.WithContext(ctx)).
+		Select("course_registrations.*").
 		Joins("JOIN subjects ON subjects.id = course_registrations.subject_id").
 		Where("course_registrations.user_id = ?", filter.UserID)
 
