@@ -31,9 +31,9 @@ linters:
     forbidigo:
       analyze-types: true
       forbid:
-        # すべてのエラーに ErrorInfo を付けるため、各 API の errors.go のヘルパー経由で作る（api-design.md）
+        # すべてのエラーに ErrorInfo を付けるため、rpcerror のヘルパー経由で作る（api-design.md）
         - pattern: ^connect\.NewError$
-          msg: errors.go のヘルパー（newError など）を使い、ErrorInfo を付ける
+          msg: rpcerror.Domain.New を使い、ErrorInfo を付ける
         # UNKNOWN は使わない（api-design.md）
         - pattern: ^connect\.CodeUnknown$
           msg: 最も具体的な Code を使う
@@ -41,7 +41,7 @@ linters:
     presets:
       - std-error-handling
     rules:
-      - path: (/errors\.go|_test\.go)$
+      - path: (internal/shared/rpcerror/rpcerror\.go|_test\.go)$
         text: connect\.NewError
         linters:
           - forbidigo
