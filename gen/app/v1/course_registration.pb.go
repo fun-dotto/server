@@ -28,9 +28,14 @@ type CourseRegistration struct {
 	// ID。
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// 科目。
-	Subject       *Subject `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Subject *Subject `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	// ログイン中のユーザーにとっての必修区分。次の場合は UNSPECIFIED。
+	// - ユーザーの学年・コース・クラスに未登録の項目がある（1 年生のコースと、院生のクラスは除く）
+	// - ユーザーが科目の対象学年・クラスに含まれない
+	// - 科目にユーザーのコースの必修区分がない。コースが未登録の 1 年生は、全コースで区分が同じ科目だけ設定する
+	RequirementType SubjectRequirementType `protobuf:"varint,3,opt,name=requirement_type,json=requirementType,proto3,enum=app.v1.SubjectRequirementType" json:"requirement_type,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *CourseRegistration) Reset() {
@@ -75,6 +80,13 @@ func (x *CourseRegistration) GetSubject() *Subject {
 		return x.Subject
 	}
 	return nil
+}
+
+func (x *CourseRegistration) GetRequirementType() SubjectRequirementType {
+	if x != nil {
+		return x.RequirementType
+	}
+	return SubjectRequirementType_SUBJECT_REQUIREMENT_TYPE_UNSPECIFIED
 }
 
 // ListCourseRegistrations の Request。
@@ -357,10 +369,11 @@ var File_app_v1_course_registration_proto protoreflect.FileDescriptor
 
 const file_app_v1_course_registration_proto_rawDesc = "" +
 	"\n" +
-	" app/v1/course_registration.proto\x12\x06app.v1\x1a\x14app/v1/subject.proto\x1a\x1fgoogle/api/field_behavior.proto\"Y\n" +
+	" app/v1/course_registration.proto\x12\x06app.v1\x1a\x14app/v1/subject.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xa9\x01\n" +
 	"\x12CourseRegistration\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12.\n" +
-	"\asubject\x18\x02 \x01(\v2\x0f.app.v1.SubjectB\x03\xe0A\x03R\asubject\"\x83\x01\n" +
+	"\asubject\x18\x02 \x01(\v2\x0f.app.v1.SubjectB\x03\xe0A\x03R\asubject\x12N\n" +
+	"\x10requirement_type\x18\x03 \x01(\x0e2\x1e.app.v1.SubjectRequirementTypeB\x03\xe0A\x03R\x0frequirementType\"\x83\x01\n" +
 	"\x1eListCourseRegistrationsRequest\x12\x1c\n" +
 	"\x04year\x18\x01 \x01(\x05B\x03\xe0A\x01H\x00R\x04year\x88\x01\x01\x12:\n" +
 	"\tsemesters\x18\x02 \x03(\x0e2\x17.app.v1.SubjectSemesterB\x03\xe0A\x02R\tsemestersB\a\n" +
@@ -404,24 +417,26 @@ var file_app_v1_course_registration_proto_goTypes = []any{
 	(*DeleteCourseRegistrationRequest)(nil),  // 5: app.v1.DeleteCourseRegistrationRequest
 	(*DeleteCourseRegistrationResponse)(nil), // 6: app.v1.DeleteCourseRegistrationResponse
 	(*Subject)(nil),                          // 7: app.v1.Subject
-	(SubjectSemester)(0),                     // 8: app.v1.SubjectSemester
+	(SubjectRequirementType)(0),              // 8: app.v1.SubjectRequirementType
+	(SubjectSemester)(0),                     // 9: app.v1.SubjectSemester
 }
 var file_app_v1_course_registration_proto_depIdxs = []int32{
 	7, // 0: app.v1.CourseRegistration.subject:type_name -> app.v1.Subject
-	8, // 1: app.v1.ListCourseRegistrationsRequest.semesters:type_name -> app.v1.SubjectSemester
-	0, // 2: app.v1.ListCourseRegistrationsResponse.course_registrations:type_name -> app.v1.CourseRegistration
-	0, // 3: app.v1.CreateCourseRegistrationResponse.course_registration:type_name -> app.v1.CourseRegistration
-	1, // 4: app.v1.CourseRegistrationService.ListCourseRegistrations:input_type -> app.v1.ListCourseRegistrationsRequest
-	3, // 5: app.v1.CourseRegistrationService.CreateCourseRegistration:input_type -> app.v1.CreateCourseRegistrationRequest
-	5, // 6: app.v1.CourseRegistrationService.DeleteCourseRegistration:input_type -> app.v1.DeleteCourseRegistrationRequest
-	2, // 7: app.v1.CourseRegistrationService.ListCourseRegistrations:output_type -> app.v1.ListCourseRegistrationsResponse
-	4, // 8: app.v1.CourseRegistrationService.CreateCourseRegistration:output_type -> app.v1.CreateCourseRegistrationResponse
-	6, // 9: app.v1.CourseRegistrationService.DeleteCourseRegistration:output_type -> app.v1.DeleteCourseRegistrationResponse
-	7, // [7:10] is the sub-list for method output_type
-	4, // [4:7] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	8, // 1: app.v1.CourseRegistration.requirement_type:type_name -> app.v1.SubjectRequirementType
+	9, // 2: app.v1.ListCourseRegistrationsRequest.semesters:type_name -> app.v1.SubjectSemester
+	0, // 3: app.v1.ListCourseRegistrationsResponse.course_registrations:type_name -> app.v1.CourseRegistration
+	0, // 4: app.v1.CreateCourseRegistrationResponse.course_registration:type_name -> app.v1.CourseRegistration
+	1, // 5: app.v1.CourseRegistrationService.ListCourseRegistrations:input_type -> app.v1.ListCourseRegistrationsRequest
+	3, // 6: app.v1.CourseRegistrationService.CreateCourseRegistration:input_type -> app.v1.CreateCourseRegistrationRequest
+	5, // 7: app.v1.CourseRegistrationService.DeleteCourseRegistration:input_type -> app.v1.DeleteCourseRegistrationRequest
+	2, // 8: app.v1.CourseRegistrationService.ListCourseRegistrations:output_type -> app.v1.ListCourseRegistrationsResponse
+	4, // 9: app.v1.CourseRegistrationService.CreateCourseRegistration:output_type -> app.v1.CreateCourseRegistrationResponse
+	6, // 10: app.v1.CourseRegistrationService.DeleteCourseRegistration:output_type -> app.v1.DeleteCourseRegistrationResponse
+	8, // [8:11] is the sub-list for method output_type
+	5, // [5:8] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_app_v1_course_registration_proto_init() }
