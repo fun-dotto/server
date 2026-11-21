@@ -38,7 +38,6 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   set-env:
@@ -59,6 +58,8 @@ jobs:
           echo "prd は action: deploy で、image_tag にコミット SHA を指定した場合のみ実行できます" >&2
           exit 1
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - id: set-env
         uses: ./.github/actions/set-env
         with:
@@ -73,11 +74,15 @@ jobs:
   verify-image:
     if: inputs.action == 'deploy'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Workload Identity で GCP に認証する
     needs:
       - set-env
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0
       - name: Verify commit is on main
         if: inputs.image_tag != '' && inputs.image_tag != 'latest'
@@ -113,10 +118,15 @@ jobs:
   build-and-push:
     if: inputs.action != 'deploy'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Workload Identity で GCP に認証する
     needs:
       - set-env
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/build-push-image
         with:
           ar_hostname: ${{ vars._AR_HOSTNAME }}
@@ -142,6 +152,10 @@ jobs:
     needs:
       - set-env
       - verify-image
+    # 呼び出し先の apply ジョブが Workload Identity で GCP に認証するため
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/migrate-apply.yml
     with:
       environments: ${{ format('["{0}"]', inputs.environment_name) }}
@@ -158,6 +172,9 @@ jobs:
       && (needs.migrate.result == 'success' || needs.migrate.result == 'skipped')
     runs-on: ubuntu-latest
     environment: ${{ needs.set-env.outputs.environment }}
+    permissions:
+      contents: read
+      id-token: write # Workload Identity で GCP に認証する
     needs:
       - set-env
       - build-and-push
@@ -168,6 +185,8 @@ jobs:
       matrix: ${{ fromJson(needs.set-env.outputs.matrix) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/deploy-cloud-run
         with:
           name: ${{ matrix.name }}${{ needs.set-env.outputs.service_suffix }}

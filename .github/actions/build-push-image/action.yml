@@ -19,15 +19,20 @@ runs:
   steps:
     - id: set-image
       shell: bash
+      env:
+        AR_HOSTNAME: ${{ inputs.ar_hostname }}
+        PROJECT_ID: ${{ inputs.project_id }}
       run: |
-        REPO_NAME=$(echo ${{ github.repository }} | awk -F '/' '{print $2}')
+        REPO_NAME="${GITHUB_REPOSITORY#*/}"
         # 全 cmd ターゲットで 1 つのイメージを共有するため、タグはサービス名を含めない。
-        echo "image_name=${{ inputs.ar_hostname }}/${{ inputs.project_id }}/github-actions/$REPO_NAME" >> "$GITHUB_OUTPUT"
+        echo "image_name=${AR_HOSTNAME}/${PROJECT_ID}/github-actions/${REPO_NAME}" >> "$GITHUB_OUTPUT"
     - name: Build
       shell: bash
+      env:
+        IMAGE_NAME: ${{ steps.set-image.outputs.image_name }}
       run: |
         docker build \
-        -t ${{ steps.set-image.outputs.image_name }}:${{ github.sha }} \
+        -t "${IMAGE_NAME}:${GITHUB_SHA}" \
         . \
         -f Dockerfile \
         --no-cache
@@ -40,22 +45,28 @@ runs:
         project_id: ${{ inputs.project_id }}
     - name: Configure Docker
       shell: bash
+      env:
+        AR_HOSTNAME: ${{ inputs.ar_hostname }}
       run: |
         gcloud auth \
         configure-docker \
-        ${{ inputs.ar_hostname }}
+        "$AR_HOSTNAME"
     - name: Push
       shell: bash
+      env:
+        IMAGE_NAME: ${{ steps.set-image.outputs.image_name }}
       run: |
         docker push \
-        ${{ steps.set-image.outputs.image_name }}:${{ github.sha }}
+        "${IMAGE_NAME}:${GITHUB_SHA}"
     # SHA タグの push が成功した場合のみ latest を更新する。
     - if: inputs.tag_latest == 'true'
       name: Push latest
       shell: bash
+      env:
+        IMAGE_NAME: ${{ steps.set-image.outputs.image_name }}
       run: |
         docker tag \
-        ${{ steps.set-image.outputs.image_name }}:${{ github.sha }} \
-        ${{ steps.set-image.outputs.image_name }}:latest
+        "${IMAGE_NAME}:${GITHUB_SHA}" \
+        "${IMAGE_NAME}:latest"
         docker push \
-        ${{ steps.set-image.outputs.image_name }}:latest
+        "${IMAGE_NAME}:latest"
