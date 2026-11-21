@@ -54,6 +54,7 @@ func (h *Handler) ListCourseRegistrations(ctx context.Context, req *connect.Requ
 	}
 	var records []model.CourseRegistration
 	if err := preload(h.db.WithContext(ctx), subjectPreloads("Subject.")...).
+		Select("course_registrations.*").
 		Joins("JOIN subjects ON subjects.id = course_registrations.subject_id").
 		Where("course_registrations.user_id = ?", userID).
 		Where("subjects.year = ?", h.defaultYear(req.Msg.Year)).
