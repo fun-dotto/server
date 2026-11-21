@@ -18,6 +18,20 @@ globs: ["**/*"]
 ## ディレクトリ・パッケージ
 
 - 1 ファイル 1 リソースとし、ファイル名はリソース名にする（例: `proto/admin/v1/subject.proto`）
+- `go_package` は記述しない（`buf.gen.yaml` の managed mode で付与）
+
+## ファイル構成
+
+次の順で記述する。
+
+1. `syntax = "proto3";`
+2. `package`
+3. `import`（アルファベット順）
+4. `service`
+5. 補助 message（リソースに従属する型）
+6. リソース message
+7. RPC ごとの Request / Response message（List → Get → Create → Update → Delete の順）
+8. `enum`
 
 ## 命名
 

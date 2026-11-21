@@ -7,20 +7,14 @@ import "google/protobuf/timestamp.proto";
 
 service BookService {
   rpc ListBooks(ListBooksRequest) returns (ListBooksResponse);
-  rpc GetBook(GetBookRequest) returns (GetBookResponse);
   rpc UpdateBook(UpdateBookRequest) returns (UpdateBookResponse);
-  rpc ArchiveBook(ArchiveBookRequest) returns (ArchiveBookResponse);
-}
-
-message BookAuthor {
-  string name = 1;
 }
 
 message Book {
   string id = 1;
   string title = 2;
   // 後から追加したフィールドは番号が大きくても created_at の前に宣言すればよい。
-  repeated BookAuthor authors = 5;
+  string author = 5;
   google.protobuf.Timestamp created_at = 3;
   google.protobuf.Timestamp updated_at = 4;
 }
@@ -35,20 +29,6 @@ message ListBooksResponse {
   string next_page_token = 2;
 }
 
-message GetBookRequest {
-  string id = 1;
-}
-
-message GetBookResponse {
-  Book book = 1;
-}
-
-message ArchiveBookRequest {
-  string id = 1;
-}
-
-message ArchiveBookResponse {}
-
 message UpdateBookRequest {
   string id = 1;
   string title = 2;
@@ -57,8 +37,4 @@ message UpdateBookRequest {
 
 message UpdateBookResponse {
   Book book = 1;
-}
-
-enum BookFormat {
-  BOOK_FORMAT_UNSPECIFIED = 0;
 }

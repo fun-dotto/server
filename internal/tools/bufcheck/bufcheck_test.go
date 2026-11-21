@@ -49,31 +49,6 @@ func TestRules(t *testing.T) {
 				annotation(bufcheck.ResourceTimestampsLastRuleID, 16, 2, 16, 43),
 			},
 		},
-		{name: "go_package がない", ruleID: bufcheck.FileNoGoPackageRuleID, dir: "valid"},
-		{
-			name:   "go_package がある",
-			ruleID: bufcheck.FileNoGoPackageRuleID,
-			dir:    "go_package",
-			want:   []checktest.ExpectedAnnotation{annotation(bufcheck.FileNoGoPackageRuleID, 4, 0, 4, 49)},
-		},
-		{name: "記述順が規約どおり（カスタムメソッドの位置は問わない）", ruleID: bufcheck.FileLayoutRuleID, dir: "valid"},
-		{
-			name:   "enum が先頭・補助 message がリソースの後",
-			ruleID: bufcheck.FileLayoutRuleID,
-			dir:    "layout_section",
-			want: []checktest.ExpectedAnnotation{
-				annotation(bufcheck.FileLayoutRuleID, 8, 0, 10, 1),
-				annotation(bufcheck.FileLayoutRuleID, 16, 0, 18, 1),
-			},
-		},
-		{
-			name:   "Get が List より前",
-			ruleID: bufcheck.FileLayoutRuleID,
-			dir:    "layout_method_order",
-			want: []checktest.ExpectedAnnotation{
-				annotation(bufcheck.FileLayoutRuleID, 21, 0, 21, 27),
-			},
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
