@@ -9,8 +9,8 @@ import (
 )
 
 // Syllabus は教務システムのシラバスの取得元の写し。値は加工せず文字列のまま保持する。
-// 取得した内容が前回と異なる場合は新しい行（バージョン）として追加するため、
-// 同じ (LessonID, Year) に複数のバージョンが存在しうる。
+// スキーマ上は同じ (LessonID, Year) に複数のバージョンを持てるが、シラバス取得ジョブは
+// シラバスと科目を 1:1 に保つため新しい行を作らず、既存の行を上書きする。
 type Syllabus struct {
 	Common
 
@@ -65,7 +65,7 @@ type Syllabus struct {
 }
 
 // ComputeContentHash は取得元の値（lesson_id・year と各項目）から内容のハッシュを計算する。
-// 内容が同じであれば同じ値になるため、新しいバージョンかどうかの判定に使う。
+// 内容が同じであれば同じ値になるため、取得した内容が前回から変わったかの判定に使う。
 func (s *Syllabus) ComputeContentHash() string {
 	h := sha256.New()
 	write := func(v string) {

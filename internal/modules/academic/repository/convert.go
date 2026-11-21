@@ -132,7 +132,7 @@ func syllabusToDomain(m model.Syllabus) domain.Syllabus {
 		Name:                         m.Name,
 		EnName:                       m.EnName,
 		Grades:                       m.Grades,
-		Credit:                       parseSyllabusCredit(m.Credit),
+		Credit:                       model.ParseSyllabusCredit(m.Credit),
 		FacultyNames:                 m.FacultyNames,
 		PracticalHomeFacultyCategory: m.PracticalHomeFacultyCategory,
 		MultiplePersonTeachingForm:   m.MultiplePersonTeachingForm,
@@ -407,13 +407,4 @@ func timetableItemFromDomain(d domain.TimetableItem) model.TimetableItem {
 		m.ID = parseUUIDOrNil(d.ID)
 	}
 	return m
-}
-
-// parseSyllabusCredit はシラバスの単位数（例: `2単位`）から数値を取り出す。取り出せない場合は 0。
-func parseSyllabusCredit(s string) int {
-	n, err := strconv.Atoi(strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(s), "単位")))
-	if err != nil {
-		return 0
-	}
-	return n
 }
