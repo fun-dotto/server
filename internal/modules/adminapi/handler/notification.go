@@ -22,7 +22,7 @@ func NewNotificationHandler(db *gorm.DB) *NotificationHandler {
 	return &NotificationHandler{c: crud[model.Notification]{
 		name: "notification",
 		db:   db,
-		keys: func(m model.Notification) []keyField { return []keyField{{"id", m.ID}} }, //nolint:staticcheck // Common への移行には notifications.id を text から uuid に変える必要がある
+		keys: func(m model.Notification) []keyField { return []keyField{{"id", m.ID}} },
 	}}
 }
 
@@ -108,7 +108,7 @@ func notificationFromProto(in notificationInput, s fieldSet) (model.Notification
 
 func notificationToProto(m model.Notification) *adminv1.Notification {
 	return &adminv1.Notification{
-		Id:                   m.ID, //nolint:staticcheck // Common への移行には notifications.id を text から uuid に変える必要がある
+		Id:                   m.ID,
 		Title:                m.Title,
 		Body:                 m.Body,
 		ImageUrl:             m.ImageURL,
@@ -157,7 +157,7 @@ func (h *NotificationHandler) CreateNotification(ctx context.Context, req *conne
 	if err != nil {
 		return nil, err
 	}
-	m.ID = uuid.New().String() //nolint:staticcheck // Common への移行には notifications.id を text から uuid に変える必要がある
+	m.ID = uuid.New().String()
 	created, err := h.c.create(ctx, &m)
 	if err != nil {
 		return nil, err

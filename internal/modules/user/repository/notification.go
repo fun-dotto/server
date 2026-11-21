@@ -26,7 +26,7 @@ func (r *NotificationRepository) hydrateNotifications(ctx context.Context, dbNot
 
 	notificationIDs := make([]string, 0, len(dbNotifications))
 	for _, n := range dbNotifications {
-		notificationIDs = append(notificationIDs, n.ID) //nolint:staticcheck // Common への移行には notifications.id を text から uuid に変える必要がある
+		notificationIDs = append(notificationIDs, n.ID)
 	}
 
 	query := r.db.WithContext(ctx).Where("notification_id IN ?", notificationIDs)
@@ -50,7 +50,7 @@ func (r *NotificationRepository) hydrateNotifications(ctx context.Context, dbNot
 
 	notifications := make([]domain.Notification, 0, len(dbNotifications))
 	for _, n := range dbNotifications {
-		notifications = append(notifications, notificationToDomain(n, targetMap[n.ID])) //nolint:staticcheck // Common への移行には notifications.id を text から uuid に変える必要がある
+		notifications = append(notifications, notificationToDomain(n, targetMap[n.ID]))
 	}
 
 	return notifications, nil
