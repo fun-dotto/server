@@ -24,8 +24,7 @@ message Article {
 }
 
 // ListArticles の Request。
-message ListArticlesRequest {
-}
+message ListArticlesRequest {}
 
 // ListArticles の Response。
 message ListArticlesResponse {

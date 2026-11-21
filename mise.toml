@@ -64,8 +64,9 @@ description = "govulncheck で既知の脆弱性を検査する"
 run = "govulncheck ./..."
 
 [tasks."lint:proto"]
-description = "Protobuf 定義を buf lint と Google API Linter で検査する"
+description = "Protobuf 定義を buf format・buf lint・Google API Linter で検査する"
 run = [
+  "buf format --diff --exit-code",
   "buf lint",
   "mkdir -p ./bin && buf build -o ./bin/proto.binpb",
   "cd proto && go tool api-linter --config ../api-linter.yaml --descriptor-set-in ../bin/proto.binpb --set-exit-status $(find . -name '*.proto' | sed 's|^./||' | sort)",
