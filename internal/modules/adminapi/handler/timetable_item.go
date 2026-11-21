@@ -6,11 +6,13 @@ import (
 	"slices"
 
 	"connectrpc.com/connect"
-	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
-	"github.com/fun-dotto/server/internal/shared/model"
 	"google.golang.org/genproto/googleapis/type/dayofweek"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
+
+	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
+	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type TimetableItemHandler struct {
@@ -71,7 +73,7 @@ type timetableItemInput interface {
 }
 
 func timetableItemFromProto(in timetableItemInput, s fieldSet) (model.TimetableItem, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.TimetableItem
 	if s.has("subject_id") {
 		m.SubjectID = parseUUID(&v, "subject_id", in.GetSubjectId())
@@ -89,7 +91,7 @@ func timetableItemFromProto(in timetableItemInput, s fieldSet) (model.TimetableI
 			})
 		}
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func timetableItemToProto(m model.TimetableItem) *adminv1.TimetableItem {

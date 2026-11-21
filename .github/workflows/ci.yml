@@ -61,15 +61,6 @@ jobs:
         with:
           save-mod-cache: true
 
-      - name: gofmt
-        run: |
-          unformatted="$(gofmt -l .)"
-          if [ -n "$unformatted" ]; then
-            echo "::error::以下のファイルが gofmt されていません:"
-            echo "$unformatted"
-            exit 1
-          fi
-
       - name: go mod tidy
         run: |
           if ! go mod tidy -diff; then

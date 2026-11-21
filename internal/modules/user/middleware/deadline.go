@@ -5,8 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	api "github.com/fun-dotto/server/gen/user"
 	"github.com/gin-gonic/gin"
+
+	api "github.com/fun-dotto/server/gen/user"
 )
 
 // DeadlineErrorMapper は context.DeadlineExceeded を 504 にマップする strict middleware。

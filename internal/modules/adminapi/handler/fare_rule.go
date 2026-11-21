@@ -4,10 +4,12 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
-	"github.com/fun-dotto/server/internal/shared/model"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
+
+	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
+	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type FareRuleHandler struct {
@@ -31,7 +33,7 @@ type fareRuleInput interface {
 }
 
 func fareRuleFromProto(in fareRuleInput, s fieldSet) (model.FareRule, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.FareRule
 	if s.has("fare_id") {
 		m.FareID = requireString(&v, "fare_id", in.GetFareId())
@@ -45,7 +47,7 @@ func fareRuleFromProto(in fareRuleInput, s fieldSet) (model.FareRule, error) {
 	if s.has("destination_id") {
 		m.DestinationID = optional(in, "destination_id", in.GetDestinationId())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func fareRuleToProto(m model.FareRule) *adminv1.FareRule {

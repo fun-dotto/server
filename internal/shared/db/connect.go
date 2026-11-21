@@ -13,11 +13,12 @@ import (
 	"time"
 
 	"cloud.google.com/go/cloudsqlconn"
-	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/fun-dotto/server/internal/shared/logging"
 )
 
 // TODO(server): ctx を引数で受け取って cloudsqlconn.NewDialer に渡す形に

@@ -4,6 +4,11 @@ import (
 	"log"
 	"time"
 
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	oapimw "github.com/oapi-codegen/gin-middleware"
+
 	api "github.com/fun-dotto/server/gen/academic"
 	"github.com/fun-dotto/server/internal/modules/academic/assets"
 	"github.com/fun-dotto/server/internal/modules/academic/event"
@@ -16,10 +21,6 @@ import (
 	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/server"
 	"github.com/fun-dotto/server/internal/shared/strictgin"
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	oapimw "github.com/oapi-codegen/gin-middleware"
 )
 
 const handlerTimeout = 15 * time.Second

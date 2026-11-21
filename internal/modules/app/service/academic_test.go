@@ -3,10 +3,11 @@ package service
 import (
 	"testing"
 
-	"github.com/fun-dotto/server/internal/modules/app/domain"
-	"github.com/fun-dotto/server/internal/modules/app/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/fun-dotto/server/internal/modules/app/domain"
+	"github.com/fun-dotto/server/internal/modules/app/repository"
 )
 
 func TestAcademicService_GetFaculties(t *testing.T) {

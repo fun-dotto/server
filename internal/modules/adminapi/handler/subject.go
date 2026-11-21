@@ -6,9 +6,11 @@ import (
 	"slices"
 
 	"connectrpc.com/connect"
+	"gorm.io/gorm"
+
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"gorm.io/gorm"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type SubjectHandler struct {
@@ -127,7 +129,7 @@ type subjectInput interface {
 }
 
 func subjectFromProto(in subjectInput, s fieldSet) (model.Subject, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.Subject
 	if s.has("name") {
 		m.Name = requireString(&v, "name", in.GetName())
@@ -178,7 +180,7 @@ func subjectFromProto(in subjectInput, s fieldSet) (model.Subject, error) {
 			})
 		}
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func subjectToProto(m model.Subject) *adminv1.Subject {

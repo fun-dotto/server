@@ -2,7 +2,8 @@ name: Migrate Apply
 
 # Atlas で DB マイグレーションを適用する再利用ワークフロー。
 # 呼び出し元:
-# - deploy.yml: アプリのデプロイより前にマイグレーションを完了させる（dev / stg / prd）
+# - deploy.yml: 手動デプロイで、アプリのデプロイより前にマイグレーションを完了させる（dev / stg / prd）
+# - workflow_dispatch: 環境とコミット（既定は latest = main の先端）を指定して、マイグレーションだけを適用する
 # 設計: docs/design/20261110_atlas_migration.md
 on:
   workflow_call:
@@ -15,6 +16,21 @@ on:
         description: migrations/ を取得するコミット（デプロイするイメージのコミット）。action と atlas.hcl はワークフローのコミットのものを使う
         required: true
         type: string
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 適用先の環境
+        required: true
+        type: choice
+        options:
+          - dev
+          - stg
+          - prd
+      ref:
+        description: migrations/ を取得するコミット SHA（latest の場合は main の先端）
+        required: false
+        type: string
+        default: latest
 
 permissions:
   contents: read
@@ -23,8 +39,47 @@ env:
   CLOUD_SQL_INSTANCE_CONNECTION_NAME: swift2023groupc:asia-northeast1:dotto
 
 jobs:
+  # 入力を解決する。workflow_dispatch では ref が main に含まれることを検証する（未マージのコミットのマイグレーションを適用しないため）。
+  prepare:
+    name: Migration Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      environments: ${{ steps.resolve.outputs.environments }}
+      ref: ${{ steps.resolve.outputs.ref }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          fetch-depth: 0
+      - name: Resolve inputs
+        id: resolve
+        env:
+          CALL_ENVIRONMENTS: ${{ inputs.environments }}
+          DISPATCH_ENVIRONMENT: ${{ inputs.environment }}
+          REF: ${{ inputs.ref }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]; then
+            echo "environments=${CALL_ENVIRONMENTS}" >> "$GITHUB_OUTPUT"
+            echo "ref=${REF}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch --no-tags origin main
+          if [ -z "$REF" ] || [ "$REF" = "latest" ]; then
+            REF="$(git rev-parse origin/main)"
+          elif ! [[ "$REF" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::ref は 40 桁のコミット SHA か latest を指定してください: $REF"
+            exit 1
+          elif ! git merge-base --is-ancestor "$REF" origin/main; then
+            echo "::error::ref のコミットが main に含まれていません: $REF"
+            exit 1
+          fi
+          echo "適用先: ${DISPATCH_ENVIRONMENT} / migrations: ${REF}"
+          echo "environments=[\"${DISPATCH_ENVIRONMENT}\"]" >> "$GITHUB_OUTPUT"
+          echo "ref=${REF}" >> "$GITHUB_OUTPUT"
+
   apply:
     name: Migration Apply
+    needs: prepare
     runs-on: ubuntu-latest
     # prd は承認必須・保護ブランチ限定（terraform/github/fun-dotto/repository-server.tf）
     environment: ${{ matrix.environment }}
@@ -39,14 +94,14 @@ jobs:
       fail-fast: false
       max-parallel: 1
       matrix:
-        environment: ${{ fromJSON(inputs.environments) }}
+        environment: ${{ fromJSON(needs.prepare.outputs.environments) }}
     steps:
       # composite action・atlas.hcl はワークフローのコミット（input や SA 名と揃える）のものを使い、
       # migrations/ だけをイメージのコミットのものに差し替える。古いイメージへのロールバックでも適用できるようにするため。
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Checkout migrations at ref
         env:
-          REF: ${{ inputs.ref }}
+          REF: ${{ needs.prepare.outputs.ref }}
         run: |
           git fetch --no-tags --depth=1 origin "$REF"
           # ref にないマイグレーション（新しいもの）を残さないよう、ディレクトリごと差し替える

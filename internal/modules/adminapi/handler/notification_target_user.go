@@ -4,10 +4,12 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
-	"github.com/fun-dotto/server/internal/shared/model"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
+
+	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
+	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type NotificationTargetUserHandler struct {
@@ -31,7 +33,7 @@ type notificationTargetUserInput interface {
 }
 
 func notificationTargetUserFromProto(in notificationTargetUserInput, s fieldSet) (model.NotificationTargetUser, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.NotificationTargetUser
 	if s.has("notification_id") {
 		m.NotificationID = parseUUID(&v, "notification_id", in.GetNotificationId())
@@ -42,7 +44,7 @@ func notificationTargetUserFromProto(in notificationTargetUserInput, s fieldSet)
 	if s.has("notified_at") {
 		m.NotifiedAt = optionalTimestamp(&v, "notified_at", in.GetNotifiedAt())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func notificationTargetUserToProto(m model.NotificationTargetUser) *adminv1.NotificationTargetUser {

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"firebase.google.com/go/v4/messaging"
+
 	"github.com/fun-dotto/server/internal/modules/user/domain"
 )
 

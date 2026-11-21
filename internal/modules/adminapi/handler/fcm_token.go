@@ -4,9 +4,11 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
+	"gorm.io/gorm"
+
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"gorm.io/gorm"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type FcmTokenHandler struct {
@@ -27,7 +29,7 @@ type fcmTokenInput interface {
 }
 
 func fcmTokenFromProto(in fcmTokenInput, s fieldSet) (model.FCMToken, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.FCMToken
 	if s.has("token") {
 		m.Token = requireString(&v, "token", in.GetToken())
@@ -35,7 +37,7 @@ func fcmTokenFromProto(in fcmTokenInput, s fieldSet) (model.FCMToken, error) {
 	if s.has("user_id") {
 		m.UserID = requireString(&v, "user_id", in.GetUserId())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func fcmTokenToProto(m model.FCMToken) *adminv1.FcmToken {

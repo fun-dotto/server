@@ -10,6 +10,7 @@ import (
 
 	"connectrpc.com/connect"
 	"firebase.google.com/go/v4/auth"
+
 	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
 	"github.com/fun-dotto/server/internal/shared/cfaccess"
 )
@@ -157,7 +158,7 @@ func UserFromContext(ctx context.Context) (User, bool) {
 }
 
 func unauthenticated(reason, message string) error {
-	return newError(connect.CodeUnauthenticated, reason, message)
+	return errorDomain.New(connect.CodeUnauthenticated, reason, message, nil)
 }
 
 // FirebaseIDTokenVerifier は Firebase Authentication のクライアントで ID トークンを検証する。

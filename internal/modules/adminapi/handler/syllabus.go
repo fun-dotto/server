@@ -4,9 +4,11 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
+	"gorm.io/gorm"
+
 	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"gorm.io/gorm"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type SyllabusHandler struct {
@@ -80,7 +82,7 @@ type syllabusInput interface {
 }
 
 func syllabusFromProto(in syllabusInput, s fieldSet) (model.Syllabus, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.Syllabus
 	if s.has("lesson_id") {
 		m.LessonID = requireString(&v, "lesson_id", in.GetLessonId())
@@ -202,7 +204,7 @@ func syllabusFromProto(in syllabusInput, s fieldSet) (model.Syllabus, error) {
 	if s.has("diploma_policy_correspondence") {
 		m.DiplomaPolicyCorrespondence = in.GetDiplomaPolicyCorrespondence()
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func syllabusToProto(m model.Syllabus) *adminv1.Syllabus {

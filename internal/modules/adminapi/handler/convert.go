@@ -5,51 +5,53 @@ import (
 	"time"
 	"uuid"
 
-	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
 	"google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/genproto/googleapis/type/dayofweek"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 const dateLayout = "2006-01-02"
 
-func requireString(v *violations, field, s string) string {
+func requireString(v *rpcerror.Violations, field, s string) string {
 	if s == "" {
-		v.add(field, "must not be empty")
+		v.Add(field, "must not be empty")
 	}
 	return s
 }
 
-func parseUUID(v *violations, field, s string) uuid.UUID {
+func parseUUID(v *rpcerror.Violations, field, s string) uuid.UUID {
 	id, err := uuid.Parse(s)
 	if err != nil {
-		v.add(field, "must be a UUID")
+		v.Add(field, "must be a UUID")
 	}
 	return id
 }
 
 // parseIDField は Get / Update / Delete で受け取る UUID の識別子を検証する。
 func parseIDField(field, s string) (string, error) {
-	var v violations
+	var v rpcerror.Violations
 	id := parseUUID(&v, field, s)
-	if err := v.err(); err != nil {
+	if err := v.Err(errorDomain); err != nil {
 		return "", err
 	}
 	return id.String(), nil
 }
 
-func requireTimestamp(v *violations, field string, ts *timestamppb.Timestamp) time.Time {
+func requireTimestamp(v *rpcerror.Violations, field string, ts *timestamppb.Timestamp) time.Time {
 	if ts == nil {
-		v.add(field, "must be set")
+		v.Add(field, "must be set")
 		return time.Time{}
 	}
 	if err := ts.CheckValid(); err != nil {
-		v.add(field, "must be a valid timestamp")
+		v.Add(field, "must be a valid timestamp")
 	}
 	return ts.AsTime()
 }
 
-func optionalTimestamp(v *violations, field string, ts *timestamppb.Timestamp) *time.Time {
+func optionalTimestamp(v *rpcerror.Violations, field string, ts *timestamppb.Timestamp) *time.Time {
 	if ts == nil {
 		return nil
 	}
@@ -66,23 +68,23 @@ func toOptionalTimestamp(t *time.Time) *timestamppb.Timestamp {
 	return timestamppb.New(*t)
 }
 
-func requireDate(v *violations, field string, d *date.Date) time.Time {
+func requireDate(v *rpcerror.Violations, field string, d *date.Date) time.Time {
 	if d == nil {
-		v.add(field, "must be set")
+		v.Add(field, "must be set")
 		return time.Time{}
 	}
 	t := time.Date(int(d.GetYear()), time.Month(d.GetMonth()), int(d.GetDay()), 0, 0, 0, 0, time.UTC)
 	if d.GetYear() < 1 || t.Year() != int(d.GetYear()) || t.Month() != time.Month(d.GetMonth()) || t.Day() != int(d.GetDay()) {
-		v.add(field, "must be a valid full date")
+		v.Add(field, "must be a valid full date")
 	}
 	return t
 }
 
 // dateKey は Get / Delete で受け取る日付の識別子を検証し、DB に渡す文字列にする。
 func dateKey(field string, d *date.Date) (string, error) {
-	var v violations
+	var v rpcerror.Violations
 	t := requireDate(&v, field, d)
-	if err := v.err(); err != nil {
+	if err := v.Err(errorDomain); err != nil {
 		return "", err
 	}
 	return t.Format(dateLayout), nil
@@ -112,18 +114,18 @@ func intPtr(p *int32) *int {
 type enumMap[E ~int32] map[E]string
 
 // toDB は enum 値を DB の文字列にする。required の場合は UNSPECIFIED を不正とする。
-func (m enumMap[E]) toDB(v *violations, field string, e E, required bool) string {
+func (m enumMap[E]) toDB(v *rpcerror.Violations, field string, e E, required bool) string {
 	if e == 0 && !required {
 		return ""
 	}
 	s, ok := m[e]
 	if !ok {
-		v.add(field, "must be a valid enum value other than UNSPECIFIED")
+		v.Add(field, "must be a valid enum value other than UNSPECIFIED")
 	}
 	return s
 }
 
-func (m enumMap[E]) toOptionalDB(v *violations, field string, e *E) *string {
+func (m enumMap[E]) toOptionalDB(v *rpcerror.Violations, field string, e *E) *string {
 	if e == nil {
 		return nil
 	}
@@ -202,30 +204,30 @@ var dayOfWeekEnum = enumMap[dayofweek.DayOfWeek]{
 
 // requireKeyString は外部由来の識別子（GTFS の ID など）を検証する。
 func requireKeyString(field, s string) (string, error) {
-	var v violations
+	var v rpcerror.Violations
 	requireString(&v, field, s)
-	return s, v.err()
+	return s, v.Err(errorDomain)
 }
 
-func requireNonNegative(v *violations, field string, n int32) int {
+func requireNonNegative(v *rpcerror.Violations, field string, n int32) int {
 	if n < 0 {
-		v.add(field, "must not be negative")
+		v.Add(field, "must not be negative")
 	}
 	return int(n)
 }
 
-func requirePositive(v *violations, field string, n int32) int {
+func requirePositive(v *rpcerror.Violations, field string, n int32) int {
 	if n <= 0 {
-		v.add(field, "must be positive")
+		v.Add(field, "must be positive")
 	}
 	return int(n)
 }
 
 // requireKeyInt は識別子を構成する整数（年度・停車順など）を検証する。
 func requireKeyInt(field string, n int32, minimum int32) (int, error) {
-	var v violations
+	var v rpcerror.Violations
 	if n < minimum {
-		v.add(field, fmt.Sprintf("must be greater than or equal to %d", minimum))
+		v.Add(field, fmt.Sprintf("must be greater than or equal to %d", minimum))
 	}
-	return int(n), v.err()
+	return int(n), v.Err(errorDomain)
 }

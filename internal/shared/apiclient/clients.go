@@ -10,20 +10,19 @@ import (
 	"os"
 	"time"
 
+	"google.golang.org/api/idtoken"
+
 	academic_api "github.com/fun-dotto/server/gen/academic"
-	announcement_api "github.com/fun-dotto/server/gen/announcement"
 	user_api "github.com/fun-dotto/server/gen/user"
 	"github.com/fun-dotto/server/internal/shared/logging"
-	"google.golang.org/api/idtoken"
 )
 
 const httpClientTimeout = 30 * time.Second
 
 // ExternalClients 外部APIクライアントをまとめて管理
 type ExternalClients struct {
-	Academic     *academic_api.ClientWithResponses
-	Announcement *announcement_api.ClientWithResponses
-	User         *user_api.ClientWithResponses
+	Academic *academic_api.ClientWithResponses
+	User     *user_api.ClientWithResponses
 }
 
 // NewExternalClients 全ての外部APIクライアントを初期化
@@ -41,19 +40,6 @@ func NewExternalClients(ctx context.Context) (*ExternalClients, error) {
 		return nil, fmt.Errorf("academic client: %w", err)
 	}
 
-	announcementURL, err := requireURL("ANNOUNCEMENT_API_URL")
-	if err != nil {
-		return nil, err
-	}
-	announcementHTTP, err := newAuthHTTPClient(ctx, announcementURL)
-	if err != nil {
-		return nil, fmt.Errorf("announcement client: %w", err)
-	}
-	announcement, err := announcement_api.NewClientWithResponses(announcementURL, announcement_api.WithHTTPClient(announcementHTTP))
-	if err != nil {
-		return nil, fmt.Errorf("announcement client: %w", err)
-	}
-
 	userURL, err := requireURL("USER_API_URL")
 	if err != nil {
 		return nil, err
@@ -68,9 +54,8 @@ func NewExternalClients(ctx context.Context) (*ExternalClients, error) {
 	}
 
 	return &ExternalClients{
-		Academic:     academic,
-		Announcement: announcement,
-		User:         user,
+		Academic: academic,
+		User:     user,
 	}, nil
 }
 

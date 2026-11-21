@@ -4,9 +4,10 @@ import (
 	"context"
 	"uuid"
 
+	"gorm.io/gorm"
+
 	"github.com/fun-dotto/server/internal/modules/user/domain"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"gorm.io/gorm"
 )
 
 func (r *NotificationRepository) CreateNotification(ctx context.Context, notification domain.Notification) (domain.Notification, error) {

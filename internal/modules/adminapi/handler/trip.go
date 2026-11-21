@@ -4,10 +4,12 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
-	"github.com/fun-dotto/server/internal/shared/model"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
+
+	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
+	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type TripHandler struct {
@@ -41,7 +43,7 @@ type tripInput interface {
 }
 
 func tripFromProto(in tripInput, s fieldSet) (model.Trip, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.Trip
 	if s.has("trip_id") {
 		m.TripID = requireString(&v, "trip_id", in.GetTripId())
@@ -55,11 +57,11 @@ func tripFromProto(in tripInput, s fieldSet) (model.Trip, error) {
 	if s.has("direction") && present(in, "direction") {
 		d, ok := tripDirectionEnum[in.GetDirection()]
 		if !ok {
-			v.add("direction", "must be a valid enum value other than UNSPECIFIED")
+			v.Add("direction", "must be a valid enum value other than UNSPECIFIED")
 		}
 		m.DirectionID = &d
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func tripToProto(m model.Trip) *adminv1.Trip {

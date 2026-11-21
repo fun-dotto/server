@@ -12,6 +12,7 @@ require (
 	github.com/gin-contrib/timeout v1.2.1
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-jose/go-jose/v4 v4.1.4
+	github.com/jackc/pgerrcode v0.0.0-20250907135507-afb5586c32a6
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/joho/godotenv v1.5.1
 	github.com/oapi-codegen/gin-middleware v1.0.2

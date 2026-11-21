@@ -5,8 +5,9 @@ import (
 	"strings"
 
 	"firebase.google.com/go/v4/appcheck"
-	api "github.com/fun-dotto/server/gen/app"
 	"github.com/gin-gonic/gin"
+
+	api "github.com/fun-dotto/server/gen/app"
 )
 
 // AppCheckMiddleware returns a Gin middleware that verifies Firebase App Check tokens.

@@ -5,11 +5,13 @@ import (
 	"uuid"
 
 	"connectrpc.com/connect"
-	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
-	"github.com/fun-dotto/server/internal/shared/model"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
+
+	adminv1 "github.com/fun-dotto/server/gen/admin/v1"
+	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 type NotificationHandler struct {
@@ -56,7 +58,7 @@ type notificationInput interface {
 }
 
 func notificationFromProto(in notificationInput, s fieldSet) (model.Notification, error) {
-	var v violations
+	var v rpcerror.Violations
 	var m model.Notification
 	if s.has("title") {
 		m.Title = requireString(&v, "title", in.GetTitle())
@@ -101,7 +103,7 @@ func notificationFromProto(in notificationInput, s fieldSet) (model.Notification
 	if s.has("notify_before") {
 		m.NotifyBefore = requireTimestamp(&v, "notify_before", in.GetNotifyBefore())
 	}
-	return m, v.err()
+	return m, v.Err(errorDomain)
 }
 
 func notificationToProto(m model.Notification) *adminv1.Notification {

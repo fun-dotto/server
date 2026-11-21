@@ -6,8 +6,9 @@ import (
 	"strings"
 
 	"firebase.google.com/go/v4/auth"
-	api "github.com/fun-dotto/server/gen/app"
 	"github.com/gin-gonic/gin"
+
+	api "github.com/fun-dotto/server/gen/app"
 )
 
 const (

@@ -7,12 +7,13 @@ import (
 	"uuid"
 
 	"connectrpc.com/connect"
+	"google.golang.org/genproto/googleapis/type/date"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
+
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/modules/appapi/auth"
 	"github.com/fun-dotto/server/internal/shared/academiccalendar"
 	"github.com/fun-dotto/server/internal/shared/model"
-	"google.golang.org/genproto/googleapis/type/date"
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 func userCtx(id string) context.Context {
@@ -28,7 +29,7 @@ func wantCode(t *testing.T, err error, code connect.Code) {
 
 // DB に到達する前に返るエラーを検証する（db は nil）。
 func TestValidationBeforeDB(t *testing.T) {
-	h := New(nil, academiccalendar.Calendar{})
+	h := New(nil, academiccalendar.Calendar{}, nil, "")
 	ctx := userCtx("user1")
 	subjectID := uuid.New().String()
 
