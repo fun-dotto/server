@@ -70,7 +70,7 @@ description = "govulncheck で既知の脆弱性を検査する"
 run = "govulncheck ./..."
 
 [tasks."lint:proto"]
-description = "Protobuf 定義を buf format・buf lint・Google API Linter で検査する"
+description = "Protobuf 定義を buf format・buf lint（check plugin を含む）・Google API Linter で検査する"
 run = [
   "buf format --diff --exit-code",
   "buf lint",
