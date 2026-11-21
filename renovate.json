@@ -2,5 +2,13 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "minimumReleaseAge": "24 hours",
-  "automerge": true
+  "automerge": true,
+  "packageRules": [
+    {
+      "description": "Go modulesのdigest(疑似バージョン)アップデートを除外",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["digest"],
+      "enabled": false
+    }
+  ]
 }
