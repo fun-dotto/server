@@ -30,17 +30,12 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
-        with:
-          github_token: ${{ github.token }}
-          cache: true
-
       - name: Setup
-        run: mise run bootstrap
+        uses: ./.github/actions/setup
 
+      # 復元したキャッシュのテスト結果で失敗を見逃さないよう、毎回実行する
       - name: Run unit tests
-        run: mise run test
+        run: mise run test -count=1
 
   build:
     name: Build
@@ -48,14 +43,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
-        with:
-          github_token: ${{ github.token }}
-          cache: true
-
       - name: Setup
-        run: mise bootstrap
+        uses: ./.github/actions/setup
 
       - name: Build all binaries
         run: mise run build
@@ -66,14 +55,18 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
-        with:
-          github_token: ${{ github.token }}
-          cache: true
-
+      # go mod tidy -diff が追加で取得するモジュールも含めるため、Lint で保存する
       - name: Setup
-        run: mise bootstrap
+        uses: ./.github/actions/setup
+        with:
+          save-mod-cache: true
+
+      - name: go mod tidy
+        run: |
+          if ! go mod tidy -diff; then
+            echo "::error::go.mod / go.sum が整理されていません。go mod tidy を実行してください"
+            exit 1
+          fi
 
       - name: Lint
         run: mise run lint
@@ -84,14 +77,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup mise
-        uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
-        with:
-          github_token: ${{ github.token }}
-          cache: true
-
       - name: Setup
-        run: mise bootstrap
+        uses: ./.github/actions/setup
 
       - name: govulncheck
         run: mise run vulncheck
