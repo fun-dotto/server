@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	openapi_types "github.com/oapi-codegen/runtime/types"
+
 	api "github.com/fun-dotto/server/gen/app"
 	"github.com/fun-dotto/server/internal/modules/app/domain"
-	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 func (h *Handler) CancelledClassesV1List(ctx context.Context, request api.CancelledClassesV1ListRequestObject) (api.CancelledClassesV1ListResponseObject, error) {

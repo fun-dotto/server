@@ -7,10 +7,11 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
-	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/protoadapt"
+
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 const testDomain rpcerror.Domain = "test.dotto"

@@ -9,6 +9,8 @@ import (
 
 	"connectrpc.com/connect"
 	firebaseAdmin "firebase.google.com/go/v4"
+	"github.com/joho/godotenv"
+
 	"github.com/fun-dotto/server/gen/app/v1/appv1connect"
 	"github.com/fun-dotto/server/internal/modules/appapi/auth"
 	"github.com/fun-dotto/server/internal/modules/appapi/handler"
@@ -19,7 +21,6 @@ import (
 	"github.com/fun-dotto/server/internal/shared/logging"
 	"github.com/fun-dotto/server/internal/shared/microcms"
 	"github.com/fun-dotto/server/internal/shared/server"
-	"github.com/joho/godotenv"
 )
 
 const handlerTimeout = 15 * time.Second

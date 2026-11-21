@@ -3,10 +3,11 @@ package handler
 import (
 	"slices"
 
-	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
+
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 // fieldSet は値を反映するフィールド名の集合。nil はすべてのフィールドを表す（Create 用）。

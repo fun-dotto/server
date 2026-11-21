@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/shared/academiccalendar"
 	"github.com/fun-dotto/server/internal/shared/microcms"

@@ -13,6 +13,7 @@ bun = "1.4.4"
 gcloud = "593.0.0"
 go = "1.27.4"
 "go:golang.org/x/vuln/cmd/govulncheck" = "1.9.0"
+golangci-lint = "2.15.0"
 node = "26.13.1"
 "npm:portless" = "0.17.0"
 "npm:rulesync" = "43.8.0"
@@ -54,10 +55,15 @@ run = [
 description = "静的解析を実行する"
 run = [
   { task = "lint:proto" },
-  "go vet ./...",
+  "golangci-lint fmt --diff",
+  "golangci-lint run",
   "go build -o ./bin/gormuuidlint ./cmd/gormuuidlint",
   "go vet -vettool=./bin/gormuuidlint ./...",
 ]
+
+[tasks.fmt]
+description = "Go のコードを整形する"
+run = "golangci-lint fmt"
 
 [tasks.vulncheck]
 description = "govulncheck で既知の脆弱性を検査する"

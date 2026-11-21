@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"gorm.io/gorm"
+
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 const errorDomain rpcerror.Domain = "app.dotto"

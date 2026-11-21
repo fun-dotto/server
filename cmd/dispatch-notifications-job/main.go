@@ -6,11 +6,12 @@ import (
 	"log"
 
 	firebase "firebase.google.com/go/v4"
+	"github.com/joho/godotenv"
+
 	"github.com/fun-dotto/server/internal/modules/user/repository"
 	"github.com/fun-dotto/server/internal/modules/user/service"
 	"github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/logging"
-	"github.com/joho/godotenv"
 )
 
 func main() {

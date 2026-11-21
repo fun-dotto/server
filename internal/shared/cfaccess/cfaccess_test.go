@@ -79,7 +79,7 @@ func TestMiddleware(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodPost, "/admin.v1.UserService/ListUsers", nil)
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/admin.v1.UserService/ListUsers", nil)
 			if tt.token != "" {
 				req.Header.Set(JWTHeader, tt.token)
 			}

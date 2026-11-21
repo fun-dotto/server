@@ -8,11 +8,12 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	shareddb "github.com/fun-dotto/server/internal/shared/db"
-	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"github.com/jackc/pgerrcode"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"gorm.io/gorm"
+
+	shareddb "github.com/fun-dotto/server/internal/shared/db"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 const errorDomain rpcerror.Domain = "admin.dotto"

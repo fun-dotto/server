@@ -4,12 +4,13 @@ import (
 	"time"
 	"uuid"
 
-	appv1 "github.com/fun-dotto/server/gen/app/v1"
-	"github.com/fun-dotto/server/internal/shared/model"
-	"github.com/fun-dotto/server/internal/shared/rpcerror"
 	"google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/genproto/googleapis/type/dayofweek"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	appv1 "github.com/fun-dotto/server/gen/app/v1"
+	"github.com/fun-dotto/server/internal/shared/model"
+	"github.com/fun-dotto/server/internal/shared/rpcerror"
 )
 
 const dateLayout = time.DateOnly

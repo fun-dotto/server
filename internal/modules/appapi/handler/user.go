@@ -4,14 +4,15 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
+	"github.com/jackc/pgerrcode"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/modules/appapi/auth"
 	shareddb "github.com/fun-dotto/server/internal/shared/db"
 	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/fun-dotto/server/internal/shared/rpcerror"
-	"github.com/jackc/pgerrcode"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 // GetUser はログイン中のユーザーを返す。

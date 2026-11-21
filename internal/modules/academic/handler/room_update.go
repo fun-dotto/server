@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 
-	api "github.com/fun-dotto/server/gen/academic"
 	"gorm.io/gorm"
+
+	api "github.com/fun-dotto/server/gen/academic"
 )
 
 func (h *Handler) RoomsV1Update(ctx context.Context, request api.RoomsV1UpdateRequestObject) (api.RoomsV1UpdateResponseObject, error) {

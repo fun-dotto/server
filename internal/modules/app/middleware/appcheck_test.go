@@ -5,10 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	api "github.com/fun-dotto/server/gen/app"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	api "github.com/fun-dotto/server/gen/app"
 )
 
 func TestAppCheckMiddleware(t *testing.T) {
@@ -22,7 +23,7 @@ func TestAppCheckMiddleware(t *testing.T) {
 			c.Status(http.StatusOK)
 		})
 
-		req := httptest.NewRequest(http.MethodGet, "/test", nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/test", nil)
 		rec := httptest.NewRecorder()
 		router.ServeHTTP(rec, req)
 
@@ -40,7 +41,7 @@ func TestAppCheckMiddleware(t *testing.T) {
 			c.Status(http.StatusOK)
 		})
 
-		req := httptest.NewRequest(http.MethodGet, "/test", nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/test", nil)
 		rec := httptest.NewRecorder()
 		router.ServeHTTP(rec, req)
 

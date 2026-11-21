@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
+
 	appv1 "github.com/fun-dotto/server/gen/app/v1"
 	"github.com/fun-dotto/server/internal/shared/model"
 	"github.com/fun-dotto/server/internal/shared/rpcerror"
@@ -18,17 +19,17 @@ func (h *Handler) ListReservations(ctx context.Context, req *connect.Request[app
 	if len(roomIDs) > 0 {
 		query = query.Where("room_id IN ?", roomIDs)
 	}
-	if m.FromTime != nil {
-		if err := m.FromTime.CheckValid(); err != nil {
+	if m.GetFromTime() != nil {
+		if err := m.GetFromTime().CheckValid(); err != nil {
 			v.Add("from_time", "must be a valid timestamp")
 		}
-		query = query.Where("end_time > ?", m.FromTime.AsTime())
+		query = query.Where("end_time > ?", m.GetFromTime().AsTime())
 	}
-	if m.UntilTime != nil {
-		if err := m.UntilTime.CheckValid(); err != nil {
+	if m.GetUntilTime() != nil {
+		if err := m.GetUntilTime().CheckValid(); err != nil {
 			v.Add("until_time", "must be a valid timestamp")
 		}
-		query = query.Where("start_time < ?", m.UntilTime.AsTime())
+		query = query.Where("start_time < ?", m.GetUntilTime().AsTime())
 	}
 	if err := v.Err(errorDomain); err != nil {
 		return nil, err

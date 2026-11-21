@@ -4,11 +4,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	api "github.com/fun-dotto/server/gen/app"
 	"github.com/fun-dotto/server/internal/modules/app/repository"
 	"github.com/fun-dotto/server/internal/modules/app/service"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestAnnouncementsV1List(t *testing.T) {

@@ -1,0 +1,65 @@
+version: "2"
+
+linters:
+  # standard（errcheck / govet / ineffassign / staticcheck / unused）に加えて有効にする
+  enable:
+    - bodyclose
+    - depguard
+    - errorlint
+    - exhaustive
+    - forbidigo
+    - nilerr
+    - noctx
+    - protogetter
+    - testifylint
+  settings:
+    depguard:
+      rules:
+        # App API は他の API に依存せず、DB を直接操作する（app-api-design.md）
+        appapi:
+          list-mode: lax
+          files:
+            - "**/internal/modules/appapi/**"
+          deny:
+            - pkg: github.com/fun-dotto/server/internal/modules
+              desc: App API は他のモジュールに依存せず、internal/shared を使う
+          allow:
+            - github.com/fun-dotto/server/internal/modules/appapi
+    exhaustive:
+      # default があれば網羅とみなす。proto の enum は UNSPECIFIED などを default で受けることが多いため
+      default-signifies-exhaustive: true
+    forbidigo:
+      analyze-types: true
+      forbid:
+        # すべてのエラーに ErrorInfo を付けるため、rpcerror のヘルパー経由で作る（api-design.md）
+        - pattern: ^connect\.NewError$
+          msg: rpcerror.Domain.New を使い、ErrorInfo を付ける
+        # UNKNOWN は使わない（api-design.md）
+        - pattern: ^connect\.CodeUnknown$
+          msg: 最も具体的な Code を使う
+  exclusions:
+    presets:
+      - std-error-handling
+    rules:
+      - path: (internal/shared/rpcerror/rpcerror\.go|_test\.go)$
+        text: connect\.NewError
+        linters:
+          - forbidigo
+      # gin.Context は Set したキーを string で持つため、テストでも string のキーで context に入れる
+      - path: _test\.go$
+        text: SA1029
+        linters:
+          - staticcheck
+      # internal/shared/model の Deprecated は DB の列を残したまま移行中のもので、利用箇所の置き換えは別途行う
+      - text: 'SA1019: \(github\.com/fun-dotto/server/internal/shared/model\.'
+        linters:
+          - staticcheck
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/fun-dotto/server

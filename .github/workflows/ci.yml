@@ -75,15 +75,6 @@ jobs:
       - name: Setup
         run: mise bootstrap
 
-      - name: gofmt
-        run: |
-          unformatted="$(gofmt -l .)"
-          if [ -n "$unformatted" ]; then
-            echo "::error::以下のファイルが gofmt されていません:"
-            echo "$unformatted"
-            exit 1
-          fi
-
       - name: Lint
         run: mise run lint
 
