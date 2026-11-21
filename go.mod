@@ -6,7 +6,7 @@ require (
 	ariga.io/atlas-provider-gorm v0.6.0
 	cloud.google.com/go/cloudsqlconn v1.21.0
 	cloud.google.com/go/compute/metadata v0.9.0
-	connectrpc.com/connect v1.21.0
+	connectrpc.com/connect v1.21.1
 	firebase.google.com/go/v4 v4.19.0
 	github.com/getkin/kin-openapi v0.149.0
 	github.com/gin-contrib/timeout v1.2.1
