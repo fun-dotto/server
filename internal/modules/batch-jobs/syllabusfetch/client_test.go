@@ -64,6 +64,13 @@ func TestClientListLessonIDs(t *testing.T) {
 		assert.Equal(t, []string{"100101", "100201", "100301", "100401"}, got)
 	})
 
+	t.Run("1 ページ目が 0 件なら空で返す", func(t *testing.T) {
+		srv := newListServer(t, map[string]string{"search": listHTML(nil, nil)})
+		got, err := NewClient(srv.URL, 0).ListLessonIDs(context.Background(), 2026)
+		require.NoError(t, err)
+		assert.Empty(t, got)
+	})
+
 	t.Run("要求と違うページが返り新しい授業コードがなければエラー", func(t *testing.T) {
 		first := listHTML([]string{"100101"}, []int{2})
 		srv := newListServer(t, map[string]string{

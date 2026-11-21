@@ -71,6 +71,10 @@ func (c *Client) ListLessonIDs(ctx context.Context, year int) ([]string, error) 
 		}
 		// ViewState の期限切れなどで要求と違うページが返ると、既出の授業コードだけのページや 0 件のページになる。
 		// そのまま終えると一部の科目を取りこぼしたまま成功扱いになるため、エラーにする。
+		// 1 ページ目が 0 件なのは年度のシラバスがまだ公開されていない場合なので、呼び出し側で区別できるよう空のまま返す
+		if current == 1 && len(page.LessonIDs) == 0 {
+			return ids, nil
+		}
 		if added == 0 {
 			return nil, fmt.Errorf("list page %d has no new lesson ids", current)
 		}
