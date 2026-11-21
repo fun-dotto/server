@@ -49,6 +49,7 @@ run = [
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/user-api ./cmd/user-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/build-class-change-notifications-job ./cmd/build-class-change-notifications-job",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/dispatch-notifications-job ./cmd/dispatch-notifications-job",
+  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/import-gtfs-job ./cmd/import-gtfs-job",
 ]
 
 [tasks."lint"]
