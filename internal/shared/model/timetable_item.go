@@ -9,9 +9,7 @@ type TimetableItem struct {
 	Subject   *Subject  `gorm:"foreignKey:SubjectID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	DayOfWeek *string
 	Period    *string
-	// Deprecated: Use many-to-many relationship instead
-	// Rooms     []Room `gorm:"many2many:timetable_item_rooms"`
-	Rooms []TimetableItemRoom `gorm:"foreignKey:TimetableItemID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Rooms     []TimetableItemRoom `gorm:"foreignKey:TimetableItemID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 type TimetableItemRoom struct {

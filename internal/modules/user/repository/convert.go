@@ -45,7 +45,7 @@ func fcmTokenFromDomain(t domain.FCMToken) model.FCMToken {
 
 func notificationToDomain(m model.Notification, targets []domain.NotificationTargetUser) domain.Notification {
 	return domain.Notification{
-		ID:                   m.ID,
+		ID:                   m.ID, //nolint:staticcheck // Common への移行には notifications.id を text から uuid に変える必要がある
 		Title:                m.Title,
 		Body:                 m.Body,
 		ImageURL:             m.ImageURL,
@@ -66,7 +66,7 @@ func notificationToDomain(m model.Notification, targets []domain.NotificationTar
 
 func notificationFromDomain(n domain.Notification) model.Notification {
 	return model.Notification{
-		ID:                   n.ID,
+		ID:                   n.ID, //nolint:staticcheck // Common への移行には notifications.id を text から uuid に変える必要がある
 		Title:                n.Title,
 		Body:                 n.Body,
 		ImageURL:             n.ImageURL,

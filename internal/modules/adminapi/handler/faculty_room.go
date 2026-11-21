@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"uuid"
 
 	"connectrpc.com/connect"
 	"gorm.io/gorm"
@@ -94,7 +93,6 @@ func (h *FacultyRoomHandler) CreateFacultyRoom(ctx context.Context, req *connect
 	if err != nil {
 		return nil, err
 	}
-	m.Id = uuid.New()
 	created, err := h.c.create(ctx, &m)
 	if err != nil {
 		return nil, err
