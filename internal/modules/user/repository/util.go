@@ -1,6 +1,24 @@
 package repository
 
-import "github.com/fun-dotto/server/internal/modules/user/domain"
+import (
+	"uuid"
+
+	"github.com/fun-dotto/server/internal/modules/user/domain"
+)
+
+// canonicalUUIDs は UUID として解釈できる値を正規形の文字列にして返す。
+// 解釈できない値は uuid 列との比較でエラーになるため除く（該当する行はない）。
+func canonicalUUIDs(ids []string) []string {
+	result := make([]string, 0, len(ids))
+	for _, id := range ids {
+		u, err := uuid.Parse(id)
+		if err != nil {
+			continue
+		}
+		result = append(result, u.String())
+	}
+	return result
+}
 
 func uniqueStrings(s []string) []string {
 	seen := make(map[string]struct{}, len(s))

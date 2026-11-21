@@ -24,7 +24,7 @@ func (r *NotificationRepository) UpdateNotification(ctx context.Context, notific
 
 	err = r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var existing model.Notification
-		if err := tx.First(&existing, "id = ?", notification.ID).Error; err != nil {
+		if err := tx.First(&existing, "id = ?", notificationID.String()).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return domain.ErrNotFound
 			}
@@ -32,6 +32,7 @@ func (r *NotificationRepository) UpdateNotification(ctx context.Context, notific
 		}
 
 		dbNotification = notificationFromDomain(notification)
+		dbNotification.ID = notificationID
 
 		if err := tx.Save(&dbNotification).Error; err != nil {
 			return err
@@ -39,7 +40,7 @@ func (r *NotificationRepository) UpdateNotification(ctx context.Context, notific
 
 		var existingTargets []model.NotificationTargetUser
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Where("notification_id = ?", notification.ID).
+			Where("notification_id = ?", notificationID.String()).
 			Find(&existingTargets).Error; err != nil {
 			return err
 		}
@@ -48,7 +49,7 @@ func (r *NotificationRepository) UpdateNotification(ctx context.Context, notific
 			existingNotifiedAt[t.UserID] = t.NotifiedAt
 		}
 
-		if err := tx.Where("notification_id = ?", notification.ID).Delete(&model.NotificationTargetUser{}).Error; err != nil {
+		if err := tx.Where("notification_id = ?", notificationID.String()).Delete(&model.NotificationTargetUser{}).Error; err != nil {
 			return err
 		}
 

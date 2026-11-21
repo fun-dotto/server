@@ -1,0 +1,2 @@
+-- Modify "notifications" table
+ALTER TABLE "public"."notifications" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();

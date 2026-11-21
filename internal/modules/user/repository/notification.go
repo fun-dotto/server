@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"uuid"
 
 	"gorm.io/gorm"
 
@@ -26,7 +27,7 @@ func (r *NotificationRepository) hydrateNotifications(ctx context.Context, dbNot
 
 	notificationIDs := make([]string, 0, len(dbNotifications))
 	for _, n := range dbNotifications {
-		notificationIDs = append(notificationIDs, n.ID)
+		notificationIDs = append(notificationIDs, n.ID.String())
 	}
 
 	query := r.db.WithContext(ctx).Where("notification_id IN ?", notificationIDs)
@@ -39,10 +40,9 @@ func (r *NotificationRepository) hydrateNotifications(ctx context.Context, dbNot
 		return nil, err
 	}
 
-	targetMap := make(map[string][]domain.NotificationTargetUser)
+	targetMap := make(map[uuid.UUID][]domain.NotificationTargetUser)
 	for _, t := range allTargets {
-		key := t.NotificationID.String()
-		targetMap[key] = append(targetMap[key], domain.NotificationTargetUser{
+		targetMap[t.NotificationID] = append(targetMap[t.NotificationID], domain.NotificationTargetUser{
 			UserID:     t.UserID,
 			NotifiedAt: t.NotifiedAt,
 		})

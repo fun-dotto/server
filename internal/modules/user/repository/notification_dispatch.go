@@ -9,7 +9,7 @@ import (
 )
 
 func (r *NotificationRepository) GetNotificationsByIDs(ctx context.Context, ids []string) ([]domain.Notification, error) {
-	uniqueIDs := uniqueStrings(ids)
+	uniqueIDs := uniqueStrings(canonicalUUIDs(ids))
 	if len(uniqueIDs) == 0 {
 		return []domain.Notification{}, nil
 	}
