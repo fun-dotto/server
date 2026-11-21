@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package test.v1;
+
+import "google/protobuf/field_mask.proto";
+
+service BookService {
+  rpc UpdateBook(UpdateBookRequest) returns (UpdateBookResponse);
+}
+
+message UpdateBookRequest {
+  string id = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message UpdateBookResponse {}

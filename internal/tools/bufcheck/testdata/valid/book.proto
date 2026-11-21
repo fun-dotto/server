@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package test.v1;
+
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+service BookService {
+  rpc ListBooks(ListBooksRequest) returns (ListBooksResponse);
+  rpc UpdateBook(UpdateBookRequest) returns (UpdateBookResponse);
+}
+
+message Book {
+  string id = 1;
+  string title = 2;
+  // 後から追加したフィールドは番号が大きくても created_at の前に宣言すればよい。
+  string author = 5;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message ListBooksRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListBooksResponse {
+  repeated Book books = 1;
+  string next_page_token = 2;
+}
+
+message UpdateBookRequest {
+  string id = 1;
+  string title = 2;
+  google.protobuf.FieldMask update_mask = 99;
+}
+
+message UpdateBookResponse {
+  Book book = 1;
+}

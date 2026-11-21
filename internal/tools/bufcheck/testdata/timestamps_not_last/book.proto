@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package test.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message Book {
+  string id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  string title = 4;
+}
+
+message BookShelf {
+  string id = 1;
+  google.protobuf.Timestamp updated_at = 2;
+  google.protobuf.Timestamp created_at = 3;
+}

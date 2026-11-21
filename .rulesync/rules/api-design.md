@@ -6,7 +6,7 @@ globs: ["**/*"]
 
 # API デザインガイドライン
 
-`proto/` 配下の Protobuf 定義は以下の規約に従う。`mise run lint:proto`（`buf format`、`buf lint`（STANDARD）、[Google API Linter](https://linter.aip.dev/)）と `buf breaking`（FILE）を通過させること。Lint で検査できる規約は本ガイドには書かず、`buf.yaml` と `api-linter.yaml` で管理する。AIP からの逸脱に伴って Google API Linter のルールを無効化する場合は、`api-linter.yaml` に理由を書く。
+`proto/` 配下の Protobuf 定義は以下の規約に従う。`mise run lint:proto`（`buf format`、`buf lint`（STANDARD と check plugin `cmd/buf-plugin-dotto`）、[Google API Linter](https://linter.aip.dev/)）と `buf breaking`（FILE）を通過させること。Lint で検査できる規約は本ガイドには書かず、`buf.yaml`、`api-linter.yaml`、`internal/tools/bufcheck` で管理する。AIP からの逸脱に伴って Google API Linter のルールを無効化する場合は、`api-linter.yaml` に理由を書く。
 
 ## 基本方針
 
@@ -51,7 +51,7 @@ globs: ["**/*"]
 ## リソース message
 
 - `id` をフィールド番号 1 に置く
-- `created_at` / `updated_at` を末尾に置く（出力専用）
+- `created_at` / `updated_at` は出力専用にする
 
 ## 標準メソッド
 
@@ -63,7 +63,7 @@ globs: ["**/*"]
 | `Update` | [AIP-134](https://google.aip.dev/134) | `id` + 更新対象フィールド + `update_mask` | `Update<Resource>Response`（`<Resource>`）                            |
 | `Delete` | [AIP-135](https://google.aip.dev/135) | `id`                                      | `Delete<Resource>Response`（空 message）                              |
 
-- `Update` の `update_mask` は `google.protobuf.FieldMask` で、フィールド番号 `99` に固定する（[AIP-134](https://google.aip.dev/134)、[AIP-161](https://google.aip.dev/161)）
+- `Update` の `update_mask` の扱い（[AIP-134](https://google.aip.dev/134)、[AIP-161](https://google.aip.dev/161)）
   - `update_mask` が空の場合は、リクエストで値が入っているフィールドをすべて更新する
   - `update_mask` に存在しないフィールドが含まれる場合は `INVALID_ARGUMENT`
 - 標準メソッドで表せない操作はカスタムメソッドにする（[AIP-136](https://google.aip.dev/136)）
@@ -72,7 +72,6 @@ globs: ["**/*"]
 
 カーソル方式を採用する（[AIP-158](https://google.aip.dev/158)）。
 
-- フィールド番号は Request が `page_size = 1` / `page_token = 2`、Response が `repeated <Resource>` = 1 / `next_page_token = 2` とする
 - `page_size` が 0 の場合はサーバー既定値（50）を使い、上限（1000）を超えた値は上限に丸める。負数は `INVALID_ARGUMENT`
 - 返す件数が `page_size` より少なくても、それだけでは最終ページを意味しない。最終ページの判定は `next_page_token` が空文字かどうかで行う
 - トークンは不透明な文字列とし、クライアントは中身を解釈・生成しない。サーバーはトークンの形式を予告なく変更してよい

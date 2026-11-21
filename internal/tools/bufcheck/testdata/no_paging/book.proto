@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package test.v1;
+
+service BookService {
+  rpc ListBooks(ListBooksRequest) returns (ListBooksResponse);
+}
+
+message Book {
+  string id = 1;
+}
+
+message ListBooksRequest {
+  reserved 1, 2;
+  reserved "page_size", "page_token";
+  string author = 3;
+}
+
+message ListBooksResponse {
+  repeated Book books = 1;
+}
