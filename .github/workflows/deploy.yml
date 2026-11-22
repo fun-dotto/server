@@ -1,6 +1,6 @@
 name: Deploy
 
-# main への push: ビルドして latest を更新し、stg へデプロイする（マイグレーションは適用しない）。
+# main への push: ビルドして latest を更新し、stg にマイグレーションを適用してからデプロイする。
 # 手動実行: action で実行範囲を選択する。デプロイする場合は、デプロイ先の環境にマイグレーションを先に適用する。
 # prd も同様（GitHub Environment prd の承認が必要）。マイグレーションはデプロイするイメージと同じコミットのものを使う。
 on:
@@ -137,14 +137,13 @@ jobs:
 
   # set-env が明示列挙した matrix で各ターゲットを並列デプロイする。対象の増減は set-env の DEPLOY_TARGETS を編集する。
   # アプリのデプロイより前に DB マイグレーションを適用する。失敗した場合はデプロイしない。
-  # 手動実行のみ、選択した環境に適用する（build-push を除く）。main への push では適用しない。
+  # main への push では stg に、手動実行では選択した環境に適用する（build-push を除く）。
   # マイグレーションだけを適用する場合は migrate-apply.yml を workflow_dispatch で実行する。
   # イメージのタグはコミット SHA のため、タグ指定の deploy ではそのコミットのマイグレーションを適用する
   # （latest の場合は実行したコミット）。イメージとマイグレーションのずれを防ぐ。
   migrate:
     if: >-
       !cancelled()
-      && github.event_name == 'workflow_dispatch'
       && inputs.action != 'build-push'
       && needs.set-env.result == 'success'
       && (needs.verify-image.result == 'success' || needs.verify-image.result == 'skipped')
@@ -158,7 +157,7 @@ jobs:
       id-token: write
     uses: ./.github/workflows/migrate-apply.yml
     with:
-      environments: ${{ format('["{0}"]', inputs.environment_name) }}
+      environments: ${{ format('["{0}"]', needs.set-env.outputs.environment) }}
       ref: ${{ (inputs.action == 'deploy' && inputs.image_tag != '' && inputs.image_tag != 'latest') && inputs.image_tag || github.sha }}
 
   deploy:
