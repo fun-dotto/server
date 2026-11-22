@@ -16,7 +16,7 @@ require (
 	github.com/jackc/pgx/v5 v5.13.0
 	github.com/joho/godotenv v1.5.1
 	github.com/oapi-codegen/gin-middleware v1.2.1
-	github.com/oapi-codegen/runtime v1.7.0
+	github.com/oapi-codegen/runtime v1.9.1
 	github.com/shopspring/decimal v1.6.0
 	github.com/stretchr/testify v1.12.1
 	golang.org/x/tools v0.52.0
