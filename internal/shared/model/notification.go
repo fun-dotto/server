@@ -4,7 +4,7 @@ import "time"
 
 type Notification struct {
 	// Deprecated: Use Common instead
-	ID        string    `gorm:"primaryKey"`
+	ID        string    `gorm:"type:uuid;primaryKey"`
 	CreatedAt time.Time `gorm:"autoCreateTime;default:current_timestamp"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime;default:current_timestamp"`
 
