@@ -7,6 +7,7 @@ require (
 	cloud.google.com/go/cloudsqlconn v1.27.0
 	cloud.google.com/go/compute/metadata v0.10.0
 	connectrpc.com/connect v1.21.1
+	connectrpc.com/connect/v2 v2.0.2
 	firebase.google.com/go/v4 v4.19.0
 	github.com/getkin/kin-openapi v0.153.0
 	github.com/gin-contrib/timeout v1.2.5
