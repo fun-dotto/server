@@ -9,6 +9,12 @@
       "matchManagers": ["gomod"],
       "matchUpdateTypes": ["digest"],
       "enabled": false
+    },
+    {
+      "description": "Go modulesのメジャーアップデートは自動マージしない（モジュールパスの変更にimport・tool指定が追従せず、CIもbootstrapのgo mod tidyで吸収して検知できないため）",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false
     }
   ]
 }

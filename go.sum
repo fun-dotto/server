@@ -37,7 +37,6 @@ cloud.google.com/go/trace v1.16.0 h1:GmQovzFc5F0CNfl0VLgL64aoTtu7xsM0YajW2GlG9+E
 cloud.google.com/go/trace v1.16.0/go.mod h1:r+bdAn16dKLSV1G2D5v3e58IlQlizfxWrUfjx7kM7X0=
 connectrpc.com/connect v1.21.1 h1:h2kacdlzXpZU2OQFSv98xkjYXNUSr/ptxmGVbS/+CRM=
 connectrpc.com/connect v1.21.1/go.mod h1:fhMcVJ5w6r/yTYhnkEbW6+sIF7OZ5Ay7KYgmfebh2ek=
-connectrpc.com/connect/v2 v2.0.2/go.mod h1:N32OLrstcPUzkykFynnefFro3+xzSdOrZlK2jHmS/xo=
 filippo.io/edwards25519 v1.2.0 h1:crnVqOiS4jqYleHd9vaKZ+HKtHfllngJIiOpNpoJsjo=
 filippo.io/edwards25519 v1.2.0/go.mod h1:xzAOLCNug/yB62zG1bQ8uziwrIqIuxhctzJT18Q77mc=
 firebase.google.com/go/v4 v4.19.0 h1:f5NMlC2YHFsncz00c2+ecBr+ZYlRMhKIhj1z8Iz0lD8=
@@ -167,8 +166,7 @@ github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+
 github.com/google/uuid v1.5.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
-github.com/googleapis/api-linter v1.72.0 h1:vzJrnz3lHotkP584UVtfS/aa7kZJ1Q18/o5MMSTvUQw=
-github.com/googleapis/api-linter v1.72.0/go.mod h1:3+GtmIywVAO7+q+wad38Eoh/77DfOgd5MBbjDLTThoA=
+github.com/googleapis/api-linter/v2 v2.4.1 h1:L0OjwZc06/A6JO5LfweVIfuEyPggdGmG4auiQYWDXeI=
 github.com/googleapis/api-linter/v2 v2.4.1/go.mod h1:83m/JJxZ2ln0+teq9yY9EDDM3wEJF4PlWRLNxjEXiOQ=
 github.com/googleapis/enterprise-certificate-proxy v0.3.25 h1:n/6K8rCcoQQjGZ+o5irYrdwAFZIclQMXq0yeJyK2FaI=
 github.com/googleapis/enterprise-certificate-proxy v0.3.25/go.mod h1:hEjCmnoakQzv5ImLUp6alkY7XgLlNoAxwTXmhHHNIsI=
@@ -200,8 +198,6 @@ github.com/jcmturner/gofork v1.7.6/go.mod h1:1622LH6i/EZqLloHfE7IeZ0uEJwMSUyQ/nD
 github.com/jcmturner/goidentity/v6 v6.0.1/go.mod h1:X1YW3bgtvwAXju7V3LCIMpY0Gbxyjn/mY9zx4tFonSg=
 github.com/jcmturner/gokrb5/v8 v8.4.4/go.mod h1:1btQEpgT6k+unzCwX1KdWMEwPPkkgBtP+F6aCACiMrs=
 github.com/jcmturner/rpc/v2 v2.0.3/go.mod h1:VUJYCIDm3PVOEHw8sgt091/20OJjskO/YJki3ELg/Hc=
-github.com/jhump/protoreflect v1.16.0 h1:54fZg+49widqXYQ0b+usAFHbMkBGR4PpXrsHc8+TBDg=
-github.com/jhump/protoreflect v1.16.0/go.mod h1:oYPd7nPvcBw/5wlDfm/AVmU9zH9BgqGCI469pGxfj/8=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.5 h1:/o9tlHleP7gOFmsnYNz3RGnqzefHA47wQpKrrdTIwXQ=

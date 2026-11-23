@@ -7,7 +7,6 @@ require (
 	cloud.google.com/go/cloudsqlconn v1.27.0
 	cloud.google.com/go/compute/metadata v0.10.0
 	connectrpc.com/connect v1.21.1
-	connectrpc.com/connect/v2 v2.0.2
 	firebase.google.com/go/v4 v4.19.0
 	github.com/go-jose/go-jose/v4 v4.1.9
 	github.com/jackc/pgerrcode v0.0.0-20250907135507-afb5586c32a6
@@ -71,7 +70,6 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.3 // indirect
-	github.com/jhump/protoreflect v1.16.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
@@ -109,4 +107,4 @@ require (
 	gorm.io/driver/sqlserver v1.5.4 // indirect
 )
 
-tool github.com/googleapis/api-linter/cmd/api-linter
+tool github.com/googleapis/api-linter/v2/cmd/api-linter
