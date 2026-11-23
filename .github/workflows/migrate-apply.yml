@@ -48,7 +48,8 @@ jobs:
       ref: ${{ steps.resolve.outputs.ref }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        if: github.event_name == 'workflow_dispatch'
+        # workflow_call では github.event_name が呼び出し元のもの（workflow_dispatch など）になるため、入力の有無で判定する
+        if: inputs.environments == ''
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -59,7 +60,7 @@ jobs:
           DISPATCH_ENVIRONMENT: ${{ inputs.environment }}
           REF: ${{ inputs.ref }}
         run: |
-          if [ "$GITHUB_EVENT_NAME" != "workflow_dispatch" ]; then
+          if [ -n "$CALL_ENVIRONMENTS" ]; then
             echo "environments=${CALL_ENVIRONMENTS}" >> "$GITHUB_OUTPUT"
             echo "ref=${REF}" >> "$GITHUB_OUTPUT"
             exit 0
