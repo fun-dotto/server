@@ -235,7 +235,7 @@ func (s *NotificationService) sendToTokens(ctx context.Context, n domain.Notific
 	for start := 0; start < len(tokens); start += fcmMulticastBatchSize {
 		end := min(start+fcmMulticastBatchSize, len(tokens))
 		msg := &messaging.MulticastMessage{
-			Tokens:       tokens[start:end],
+			Tokens:       tokens[start:end], //nolint:staticcheck // FCM 登録トークンを送信するため Tokens を使う（FIDs は Firebase Installation ID 用）
 			Notification: notification,
 			Data:         data,
 			Android:      androidConfig,
