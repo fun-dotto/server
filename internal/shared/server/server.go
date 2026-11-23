@@ -1,5 +1,5 @@
 // Package server provides the common HTTP server bootstrap (timeouts,
-// graceful shutdown) shared by every API cmd (academic-api, user-api, ...).
+// graceful shutdown) shared by every API cmd (admin-api, app-api).
 package server
 
 import (
