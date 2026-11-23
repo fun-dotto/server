@@ -12,12 +12,11 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 COPY . .
 
-# TODO: BFF廃止後は、admin-apiとapp-apiと各種Jobのみがビルド対象となるように変更する
 RUN --mount=type=cache,target=/go/pkg/mod \
   --mount=type=cache,target=/root/.cache/go-build \
   set -eux; \
   mkdir -p /out/bin; \
-  for cmd in academic-api admin-api app-api app-bff-api build-class-change-notifications-job dispatch-notifications-job user-api; do \
+  for cmd in admin-api app-api build-class-change-notifications-job dispatch-notifications-job; do \
   CGO_ENABLED=0 GOOS=linux \
   go build -tags timetzdata -trimpath -ldflags='-s -w' \
   -o /out/bin/${cmd} ./cmd/${cmd}; \

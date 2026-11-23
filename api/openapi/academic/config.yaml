@@ -1,9 +1,0 @@
-package: api
-generate:
-  client: true
-  gin-server: true
-  models: true
-  strict-server: true
-output: gen/academic/api.gen.go
-compatibility:
-  enable-auth-scopes-on-context: true

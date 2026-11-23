@@ -38,8 +38,8 @@ portless は 4000-4999 の空きポートを環境変数 `PORT` で子プロセ�
   macOS / Linux では 443 を bind するために `sudo` へ自動昇格するのでパスワードを求められる。
   手動で信頼させたい場合は `portless trust` を実行する。
 - Safari は `.localhost` を自動解決しないため、`portless hosts sync` で `/etc/hosts` に追記する。
-- portless を使わず素の HTTP で起動したい場合は `go run ./cmd/academic-api` を直接実行する
-  (`:8080` で待ち受ける)。`PORT=3000 go run ./cmd/academic-api` のように上書きも可能。
+- portless を使わず素の HTTP で起動したい場合は `go run ./cmd/app-api` を直接実行する
+  (`:8080` で待ち受ける)。`PORT=3000 go run ./cmd/app-api` のように上書きも可能。
 - ベース名は `portless.json` の `name` (= `dotto`) で定義している。git worktree を使うと
   ブランチ名がサブドメインの接頭辞として自動で付与され、worktree ごとに別 URL になる。
 

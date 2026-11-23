@@ -24,7 +24,6 @@ zizmor = "1.32.0"
 description = "依存関係をセットアップする"
 run = [
   { task = "rulesync" },
-  "go get -tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest",
   "go mod tidy",
 ]
 
@@ -36,19 +35,13 @@ run = "rulesync generate"
 description = "API定義からコードを生成する"
 run = [
   "buf generate",
-  "go tool oapi-codegen -config ./api/openapi/academic/config.yaml ./api/openapi/academic/openapi.yaml",
-  "go tool oapi-codegen -config ./api/openapi/app/config.yaml ./api/openapi/app/openapi.yaml",
-  "go tool oapi-codegen -config ./api/openapi/user/config.yaml ./api/openapi/user/openapi.yaml",
 ]
 
 [tasks.build]
 description = "ビルドを実行する"
 run = [
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/academic-api ./cmd/academic-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/admin-api ./cmd/admin-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/app-api ./cmd/app-api",
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/app-bff-api ./cmd/app-bff-api",
-  "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/user-api ./cmd/user-api",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/build-class-change-notifications-job ./cmd/build-class-change-notifications-job",
   "go build -tags timetzdata -trimpath -ldflags='-s -w' -o ./bin/dispatch-notifications-job ./cmd/dispatch-notifications-job",
 ]
@@ -118,10 +111,6 @@ arg "env" help="適用先の環境 (dev / stg / prd)"
 '''
 run = 'atlas migrate apply --env {{arg(name="env")}}'
 
-[tasks."run:academic-api"]
-description = "academic-api を 起動する (https://academic-api.dotto.localhost)"
-run = "portless academic-api.dotto go run ./cmd/academic-api"
-
 [tasks."run:admin-api"]
 description = "admin-api を起動する (https://admin-api.dotto.localhost)"
 run = "portless admin-api.dotto go run ./cmd/admin-api"
@@ -129,14 +118,6 @@ run = "portless admin-api.dotto go run ./cmd/admin-api"
 [tasks."run:app-api"]
 description = "app-api を起動する (https://app-api.dotto.localhost)"
 run = "portless app-api.dotto go run ./cmd/app-api"
-
-[tasks."run:app-bff-api"]
-description = "app-bff-api を起動する (https://app-bff-api.dotto.localhost)"
-run = "portless app-bff-api.dotto go run ./cmd/app-bff-api"
-
-[tasks."run:user-api"]
-description = "user-api を 起動する (https://user-api.dotto.localhost)"
-run = "portless user-api.dotto go run ./cmd/user-api"
 
 [tasks."portless:doctor"]
 description = "portless のプロキシ・DNS・CA 信頼状態を確認する"

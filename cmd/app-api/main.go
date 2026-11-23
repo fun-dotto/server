@@ -112,7 +112,7 @@ func main() {
 	mux.Handle(appv1connect.NewTimetableItemServiceHandler(h, opts))
 	mux.Handle(appv1connect.NewUserServiceHandler(h, opts))
 	mux.Handle(appv1connect.NewFcmTokenServiceHandler(h, opts))
-	// バスの運行情報・学食のメニューは app-bff-api と同じく未実装（UNIMPLEMENTED を返す）。
+	// バスの運行情報・学食のメニューは未実装（UNIMPLEMENTED を返す）。
 	mux.Handle(appv1connect.NewBusTripServiceHandler(appv1connect.UnimplementedBusTripServiceHandler{}, opts))
 	mux.Handle(appv1connect.NewBusTimetableStopServiceHandler(appv1connect.UnimplementedBusTimetableStopServiceHandler{}, opts))
 	mux.Handle(appv1connect.NewMenuItemServiceHandler(appv1connect.UnimplementedMenuItemServiceHandler{}, opts))
