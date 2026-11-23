@@ -84,10 +84,10 @@ type stubMessagingClient struct {
 
 func (s *stubMessagingClient) SendEachForMulticast(ctx context.Context, msg *messaging.MulticastMessage) (*messaging.BatchResponse, error) {
 	s.calls++
-	tokens := append([]string{}, msg.Tokens...)
+	tokens := append([]string{}, msg.Tokens...) //nolint:staticcheck // FCM 登録トークンを送信するため Tokens を使う（FIDs は Firebase Installation ID 用）
 	s.tokenCalls = append(s.tokenCalls, tokens)
 	if s.send == nil {
-		responses := make([]*messaging.SendResponse, len(msg.Tokens))
+		responses := make([]*messaging.SendResponse, len(msg.Tokens)) //nolint:staticcheck // FCM 登録トークンを送信するため Tokens を使う（FIDs は Firebase Installation ID 用）
 		for i := range responses {
 			responses[i] = &messaging.SendResponse{Success: true, MessageID: "msg"}
 		}
@@ -270,8 +270,8 @@ func TestDispatchNotifications_PartialFCMFailure(t *testing.T) {
 		}, nil
 	}}
 	msg := &stubMessagingClient{send: func(_ context.Context, m *messaging.MulticastMessage) (*messaging.BatchResponse, error) {
-		responses := make([]*messaging.SendResponse, len(m.Tokens))
-		for i, tk := range m.Tokens {
+		responses := make([]*messaging.SendResponse, len(m.Tokens)) //nolint:staticcheck // FCM 登録トークンを送信するため Tokens を使う（FIDs は Firebase Installation ID 用）
+		for i, tk := range m.Tokens {                               //nolint:staticcheck // FCM 登録トークンを送信するため Tokens を使う（FIDs は Firebase Installation ID 用）
 			if tk == "tok-u2" {
 				responses[i] = &messaging.SendResponse{Error: errors.New("invalid token")}
 			} else {
