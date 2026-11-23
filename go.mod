@@ -7,7 +7,6 @@ require (
 	cloud.google.com/go/cloudsqlconn v1.27.0
 	cloud.google.com/go/compute/metadata v0.10.0
 	connectrpc.com/connect v1.21.1
-	connectrpc.com/connect/v2 v2.0.2
 	firebase.google.com/go/v4 v4.19.0
 	github.com/getkin/kin-openapi v0.153.0
 	github.com/gin-contrib/timeout v1.2.5
@@ -91,7 +90,6 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.3 // indirect
-	github.com/jhump/protoreflect v1.16.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -150,6 +148,6 @@ require (
 )
 
 tool (
-	github.com/googleapis/api-linter/cmd/api-linter
+	github.com/googleapis/api-linter/v2/cmd/api-linter
 	github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
 )
