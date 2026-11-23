@@ -109,7 +109,7 @@ jobs:
             fi
             TAGS=$(gcloud artifacts docker images list "$REPO" --include-tags \
               --filter="version=$DIGEST" --format='value(tags)')
-            COMMIT=$(echo "$TAGS" | tr ',; ' '\n\n\n' | grep -E '^[0-9a-f]{40}$' | head -n 1 || true)
+            COMMIT=$(echo "$TAGS" | tr ',; ' '\n' | grep -E '^[0-9a-f]{40}$' | head -n 1 || true)
             if [ -z "$COMMIT" ]; then
               echo "::error::latest ($DIGEST) に対応するコミット SHA のタグが見つかりません: $TAGS"
               exit 1
