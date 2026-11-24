@@ -210,7 +210,9 @@ func toProtoSubjectDetail(s *model.Subject) *appv1.Subject {
 
 func toProtoSyllabus(s *model.Syllabus) *appv1.SubjectSyllabus {
 	return &appv1.SubjectSyllabus{
-		Id:                           s.ID.String(),
+		// アプリ v2.3.0 は id を授業コードとみなして過去問・レビューを引くため、暫定的に lesson_id を返す。
+		// TODO: lesson_id を使うアプリが行き渡ったら s.ID.String() に戻す
+		Id:                           s.LessonID,
 		LessonId:                     s.LessonID,
 		Year:                         int32(s.Year),
 		Name:                         s.Name,
