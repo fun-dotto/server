@@ -33,8 +33,14 @@ func (r *NotificationRepository) UpdateNotification(ctx context.Context, notific
 
 		dbNotification = notificationFromDomain(notification)
 
-		if err := tx.Save(&dbNotification).Error; err != nil {
-			return err
+		// Save は created_at までゼロ値で上書きするので使わない。
+		// Select("*") でゼロ値・nil のフィールドも更新対象にし、updated_at は autoUpdateTime で更新される。
+		res := tx.Select("*").Omit("created_at").Updates(&dbNotification)
+		if res.Error != nil {
+			return res.Error
+		}
+		if res.RowsAffected == 0 {
+			return domain.ErrNotFound
 		}
 
 		var existingTargets []model.NotificationTargetUser
