@@ -21,6 +21,11 @@ message CourseRegistration {
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   // 科目。
   Subject subject = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // ログイン中のユーザーにとっての必修区分。次の場合は UNSPECIFIED。
+  // - ユーザーの学年・コース・クラスに未登録の項目がある（1 年生のコースと、院生のクラスは除く）
+  // - ユーザーが科目の対象学年・クラスに含まれない
+  // - 科目にユーザーのコースの必修区分がない。コースが未登録の 1 年生は、全コースで区分が同じ科目だけ設定する
+  SubjectRequirementType requirement_type = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ListCourseRegistrations の Request。
