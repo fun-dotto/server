@@ -14,7 +14,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/shopspring/decimal v1.6.0
 	golang.org/x/tools v0.53.0
-	google.golang.org/api v0.316.0
+	google.golang.org/api v0.317.0
 	google.golang.org/genproto v0.0.0-20261118221215-c8830f628b3f
 	google.golang.org/genproto/googleapis/api v0.0.0-20261118221215-c8830f628b3f
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20261118221215-c8830f628b3f
